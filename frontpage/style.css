@@ -1,0 +1,103 @@
+body
+{
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+  font-family:  "Helvetica Neue" ,Arial, sans-serif;
+  color: #fff;
+  font-size: 0.9em;
+}
+
+p
+{
+  font-size: 0.8em;
+}
+
+#header
+{
+  position: absolute;
+  top: -80px;
+  left: 10px;
+  font-weight: bold;
+  font-size: 2em;
+  color: #fff;
+}
+
+#mainMenu
+{
+  position: absolute;
+  top: 25%;
+  left: 20%;
+  color: #777;
+  background-color: White;
+  font-weight: bold;
+  font-size: 2em;
+}
+
+#followButtons
+{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #777;
+  font-size: 1em;
+}
+
+#footer
+{
+  position: absolute;
+  top: 10px;
+  left: 43%;
+  color: #fff;
+  font-size: 1em;
+}
+
+a
+{
+  color: #e70;
+  text-decoration: none;
+}
+
+a:hover
+{
+  color: #d00;
+}
+
+.limitWidth
+{
+  width: 70%;
+}
+
+.scrollWindow
+{
+  padding: .3em;
+  margin: 0 0 12px 0;
+  border: 2px solid #eee;
+  background: #333;
+  -webkit-border-radius: .3em;
+  -moz-border-radius: .3em;
+  border-radius: .3em;
+  font-size: 1.2em;
+  max-height: 90%; /* sets max-height value for all standards-compliant browsers */
+  overflow: auto;
+}
+
+::-webkit-scrollbar
+{
+  width: 12px;
+}
+
+::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb
+{
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+

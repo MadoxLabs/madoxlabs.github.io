@@ -1,5 +1,100 @@
+
+<!DOCTYPE HTML>
 <html>
-<body>
-Test
-</body>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>Madox Labs - DirectX Games</title>
+
+        <script type="text/javascript" src="frontpage/jquery.min.js"></script>
+        <script type="text/javascript" src="frontpage/jquery.history.js"></script> 
+        <script type="text/javascript" src="frontpage/slippy.js"></script>
+        <script type="text/javascript" src="frontpage/lightbox.js"></script>
+
+        <link type="text/css" rel="stylesheet" href="frontpage/slippy.css"/>
+        <link type="text/css" rel="stylesheet" href="frontpage/slippy-pure.css"/> 
+        <link type="text/css" rel="stylesheet" href="frontpage/lightbox.css"/>
+        <link type="text/css" rel="stylesheet" href="frontpage/fonts.css" charset="utf-8">
+        <link type="text/css" rel="stylesheet" href="frontpage/style.css" charset="utf-8" />
+
+    <script type="text/javascript">
+      $(function ()
+      {
+        $(".slide").slippy({});
+      });
+
+      animImage = new Image();
+      animImage.src = "frontpage/animatedlogo.gif";
+      staticImage = new Image();
+      staticImage.src = "frontpage/logo.jpg";
+    </script>
+  </head>
+
+  <body>
+    <div id='header'><a href='#1' onmouseover="logo.src=animImage.src;" onmouseout="logo.src=staticImage.src;"><img name="logo" src="frontpage/logo.jpg" /></a></div>
+
+    <div class="slide" ><div class="scrollWindow">
+      <a href='#2'><h2>Noise Tool</h2></a><p>GUI for manipulating Perlin Noise</p><br />
+      <a href='#3'><h2>CodeImage</h2></a><p>A way to encode javascript in images</p><br />
+      <a href='#4'><h2>DXFrame</h2></a><p>A DirectX 11 framework that works in both desktop and metro</p><br />
+    </div></div>
+
+    <div class="slide"><div class="scrollWindow">
+      <img src="frontpage/noisetitle.jpg" /><br />
+      <p>NoiseTool is a front end for the LibNoise library that lets you manipulate noise modules and view their output in realtime, by connecting outputs to sources. It can apply colour gradients to the data to create bitmap image representations, much like the original noise library utils can do.</p>
+      <br />
+      <p>I use this noise library a lot to create heightmaps, voxel maps and procedural textures, and I got tired of playing with numbers in code and not really getting to see what it is that the numbers are doing without rendering the whole scene in game. I created this tool to help me see exactly what types of images I will get, if certain noise modules are connected a certain way.</p>
+      <br />
+      <a href="https://github.com/downloads/MadoxLabs/NoiseTool/NoiseTool.rar">Download NoiseTool</a><br />
+      <a href="https://github.com/MadoxLabs/NoiseTool/">NoiseTool repository</a><br />
+      <a href="https://github.com/MadoxLabs/NoiseTool/wiki">NoiseTool documentation</a><br />
+      <br />
+      <a href="frontpage/noiseimage1.jpg" rel="lightbox" title="NoiseTool Example"><img width=200 src='frontpage/noiseimage1.jpg' class=scale></a>
+      <a href="frontpage/noiseimage2.jpg" rel="lightbox" title="NoiseTool Terrain"><img width=200 src='frontpage/noiseimage2.jpg' class=scale></a>
+    </div><h1><a href='#1'>Home</a></h1></div>
+
+    <div class="slide"><div class="scrollWindow">
+      <h2>CodeImage</h2><br />
+      <p>CodeImage lets you encode javascript into an image. Webpages can load and run code directly from the image.</p>
+      <br />
+      <a href="http://madoxlabs.github.io/CodeImage">More information here</a><br />
+    </div><h1><a href='#1'>Home</a></h1></div>
+
+    <div class="slide"><div class="scrollWindow">
+      <h2>DXFrame</h2><br />
+      <p>DXFrame is a framework for DirectX11 that let your app target windowed mode or metro mode from a single codebase. This projecti s in the early stages and there is not a lot of talk about yet.</p>
+      <br />
+      <a href="https://github.com/MadoxLabs/DXFrame/">DXFrame repository</a><br />
+    </div><h1><a href='#1'>Home</a></h1></div>
+    
+    <div class='slide'><div class="scrollWindow">
+      <h2>Contact</h2><br />
+      You can get in touch with me several ways:<br /><br />
+      Email: <a href='mailto:madoxlabs@gmail.com'>madoxlabs@gmail.com</a><br />
+      Twitter: <a href="http://twitter.com/madoxlabs">@madoxlabs</a><br />
+      YouTube: <a href="http://www.youtube.com/user/madoxlabs"> MadoxLabs Channel</a><br />
+      GitHub: <a href="https://github.com/MadoxLabs">MadoxLabs Repositories</a>
+    </div><h1><a href='#1'>Home</a></h1></div>
+
+    <div class='slide'><div class="scrollWindow">
+      <h2>About</h2><br />
+      <p>I have been programming for as long as I can remember, and doing it professionally since 1996. I am mostly self taught, having discovered C in highschool on my own before studying Comp Sci in university, but am always learning and reading about new stuff to get better. Most of my time has been spent with C++ in Unix and Windows, but I have been known to work with anything that looks cool: Java, PHP, Lua, Lisp, JS, Perl - Even Prolog was cool one summer. I am very interested in procedural algorithms and genetic software that can evolve itself. Since I don't have time for making game levels or scripting AI, its easier if the game can do that itself!</p>
+      <br />
+      <p>Which brings us to gaming. I've been trying to write my own games since grade 8 with varied success. Most games are nothing more than a tech demo that never goes anywhere but its all important steps in learning. I don't like using game engines and prefer to discover how to do everything myself from scratch. Over the last decade I've taught myself DirectX, HLSL, C# and XNA programming (no I don't do OpenGL!), as well as PhysX and other physics engine SDKs. I've branched out into doing XBox and WindowsPhone development since its very easy to get stuff to market there. I've managed to get a few complete games done in the last year or so and feel being able to complete something bigger isn't too far off.</p>
+      <br />
+      <p>The name Madox come from the japanese animation 'Madox-01 Metal Skin Panic'. It is about a dude that jumps into something he doesn't understand, tries to figure it out himself and makes a big mess - which is generally how I feel when it comes to DirectX stuff!</p>
+      <br />
+      <p>I am unrelated to The Best Page in the Universe.</p>
+    </div><h1><a href='#1'>Home</a></h1></div>
+
+    <div id='footer'>
+      <a href='#8'>Contact</a> | 
+      <a href='#9'>About</a>
+    </div>
+
+    <div id="followButtons">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/follow_button.1345016233.html#_=1345171922532&amp;id=twitter-widget-0&amp;lang=en&amp;screen_name=madoxlabs&amp;show_count=false&amp;show_screen_name=false&amp;size=l" class="twitter-follow-button" style="width: 81px; height: 28px; " title="Twitter Follow Button"></iframe>
+        <script>          !function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = "//platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); } }(document, "script", "twitter-wjs");</script>
+    </div>
+  </body>
 </html>
+
