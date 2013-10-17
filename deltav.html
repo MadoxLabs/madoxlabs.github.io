@@ -1,0 +1,674 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Kerbal Delta-V Calculator</title>
+
+  <style type="text/css">
+    .noIbar {
+      cursor: default;
+    }
+  </style>
+
+  <script type="text/javascript">
+    var parts = [{ name: "--- PODS ---" },
+//    { name: "Probodobodyne QBE", massdry: 0.08 },
+//    { name: "Probodobodyne OKTO", massdry: 0.1 },
+//    { name: "Probodobodyne OKTO2", massdry: 0.04 },
+//    { name: "Stayputnik Mk. 2", massdry: 0.05 },
+    { name: "Command Pod Mk1", massdry: 0.8 },
+//    { name: "Cockpit Mk1", massdry: 1.25 },
+//    { name: "Cockpit Mk2", massdry: 1 },
+//    { name: "Cockpit Mk3", massdry: 3.5 },
+//    { name: "Mk2 Lander-can", massdry: 2.5 },
+//    { name: "Command Pod Mk1-2", massdry: 4 },
+    { name: "--- SOLID ROCKET BOOSTERS ---" },
+    { name: "RT-10 Solid Fuel Booster", massdry: 0.5, masswet: 3.7475, thrust: 250, isp: 225, ispV: 240 },
+    { name: "Rockomax BACC Solid Fuel Booster", massdry: 1.5, masswet: 7.875, thrust: 315, isp: 230, ispV: 250 },
+    { name: "Sepratron I", massdry: 0.0125, masswet: 0.0725, thrust: 18, isp: 100, ispV: 100 },
+    { name: "--- LIQUID ENGINES ---" },
+//    { name: "LV-1 Liquid Fuel Engine", massdry: 0.03, thrust: 1.5, isp: 220, ispV: 290 },
+    { name: "LV-T30 Liquid Fuel Engine", massdry: 1.25, thrust: 215, isp: 320, ispV: 370 },
+    { name: "LV-T45 Liquid Fuel Engine", massdry: 1.5, thrust: 200, isp: 320, ispV: 370 },
+    { name: "LV-909 Liquid Fuel Engine", massdry: 0.5, thrust: 50, isp: 300, ispV: 390 },
+//    { name: "Toroidal Aerospike Rocket", massdry: 1.5, thrust: 175, isp: 388, ispV: 390 },
+//    { name: "LV-N Atomic Rocket Engine", massdry: 2.25, thrust: 60, isp: 220, ispV: 800 },
+//    { name: "Rockomax Poodle Liquid Engine", massdry: 2.5, thrust: 220, isp: 270, ispV: 390 },
+//    { name: "Rockomax Mainsail Liquid Engine", massdry: 6, thrust: 1500, isp: 280, ispV: 330 },
+//    { name: "Rockomax Mark 55 Radial Mount Liquid Engine", massdry: 0.9, thrust: 120, isp: 290, ispV: 320 },
+//    { name: "Rockomax 24-77", massdry: 0.09, thrust: 20, isp: 250, ispV: 300 },
+    { name: "--- JET ENGINES ---" },
+//    { name: "Basic Jet Engine", massdry: 1, thrust: 100, isp: 7282, ispV: 0 },
+//    { name: "Turbo Jet Engine", massdry: 1.2, thrust: 150, isp: 8192, ispV: 0 },
+    { name: "--- LIQUID FUEL TANKS ---" },
+//  	{ name: "Round-8 Toroidal Fuel Tank", masswet: 0.136, massdry: 0.025 },
+//    { name: "Oscar-B Fuel Tank", masswet: 0.078675, massdry: 0.015 },
+    { name: "FL-T100 Fuel Tank", masswet: 0.5625, massdry: 0.0625 },
+    { name: "FL-T200 Fuel Tank", masswet: 1.125, massdry: 0.125 },
+    { name: "FL-T400 Fuel Tank", masswet: 2.25, massdry: 0.25 },
+//    { name: "FL-T800 Fuel Tank", masswet: 4.5, massdry: 0.5 },
+//    { name: "Rockomax X200-8 Fuel Tank", masswet: 4.5, massdry: 0.6 },
+//    { name: "Rockomax X200-16 Fuel Tank", masswet: 9, massdry: 1 },
+//    { name: "Rockomax X200-32 Fuel Tank", masswet: 18, massdry: 2 },
+//    { name: "Rockomax Jumbo 64 Fuel Tank", masswet: 36, massdry: 4 },
+    { name: "--- JET FUEL FUSELAGES ---" },
+//    { name: "Structural Fuselage", massdry: 0.4, masswet: 0.4 },
+//    { name: "MK1 Fuselage", massdry: 0.35, masswet: 1.1 },
+//    { name: "MK2 Fuselage", massdry: 0.2, masswet: 1 },
+//    { name: "MK3 Fuselage", massdry: 0.3, masswet: 1.5 },
+//    { name: "MK2 To Small Size Adapter", massdry: 0.1, masswet: 0.5 },
+//    { name: "MK3 To MK2 Adapter", massdry: 0.2, masswet: 1 },
+    { name: "--- RCS FUEL TANKS ---" },
+//    { name: "FL-R25 RCS Fuel Tank", massdry: 0.55, masswet: 0.55 },
+//    { name: "FL-R1 RCS Fuel Tank", massdry: 3.4, masswet: 3.4 },
+//    { name: "Stratus-V Roundified Monopropellant Tank", massdry: 0.235, masswet: 0.235 },
+    { name: "--- CONTROL ---" },
+//    { name: "S.A.S. Module", massdry: 0.07 },
+//    { name: "Advanced S.A.S. Module", massdry: 0.1 },
+//    { name: "Advanced S.A.S. Module  Large", massdry: 0.5 },
+//    { name: "Avionics Package", massdry: 0.08 },
+//    { name: "RV-105 RCS Thruster Block", massdry: 0.05 },
+//    { name: "Linear RCS Port", massdry: 0.05 },
+{ name: "--- SEPERATORS ---", },
+{ name: "TT-38K Radial Decoupler", massdry: 0.025 },
+//{ name: "Hydraulic Detachment Manifold", massdry: 0.4 },
+{ name: "TT-70 Radial Decoupler", massdry: 0.05 },
+//{ name: "Structural Pylon", massdry: 0.2 },
+//{ name: "Rockomax Brand Decoupler", massdry: 0.5 },
+{ name: "TR-18A Stack Decoupler", massdry: 0.05 },
+//{ name: "TR-2V Stack Decoupler", massdry: 0.015 },
+//{ name: "TR-18D Stack Separator", massdry: 0.075 },
+//{ name: "TR-XL Stack Separator", massdry: 0.45 },
+//{ name: "TR-2C Stack Separator", massdry: 0.02 },
+{ name: "--- STRUCTURE ---", },
+//{ name: "NCS Adapter", massdry: 0.3 },
+//{ name: "Rockomax Brand Adapter", massdry: 0.1 },
+//{ name: "Tail Connector", massdry: 0.4 },
+//{ name: "Small Hardpoint", massdry: 0.1 },
+{ name: "TVR-1180C Mk1 Stack Tri-Coupler", massdry: 0.3 },
+{ name: "EAS-4 Strut Connector", massdry: 0.05 },
+//{ name: "FTX-2 External Fuel Duct", massdry: 0.05 },
+//{ name: "Cubic Octagonal Strut", massdry: 0.001 },
+//{ name: "Modular Girder Adapter", massdry: 0.25 },
+{ name: "Modular Girder Segment", massdry: 0.125 },
+//{ name: "Modular Girder Segment XL", massdry: 0.6 },
+//{ name: "Octagonal strut", massdry: 0.001 },
+//{ name: "Rockomax Brand Adapter", massdry: 50 },
+//{ name: "Rockomax Hubmax Multi-Point Connector", massdry: 1.5 },
+//{ name: "M-Beam 650 I-Beam", massdry: 0.08 },
+//{ name: "M-Beam 200 I-Beam", massdry: 0.375 },
+//{ name: "M-Beam 200 I-Beam Pocket Edition", massdry: 0.1875 },
+//{ name: "The Not-Rockomax Micronode", massdry: 0.15 },
+//{ name: "M-1x1 Structural Panel", massdry: 0.075 },
+//{ name: "M-2x2 Structural Panel", massdry: 0.3 },
+//{ name: "BZ-52 Radial Attachment Point", massdry: 0.04 },
+//{ name: "Probodobodyne RoveMate", massdry: 0.15 },
+//{ name: "TVR-200 Stack Bi-Coupler", massdry: 0.1 },
+{ name: "--- SUPPORT ---", },
+//{ name: "TT18-A Launch Stability Enhancer", massdry: 5000 },
+{ name: "--- JET ENGINE BODIES ---", },
+//{ name: "Circular Intake", massdry: 0.01 },
+//{ name: "Ram Air Intake", massdry: 0.01 },
+//{ name: "Engine Nacelle", massdry: 0.3 },
+//{ name: "Radial Engine Body", massdry: 0.3 },
+//{ name: "Radial Air Intake", massdry: 0.1 },
+{ name: "--- NOSE CONES ---", },
+//{ name: "Standard NC", massdry: 0.1 },
+{ name: "Aerodynamic Nose Cone", massdry: 0.03 },
+//{ name: "Protective rocket nose mk7", massdry: 0.4 },
+{ name: "--- WINGS ---", },
+//{ name: "Delta Wing", massdry: 0.07 },
+{ name: "AV-T1 Winglet", massdry: 0.05 },
+//{ name: "Swept Wings", massdry: 0.05 },
+//{ name: "Tail Fin        500", massdry: 0.3 },
+//{ name: "Structural Wing", massdry: 0.05 },
+//{ name: "Wing Connector", massdry: 0.05 },
+{ name: "--- CONTROL SURFACES ---", },
+//{ name: "AV-R8 Winglet", massdry: 0.08 },
+//{ name: "Standard Canard", massdry: 0.04 },
+//{ name: "Advanced Canard", massdry: 0.04 },
+//{ name: "Standard Control Surface", massdry: 0.04 },
+//{ name: "Small Control Surface", massdry: 0.01 },
+//{ name: "Delta-Deluxe Winglet", massdry: 0.02 },
+{ name: "--- LANDING GEAR ---", },
+{ name: "LT-1 Landing Strut", massdry: 0.05 },
+//{ name: "LT-2 Landing Strut", massdry: 0.1 },
+//{ name: "Landing Gear", massdry: 0.5 },
+//{ name: "Lt-5 Micro Landing Strut", massdry: 0.015 },
+{ name: "--- PARACHUTE ---", },
+{ name: "Mk16 Parachute", massdry: 0.1 },
+//{ name: "Mk16-XL Parachute", massdry: 0.3 },
+{ name: "Mk2-R Radial mount parachute", massdry: 0.15 },
+//{ name: "Mk25 parachute", massdry: 0.2 },
+{ name: "--- LADDERS ---", },
+//{ name: "Pegasus I Mobility Enhancer", massdry: 0.005 },
+//{ name: "Telus Mobility Enhancer", massdry: 0.005 },
+//{ name: "Telus-LV Bay Mobility Enhancer", massdry: 0.005 },
+{ name: "--- ELECTRICAL ---", },
+//{ name: "Gigantor XL Solar Array", massdry: 0.14 },
+//{ name: "OX-4 Photovoltaic Panels", massdry: 0.0175 },
+//{ name: "OX-4B Photovoltaic Panels", massdry: 0.0175 },
+//{ name: "Illuminator mk1", massdry: 0.015 },
+//{ name: "Illuminator mk2", massdry: 0.015 },
+//{ name: "OX-STAT Photovolatic panels", massdry: 0.005 },
+//{ name: "PB-NUK Radioisotope Thermoelectric Generator", massdry: 0.175 },
+//{ name: "SP-A Photovolatic Panels", massdry: 0.025 },
+//{ name: "SP-B Photovolatic Panels", massdry: 0.025 },
+{ name: "Z-100 Rechargable Battery Bank", massdry: 0.005 },
+//{ name: "Z-500 Rechargable Battery Bank", massdry: 0.05 },
+//{ name: "Z-400 Rechargable Battery Bank", massdry: 0.02 },
+{ name: "--- XENON ---", },
+//{ name: "PB-Ion Electric Propulsion System", massdry: 0.25 },
+//{ name: "PB-X150 Xenon Container", massdry: 0.12 },
+{ name: "--- DOCKING ---", },
+//{ name: "Clamp-o-tron Docking Port", massdry: 0.05 },
+//{ name: "Clamp-o-tron Jr.", massdry: 0.02 },
+//{ name: "Clamp-o-tron Shielded Docking Port", massdry: 0.1 },
+//{ name: "Hull-mounted Clamp-o-tron", massdry: 0.125 },
+//{ name: "PPD-10 Hitchhiker Storage Container", massdry: 2.5 },
+{ name: "--- SCIENCE ---", },
+{ name: "Communotron 16", massdry: 0.005 },
+{ name: "Comms DTS-M1", massdry: 0.03 },
+{ name: "SC 9001 Science Jr", massdry: 0.2 },
+{ name: "Mystery Goo", massdry: 0.15 },
+//{ name: "Communotron 88-88", massdry: 0.005 },
+//{ name: "Double-C accelerometer", massdry: 0.005 },
+//{ name: "PresMat Barometer", massdry: 0.005 },
+//{ name: "GRAVMAX Negative Gravioli Detector", massdry: 0.005 },
+//{ name: "2HOT Thermometer", massdry: 0.005 }
+    ];
+
+    var stages = [];
+    var dests = [];
+    var selected = 0;
+
+    function init() {
+      var elem = document.getElementById("parts");
+      var str = "";
+      for (var i in parts) {
+        var option = document.createElement("option");
+        option.text = parts[i].name;
+        try { elem.add(option, elem.options[null]); }
+        catch (e) { elem.add(option, null); }
+      }
+      elem.selectedIndex = 0;
+      newStage();
+      setTargets();
+    }
+
+    function newStage() {
+      var stage = {};
+      stage.id = stages.length;
+      stage.selected = 0;
+      stage.atmos = true;
+      stage.parts = [];
+      stage.results = {};
+      stages.push(stage);
+      selected = stage.id;
+      drawStages();
+    }
+
+    function newDest() {
+      var elem = document.getElementById("target");
+      var dest = elem.options[elem.selectedIndex].value;
+      var o = document.getElementById("orbit");
+      var a = document.getElementById("aero");
+      var d = { name: dest, orbit: o.checked, air: a.checked };
+      dests.push(d);
+
+      setTargets();
+      drawDests();
+    }
+
+    function select(stage) {
+      if (selected == stage) {
+        stages[selected].atmos = !stages[selected].atmos;
+        drawStages();
+        calculate();
+      }
+      else {
+        selected = stage;
+        drawStages();
+        drawResults();
+      }
+    }
+
+    function drawStages() {
+      var elem = document.getElementById("stages");
+      var str = "";
+      for (var i in stages) {
+        str += "<table><tr><td><div id='stage" + i + "'>";
+
+        str += "<div class='noIbar' onClick='select(" + i + ");'> ";
+        if (i == selected) str += "<b>Stage " + (stages.length - i) + " - " + (stages[i].atmos ? "Atmosphere" : "Vacuum") + "</b></div>";
+        else str += "Stage " + (stages.length - i) + " - " + (stages[i].atmos ? "Atmosphere" : "Vacuum") + "</div>";
+
+        str += "<select id='stage" + i + "parts' size=" + stages[i].parts.length + ">";
+        for (var x in stages[i].parts) {
+          str += "<option value=" + x + " " + (stages[i].selected == x ? "selected" : "") + ">" + parts[stages[i].parts[x]].name + "</option>";
+        }
+        str += "</select></div></td><td><div id='results" + i + "'></div></td></tr></table>";
+      }
+      elem.innerHTML = str;
+    }
+
+    function addPart() {
+      var elem = document.getElementById("parts");
+      var part = elem.selectedIndex;
+      if (parts[part].name.charAt(0) == '-') return;
+      stages[selected].parts.push(part);
+      drawStages();
+      calculate();
+    }
+
+    function removePart() {
+      var elem = document.getElementById("stage" + selected + "parts");
+      stages[selected].selected = elem.selectedIndex - 1;
+      if (stages[selected].selected < 0) stages[selected].selected = 0;
+      stages[selected].parts.splice(elem.selectedIndex, 1);
+      drawStages();
+      calculate();
+    }
+
+    function calculate() {
+      for (var i in stages) {
+        stages[i].results = {};
+        stages[i].results.wetmass = 0;
+        stages[i].results.stagewetmass = 0;
+        stages[i].results.drymass = 0;
+        stages[i].results.stagedrymass = 0;
+        stages[i].results.thrust = 0;
+        stages[i].results.isp = 0;
+
+        for (var j = 0; j < i; ++j) {
+          stages[i].results.drymass += stages[j].results.stagewetmass;
+          stages[i].results.wetmass += stages[j].results.stagewetmass;
+        }
+        var tempisp = 0;
+        for (var x in stages[i].parts) {
+          stages[i].results.stagedrymass += parts[stages[i].parts[x]].massdry;
+          stages[i].results.stagewetmass += (typeof parts[stages[i].parts[x]].masswet == "undefined" ? parts[stages[i].parts[x]].massdry : parts[stages[i].parts[x]].masswet);
+          if (typeof parts[stages[i].parts[x]].thrust != "undefined") {
+            if (stages[i].atmos)
+              tempisp += parts[stages[i].parts[x]].thrust * parts[stages[i].parts[x]].isp;
+            else
+              tempisp += parts[stages[i].parts[x]].thrust * parts[stages[i].parts[x]].ispV;
+            stages[i].results.thrust += parts[stages[i].parts[x]].thrust;
+          }
+        }
+        stages[i].results.isp = (stages[i].results.thrust > 0 ? tempisp / stages[i].results.thrust : 0);
+        stages[i].results.drymass += stages[i].results.stagedrymass;
+        stages[i].results.wetmass += stages[i].results.stagewetmass;
+      }
+      drawResults();
+    }
+
+    function drawResults() {
+      for (var i in stages) {
+        var elem = document.getElementById("results" + i);
+        var str = " Total mass: " + stages[i].results.wetmass + " tons<br>";
+        if (stages[i].results.drymass != stages[i].results.wetmass)
+          str += " Total dry mass: " + stages[i].results.drymass + " tons<br>";
+        str += " Total thrust: " + stages[i].results.thrust + " kN<br>";
+        str += " Total Isp: " + stages[i].results.isp + " s<br>";
+        //        str += " DeltaV: " + (9.81 * stages[i].results.isp * Math.log(stages[i].results.wetmass / stages[i].results.drymass)) + "<br>";
+
+        elem.innerHTML = str;
+      }
+      drawDests();
+    }
+
+    function setTargets() {
+      var start;
+      if (dests.length == 0) start = 'kerbin';
+      else start = dests[dests.length - 1].name;
+      var elem = document.getElementById("target");
+      for (i = elem.options.length - 1; i >= 0; i--) {
+        elem.remove(i);
+      }
+      for (var i in origins[start].dest) {
+        var option = document.createElement("option");
+        option.text = i;
+        try { elem.add(option, elem.options[null]); }
+        catch (e) { elem.add(option, null); }
+      }
+    }
+
+    function drawDests() {
+      var str = "";
+      var out = document.getElementById("dests");
+
+      var loc = 'kerbin';
+      var stage = stages.length - 1;
+      var step = 0;
+
+      var onground = true;
+      var holdover = 0;
+
+      while (true) {
+        if (!onground)
+          str += "<br>Located around " + origins[loc].name + "<br>";
+        else {
+          str += "<br>Located on " + origins[loc].name;
+          var twr = (stages[stage].results.thrust / (stages[stage].results.wetmass * origins[loc].gravity));
+          str += "<br>Thrust:Weight: " + twr + "<br>";
+          if (twr < 1) str += "This ship isn't going anywhere<br>";
+          else if (twr < 2.2) str += "This ship is going to struggle<br>";
+          else str += origins[loc].name + " liftoff OK<br>";
+
+          // escape
+          var dvNeed = origins[loc].escape;
+          var dvHave = holdover;
+          for (var i = stage; i >= 0; --i) {
+            var d = (origins[loc].gravity * stages[i].results.isp * Math.log(stages[i].results.wetmass / stages[i].results.drymass));
+            str += " ( Stage " + (stages.length - i) + " DeltaV: " + d + ")<br>";
+            dvHave += d;
+            if (dvHave > dvNeed) break;
+          }
+          stage = i - 1;
+          if (dvHave < dvNeed) {
+            str += origins[loc].name + " escape into orbit FAIL (need " + (dvNeed - dvHave) + " more)<br>";
+            break;
+          }
+          str += origins[loc].name + " escape into orbit OK<br>";
+          dvHave -= dvNeed;
+        }
+
+        if (step < dests.length) {
+          // transfer to dest
+          var target = dests[step].name;
+          var orbit = dests[step].orbit;
+          var air = dests[step].air;
+          if (!orbit && target == 'sun') { str += " (correction: You cant land on the sun)<br>"; orbit = true; }
+          if (air && origins[target].air == false) { str += " (correction: You cant aerobrake on "+origins[target].name+")<br>"; air = false; }
+
+          dvNeed = origins[loc].dest[target].transfer;
+          if (dvHave < dvNeed) {
+            for (var i = stage; i >= 0; --i) {
+              var d = (origins[loc].gravity * stages[i].results.isp * Math.log(stages[i].results.wetmass / stages[i].results.drymass));
+              str += " ( Stage " + (stages.length - i) + " DeltaV: " + d + ")<br>";
+              dvHave += d;
+              if (dvHave > dvNeed) break;
+            }
+            stage = i - 1;
+          }
+          if (dvHave < dvNeed) {
+            str += origins[loc].name + " transfer to " + origins[target].name + " FAIL (need " + (dvNeed - dvHave) + " more)<br>";
+            break;
+          }
+          str += origins[loc].name + " transfer to " + origins[target].name + " OK<br>";
+          dvHave -= dvNeed;
+
+          // orbit dest
+          dvNeed = air ? 0 : origins[loc].dest[target].orbit;
+          if (dvHave < dvNeed) {
+            for (var i = stage; i >= 0; --i) {
+              var d = (origins[loc].gravity * stages[i].results.isp * Math.log(stages[i].results.wetmass / stages[i].results.drymass));
+              str += " ( Stage " + (stages.length - i) + " DeltaV: " + d + ")<br>";
+              dvHave += d;
+              if (dvHave > dvNeed) break;
+            }
+            stage = i - 1;
+          }
+          if (dvHave < dvNeed) {
+            str += "Orbit " + origins[target].name + " FAIL (need " + (dvNeed - dvHave) + " more)<br>";
+            break;
+          }
+          str += "Orbit " + origins[target].name + " OK<br>";
+          dvHave -= dvNeed;
+        }
+
+        // report on left over
+        step++;
+        if (orbit) {
+          holdover = dvHave;
+          onground = false;
+          if (step >= dests.length) break;
+        }
+        else {
+          str += "DeltaV remaining for landing: " + dvHave + "<br>";
+          onground = true;
+          if (step >= dests.length) break;
+          else
+            if (stage < 0) {
+              str += "Out of fuel. Unable to travel to ";
+              for (var i = step; i < dests.length; ++i) str += origins[dests[i].name].name + ", ";
+              break;
+            }
+        }
+        loc = dests[step - 1].name;
+      }
+      out.innerHTML = str;
+    }
+
+    var kerbin = {};
+    kerbin.air = true;
+    kerbin.gravity = 9.81;
+    kerbin.escape = 4500;
+    kerbin.name = "Kerbin";
+    kerbin.dest = [];
+    kerbin.dest['mun'] = {};
+    kerbin.dest['mun'].transfer = 860;
+    kerbin.dest['mun'].orbit = 210;
+    kerbin.dest['minmus'] = {};
+    kerbin.dest['minmus'].transfer = 920;
+    kerbin.dest['minmus'].orbit = 80;
+    kerbin.dest['sun'] = {};
+    kerbin.dest['sun'].transfer = 950;
+    kerbin.dest['sun'].orbit = 0;
+
+    var mun = {};
+    mun.air = false;
+    mun.gravity = 1.63;
+    mun.escape = 640;
+    mun.name = "Mun";
+    mun.dest = [];
+    mun.dest['kerbin'] = {};
+    mun.dest['kerbin'].transfer = 860;
+    mun.dest['kerbin'].orbit = 0;
+
+    var minmus = {};
+    minmus.air = false;
+    minmus.gravity = 0.491;
+    minmus.escape = 240;
+    minmus.name = "Minmus";
+    minmus.dest = [];
+    minmus.dest['kerbin'] = {};
+    minmus.dest['kerbin'].transfer = 920;
+    minmus.dest['kerbin'].orbit = 0;
+
+    var sun = {};
+    sun.air = false;
+    sun.gravity = 0;
+    sun.escape = 0;
+    sun.name = "Sun";
+    sun.dest = [];
+    sun.dest['kerbin'] = {};
+    sun.dest['kerbin'].transfer = 950;
+    sun.dest['kerbin'].orbit = 0;
+    sun.dest['eve'] = {};
+    sun.dest['eve'].transfer = 80;
+    sun.dest['eve'].orbit = 1310;
+    sun.dest['moho'] = {};
+    sun.dest['moho'].transfer = 730;
+    sun.dest['moho'].orbit = 2200;
+    sun.dest['eeloo'] = {};
+    sun.dest['eeloo'].transfer = 1150;
+    sun.dest['eeloo'].orbit = 2100;
+    sun.dest['jool'] = {};
+    sun.dest['jool'].transfer = 965;
+    sun.dest['jool'].orbit = 2630;
+    sun.dest['dres'] = {};
+    sun.dest['dres'].transfer = 350;
+    sun.dest['dres'].orbit = 800;
+    sun.dest['duna'] = {};
+    sun.dest['duna'].transfer = 110;
+    sun.dest['duna'].orbit = 370;
+
+    var eve = {};
+    eve.air = true;
+    eve.gravity = 16.7;
+    eve.escape = 12000;
+    eve.name = "Eve";
+    eve.dest = [];
+    eve.dest['gilly'] = {};
+    eve.dest['gilly'].transfer = 1650;
+    eve.dest['gilly'].orbit = 210;
+    eve.dest['sun'] = {};
+    eve.dest['sun'].transfer = 80;
+    eve.dest['sun'].orbit = 0;
+
+    var gilly = {};
+    gilly.air = false;
+    gilly.gravity = 0.049;
+    gilly.escape = 35;
+    gilly.name = "Gilly";
+    gilly.dest = [];
+    gilly.dest['eve'] = {};
+    gilly.dest['eve'].transfer = 1650;
+    gilly.dest['eve'].orbit = 0;
+
+    var moho = {};
+    moho.air = false;
+    moho.gravity = 3.92;
+    moho.escape = 1400;
+    moho.name = "Moho";
+    moho.dest = [];
+    moho.dest['sun'] = {};
+    moho.dest['sun'].transfer = 730;
+    moho.dest['sun'].orbit = 0;
+
+    var eeloo = {};
+    eeloo.air = false;
+    eeloo.gravity = 1.69;
+    eeloo.escape = 840;
+    eeloo.name = "Eeloo";
+    eeloo.dest = [];
+    eeloo.dest['sun'] = {};
+    eeloo.dest['sun'].transfer = 1150;
+    eeloo.dest['sun'].orbit = 0;
+
+    var duna = {};
+    duna.air = true;
+    duna.gravity = 2.94;
+    duna.escape = 1380;
+    duna.name = "Duna";
+    duna.dest = [];
+    duna.dest['ike'] = {};
+    duna.dest['ike'].transfer = 270;
+    duna.dest['ike'].orbit = 110;
+    duna.dest['sun'] = {};
+    duna.dest['sun'].transfer = 110;
+    duna.dest['sun'].orbit = 0;
+
+    var ike = {};
+    ike.air = false;
+    ike.gravity = 1.1;
+    ike.escape = 535;
+    ike.name = "Ike";
+    ike.dest = [];
+    ike.dest['duna'] = {};
+    ike.dest['duna'].transfer = 270;
+    ike.dest['duna'].orbit = 0;
+
+    var dres = {};
+    dres.air = false;
+    dres.gravity = 1.13;
+    dres.escape = 555;
+    dres.name = "Dres";
+    dres.dest = [];
+    dres.dest['sun'] = {};
+    dres.dest['sun'].transfer = 350;
+    dres.dest['sun'].orbit = 0;
+
+    var origins = [];
+    origins['kerbin'] = kerbin;
+    origins['mun'] = mun
+    origins['minmus'] = minmus;
+    origins['sun'] = sun;
+    origins['gilly'] = gilly;
+    origins['eve'] = eve;
+    origins['moho'] = moho;
+    origins['eeloo'] = eeloo;
+    origins['duna'] = duna;
+    origins['ike'] = ike;
+    origins['dres'] = dres;
+
+    function save() {
+      var elem = document.getElementById("save");
+      var str = "";
+      str = "{ \"stages\": " + JSON.stringify(stages) + ", \"dests\": " + JSON.stringify(dests) + "}";
+      elem.value = str;
+    }
+
+    function load() {
+      var elem = document.getElementById("save");
+      var str = elem.value;
+      console.log(str);
+      var data = JSON.parse(str);
+      selected = 0;
+      dests = data.dests;
+      stages = data.stages;
+      setTargets();
+      drawDests();
+      drawStages();
+      elem.value = "";
+    }
+  </script>
+</head>
+<body onload="init();">
+  Kerbal Delta-V Calculator - Updated for 0.22<br /><br />
+  Currently only shows the first few tiers of technology<br /><br />
+  Add new stages with 'New Stage'. Stages can not be removed. Stages are added at the bottom of the stack.<br />
+  Select a stage by clicking on the name until its bold.<Br />
+  Click a bolded stage name to switch it to a vacuum stage<br />
+  Add or remove parts to selected stage with the transfer buttons<br />
+  All rockets assume you are starting on Kerbal. No destination implies just going to orbit.<br />
+  Add a new destination by picking a target and clicking 'New Destination'<br />
+  Available targets are based on where you are in your trip.<br />
+  Assumes every destination ends with landing, and a new stage is for lift off<br />
+  Remaining deltaV in current stage is always wasted upon landing.<br />
+  <bR />
+  TODO:<Br />
+  remove stages, leave dockable stage in orbit, slingshots<br />
+<br />
+    <table>
+    <tr>
+      <td>Parts</td>
+      <td rowspan="4">
+        <div id="stages"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <table>
+          <tr>
+            <td>
+              <div>
+                <select id="parts" size="20"></select></div>
+            </td>
+            <td>
+              <input type="button" value="<<<" onclick="removePart();" /><input type="button" value=">>>" onclick="  addPart();" /></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="button" value="New Stage" onclick="newStage();" />
+        <input type="button" value="New Destination" onclick="newDest();" />
+        <select id="target"></select> Just Orbit? <input type="checkbox" id="orbit" /> Aerobrake? <input type="checkbox" id="aero" />
+      </td>
+    </tr>
+  </table>
+  <div id="dests"></div>
+  <br />
+  Save / Load data area:
+  <input type="button" value="Save" onclick="save();" />
+  <input type="button" value="Load" onclick="load();" /><br />
+  <textarea rows="10" cols="100" id="save"></textarea>
+</body>
+</html>
+
