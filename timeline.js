@@ -81,11 +81,6 @@ Game.draw = function () {
   Game.context.fillStyle = markerHeaderColor;
   Game.context.fillRect(0, 0, 800, markerHeaderHeight);
 
-  // draw the line creation header
-  Game.context.strokeStyle = lineHeaderColor;
-  Game.context.fillStyle = lineHeaderColor;
-  Game.context.fillRect(0, markerHeaderHeight, lineHeaderHeight, 600);
-
   if (Game.moveMarker == false && Game.moveObject == false && Game.move == false) {
     // Draw ghost marker
     if (Game.mouseY < markerHeaderHeight && hitObjectCol(Game.mouseX) == false) {
@@ -93,8 +88,8 @@ Game.draw = function () {
       var rgb = "rgba(0,255,0,0.5)";
       Game.context.strokeStyle = rgb;
       Game.context.fillStyle = rgb;
-      Game.context.fillRect(m - 3, 5, 6, 10);
-      Game.context.fillRect(m, 5, 1, 600);
+      Game.context.fillRect(m/Game.zoom - 3, 5, 6, 10);
+      Game.context.fillRect(m / Game.zoom, 5, 1, 600);
     }
 
     // Draw ghost object
@@ -109,7 +104,7 @@ Game.draw = function () {
         var rgb = "rgba(255,0,0,0.5)";
         Game.context.strokeStyle = rgb;
         Game.context.fillStyle = rgb;
-        roundRect(Game.context, Game.mouseX, y - 10, 30, 20, 10, true, true);
+        roundRect(Game.context, Game.mouseX / Game.zoom, (y - 10) / Game.zoom, 30 / Game.zoom, 20 / Game.zoom, 10 / Game.zoom, true, true);
       }
     }
   }
@@ -119,8 +114,7 @@ Game.draw = function () {
     var loc = lineSeparation * (i + 1);
     Game.context.strokeStyle = lineColor;
     Game.context.fillStyle = lineColor;
-    Game.context.fillRect(5, loc - 3, 10, 6);
-    Game.context.fillRect(5, loc, 800, 1);
+    Game.context.fillRect(5, loc / Game.zoom, 800, 1);
   }
 
   // Draw object
@@ -131,8 +125,21 @@ Game.draw = function () {
       var rgb = "rgb(255,0,0)";
       Game.context.strokeStyle = rgb;
       Game.context.fillStyle = rgb;
-      roundRect(Game.context, Game.offset + o.loc, (o.line * lineSeparation) - 10, o.width, 20, 10, true, true);
+      roundRect(Game.context, (Game.offset + o.loc) / Game.zoom, ((o.line * lineSeparation) - 10) / Game.zoom, o.width / Game.zoom, 20 / Game.zoom, 10 / Game.zoom, true, true);
     }
+  }
+
+  // draw the line creation header
+  Game.context.strokeStyle = lineHeaderColor;
+  Game.context.fillStyle = lineHeaderColor;
+  Game.context.fillRect(0, markerHeaderHeight, lineHeaderHeight, 600);
+
+  // Draw Line thumbs
+  for (var i = 0; i < Game.lines; ++i) {
+    var loc = lineSeparation * (i + 1);
+    Game.context.strokeStyle = lineColor;
+    Game.context.fillStyle = lineColor;
+    Game.context.fillRect(5, loc / Game.zoom - 3, 10, 6);
   }
 
   // Draw Markers
@@ -141,8 +148,8 @@ Game.draw = function () {
     if (m.delete) continue;
     Game.context.strokeStyle = markerColor;
     Game.context.fillStyle = markerColor;
-    Game.context.fillRect(Game.offset + m.loc - 3, 5, 6, 10);
-    Game.context.fillRect(Game.offset + m.loc, 5, 1, 600);
+    Game.context.fillRect((Game.offset + m.loc)/Game.zoom - 3, 5, 6, 10);
+    Game.context.fillRect((Game.offset + m.loc)/Game.zoom, 5, 1, 600);
   }
 }
 
@@ -249,8 +256,8 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 function onClick(ev) {
   if (Game.skipClick) { Game.skipClick = false; return; }
 
-  var x = ev.clientX - Game.surface.offsetLeft;
-  var y = ev.clientY - Game.surface.offsetTop;
+  var x = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
+  var y = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
   // find closest line that is 10 away for later
   var line = 0;
@@ -273,9 +280,10 @@ function onClick(ev) {
   }
 }
 
-function onMouseDown(ev) {
-  Game.moveX = ev.clientX - Game.surface.offsetLeft;
-  Game.moveY = ev.clientY - Game.surface.offsetTop;
+function onMouseDown(ev)
+{
+  Game.moveX = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
+  Game.moveY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
   if (hitMarker(Game.moveX)) {
     Game.moveMarker = true;
@@ -289,16 +297,19 @@ function onMouseDown(ev) {
     return;
   }
   else
+  {
     Game.move = true;
+    Game.startZoom = Game.zoom;
+    Game.startOffset = Game.offset;
+  }
 }
 
 function onMouseUp(ev) {
-  if (Game.moveMarker || Game.moveObject) {
+  if (Game.moveMarker || Game.moveObject || Game.zoom != Game.startZoom || Game.offset != Game.startOffset)
     Game.skipClick = true;
-    Game.moveMarker = false;
-    Game.moveObject = false;
-    Game.sizeObject = false;
-  }
+  Game.moveMarker = false;
+  Game.moveObject = false;
+  Game.sizeObject = false;
   Game.move = false;
   Game.maxResize = 0;
 }
@@ -312,8 +323,8 @@ function onMouseOut(ev) {
 }
 
 function onMouseMove(ev) {
-  Game.mouseX = ev.clientX - Game.surface.offsetLeft;
-  Game.mouseY = ev.clientY - Game.surface.offsetTop;
+  Game.mouseX = (ev.clientX - Game.surface.offsetLeft ) * Game.zoom;
+  Game.mouseY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
   if (Game.moveMarker) {
     // if going left, stop at prev marker or object
@@ -356,6 +367,10 @@ function onMouseMove(ev) {
   else if (Game.move) {
     Game.offset += Game.mouseX - Game.moveX;
     Game.moveX = Game.mouseX;
+
+    Game.zoom = Game.startZoom + ((Game.mouseY - Game.moveY) / Game.zoom) / 200;
+    if (Game.zoom < 1) Game.zoom = 1;
+//    if (Game.zoom > 3) Game.zoom = 3;
   }
 }
 
