@@ -6,6 +6,7 @@ var Game = {};
 var markerHeaderHeight = 15;
 var markerHeaderColor = "#F5F5DC"
 var markerColor = "#00FF00"
+var pushColor = "#FF0000"
 var lineHeaderHeight = 15;
 var lineHeaderColor = "#F5F5DC"
 var lineColor = "#0000FF"
@@ -19,7 +20,7 @@ Game.init = function () {
   this.moveObject = false;
   this.sizeObject = false;
   this.moveObjectId = 0;
-  this.skipClick = false;
+  this.noClick = false;
 
   this.offset = 0;   // left/right scroll state
   this.zoom = 1;     // zoom factor
@@ -146,8 +147,8 @@ Game.draw = function () {
   for (var i in Game.markers) {
     var m = Game.markers[i];
     if (m.delete) continue;
-    Game.context.strokeStyle = markerColor;
-    Game.context.fillStyle = markerColor;
+    Game.context.strokeStyle = m.pushmode ? pushColor : markerColor;
+    Game.context.fillStyle = m.pushmode ? pushColor : markerColor; 
     Game.context.fillRect((Game.offset + m.loc)/Game.zoom - 3, 5, 6, 10);
     Game.context.fillRect((Game.offset + m.loc)/Game.zoom, 5, 1, 600);
   }
@@ -253,8 +254,9 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 ///////////////
 // Event Handlers
 ///////////////
-function onClick(ev) {
-  if (Game.skipClick) { Game.skipClick = false; return; }
+function onClick(ev)
+{
+  if (Game.noClick) { Game.noClick = false; return; }
 
   var x = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   var y = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
@@ -263,10 +265,14 @@ function onClick(ev) {
   var line = 0;
   for (var i = 0; i < Game.lines; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
 
-  if (hitMarker(x)) { return; }
+  if (hitMarker(x))
+  {
+    Game.markers[Game.moveMarkerId].pushmode = !Game.markers[Game.moveMarkerId].pushmode;
+    return;
+  }
 
   else if (y < markerHeaderHeight && hitObjectCol(x) == false) {
-    var marker = { loc: x - Game.offset, delete: false };
+    var marker = { loc: x - Game.offset, delete: false, pushmode: false };
     Game.markers.push(marker);
     Game.markers.sort(function (a, b) { return a.loc - b.loc });
   }
@@ -304,9 +310,9 @@ function onMouseDown(ev)
   }
 }
 
-function onMouseUp(ev) {
-  if (Game.moveMarker || Game.moveObject || Game.zoom != Game.startZoom || Game.offset != Game.startOffset)
-    Game.skipClick = true;
+function onMouseUp(ev)
+{
+  if (Game.zoom != Game.startZoom || Game.offset != Game.startOffset) Game.noClick = true;
   Game.moveMarker = false;
   Game.moveObject = false;
   Game.sizeObject = false;
@@ -322,19 +328,31 @@ function onMouseOut(ev) {
   Game.maxResize = 0;
 }
 
-function onMouseMove(ev) {
+function onMouseMove(ev)
+{
   Game.mouseX = (ev.clientX - Game.surface.offsetLeft ) * Game.zoom;
   Game.mouseY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
   if (Game.moveMarker) {
+    Game.noClick = true;
     // if going left, stop at prev marker or object
     if (hitMarker(Game.mouseX) || hitObjectCol(Game.mouseX))
       ;  // ignore this case
     else
+    {
+      var pos = Game.markers[Game.moveMarkerId].loc;
+      var diff = (Game.mouseX - Game.offset) - pos;
       Game.markers[Game.moveMarkerId].loc = Game.mouseX - Game.offset;
+      if (Game.markers[Game.moveMarkerId].pushmode)
+      {
+        for (var i in Game.markers) if (i != Game.moveMarkerId && Game.markers[i].loc > pos) Game.markers[i].loc += diff;
+        for (var j in Game.objects) if (Game.objects[j].loc > pos) Game.objects[j].loc += diff;
+      }
+    }
     Game.markers[Game.moveMarkerId].delete = (Game.mouseY > markerHeaderHeight + 10 ? true : false)
   }
   else if (Game.moveObject) {
+    Game.noClick = true;
     if (Game.sizeObject) {
       var pos = Game.objects[Game.moveObjectId].loc + Game.objects[Game.moveObjectId].width + (Game.mouseX - Game.moveX) + Game.offset;
       if (Game.maxResize && pos >= Game.maxResize) return;
@@ -346,9 +364,9 @@ function onMouseMove(ev) {
       }
       else
         Game.maxResize = pos;
-
     }
-    else {
+    else
+    {
       var o = Game.objects[Game.moveObjectId];
       if (hitMarkerRange(Game.mouseX + Game.moveOffset, o.width) == false
           && hitObjectRange(Game.mouseX + Game.moveOffset, o.line * lineSeparation, o.width, Game.moveObjectId) == false)
@@ -364,7 +382,9 @@ function onMouseMove(ev) {
       }
     }
   }
-  else if (Game.move) {
+  else if (Game.move)
+  {
+    Game.noClick = true;
     Game.offset += Game.mouseX - Game.moveX;
     Game.moveX = Game.mouseX;
 
