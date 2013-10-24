@@ -12,7 +12,8 @@ var lineHeaderColor = "#F5F5DC"
 var lineColor = "#0000FF"
 var lineSeparation = 50;
 
-Game.init = function () {
+Game.init = function ()
+{
   this.maxResize = 0;
   this.move = false;
   this.moveMarker = false;
@@ -21,6 +22,8 @@ Game.init = function () {
   this.sizeObject = false;
   this.moveObjectId = 0;
   this.noClick = false;
+  this.picker = false;  // show color picker
+  this.pickerImg = null;
 
   this.offset = 0;   // left/right scroll state
   this.zoom = 1;     // zoom factor
@@ -36,12 +39,14 @@ Game.init = function () {
   this.context = this.surface.getContext('2d');
 }
 
-Game.stdout = function (text) {
+Game.stdout = function (text)
+{
   document.getElementById('stdout').innerHTML = text;
   console.log(text);
 }
 
-Game.run = function () {
+Game.run = function ()
+{
   var d = new Date();
   Game.time = d.getTime();
 
@@ -68,10 +73,12 @@ Game.run = function () {
   Game.context.fillText("Frame Time: Update: " + updateTime + "%  Draw: " + drawTime + "%  Idle: " + idleTime + "%", lineHeaderHeight, 600 - 10);
 }
 
-Game.update = function () {
+Game.update = function ()
+{
 }
 
-Game.draw = function () {
+Game.draw = function ()
+{
   // clear to black
   Game.context.fillStyle = "black";
   Game.context.fillRect(0, 0, 800, 600);
@@ -123,9 +130,8 @@ Game.draw = function () {
     for (var i in Game.objects) {
       var o = Game.objects[i];
       if (o.delete) continue;
-      var rgb = "rgb(255,0,0)";
-      Game.context.strokeStyle = rgb;
-      Game.context.fillStyle = rgb;
+      Game.context.strokeStyle = o.color;
+      Game.context.fillStyle = o.color;
       roundRect(Game.context, (Game.offset + o.loc) / Game.zoom, ((o.line * lineSeparation) - 10) / Game.zoom, o.width / Game.zoom, 20 / Game.zoom, 10 / Game.zoom, true, true);
     }
   }
@@ -152,9 +158,24 @@ Game.draw = function () {
     Game.context.fillRect((Game.offset + m.loc)/Game.zoom - 3, 5, 6, 10);
     Game.context.fillRect((Game.offset + m.loc)/Game.zoom, 5, 1, 600);
   }
+
+  if (Game.picker)
+  {
+    if (Game.pickerImg == null)
+    {
+      Game.pickerImg = new Image();
+      Game.pickerImg.src = 'lightbox.png';
+      Game.pickerImg.onload = function () {
+        Game.context.drawImage(Game.pickerImg, 0, 0, 104, 117, 400 - 104, 300 - 117, 208, 234);
+      }
+    }
+    else
+      Game.context.drawImage(Game.pickerImg, 0, 0, 104, 117, 400 - 104, 300 - 117, 208, 234);
+  }
 }
 
-function hitMarker(x) {
+function hitMarker(x)
+{
   x = x - Game.offset;
   for (i in Game.markers) {
     if (Game.markers[i].delete) continue;
@@ -168,7 +189,8 @@ function hitMarker(x) {
   return false;
 }
 
-function hitMarkerRange(x, w) {
+function hitMarkerRange(x, w)
+{
   x = x - Game.offset;
   for (i in Game.markers) {
     if (Game.markers[i].delete) continue;
@@ -181,7 +203,8 @@ function hitMarkerRange(x, w) {
   return false;
 }
 
-function hitObject(x, y, self) {
+function hitObject(x, y, self)
+{
   x = x - Game.offset;
   for (i in Game.objects) {
     if (self !== undefined && i == self) continue;
@@ -196,7 +219,8 @@ function hitObject(x, y, self) {
   return false;
 }
 
-function hitObjectRange(x, y, w, self) {
+function hitObjectRange(x, y, w, self)
+{
   x = x - Game.offset;
   for (i in Game.objects) {
     if (self !== undefined && i == self) continue;
@@ -211,7 +235,8 @@ function hitObjectRange(x, y, w, self) {
   return false;
 }
 
-function hitObjectCol(x, self) {
+function hitObjectCol(x, self)
+{
   x = x - Game.offset;
   for (i in Game.objects) {
     if (self !== undefined && i == self) continue;
@@ -225,13 +250,10 @@ function hitObjectCol(x, self) {
   return false;
 }
 
-function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-  if (typeof stroke == "undefined") {
-    stroke = true;
-  }
-  if (typeof radius === "undefined") {
-    radius = 5;
-  }
+function roundRect(ctx, x, y, width, height, radius, fill, stroke)
+{
+  if (typeof stroke == "undefined") stroke = true;
+  if (typeof radius === "undefined") radius = 5;
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + width - radius, y);
@@ -243,12 +265,8 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   ctx.lineTo(x, y + radius);
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
-  if (stroke) {
-    ctx.stroke();
-  }
-  if (fill) {
-    ctx.fill();
-  }
+  if (stroke) ctx.stroke();
+  if (fill)   ctx.fill();
 }
 
 ///////////////
@@ -256,11 +274,23 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 ///////////////
 function onClick(ev)
 {
+  if (Game.picker)
+  {
+    var x = (ev.clientX - Game.surface.offsetLeft);
+    var y = (ev.clientY - Game.surface.offsetTop);
+    Game.picker = false;
+    var imgd = Game.context.getImageData(x, y, 1, 1);
+    var data = imgd.data;
+    var hexString = "#"+RGBtoHex(data[0],data[1],data[2]);
+    Game.objects[Game.pickObject].color = hexString;
+    return;
+  }
+
   if (Game.noClick) { Game.noClick = false; return; }
 
   var x = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   var y = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
-
+  
   // find closest line that is 10 away for later
   var line = 0;
   for (var i = 0; i < Game.lines; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
@@ -269,6 +299,12 @@ function onClick(ev)
   {
     Game.markers[Game.moveMarkerId].pushmode = !Game.markers[Game.moveMarkerId].pushmode;
     return;
+  }
+
+  else if (hitObject(x, y))
+  {
+    Game.pickObject = Game.moveObjectId;
+    Game.picker = true;
   }
 
   else if (y < markerHeaderHeight && hitObjectCol(x) == false) {
@@ -280,7 +316,7 @@ function onClick(ev)
   else if (x < lineHeaderHeight) Game.lines++;
 
   else if (line > 0 && hitMarkerRange(x, 30) == false) {
-    var obj = { line: line, loc: x - Game.offset, width: 30 };
+    var obj = { line: line, loc: x - Game.offset, width: 30, color: "#FF0000" };
     Game.objects.push(obj);
     Game.objects.sort(function (a, b) { return a.loc - b.loc });
   }
@@ -320,7 +356,8 @@ function onMouseUp(ev)
   Game.maxResize = 0;
 }
 
-function onMouseOut(ev) {
+function onMouseOut(ev)
+{
   Game.moveMarker = false;
   Game.moveObject = false;
   Game.sizeObject = false;
@@ -397,7 +434,35 @@ function onMouseMove(ev)
 ///////////////
 // Main
 ///////////////
-function main() {
+function main()
+{
   Game.init();
   window.setInterval(Game.run, 17);
 }
+
+// $(function() {
+//       $('canvas').bind('mousemove', function(event){
+//         var x = event.pageX - event.currentTarget.offsetLeft
+//         var y = event.pageY - event.currentTarget.offsetTop;
+//         var ctx = document.getElementById('canvas').getContext('2d');
+//         var imgd = ctx.getImageData(x, y, 1, 1);
+//         var data = imgd.data;
+//         var out = $('#result');
+//         var hexString = RGBtoHex(data[0],data[1],data[2]);
+//         out.html("color is #" + hexString);
+//         out.attr("style","background-color: #" + hexString + ";");
+//       });
+//     }
+// );
+// 
+//from http://www.linuxtopia.org/online_books/javascript_guides/javascript_faq/rgbtohex.htm
+function RGBtoHex(R, G, B) { return toHex(R) + toHex(G) + toHex(B); }
+
+function toHex(N)
+{
+   if (N==null) return "00";
+   N=parseInt(N); if (N==0 || isNaN(N)) return "00";
+   N=Math.max(0,N); N=Math.min(N,255); N=Math.round(N);
+   return "0123456789ABCDEF".charAt((N-N%16)/16) + "0123456789ABCDEF".charAt(N%16);
+}
+
