@@ -27,7 +27,7 @@ Game.init = function ()
 
   this.offset = 0;   // left/right scroll state
   this.zoom = 1;     // zoom factor
-  this.lines = 1;
+  this.lines = [];
   this.objects = [];
   this.markers = [];
   this.surface = document.getElementById('surface');
@@ -37,6 +37,8 @@ Game.init = function ()
   this.surface.addEventListener("mouseout", onMouseOut, false);
   this.surface.addEventListener("mousemove", onMouseMove, false);
   this.context = this.surface.getContext('2d');
+
+  newLine();
 }
 
 Game.stdout = function (text)
@@ -104,12 +106,13 @@ Game.draw = function ()
     if (hitObject(Game.mouseX, Game.mouseY) == false && hitMarkerRange(Game.mouseX, 30) == false) {
       // closest line that is 10 away
       var y = 0;
-      for (var i = 0; i < Game.lines; ++i) {
+      var i = 0;
+      for (; i < Game.lines.length; ++i) {
         if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { y = lineSeparation * (i + 1); break; }
       }
       if (y > 0) {
         // draw initial size obj
-        var rgb = "rgba(255,0,0,0.5)";
+        var rgb = "rgba(" + Game.lines[i].r + "," + Game.lines[i].g + "," + Game.lines[i].b+ ",0.5)";
         Game.context.strokeStyle = rgb;
         Game.context.fillStyle = rgb;
         roundRect(Game.context, Game.mouseX / Game.zoom, (y - 10) / Game.zoom, 30 / Game.zoom, 20 / Game.zoom, 10 / Game.zoom, true, true);
@@ -118,10 +121,10 @@ Game.draw = function ()
   }
 
   // Draw Lines
-  for (var i = 0; i < Game.lines; ++i) {
+  for (var i = 0; i < Game.lines.length; ++i) {
     var loc = lineSeparation * (i + 1);
-    Game.context.strokeStyle = lineColor;
-    Game.context.fillStyle = lineColor;
+    Game.context.strokeStyle = Game.lines[i].color;
+    Game.context.fillStyle = Game.lines[i].color;
     Game.context.fillRect(5, loc / Game.zoom, 800, 1);
   }
 
@@ -142,10 +145,10 @@ Game.draw = function ()
   Game.context.fillRect(0, markerHeaderHeight, lineHeaderHeight, 600);
 
   // Draw Line thumbs
-  for (var i = 0; i < Game.lines; ++i) {
+  for (var i = 0; i < Game.lines.length; ++i) {
     var loc = lineSeparation * (i + 1);
-    Game.context.strokeStyle = lineColor;
-    Game.context.fillStyle = lineColor;
+    Game.context.strokeStyle = Game.lines[i].color;
+    Game.context.fillStyle = Game.lines[i].color;
     Game.context.fillRect(5, loc / Game.zoom - 3, 10, 6);
   }
 
@@ -269,20 +272,37 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke)
   if (fill)   ctx.fill();
 }
 
+function newLine()
+{
+  var r = (Math.random() * 255) | 0;
+  var g = (Math.random() * 255) | 0;
+  var b = (Math.random() * 255) | 0;
+  var hex = "#" + RGBtoHex(r, g, b);
+  var l = { r: r, g: g, b: b, color: hex };
+  Game.lines.push(l);
+}
+
 ///////////////
 // Event Handlers
 ///////////////
 function onClick(ev)
 {
-  if (Game.picker)
+  if (Game.picker > 0)
   {
     var x = (ev.clientX - Game.surface.offsetLeft);
     var y = (ev.clientY - Game.surface.offsetTop);
-    Game.picker = false;
     var imgd = Game.context.getImageData(x, y, 1, 1);
     var data = imgd.data;
     var hexString = "#"+RGBtoHex(data[0],data[1],data[2]);
-    Game.objects[Game.pickObject].color = hexString;
+    if (Game.picker == 1) Game.objects[Game.pickObject].color = hexString;
+    else if (Game.picker == 2)
+    {
+      Game.lines[Game.pickObject].r = data[0];
+      Game.lines[Game.pickObject].g = data[1];
+      Game.lines[Game.pickObject].b = data[2];
+      Game.lines[Game.pickObject].color = hexString;
+    }
+  Game.picker = 0;
     return;
   }
 
@@ -293,7 +313,7 @@ function onClick(ev)
   
   // find closest line that is 10 away for later
   var line = 0;
-  for (var i = 0; i < Game.lines; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
+  for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
 
   if (hitMarker(x))
   {
@@ -304,7 +324,7 @@ function onClick(ev)
   else if (hitObject(x, y))
   {
     Game.pickObject = Game.moveObjectId;
-    Game.picker = true;
+    Game.picker = 1;
   }
 
   else if (y < markerHeaderHeight && hitObjectCol(x) == false) {
@@ -313,10 +333,21 @@ function onClick(ev)
     Game.markers.sort(function (a, b) { return a.loc - b.loc });
   }
 
-  else if (x < lineHeaderHeight) Game.lines++;
+  else if (x < lineHeaderHeight)
+  {
+    var line = 0;
+    for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 6) { line = i + 1; break; }
+    if (line == 0) newLine();
+    else
+    {
+      Game.pickObject = line-1;
+      Game.picker = 2;
+    }
+  }
 
   else if (line > 0 && hitMarkerRange(x, 30) == false) {
-    var obj = { line: line, loc: x - Game.offset, width: 30, color: "#FF0000" };
+    var hex = Game.lines[line - 1].color;
+    var obj = { line: line, loc: x - Game.offset, width: 30, color: hex };
     Game.objects.push(obj);
     Game.objects.sort(function (a, b) { return a.loc - b.loc });
   }
@@ -410,7 +441,7 @@ function onMouseMove(ev)
         Game.objects[Game.moveObjectId].loc = Game.mouseX + Game.moveOffset - Game.offset;
 
       var line = 0;
-      for (var i = 0; i < Game.lines; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
+      for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
 
       Game.objects[Game.moveObjectId].delete = (line == 0 ? true : false);
       if (line > 0) {
