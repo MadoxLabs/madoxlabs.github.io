@@ -15,6 +15,7 @@ var lineSeparation = 50;
 Game.init = function ()
 {
   this.maxResize = 0;
+  this.minPush = null;
   this.move = false;
   this.moveMarker = false;
   this.moveMarkerId = 0;
@@ -103,7 +104,7 @@ Game.draw = function ()
     }
 
     // Draw ghost object
-    if (hitObject(Game.mouseX, Game.mouseY) == false && hitMarkerRange(Game.mouseX, 30) == false) {
+    if (hitObject(Game.mouseX, Game.mouseY, false) == false && hitMarkerRange(Game.mouseX, 30) == false) {
       // closest line that is 10 away
       var y = 0;
       var i = 0;
@@ -177,15 +178,18 @@ Game.draw = function ()
   }
 }
 
-function hitMarker(x)
+function hitMarker(x, set, self)  // sets the marker id
 {
+  if (typeof (set) === 'undefined') set = true;
+
   x = x - Game.offset;
   for (i in Game.markers) {
+    if (self !== undefined && i == self) continue;
     if (Game.markers[i].delete) continue;
 
     var loc = Game.markers[i].loc;
     if (Math.abs(loc - x) <= 3) {
-      Game.moveMarkerId = i;
+      if (set) Game.moveMarkerId = i;
       return true;
     }
   }
@@ -206,8 +210,10 @@ function hitMarkerRange(x, w)
   return false;
 }
 
-function hitObject(x, y, self)
+function hitObject(x, y, set, self)  // sets the object id (if self is null)
 {
+  if (typeof (set) === 'undefined') set = true;
+
   x = x - Game.offset;
   for (i in Game.objects) {
     if (self !== undefined && i == self) continue;
@@ -215,12 +221,12 @@ function hitObject(x, y, self)
 
     var o = Game.objects[i];
     if ((x < o.loc + o.width) && (x > o.loc) && (Math.abs(o.line * lineSeparation - y) < 10)) {
-      if (self === undefined) Game.moveObjectId = i;
+      if (set) Game.moveObjectId = i;
       return true;
     }
   }
   return false;
-}
+} 
 
 function hitObjectRange(x, y, w, self)
 {
@@ -232,7 +238,7 @@ function hitObjectRange(x, y, w, self)
     var o = Game.objects[i];
     if (Math.abs(o.line * lineSeparation - y) >= 10) continue; // different lines
     if (o.loc < x && o.loc + o.width < x) continue;  // entirely to the left
-    if (o.loc > x + w && o.loc + o.width > x + w) continue;  // entirely to the right
+    if (o.loc > (x + w) && (o.loc + o.width) > (x + w)) continue;  // entirely to the right
     return true;
   }
   return false;
@@ -315,13 +321,13 @@ function onClick(ev)
   var line = 0;
   for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
 
-  if (hitMarker(x))
+  if (hitMarker(x, false))
   {
     Game.markers[Game.moveMarkerId].pushmode = !Game.markers[Game.moveMarkerId].pushmode;
     return;
   }
 
-  else if (hitObject(x, y))
+  else if (hitObject(x, y, true))
   {
     Game.pickObject = Game.moveObjectId;
     Game.picker = 1;
@@ -358,11 +364,12 @@ function onMouseDown(ev)
   Game.moveX = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   Game.moveY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
-  if (hitMarker(Game.moveX)) {
+  if (hitMarker(Game.moveX, true)) {
     Game.moveMarker = true;
+    Game.minPush = null;
     return;
   }
-  else if (hitObject(Game.moveX, Game.moveY)) {
+  else if (hitObject(Game.moveX, Game.moveY, true)) {
     Game.moveObject = true;
     Game.moveOffset = Game.objects[Game.moveObjectId].loc - Game.moveX + Game.offset;
     if (Game.moveOffset + Game.objects[Game.moveObjectId].width < 5) { Game.sizeObject = true; }
@@ -404,10 +411,13 @@ function onMouseMove(ev)
   if (Game.moveMarker) {
     Game.noClick = true;
     // if going left, stop at prev marker or object
-    if (hitMarker(Game.mouseX) || hitObjectCol(Game.mouseX))
-      ;  // ignore this case
+    if (hitMarker(Game.mouseX, false, Game.moveMarkerId) || hitObjectCol(Game.mouseX))
+    {
+      if (Game.markers[Game.moveMarkerId].pushmode && Game.minPush == null) Game.minPush = Game.mouseX;
+    }
     else
     {
+      if (Game.markers[Game.moveMarkerId].pushmode && Game.minPush != null && Game.mouseX <= Game.minPush) return;
       var pos = Game.markers[Game.moveMarkerId].loc;
       var diff = (Game.mouseX - Game.offset) - pos;
       Game.markers[Game.moveMarkerId].loc = Game.mouseX - Game.offset;
@@ -419,13 +429,14 @@ function onMouseMove(ev)
     }
     Game.markers[Game.moveMarkerId].delete = (Game.mouseY > markerHeaderHeight + 10 ? true : false)
   }
+
   else if (Game.moveObject) {
     Game.noClick = true;
     if (Game.sizeObject) {
       var pos = Game.objects[Game.moveObjectId].loc + Game.objects[Game.moveObjectId].width + (Game.mouseX - Game.moveX) + Game.offset;
       if (Game.maxResize && pos >= Game.maxResize) return;
-      if (hitMarker(pos) == false
-          && hitObject(pos, Game.objects[Game.moveObjectId].line * lineSeparation, Game.moveObjectId) == false) {
+      if (hitMarker(pos, false) == false
+          && hitObject(pos, Game.objects[Game.moveObjectId].line * lineSeparation, false, Game.moveObjectId) == false) {
         Game.objects[Game.moveObjectId].width += Game.mouseX - Game.moveX;
         if (Game.objects[Game.moveObjectId].width < 20) Game.objects[Game.moveObjectId].width = 20;
         else Game.moveX = Game.mouseX;
@@ -445,11 +456,12 @@ function onMouseMove(ev)
 
       Game.objects[Game.moveObjectId].delete = (line == 0 ? true : false);
       if (line > 0) {
-        if (hitObjectRange(o.loc, line * lineSeparation, o.loc + o.width) == false)
+        if (hitObjectRange(o.loc, line * lineSeparation, o.width, Game.moveObjectId) == false)
           Game.objects[Game.moveObjectId].line = line;
       }
     }
   }
+
   else if (Game.move)
   {
     Game.noClick = true;
@@ -458,7 +470,6 @@ function onMouseMove(ev)
 
     Game.zoom = Game.startZoom + ((Game.mouseY - Game.moveY) / Game.zoom) / 200;
     if (Game.zoom < 1) Game.zoom = 1;
-//    if (Game.zoom > 3) Game.zoom = 3;
   }
 }
 
@@ -471,22 +482,6 @@ function main()
   window.setInterval(Game.run, 17);
 }
 
-// $(function() {
-//       $('canvas').bind('mousemove', function(event){
-//         var x = event.pageX - event.currentTarget.offsetLeft
-//         var y = event.pageY - event.currentTarget.offsetTop;
-//         var ctx = document.getElementById('canvas').getContext('2d');
-//         var imgd = ctx.getImageData(x, y, 1, 1);
-//         var data = imgd.data;
-//         var out = $('#result');
-//         var hexString = RGBtoHex(data[0],data[1],data[2]);
-//         out.html("color is #" + hexString);
-//         out.attr("style","background-color: #" + hexString + ";");
-//       });
-//     }
-// );
-// 
-//from http://www.linuxtopia.org/online_books/javascript_guides/javascript_faq/rgbtohex.htm
 function RGBtoHex(R, G, B) { return toHex(R) + toHex(G) + toHex(B); }
 
 function toHex(N)
