@@ -25,6 +25,7 @@ Game.init = function ()
   this.noClick = false;
   this.picker = false;  // show color picker
   this.pickerImg = null;
+  this.editObject = null;
 
   this.offset = 0;   // left/right scroll state
   this.zoom = 1;     // zoom factor
@@ -38,6 +39,15 @@ Game.init = function ()
   this.surface.addEventListener("mouseout", onMouseOut, false);
   this.surface.addEventListener("mousemove", onMouseMove, false);
   this.context = this.surface.getContext('2d');
+  this.fontsize = 12;
+  this.context.font = "12px Verdana";
+
+  this.lastTime = 0;
+  this.time = 0;
+  this.updateTime = 0;
+
+  this.inputTitle = document.getElementById("title");
+  this.inputBody = document.getElementById("text");
 
   newLine();
 }
@@ -51,6 +61,7 @@ Game.stdout = function (text)
 Game.run = function ()
 {
   var d = new Date();
+  Game.lastTime = Game.time;
   Game.time = d.getTime();
 
   Game.update();
@@ -63,7 +74,7 @@ Game.run = function ()
 
   var idleTime = 17 - updateTime - drawTime;
 
-  Game.context.font = "bold 8px Arial";
+  Game.context.font = "8px Arial";
   Game.context.fillStyle = "#ffffff";
   if (idleTime < 0) { idleTime = 0; Game.context.fillStyle = "#ff0000"; }
   var perFrame = idleTime + drawTime + updateTime;
@@ -78,11 +89,19 @@ Game.run = function ()
 
 Game.update = function ()
 {
+  Game.updateTime += (Game.time - Game.lastTime);
+  if (Game.updateTime > 500 && Game.editObject != null)
+  {
+    Game.updateTime = 0;
+    onTitleChange();
+    onBodyChange();
+  }
 }
 
 Game.draw = function ()
 {
   // clear to black
+  Game.context.font = Game.fontsize + "px Arial";
   Game.context.fillStyle = "black";
   Game.context.fillRect(0, 0, 800, 600);
   Game.context.lineWidth = 1;
@@ -92,14 +111,15 @@ Game.draw = function ()
   Game.context.fillStyle = markerHeaderColor;
   Game.context.fillRect(0, 0, 800, markerHeaderHeight);
 
+  // if nothing is being moved, we can draw ghost objects to help the user
   if (Game.moveMarker == false && Game.moveObject == false && Game.move == false) {
     // Draw ghost marker
-    if (Game.mouseY < markerHeaderHeight && hitObjectCol(Game.mouseX) == false) {
+    if (Game.mouseY < markerHeaderHeight && hitMarker(Game.mouseX) == false && hitObjectCol(Game.mouseX) == false) {
       var m = Game.mouseX;
       var rgb = "rgba(0,255,0,0.5)";
       Game.context.strokeStyle = rgb;
       Game.context.fillStyle = rgb;
-      Game.context.fillRect(m/Game.zoom - 3, 5, 6, 10);
+      Game.context.fillRect(m / Game.zoom - 3, 5, 6, 10);
       Game.context.fillRect(m / Game.zoom, 5, 1, 600);
     }
 
@@ -112,8 +132,7 @@ Game.draw = function ()
         if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { y = lineSeparation * (i + 1); break; }
       }
       if (y > 0) {
-        // draw initial size obj
-        var rgb = "rgba(" + Game.lines[i].r + "," + Game.lines[i].g + "," + Game.lines[i].b+ ",0.5)";
+        var rgb = "rgba(" + Game.lines[i].r + "," + Game.lines[i].g + "," + Game.lines[i].b + ",0.5)";
         Game.context.strokeStyle = rgb;
         Game.context.fillStyle = rgb;
         roundRect(Game.context, Game.mouseX / Game.zoom, (y - 10) / Game.zoom, 30 / Game.zoom, 20 / Game.zoom, 10 / Game.zoom, true, true);
@@ -129,7 +148,7 @@ Game.draw = function ()
     Game.context.fillRect(5, loc / Game.zoom, 800, 1);
   }
 
-  // Draw object
+  // Draw objects
   {
     for (var i in Game.objects) {
       var o = Game.objects[i];
@@ -137,6 +156,10 @@ Game.draw = function ()
       Game.context.strokeStyle = o.color;
       Game.context.fillStyle = o.color;
       roundRect(Game.context, (Game.offset + o.loc) / Game.zoom, ((o.line * lineSeparation) - 10) / Game.zoom, o.width / Game.zoom, 20 / Game.zoom, 10 / Game.zoom, true, true);
+      // text - offset it by 20, workout the length per letter and chop it off as needed     
+      Game.context.strokeStyle = getContrastColor(o.r, o.g, o.b);
+      Game.context.fillStyle = Game.context.strokeStyle;
+      Game.context.fillText(fitString(o.text, o.width - 25), (Game.offset + o.loc + 20) / Game.zoom, (o.line * lineSeparation + Game.fontsize / 2) / Game.zoom);
     }
   }
 
@@ -151,6 +174,11 @@ Game.draw = function ()
     Game.context.strokeStyle = Game.lines[i].color;
     Game.context.fillStyle = Game.lines[i].color;
     Game.context.fillRect(5, loc / Game.zoom - 3, 10, 6);
+    //draw a circle
+    Game.context.beginPath();
+    Game.context.arc(9, loc/Game.zoom-9, 5, 0, Math.PI * 2, true);
+    Game.context.closePath();
+    Game.context.fill();
   }
 
   // Draw Markers
@@ -158,26 +186,59 @@ Game.draw = function ()
     var m = Game.markers[i];
     if (m.delete) continue;
     Game.context.strokeStyle = m.pushmode ? pushColor : markerColor;
-    Game.context.fillStyle = m.pushmode ? pushColor : markerColor; 
-    Game.context.fillRect((Game.offset + m.loc)/Game.zoom - 3, 5, 6, 10);
-    Game.context.fillRect((Game.offset + m.loc)/Game.zoom, 5, 1, 600);
+    Game.context.fillStyle = m.pushmode ? pushColor : markerColor;
+    Game.context.fillRect((Game.offset + m.loc) / Game.zoom - 3, 5, 6, 10);
+    Game.context.fillRect((Game.offset + m.loc) / Game.zoom, 5, 1, 600);
+
+    //draw a circle
+    Game.context.beginPath();
+    Game.context.arc((Game.offset + m.loc) / Game.zoom + 9, 9, 5, 0, Math.PI * 2, true);
+    Game.context.closePath();
+    Game.context.fill();
   }
 
-  if (Game.picker)
-  {
-    if (Game.pickerImg == null)
-    {
+  // draw the picker
+  if (Game.picker) {
+    if (Game.pickerImg == null) {
       Game.pickerImg = new Image();
       Game.pickerImg.src = 'lightbox.png';
-      Game.pickerImg.onload = function () {
+      Game.pickerImg.onload = function ()
+      {
         Game.context.drawImage(Game.pickerImg, 0, 0, 104, 117, 400 - 104, 300 - 117, 208, 234);
       }
     }
     else
       Game.context.drawImage(Game.pickerImg, 0, 0, 104, 117, 400 - 104, 300 - 117, 208, 234);
   }
+  else {
+    // draw tooltip for object text
+    if (Game.moveMarker == false && Game.moveObject == false && Game.move == false)
+    {
+      var o;
+      if (hitObject(Game.mouseX, Game.mouseY)) o = Game.objects[Game.moveObjectId];
+      else if (hitMarker(Game.mouseX) && Game.mouseY < markerHeaderHeight) o = Game.markers[Game.moveMarkerId];
+      else if (Game.mouseX < lineHeaderHeight && (Game.mouseY % lineSeparation) > 5 && ((Game.mouseY / lineSeparation) | 0) < Game.lines.length) o = Game.lines[(Game.mouseY / lineSeparation) | 0];
+      else return;
+      Game.context.font = "12px Arial";
+      var w = Game.context.measureText(o.text).width;
+      var x = Game.mouseX;
+      var y = Game.mouseY;
+      Game.context.strokeStyle = "#777777";
+      Game.context.fillStyle = "#777777";
+      Game.context.fillRect(x / Game.zoom, y / Game.zoom, w + 12, 20);
+      Game.context.strokeStyle = "#aaaaaa";
+      Game.context.fillStyle = "#aaaaaa";
+      Game.context.fillRect(x / Game.zoom + 3, y / Game.zoom + 3, w + 6, 20 - 6);
+      Game.context.strokeStyle = "#000000";
+      Game.context.fillStyle = "#000000";
+      Game.context.fillText(o.text, x / Game.zoom + 6, y / Game.zoom + 3 + 12);
+    }
+  }
 }
 
+///////////////
+// Hit Testers
+///////////////
 function hitMarker(x, set, self)  // sets the marker id
 {
   if (typeof (set) === 'undefined') set = true;
@@ -188,7 +249,25 @@ function hitMarker(x, set, self)  // sets the marker id
     if (Game.markers[i].delete) continue;
 
     var loc = Game.markers[i].loc;
-    if (Math.abs(loc - x) <= 3) {
+    if (Math.abs(loc+8 - x) <= 10) {
+      if (set) Game.moveMarkerId = i;
+      return true;
+    }
+  }
+  return false;
+}
+
+function hitMarkerText(x, set, self)  // sets the marker id
+{
+  if (typeof (set) === 'undefined') set = true;
+
+  x = x - Game.offset;
+  for (i in Game.markers) {
+    if (self !== undefined && i == self) continue;
+    if (Game.markers[i].delete) continue;
+
+    var loc = Game.markers[i].loc;
+    if (Math.abs(loc + 12 - x) <= 4) {
       if (set) Game.moveMarkerId = i;
       return true;
     }
@@ -226,7 +305,7 @@ function hitObject(x, y, set, self)  // sets the object id (if self is null)
     }
   }
   return false;
-} 
+}
 
 function hitObjectRange(x, y, w, self)
 {
@@ -259,33 +338,14 @@ function hitObjectCol(x, self)
   return false;
 }
 
-function roundRect(ctx, x, y, width, height, radius, fill, stroke)
+function hitObjectText(x, i)
 {
-  if (typeof stroke == "undefined") stroke = true;
-  if (typeof radius === "undefined") radius = 5;
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-  if (stroke) ctx.stroke();
-  if (fill)   ctx.fill();
-}
+  x = x - Game.offset;
+  if (Game.objects[i].delete) return false;
 
-function newLine()
-{
-  var r = (Math.random() * 255) | 0;
-  var g = (Math.random() * 255) | 0;
-  var b = (Math.random() * 255) | 0;
-  var hex = "#" + RGBtoHex(r, g, b);
-  var l = { r: r, g: g, b: b, color: hex };
-  Game.lines.push(l);
+  var o = Game.objects[i];
+  if (x > (o.loc+20) && x < (o.loc+o.width-5)) return true;
+  return false;
 }
 
 ///////////////
@@ -293,67 +353,107 @@ function newLine()
 ///////////////
 function onClick(ev)
 {
-  if (Game.picker > 0)
-  {
+  // if picker is open, get and assign new color
+  if (Game.picker > 0) {
     var x = (ev.clientX - Game.surface.offsetLeft);
     var y = (ev.clientY - Game.surface.offsetTop);
     var imgd = Game.context.getImageData(x, y, 1, 1);
     var data = imgd.data;
-    var hexString = "#"+RGBtoHex(data[0],data[1],data[2]);
-    if (Game.picker == 1) Game.objects[Game.pickObject].color = hexString;
-    else if (Game.picker == 2)
-    {
+    var hexString = "#" + RGBtoHex(data[0], data[1], data[2]);
+    if (Game.picker == 1) {
+      Game.objects[Game.pickObject].r = data[0];
+      Game.objects[Game.pickObject].g = data[1];
+      Game.objects[Game.pickObject].b = data[2];
+      Game.objects[Game.pickObject].color = hexString;
+    }
+    else if (Game.picker == 2) {
       Game.lines[Game.pickObject].r = data[0];
       Game.lines[Game.pickObject].g = data[1];
       Game.lines[Game.pickObject].b = data[2];
       Game.lines[Game.pickObject].color = hexString;
     }
-  Game.picker = 0;
+    if (Game.pickObject == Game.editObject)
+    {
+      var d = document.getElementById("data");
+      d.style.backgroundColor = Game.objects[Game.editObject].color;
+    }
+    Game.picker = 0;
     return;
   }
 
+  // if this is a click that is really just a mouse up, dont count it as a click
   if (Game.noClick) { Game.noClick = false; return; }
 
   var x = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   var y = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
-  
+
   // find closest line that is 10 away for later
   var line = 0;
   for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
 
-  if (hitMarker(x, false))
-  {
-    Game.markers[Game.moveMarkerId].pushmode = !Game.markers[Game.moveMarkerId].pushmode;
+  // if clicked on a marker, toggle push mode
+  if (hitMarker(x, false)) {
+    if (hitMarkerText(x, false) == false) Game.markers[Game.moveMarkerId].pushmode = !Game.markers[Game.moveMarkerId].pushmode;
+    else {
+      Game.editType = 2;
+      Game.editObject = Game.moveMarkerId;
+      Game.inputTitle.value = Game.markers[Game.moveMarkerId].text;
+      Game.inputBody.value = Game.markers[Game.moveMarkerId].body;
+    }
     return;
   }
 
-  else if (hitObject(x, y, true))
-  {
-    Game.pickObject = Game.moveObjectId;
-    Game.picker = 1;
+  // if clicked on an object, trigger picker
+  else if (hitObject(x, y, true)) {
+    if (hitObjectText(x, Game.moveObjectId))
+    {
+      Game.editObject = Game.moveObjectId;
+      Game.editType = 1;
+      var d = document.getElementById("data");
+      d.style.backgroundColor = Game.objects[Game.editObject].color;
+      Game.inputTitle.value = Game.objects[Game.editObject].text;
+      Game.inputBody.value = Game.objects[Game.editObject].body;
+    }
+    else
+    {
+      Game.pickObject = Game.moveObjectId;
+      Game.picker = 1;
+    }
   }
 
+  // if click on top header and there is room, make a new marker
   else if (y < markerHeaderHeight && hitObjectCol(x) == false) {
-    var marker = { loc: x - Game.offset, delete: false, pushmode: false };
+    var marker = { loc: x - Game.offset, delete: false, pushmode: false, text: "Marker", body: "" };
     Game.markers.push(marker);
     Game.markers.sort(function (a, b) { return a.loc - b.loc });
   }
 
-  else if (x < lineHeaderHeight)
-  {
-    var line = 0;
-    for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 6) { line = i + 1; break; }
-    if (line == 0) newLine();
-    else
+  // if clicked on side header, make a new line or trigger picker depending
+  else if (x < lineHeaderHeight) {
+    var line = (Game.mouseY / lineSeparation) | 0;
+    var pos = (Game.mouseY % lineSeparation);
+    if (line >= 1 && pos <= 3) --line;
+
+    if (pos >= 38 && pos <= 45)
     {
-      Game.pickObject = line-1;
+      Game.editType = 3;
+      Game.editObject = line;
+      Game.inputTitle.value = Game.lines[line].text;
+      Game.inputBody.value = Game.lines[line].body;
+    }
+    else if (pos > 45 || pos <= 3)
+    {
+      Game.pickObject = line;
       Game.picker = 2;
     }
+    else
+      newLine();
   }
 
+  // if clicked on a line, make a new object
   else if (line > 0 && hitMarkerRange(x, 30) == false) {
     var hex = Game.lines[line - 1].color;
-    var obj = { line: line, loc: x - Game.offset, width: 30, color: hex };
+    var obj = { line: line, loc: x - Game.offset, width: 40, r: Game.lines[line - 1].r, g: Game.lines[line - 1].g, b: Game.lines[line - 1].b, color: hex, body: "", text: Game.lines[line - 1].text + " event" };
     Game.objects.push(obj);
     Game.objects.sort(function (a, b) { return a.loc - b.loc });
   }
@@ -376,8 +476,7 @@ function onMouseDown(ev)
     Game.maxResize = 0;
     return;
   }
-  else
-  {
+  else {
     Game.move = true;
     Game.startZoom = Game.zoom;
     Game.startOffset = Game.offset;
@@ -386,7 +485,8 @@ function onMouseDown(ev)
 
 function onMouseUp(ev)
 {
-  if (Game.zoom != Game.startZoom || Game.offset != Game.startOffset) Game.noClick = true;
+  if (Game.zoom != Game.startZoom /*|| Game.offset != Game.startOffset*/)
+    Game.noClick = true;
   Game.moveMarker = false;
   Game.moveObject = false;
   Game.sizeObject = false;
@@ -405,24 +505,21 @@ function onMouseOut(ev)
 
 function onMouseMove(ev)
 {
-  Game.mouseX = (ev.clientX - Game.surface.offsetLeft ) * Game.zoom;
+  Game.mouseX = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   Game.mouseY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
   if (Game.moveMarker) {
     Game.noClick = true;
     // if going left, stop at prev marker or object
-    if (hitMarker(Game.mouseX, false, Game.moveMarkerId) || hitObjectCol(Game.mouseX))
-    {
+    if (hitMarker(Game.mouseX, false, Game.moveMarkerId) || hitObjectCol(Game.mouseX)) {
       if (Game.markers[Game.moveMarkerId].pushmode && Game.minPush == null) Game.minPush = Game.mouseX;
     }
-    else
-    {
+    else {
       if (Game.markers[Game.moveMarkerId].pushmode && Game.minPush != null && Game.mouseX <= Game.minPush) return;
       var pos = Game.markers[Game.moveMarkerId].loc;
       var diff = (Game.mouseX - Game.offset) - pos;
       Game.markers[Game.moveMarkerId].loc = Game.mouseX - Game.offset;
-      if (Game.markers[Game.moveMarkerId].pushmode)
-      {
+      if (Game.markers[Game.moveMarkerId].pushmode) {
         for (var i in Game.markers) if (i != Game.moveMarkerId && Game.markers[i].loc > pos) Game.markers[i].loc += diff;
         for (var j in Game.objects) if (Game.objects[j].loc > pos) Game.objects[j].loc += diff;
       }
@@ -444,8 +541,7 @@ function onMouseMove(ev)
       else
         Game.maxResize = pos;
     }
-    else
-    {
+    else {
       var o = Game.objects[Game.moveObjectId];
       if (hitMarkerRange(Game.mouseX + Game.moveOffset, o.width) == false
           && hitObjectRange(Game.mouseX + Game.moveOffset, o.line * lineSeparation, o.width, Game.moveObjectId) == false)
@@ -462,15 +558,105 @@ function onMouseMove(ev)
     }
   }
 
-  else if (Game.move)
-  {
+  else if (Game.move) {
     Game.noClick = true;
     Game.offset += Game.mouseX - Game.moveX;
     Game.moveX = Game.mouseX;
 
     Game.zoom = Game.startZoom + ((Game.mouseY - Game.moveY) / Game.zoom) / 200;
     if (Game.zoom < 1) Game.zoom = 1;
+    Game.fontsize = (12 / Game.zoom) | 0;
   }
+}
+
+function onTitleChange()
+{
+  if (Game.editObject != null)
+  {
+    if (Game.editType == 1)
+      Game.objects[Game.editObject].text = Game.inputTitle.value;
+    else if (Game.editType == 2)
+      Game.markers[Game.editObject].text = Game.inputTitle.value;
+    else if (Game.editType == 3)
+      Game.lines[Game.editObject].text = Game.inputTitle.value;
+  }
+}
+
+function onBodyChange()
+{
+  if (Game.editObject != null) {
+    if (Game.editType == 1)
+      Game.objects[Game.editObject].body = Game.inputBody.value;
+    else if (Game.editType == 2)
+      Game.markers[Game.editObject].body = Game.inputBody.value;
+    else if (Game.editType == 3)
+      Game.lines[Game.editObject].body = Game.inputBody.value;
+  }
+}
+///////////////
+// HELPERS
+///////////////
+
+function roundRect(ctx, x, y, width, height, radius, fill, stroke)
+{
+  if (typeof stroke == "undefined") stroke = true;
+  if (typeof radius === "undefined") radius = 5;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  if (stroke) ctx.stroke();
+  if (fill) ctx.fill();
+}
+
+function newLine()
+{
+  var r = (Math.random() * 255) | 0;
+  var g = (Math.random() * 255) | 0;
+  var b = (Math.random() * 255) | 0;
+  var hex = "#" + RGBtoHex(r, g, b);
+  var l = { r: r, g: g, b: b, color: hex, text: "Line "+(Game.lines.length+1), body: "" };
+  Game.lines.push(l);
+}
+
+function RGBtoHex(R, G, B) { return toHex(R) + toHex(G) + toHex(B); }
+
+function getContrastColor(r, g, b)
+{
+  var colorL = (0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255));
+  var blackL = 0;
+  var whiteL = (0.2126 + 0.7152 + 0.0722);
+  var blackRatio = Math.round((Math.max(colorL, blackL) + 0.05) / (Math.min(colorL, blackL) + 0.05) * 10) / 10;
+  var whiteRatio = Math.round((Math.max(colorL, whiteL) + 0.05) / (Math.min(colorL, whiteL) + 0.05) * 10) / 10;
+  if (blackRatio > whiteRatio) return "#000000";
+  return "#ffffff";
+}
+
+function fitString(text, width)
+{
+  var min = 0;
+  var max = text.length;
+  var w = max;
+
+  if (Game.context.measureText(text).width <= width) return text;
+  for (var i = 0; i <= max; ++i)
+    if (Game.context.measureText(text.substring(0, i)).width > width) return text.substring(0, i - 1);
+  return "";
+}
+
+function toHex(N)
+{
+  if (N == null) return "00";
+  N = parseInt(N); if (N == 0 || isNaN(N)) return "00";
+  N = Math.max(0, N); N = Math.min(N, 255); N = Math.round(N);
+  return "0123456789ABCDEF".charAt((N - N % 16) / 16) + "0123456789ABCDEF".charAt(N % 16);
 }
 
 ///////////////
@@ -481,14 +667,3 @@ function main()
   Game.init();
   window.setInterval(Game.run, 17);
 }
-
-function RGBtoHex(R, G, B) { return toHex(R) + toHex(G) + toHex(B); }
-
-function toHex(N)
-{
-   if (N==null) return "00";
-   N=parseInt(N); if (N==0 || isNaN(N)) return "00";
-   N=Math.max(0,N); N=Math.min(N,255); N=Math.round(N);
-   return "0123456789ABCDEF".charAt((N-N%16)/16) + "0123456789ABCDEF".charAt(N%16);
-}
-

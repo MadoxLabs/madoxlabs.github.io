@@ -2,20 +2,31 @@
 <html><head>
     <style type="text/css">
       #surface { border: solid black 1px; }
+      #data { 
+        position:absolute;
+        top:0;
+        left:820;
+      }
     </style>
     <script src="timeline.js"></script>
   </head>
   <body onload="main();">
     <div id="stdout"></div>
     <div><canvas id='surface' width="800" height="600"></div>
+    <div id="data">
+    <input id="title" size="50"/><br />
+    <textarea id="text" rows="10" cols="40"></textarea>
+    </div>
     <b>Timeline Tool</b><br>
     Create new line : click left edge<br>
     Change line default color : click the line thumb to change, click on a new color<br />
+    Change the line default text : click on the line's circle to use editor
     <br>
     Create new chapter mark : click top edge<br>
     Move chapter mark : drag chapter marker left/right<br>
     Delete chapter mark : drag chapter marker down<br>
     Change marker to push mode : click marker thumb<br />
+    Change the marker default text : click on the marker's circle to use editor
     <br>
     Create new event : click on a line<br>
     Move event : drag event left/right<br>
@@ -23,14 +34,12 @@
     Move event to new line : drag event up/down to other line<br>
     Delete event : drag event up/down off of line<br>
     Change event color : click the event to change, click on a new color<br />
+    Change the event text : click on the event's text to use editor
     <br>
     Scroll view : drag the black area left/right<br>
     Zoom View : drag the black area up/down<br />
     <br>
 TODO<br />
-    - text labels on lines, markers, boxes<br />
-    - text tooltips on lines, markers, boxes<br />
-    - text block assigned to lines, markers, boxes<br />
     - save<br />
     - load<br />
     - chapter mode <br />
