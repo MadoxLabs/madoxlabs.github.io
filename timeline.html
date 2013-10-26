@@ -15,18 +15,21 @@
     <div><canvas id='surface' width="800" height="600"></div>
     <div id="data">
     <input id="title" size="50"/><br />
-    <textarea id="text" rows="10" cols="40"></textarea>
+    <textarea id="text" rows="10" cols="40"></textarea><br />
+    Filename: <input id="filename" /> <button onclick="save();">Save</button><br />
+    <select id="loadname"></select><button onclick="load();">Load</button><button onclick="deleteSave();">Delete</button><br />
+    <textarea id="rawdata"></textarea><button onclick="loadraw();">Load Raw Data</button><br />
     </div>
     <b>Timeline Tool</b><br>
     Create new line : click left edge<br>
     Change line default color : click the line thumb to change, click on a new color<br />
-    Change the line default text : click on the line's circle to use editor
+    Change the line default text : click on the line's circle to use editor<br />
     <br>
     Create new chapter mark : click top edge<br>
     Move chapter mark : drag chapter marker left/right<br>
     Delete chapter mark : drag chapter marker down<br>
     Change marker to push mode : click marker thumb<br />
-    Change the marker default text : click on the marker's circle to use editor
+    Change the marker default text : click on the marker's circle to use editor<br />
     <br>
     Create new event : click on a line<br>
     Move event : drag event left/right<br>
@@ -34,16 +37,20 @@
     Move event to new line : drag event up/down to other line<br>
     Delete event : drag event up/down off of line<br>
     Change event color : click the event to change, click on a new color<br />
-    Change the event text : click on the event's text to use editor
+    Change the event text : click on the event's text to use editor<br />
     <br>
     Scroll view : drag the black area left/right<br>
     Zoom View : drag the black area up/down<br />
     <br>
+    Save your work : enter a filename and click save<br />
+    Load previous work : select a saved filename and click load<br />
+    Delete previous work : select a saved filename and click Delete<br />
+    Save your work to external source : after saving, copy the save data from the Raw Data textarea<br />
+    Load work from external source : paste data into Raw Data textarea and click Load Raw Data<br />
+    Start a new peice of work : reload page<br />
+    <br />
 TODO<br />
-    - save<br />
-    - load<br />
     - chapter mode <br />
-    - multiple files<br />
   </body>
 </html>
 

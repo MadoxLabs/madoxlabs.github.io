@@ -14,6 +14,29 @@ var lineSeparation = 50;
 
 Game.init = function ()
 {
+  this.clear();
+  this.surface = document.getElementById('surface');
+  this.surface.addEventListener("click", onClick, false);
+  this.surface.addEventListener("mousedown", onMouseDown, false);
+  this.surface.addEventListener("mouseup", onMouseUp, false);
+  this.surface.addEventListener("mouseout", onMouseOut, false);
+  this.surface.addEventListener("mousemove", onMouseMove, false);
+  this.context = this.surface.getContext('2d');
+  this.context.font = "12px Verdana";
+
+  this.lastTime = 0;
+  this.time = 0;
+  this.updateTime = 0;
+
+  this.inputTitle = document.getElementById("title");
+  this.inputBody = document.getElementById("text");
+
+  initList();
+  newLine();
+}
+
+Game.clear = function()
+{
   this.maxResize = 0;
   this.minPush = null;
   this.move = false;
@@ -32,24 +55,7 @@ Game.init = function ()
   this.lines = [];
   this.objects = [];
   this.markers = [];
-  this.surface = document.getElementById('surface');
-  this.surface.addEventListener("click", onClick, false);
-  this.surface.addEventListener("mousedown", onMouseDown, false);
-  this.surface.addEventListener("mouseup", onMouseUp, false);
-  this.surface.addEventListener("mouseout", onMouseOut, false);
-  this.surface.addEventListener("mousemove", onMouseMove, false);
-  this.context = this.surface.getContext('2d');
   this.fontsize = 12;
-  this.context.font = "12px Verdana";
-
-  this.lastTime = 0;
-  this.time = 0;
-  this.updateTime = 0;
-
-  this.inputTitle = document.getElementById("title");
-  this.inputBody = document.getElementById("text");
-
-  newLine();
 }
 
 Game.stdout = function (text)
@@ -592,6 +598,84 @@ function onBodyChange()
     else if (Game.editType == 3)
       Game.lines[Game.editObject].body = Game.inputBody.value;
   }
+}
+
+function save()
+{
+  // get filename
+  var file = document.getElementById("filename").value;
+  if (file.length == 0) { Game.stdout("Missing filename"); return; }
+  // create hash of stuff
+  var data = { markers: Game.markers, objects: Game.objects, lines: Game.lines };
+  // save
+  localStorage[file] = JSON.stringify(data);
+  document.getElementById("rawdata").value = JSON.stringify(data);
+  // create option if needed
+  var select = document.getElementById("loadname");
+  var add = true;
+  for (var i = 0; i < select.length; i++) if (select.options[i].text == file) add = false;
+  if (add) select.options[select.options.length] = new Option(file, file);
+  // add to list
+  var list = localStorage['filelist'];
+  if (list === undefined) list = {}; else list = JSON.parse(list);
+  list[file] = file;
+  localStorage['filelist'] = JSON.stringify(list);
+}
+
+function load()
+{
+  // get filename
+  var select = document.getElementById("loadname");
+  var filename = select.options[select.selectedIndex].text;
+  // load
+  var data = JSON.parse(localStorage[filename]);
+  document.getElementById("rawdata").value = JSON.stringify(data);
+  document.getElementById("filename").value = filename;
+  // restore state
+  Game.clear();
+  Game.markers = data.markers;
+  Game.objects = data.objects;
+  Game.lines = data.lines;
+}
+
+function loadraw()
+{
+  // load
+  var text = document.getElementById("rawdata").value;
+  var data = JSON.parse(text);
+  // restore state
+  Game.clear();
+  Game.markers = data.markers;
+  Game.objects = data.objects;
+  Game.lines = data.lines;
+}
+
+function deleteSave()
+{
+  // get filename
+  var select = document.getElementById("loadname");
+  var filename = select.options[select.selectedIndex].text;
+  // delete from storage
+  localStorage.removeItem(filename);
+  // delete from list
+  var list = localStorage['filelist'];
+  if (list === undefined) list = {}; else list = JSON.parse(list);
+  delete list[filename];
+  localStorage['filelist'] = JSON.stringify(list);
+  // rebuild list
+  var select = document.getElementById("loadname");
+  select.options.length = 0;
+  for (var i in list)
+    select.options[select.options.length] = new Option(list[i], list[i]);
+}
+
+function initList()
+{
+  var select = document.getElementById("loadname");
+  var list = localStorage['filelist'];
+  if (list === undefined) list = {}; else list = JSON.parse(list);
+  for (var i in list)
+    select.options[select.options.length] = new Option(list[i], list[i]);
 }
 ///////////////
 // HELPERS
