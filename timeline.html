@@ -7,6 +7,11 @@
         top:0;
         left:820;
       }
+      #save { 
+        position:absolute;
+        top:300;
+        left:820;
+      }
     </style>
     <script src="timeline.js"></script>
   </head>
@@ -16,6 +21,8 @@
     <div id="data">
     <input id="title" size="50"/><br />
     <textarea id="text" rows="10" cols="40"></textarea><br />
+    </div>
+    <div id="save">
     Filename: <input id="filename" /> <button onclick="save();">Save</button><br />
     <select id="loadname"></select><button onclick="load();">Load</button><button onclick="deleteSave();">Delete</button><br />
     <textarea id="rawdata"></textarea><button onclick="loadraw();">Load Raw Data</button><br />
