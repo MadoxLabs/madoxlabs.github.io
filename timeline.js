@@ -4,12 +4,12 @@
 var Game = {};
 
 var markerHeaderHeight = 15;
-var markerHeaderColor = "#F5F5DC"
-var markerColor = "#00FF00"
-var pushColor = "#FF0000"
+var markerHeaderColor = "#F5F5DC";
+var markerColor = "#00FF00";
+var pushColor = "#FF0000";
 var lineHeaderHeight = 15;
-var lineHeaderColor = "#F5F5DC"
-var lineColor = "#0000FF"
+var lineHeaderColor = "#F5F5DC";
+var lineColor = "#0000FF";
 var lineSeparation = 50;
 
 Game.init = function ()
@@ -50,6 +50,7 @@ Game.clear = function()
   this.pickerImg = null;
   this.editObject = null;
   this.moveLock = 0;  // 1 scroll 2 zoom
+  this.chapterMode = false;
   this.offset = 0;   // left/right scroll state
   this.zoom = 1;     // zoom factor
   this.lines = [];
@@ -220,28 +221,80 @@ Game.draw = function ()
     // draw tooltip for object text
     if (Game.moveMarker == false && Game.moveObject == false && Game.move == false)
     {
-      var o;
+      var o = null;
       if (hitObject(Game.mouseX, Game.mouseY)) o = Game.objects[Game.moveObjectId];
       else if (hitMarker(Game.mouseX) && Game.mouseY < markerHeaderHeight) o = Game.markers[Game.moveMarkerId];
       else if (Game.mouseX < lineHeaderHeight && (Game.mouseY % lineSeparation) > 5 && ((Game.mouseY / lineSeparation) | 0) < Game.lines.length) o = Game.lines[(Game.mouseY / lineSeparation) | 0];
-      else return;
-      Game.context.font = "12px Arial";
-      var w = Game.context.measureText(o.text).width;
-      var x = Game.mouseX;
-      var y = Game.mouseY;
-      Game.context.strokeStyle = "#777777";
-      Game.context.fillStyle = "#777777";
-      Game.context.fillRect(x / Game.zoom, y / Game.zoom, w + 12, 20);
-      Game.context.strokeStyle = "#aaaaaa";
-      Game.context.fillStyle = "#aaaaaa";
-      Game.context.fillRect(x / Game.zoom + 3, y / Game.zoom + 3, w + 6, 20 - 6);
-      Game.context.strokeStyle = "#000000";
-      Game.context.fillStyle = "#000000";
-      Game.context.fillText(o.text, x / Game.zoom + 6, y / Game.zoom + 3 + 12);
+      
+      if (o !== null)
+      {
+        Game.context.font = "12px Arial";
+        var w = Game.context.measureText(o.text).width;
+        var x = Game.mouseX;
+        var y = Game.mouseY;
+        Game.context.strokeStyle = "#777777";
+        Game.context.fillStyle = "#777777";
+        Game.context.fillRect(x / Game.zoom, y / Game.zoom, w + 12, 20);
+        Game.context.strokeStyle = "#aaaaaa";
+        Game.context.fillStyle = "#aaaaaa";
+        Game.context.fillRect(x / Game.zoom + 3, y / Game.zoom + 3, w + 6, 20 - 6);
+        Game.context.strokeStyle = "#000000";
+        Game.context.fillStyle = "#000000";
+        Game.context.fillText(o.text, x / Game.zoom + 6, y / Game.zoom + 3 + 12);
+      }
+    }
+  }
+
+  // chapter mode button
+  Game.context.strokeStyle = !Game.chapterMode ? "#00ff00" : "#ff0000";
+  Game.context.fillStyle = !Game.chapterMode ? "#00ff00": "#ff0000";
+  Game.context.fillRect(0, 0, markerHeaderHeight, lineHeaderHeight);
+
+  if (Game.chapterMode)
+  {
+    for (var i in Game.markers) {
+      var m = Game.markers[i];
+      if (m.delete) continue;
+
+      var w = 99999999999;
+      for (var j in Game.markers) {
+        var mj = Game.markers[j];
+        if (mj.delete) continue;
+        if (mj.loc-m.loc < w && mj.loc > m.loc) w = mj.loc-m.loc;
+      }
+      if (w == 99999999999)
+      {
+        w = 0;
+        for (var j in Game.objects) {
+          var o = Game.objects[j];
+          if (o.delete) continue;
+          if (o.loc >= m.loc && o.loc + o.width - m.loc > w) w = o.loc + o.width - m.loc;
+        }
+      }
+      if (w == 0)        w = 100;
+      Game.context.strokeStyle = "rgba(255,255,120,0.75)";
+      Game.context.fillStyle = "rgba(255,255,120,0.75)";
+      Game.context.fillRect((Game.offset + m.loc) / Game.zoom + 4, markerHeaderHeight + 4, w / Game.zoom - 4, 800 - 8 - markerHeaderHeight);
+      drawRotateText(m.loc / Game.zoom + Game.fontsize, (markerHeaderHeight + 10) / Game.zoom + Game.fontsize, m.text, w / Game.zoom);
     }
   }
 }
 
+function drawRotateText(x, y, text, w)
+{
+  var textw = Game.context.measureText(text).width;
+  Game.context.save();
+  if (w != null && textw > w)
+  {
+    Game.context.translate(x, y);
+    Game.context.rotate(Math.PI / 2);
+    Game.context.translate(-x, -y);
+  }
+  Game.context.strokeStyle = "#000000";
+  Game.context.fillStyle = "#000000";
+  Game.context.fillText(text,x,y);
+  Game.context.restore();
+}
 ///////////////
 // Hit Testers
 ///////////////
@@ -392,6 +445,12 @@ function onClick(ev)
 
   var x = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   var y = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
+
+  if (x < lineHeaderHeight && y < markerHeaderHeight)
+  {
+    Game.chapterMode = !Game.chapterMode;
+    return;
+  }
 
   // find closest line that is 10 away for later
   var line = 0;
