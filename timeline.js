@@ -49,7 +49,7 @@ Game.clear = function()
   this.picker = false;  // show color picker
   this.pickerImg = null;
   this.editObject = null;
-
+  this.moveLock = 0;  // 1 scroll 2 zoom
   this.offset = 0;   // left/right scroll state
   this.zoom = 1;     // zoom factor
   this.lines = [];
@@ -398,7 +398,7 @@ function onClick(ev)
   for (var i = 0; i < Game.lines.length; ++i) if (Math.abs(Game.mouseY - (lineSeparation * (i + 1))) < 20) { line = i + 1; break; }
 
   // if clicked on a marker, toggle push mode
-  if (hitMarker(x, false)) {
+  if (y < markerHeaderHeight && hitMarker(x, false)) {
     if (hitMarkerText(x, false) == false) Game.markers[Game.moveMarkerId].pushmode = !Game.markers[Game.moveMarkerId].pushmode;
     else {
       Game.editType = 2;
@@ -440,17 +440,18 @@ function onClick(ev)
     var pos = (Game.mouseY % lineSeparation);
     if (line >= 1 && pos <= 3) --line;
 
-    if (pos >= 38 && pos <= 45)
+    if (line < Game.lines.length)
     {
-      Game.editType = 3;
-      Game.editObject = line;
-      Game.inputTitle.value = Game.lines[line].text;
-      Game.inputBody.value = Game.lines[line].body;
-    }
-    else if (pos > 45 || pos <= 3)
-    {
-      Game.pickObject = line;
-      Game.picker = 2;
+      if (pos >= 38 && pos <= 45) {
+        Game.editType = 3;
+        Game.editObject = line;
+        Game.inputTitle.value = Game.lines[line].text;
+        Game.inputBody.value = Game.lines[line].body;
+      }
+      else if (pos > 45 || pos <= 3) {
+        Game.pickObject = line;
+        Game.picker = 2;
+      }
     }
     else
       newLine();
@@ -470,7 +471,7 @@ function onMouseDown(ev)
   Game.moveX = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   Game.moveY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
-  if (hitMarker(Game.moveX, true)) {
+  if (Game.moveY < markerHeaderHeight && hitMarker(Game.moveX, true)) {
     Game.moveMarker = true;
     Game.minPush = null;
     return;
@@ -498,6 +499,7 @@ function onMouseUp(ev)
   Game.sizeObject = false;
   Game.move = false;
   Game.maxResize = 0;
+  Game.moveLock = 0;
 }
 
 function onMouseOut(ev)
@@ -564,12 +566,18 @@ function onMouseMove(ev)
     }
   }
 
-  else if (Game.move) {
+  else if (Game.move)
+  {
+    if (Game.moveLock == 0)
+    {
+      if (Math.abs(Game.moveX - Game.mouseX) > Math.abs(Game.moveY - Game.mouseY)) Game.moveLock = 1;
+      else Game.moveLock = 2;
+    }
     Game.noClick = true;
-    Game.offset += Game.mouseX - Game.moveX;
+    if (Game.moveLock != 2) Game.offset += Game.mouseX - Game.moveX;
     Game.moveX = Game.mouseX;
 
-    Game.zoom = Game.startZoom + ((Game.mouseY - Game.moveY) / Game.zoom) / 200;
+    if (Game.moveLock != 1) Game.zoom = Game.startZoom + ((Game.mouseY - Game.moveY) / Game.zoom) / 200;
     if (Game.zoom < 1) Game.zoom = 1;
     Game.fontsize = (12 / Game.zoom) | 0;
   }
