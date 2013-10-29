@@ -119,7 +119,7 @@ Game.draw = function ()
   Game.context.fillRect(0, 0, 800, markerHeaderHeight);
 
   // if nothing is being moved, we can draw ghost objects to help the user
-  if (Game.moveMarker == false && Game.moveObject == false && Game.move == false) {
+  if (Game.moveMarker == false && Game.moveObject == false && Game.move == false && Game.chapterMode == false) {
     // Draw ghost marker
     if (Game.mouseY < markerHeaderHeight && hitMarker(Game.mouseX) == false && hitObjectCol(Game.mouseX) == false) {
       var m = Game.mouseX;
@@ -271,19 +271,27 @@ Game.draw = function ()
           if (o.loc >= m.loc && o.loc + o.width - m.loc > w) w = o.loc + o.width - m.loc;
         }
       }
-      if (w == 0)        w = 100;
-      Game.context.strokeStyle = "rgba(255,255,120,0.75)";
-      Game.context.fillStyle = "rgba(255,255,120,0.75)";
+      if (w == 0) w = 100;
+      if (Game.moveMarker && Game.moveMarkerId == i)
+      {
+        Game.context.strokeStyle = "rgba(255,0,120,0.75)";
+        Game.context.fillStyle = "rgba(255,0,120,0.75)";
+      } else 
+      {
+        Game.context.strokeStyle = "rgba(255,255,120,0.75)";
+        Game.context.fillStyle = "rgba(255,255,120,0.75)";
+      }
       Game.context.fillRect((Game.offset + m.loc) / Game.zoom + 4, markerHeaderHeight + 4, w / Game.zoom - 4, 800 - 8 - markerHeaderHeight);
-      drawRotateText(m.loc / Game.zoom + Game.fontsize, (markerHeaderHeight + 10) / Game.zoom + Game.fontsize, m.text, w / Game.zoom);
+      drawRotateText((Game.offset + m.loc) / Game.zoom + 10, markerHeaderHeight + 10 / Game.zoom + 10, m.text, (w-15) / Game.zoom);
     }
   }
 }
 
 function drawRotateText(x, y, text, w)
 {
-  var textw = Game.context.measureText(text).width;
   Game.context.save();
+  Game.context.font = "12px Arial";
+  var textw = Game.context.measureText(text).width;
   if (w != null && textw > w)
   {
     Game.context.translate(x, y);
@@ -295,6 +303,7 @@ function drawRotateText(x, y, text, w)
   Game.context.fillText(text,x,y);
   Game.context.restore();
 }
+
 ///////////////
 // Hit Testers
 ///////////////
@@ -407,6 +416,69 @@ function hitObjectText(x, i)
   return false;
 }
 
+function findRightChapterWidth(id)
+{
+  var m = Game.markers[id];
+  var data = { id: null, loc: 9999999999 };
+  for (var i in Game.markers) if (Game.markers[i].loc > m.loc && Game.markers[i].loc < data.loc) {
+    data.id = i;
+    data.loc = Game.markers[i].loc;
+  }
+  if (data.id === null) return { width: 0 };
+
+  id = data.id;
+  m = Game.markers[id];
+  data.loc = 9999999999;
+  for (var i in Game.markers) if (Game.markers[i].loc > m.loc && Game.markers[i].loc < data.loc) {
+    data.loc = Game.markers[i].loc;
+  }
+
+  if (data.id === null) return { width: 0 };
+  return { id: data.id, width: Math.abs(m.loc - data.loc) };
+}
+
+function findLeftChapterWidth(id)
+{
+  var m = Game.markers[id];
+  var data = { id: null, loc: 0 };
+  for (var i in Game.markers) if (Game.markers[i].loc < m.loc && Game.markers[i].loc > data.loc) {
+    data.id = i;
+    data.loc = Game.markers[i].loc;
+  }
+  if (data.id === null) return { width: 0 };
+  return { id: data.id, width: Math.abs(m.loc - data.loc) };
+}
+
+function swapChapters(fromId, toId, toWidth)
+{
+  if (toWidth == 0) 
+  {
+    // detect it
+    towidth = 9999999999;
+    var m = Game.markers[toId];
+    for (var i in Game.markers) if (Game.markers[i].loc > m.loc && Game.markers[i].loc < towidth) {
+      towidth = Game.markers[i].loc;
+    }
+    toWidth = towidth - m.loc;
+  }
+  var add = {};
+  var sub = {};
+  var addValue = toWidth;
+  var subValue = Game.markers[toId].loc - Game.markers[fromId].loc;
+  for (i in Game.objects)
+  {
+    var o = Game.objects[i];
+    if (o.loc > Game.markers[fromId].loc && o.loc < Game.markers[toId].loc)
+      add[i] = i; // save it for addition
+    else if (o.loc > Game.markers[toId].loc && o.loc < Game.markers[toId].loc+toWidth)
+      sub[i] = i; // save it for subtraction
+  }
+  for (i in add) Game.objects[i].loc += addValue;
+  Game.markers[fromId].loc += addValue;
+  for (i in sub) Game.objects[i].loc -= subValue;
+  Game.markers[toId].loc -= subValue;
+}
+
 ///////////////
 // Event Handlers
 ///////////////
@@ -446,11 +518,13 @@ function onClick(ev)
   var x = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   var y = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
 
-  if (x < lineHeaderHeight && y < markerHeaderHeight)
+  if (x / Game.zoom < lineHeaderHeight && y / Game.zoom < markerHeaderHeight)
   {
     Game.chapterMode = !Game.chapterMode;
     return;
   }
+
+  if (Game.chapterMode) return;
 
   // find closest line that is 10 away for later
   var line = 0;
@@ -487,14 +561,14 @@ function onClick(ev)
   }
 
   // if click on top header and there is room, make a new marker
-  else if (y < markerHeaderHeight && hitObjectCol(x) == false) {
+  else if (y/Game.zoom < markerHeaderHeight && hitObjectCol(x) == false) {
     var marker = { loc: x - Game.offset, delete: false, pushmode: false, text: "Marker", body: "" };
     Game.markers.push(marker);
-    Game.markers.sort(function (a, b) { return a.loc - b.loc });
+//    Game.markers.sort(function (a, b) { return a.loc - b.loc });
   }
 
   // if clicked on side header, make a new line or trigger picker depending
-  else if (x < lineHeaderHeight) {
+  else if (x / Game.zoom < lineHeaderHeight) {
     var line = (Game.mouseY / lineSeparation) | 0;
     var pos = (Game.mouseY % lineSeparation);
     if (line >= 1 && pos <= 3) --line;
@@ -521,7 +595,7 @@ function onClick(ev)
     var hex = Game.lines[line - 1].color;
     var obj = { line: line, loc: x - Game.offset, width: 40, r: Game.lines[line - 1].r, g: Game.lines[line - 1].g, b: Game.lines[line - 1].b, color: hex, body: "", text: Game.lines[line - 1].text + " event" };
     Game.objects.push(obj);
-    Game.objects.sort(function (a, b) { return a.loc - b.loc });
+//    Game.objects.sort(function (a, b) { return a.loc - b.loc });
   }
 }
 
@@ -529,6 +603,19 @@ function onMouseDown(ev)
 {
   Game.moveX = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   Game.moveY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
+  if (Game.chapterMode)
+  {
+    // find marker we are in
+    var data = { id: null, loc: 0 };
+    for (var i in Game.markers) if (Game.markers[i].loc < (Game.moveX - Game.offset) && (Game.markers[i].loc > data.loc)) 
+    { 
+      data.id = i; 
+      data.loc = Game.markers[i].loc;
+    }
+    Game.moveMarker = true;
+    Game.moveMarkerId = data.id;
+    return;
+  }
 
   if (Game.moveY < markerHeaderHeight && hitMarker(Game.moveX, true)) {
     Game.moveMarker = true;
@@ -574,6 +661,21 @@ function onMouseMove(ev)
 {
   Game.mouseX = (ev.clientX - Game.surface.offsetLeft) * Game.zoom;
   Game.mouseY = (ev.clientY - Game.surface.offsetTop) * Game.zoom;
+
+  if (Game.chapterMode && Game.moveMarker)
+  {
+    var goingLeft = (Game.moveX > Game.mouseX) ? true : false;
+    var w = goingLeft ? findLeftChapterWidth(Game.moveMarkerId) : findRightChapterWidth(Game.moveMarkerId);
+    if (w.width == 0) return;
+    if (Math.abs(Game.moveX - Game.mouseX) >= w.width)
+    {
+      if (goingLeft) swapChapters(w.id, Game.moveMarkerId, 0);
+      else swapChapters(Game.moveMarkerId, w.id, w.width);
+      Game.moveX = Game.mouseX;
+      Game.moveY = Game.mouseY;
+    }
+    return;
+  }
 
   if (Game.moveMarker) {
     Game.noClick = true;
