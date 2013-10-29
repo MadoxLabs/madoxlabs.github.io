@@ -420,7 +420,7 @@ function findRightChapterWidth(id)
 {
   var m = Game.markers[id];
   var data = { id: null, loc: 9999999999 };
-  for (var i in Game.markers) if (Game.markers[i].loc > m.loc && Game.markers[i].loc < data.loc) {
+  for (var i in Game.markers) if (!Game.markers[i].deleted && Game.markers[i].loc > m.loc && Game.markers[i].loc < data.loc) {
     data.id = i;
     data.loc = Game.markers[i].loc;
   }
@@ -429,7 +429,7 @@ function findRightChapterWidth(id)
   id = data.id;
   m = Game.markers[id];
   data.loc = 9999999999;
-  for (var i in Game.markers) if (Game.markers[i].loc > m.loc && Game.markers[i].loc < data.loc) {
+  for (var i in Game.markers) if (!Game.markers[i].deleted && Game.markers[i].loc > m.loc && Game.markers[i].loc < data.loc) {
     data.loc = Game.markers[i].loc;
   }
 
@@ -441,7 +441,7 @@ function findLeftChapterWidth(id)
 {
   var m = Game.markers[id];
   var data = { id: null, loc: 0 };
-  for (var i in Game.markers) if (Game.markers[i].loc < m.loc && Game.markers[i].loc > data.loc) {
+  for (var i in Game.markers) if (!Game.markers[i].deleted && Game.markers[i].loc < m.loc && Game.markers[i].loc > data.loc) {
     data.id = i;
     data.loc = Game.markers[i].loc;
   }
@@ -456,7 +456,7 @@ function swapChapters(fromId, toId, toWidth)
     // detect it
     towidth = 9999999999;
     var m = Game.markers[toId];
-    for (var i in Game.markers) if (Game.markers[i].loc > m.loc && Game.markers[i].loc < towidth) {
+    for (var i in Game.markers) if (!Game.markers[i].deleted && Game.markers[i].loc > m.loc && Game.markers[i].loc < towidth) {
       towidth = Game.markers[i].loc;
     }
     toWidth = towidth - m.loc;
@@ -468,6 +468,7 @@ function swapChapters(fromId, toId, toWidth)
   for (i in Game.objects)
   {
     var o = Game.objects[i];
+    if (o.deleted) continue;
     if (o.loc > Game.markers[fromId].loc && o.loc < Game.markers[toId].loc)
       add[i] = i; // save it for addition
     else if (o.loc > Game.markers[toId].loc && o.loc < Game.markers[toId].loc+toWidth)
@@ -607,7 +608,7 @@ function onMouseDown(ev)
   {
     // find marker we are in
     var data = { id: null, loc: 0 };
-    for (var i in Game.markers) if (Game.markers[i].loc < (Game.moveX - Game.offset) && (Game.markers[i].loc > data.loc)) 
+    for (var i in Game.markers) if (!Game.markers[i].deleted && Game.markers[i].loc < (Game.moveX - Game.offset) && (Game.markers[i].loc > data.loc))
     { 
       data.id = i; 
       data.loc = Game.markers[i].loc;
