@@ -1,0 +1,252 @@
+﻿<html>
+<head>
+  <title>Kerbal Staging Helper</title>
+
+  <script>
+function round(x)
+{
+  return (x+0.5)|0;
+}
+
+var pinned = false;
+var lastpercent = 0;
+var lastasp = 0;
+
+var engines = [ 
+                { "name": "Rockomax Mailsail", "mass": 6, "thrust": 1500, "type": 1 },
+                { "name": "Rockomax Skipper", "mass": 4, "thrust": 650, "type": 2 },
+                { "name": "Rockoax Poodle", "mass": 2.5, "thrust": 220, "type": 2 },
+                { "name": "LV-T30", "mass": 1.25, "thrust": 215, "type": 3 },
+                { "name": "LV-T45", "mass": 1.5, "thrust": 200, "type": 1 },
+//                { "name": "Toroidal Aerospike", "mass": 1.5, "thrust": 175, "type": 2 },
+                { "name": "Rockomax Mark 55 Radial", "mass": 0.9, "thrust": 120, "type": 2 },
+//                { "name": "LV-909", "mass": 0.5, "thrust": 50, "type": 3 },
+//                { "name": "Rockomax 48-7S", "mass": 0.1, "thrust": 30, "type": 1 },
+//                { "name": "Rockomax 24-77 Radial", "mass": 0.09, "thrust": 20, "type": 2 },
+//                { "name": "LV-1", "mass": 0.03, "thrust": 1.5, "type": 2 },
+//                { "name": "LV-1R Radial", "mass": 0.03, "thrust": 1.5, "type": 3 }
+              ];
+
+var results = {};
+
+function setmass()
+{
+  var mass = document.getElementById("mass").value;
+  var g = document.getElementById("grav").value;
+  var twr  = document.getElementById("slidertwr").value;
+  var centerratio  = document.getElementById("slidercenterratio").value;
+  var asp  = document.getElementById("sliderasp").value;
+  var total = mass * 100.0 / 15.0;
+  var lifter = total - mass;
+  var thrust = total * g * twr;
+
+  // fixup illegal values
+  if (!pinned)
+  {
+    if (centerratio == 100) 
+    {
+      pinned = true;
+      asp = 0;
+      set('asp', asp);
+    }
+    else if (asp == 0) 
+    {
+      pinned = true;
+      centerratio = 100;
+      set("centerratio", centerratio);
+    } 
+    else
+    {
+      lastpercent = centerratio;
+      lastasp = asp;
+    }
+  }
+  else if (pinned)
+  {
+    if (centerratio != 100) 
+    {
+      pinned = false;
+      asp = lastasp;
+      set('asp', asp);
+    }
+    else if (asp != 0) 
+    {
+      pinned = false;
+      centerratio = lastpercent;
+      set("centerratio", centerratio);
+    } 
+  }
+
+  // compute
+  centerratio = centerratio / 100.0;
+  document.getElementById("massTotal").value = round(total);
+  document.getElementById("massLift").value = round(lifter);
+  document.getElementById("thrust").value = round(thrust);
+  document.getElementById("thrustCenter").value = round(thrust * centerratio);
+  document.getElementById("thrustBooster").value = round(thrust * (1.0 - centerratio));
+  document.getElementById("thrustPerBooster").value = round(thrust * (1.0 - centerratio) / asp);
+
+  // create center engine configs
+  var config = 0;
+  var mass = 0;
+  results = {};
+  figureout(config, mass, round(thrust * centerratio), 0);
+
+  // remove anything with a single radial, or multiple single engines
+  var sortresults = new Array();
+  for (var key in results)
+  {
+    var s = '' + results[key].config;
+    if (s.length > 5 && s[0] == '1') continue;
+
+    var n = s.indexOf('1');
+    if (n != -1 && s.indexOf('1',n+1) != -1) continue;
+
+    if (results[key].thrust > round(thrust * centerratio)*0.1) continue;
+
+    sortresults.push({ mask: key, val: results[key] });
+  }
+  sortresults.sort(function(a,b) { return a.val.thrust == b.val.thrust ? a.val.mass - b.val.mass : a.val.thrust - b.val.thrust; });
+
+  var out = "<table border=1>";
+  for (var i = 0; i < sortresults.length; ++i)
+    out += "<tr><td>mass: "+ sortresults[i].val.mass + " missing thrust: " + sortresults[i].val.thrust + "</td><td>" + engineprint(sortresults[i].val.config) + "</td></tr>";
+  document.getElementById("mainengine").innerHTML = out + "</table>";
+
+
+  // create booster engine configs
+  var config = 0;
+  var mass = 0;
+  results = {};
+  figureout(config, mass, round(thrust * (1.0 - centerratio) / asp), 0);
+
+  // anything goes - its already balanced in pairs
+  sortresults = new Array();
+  for (var key in results)
+  {
+    if (results[key].thrust > round(thrust * (1.0 - centerratio) / asp)*0.1) continue;
+    sortresults.push({ mask: key, val: results[key] });
+  }
+  sortresults.sort(function(a,b) { return a.val.thrust == b.val.thrust ? a.val.mass - b.val.mass : a.val.thrust - b.val.thrust; });
+
+  var out = "<table border=1>";
+  for (var i = 0; i < sortresults.length; ++i)
+    out += "<tr><td>mass: "+ sortresults[i].val.mass + " missing thrust: " + sortresults[i].val.thrust + "</td><td>" + engineprint(sortresults[i].val.config) + "</td></tr>";
+  document.getElementById("boosterengine").innerHTML = out + "</table>";
+}
+
+function engineprint(value)
+{
+  var ret = '';
+  var valuestr = '';
+  for (var i = ('' + value).length; i < engines.length; ++i) valuestr += '0'; 
+  valuestr += '' + value;
+
+  for (var i = engines.length; i > 0; --i)
+  {
+    var n = valuestr[i-1];
+    if (n == 0) continue;
+    ret += "" + n +"x " + engines[engines.length-i].name + "<br>";
+  }
+  return ret;
+}
+
+function figureout(config, mass, thrust, start)
+{
+  // find the engine that will fit
+  //   add that engine to the number, set mass
+  //   recurse
+  // if non fit, print out the config and the mass, return
+  if ((''+config).length > engines.length) return;
+
+  for (var i = start; i < engines.length; ++i)
+  {
+    for (var n = 1; true; ++n)
+    {
+      if (n == 10) break;
+      if (thrust >= (engines[i].thrust *n)) 
+      {
+        figureout((config + (Math.pow(10,i)*n)), mass + (engines[i].mass*n), thrust - (engines[i].thrust*n), start+1);
+      }
+      else break;
+    }
+  }
+
+  if (config != 0) 
+  {
+//    document.getElementById("mainengine").innerHTML += " try result: " + config + " mass: "+ mass + " missing thrust: " + thrust + "<Br>";
+    var mask = getmask(config);
+    if (mask in results)
+    {
+      if (results[mask].thrust < thrust) { /*document.getElementById("mainengine").innerHTML += " got better thrust <Br>";*/ return; }
+      if (results[mask].thrust == thrust && results[mask].mass < mass) { /*document.getElementById("mainengine").innerHTML += " got better mass <Br>";*/ return; }
+    }
+//    document.getElementById("mainengine").innerHTML += "ok<Br>";
+    var s = '' + config;
+    while (s[s.length-1] == '0') s = s.substr(0,s.length-1);
+//    if (s.substr(0,s.length-1).indexOf('1') >= 0) { console.log("discard " + config); return; }
+    results[mask] = { "thrust":thrust, "mass": mass, "config" : config };
+  }
+  return;
+}
+
+function getmask(value)
+{
+  var valuestr = '';
+  var mask = '';
+
+  for (var i = ('' + value).length; i < engines.length; ++i) valuestr += '0'; 
+  valuestr += '' + value;
+
+  for (var i = 0; i < engines.length; ++i)
+  {
+    if (valuestr[i] > 0) mask += '1';
+    else mask += '0';
+  }
+  return mask;
+}
+
+function set(name, value)
+{
+  document.getElementById(name).value = value;
+  document.getElementById("slider"+name).value = value;
+}
+
+function update(name)
+{
+  document.getElementById(name).value = document.getElementById("slider"+name).value;
+  setmass();
+}
+
+  </script>
+</head>
+<body>
+  <h1>Kerbal Staging Helper</h1>
+  <br>
+  <b>Rocket parameters</b>
+  <br>
+  Mass of payload: <input id=mass></input> tons   <button onclick="setmass();">Set Mass</button><br>
+  Gravity: <input id=grav value=9.81></input> m/ss<br>
+  Desired TWR: 0<input type="range" id="slidertwr" min="0" max="5" step="0.1" value="1.7" onchange="update('twr');"></input>5 <input id=twr value=1.7 readonly></input><br>
+  Desired Center Engine Percent: 0<input type="range" id="slidercenterratio" min="0" max="100" step="1" value="22" onchange="update('centerratio');"></input>100 <input id=centerratio value=22 readonly></input><br>
+  Amount of Asparagus: 0<input type="range" id="sliderasp" min="0" max="20" step="2" value="4" onchange="update('asp');"></input>20 <input id=asp value=4 readonly></input><br>
+  <br>
+  <b>Overall Design Configuration</b>
+  <br>
+  Total rocket mass: <input id=massTotal readonly></input> tons<br>
+  Total lifting mass: <input id=massLift readonly></input> tons<br>
+  Required thrust: <input id=thrust readonly></input> kN<br>
+  Center thrust: <input id=thrustCenter readonly></input> kN<br>
+  Booster thrust: <input id=thrustBooster readonly></input> kN<br>
+  Per Booster thrust: <input id=thrustPerBooster readonly></input> kN<br>
+  <br>
+  <b>Center Engine Design Configuration</b>
+  <br>
+  <div id=mainengine></div>
+  <br>
+  <b>Booster Design Configuration</b>
+  <br>
+  <div id=boosterengine></div>
+  <br>
+</body>
+</html>
