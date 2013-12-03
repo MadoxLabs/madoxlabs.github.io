@@ -11,7 +11,10 @@ function round(x)
 var pinned = false;
 var lastpercent = 0;
 var lastasp = 0;
-
+var fuelb = 0;
+var fuelc = 0;
+var nomain = false;
+var obooster = false;
 var engines = [ 
                 { "name": "Rockomax Mailsail", "mass": 6, "thrust": 1500, "type": 1 },
                 { "name": "Rockomax Skipper", "mass": 4, "thrust": 650, "type": 2 },
@@ -86,10 +89,18 @@ function setmass()
   document.getElementById("thrustBooster").value = round(thrust * (1.0 - centerratio));
   document.getElementById("thrustPerBooster").value = round(thrust * (1.0 - centerratio) / asp);
 
+  var total = 0;
+
   // create center engine configs
   var config = 0;
   var mass = 0;
   results = {};
+  fuelc = 0;
+  fuelb = 0;
+  nomain = false;
+  obooster = false;
+  document.getElementById("fuelPerBooster").value = 0;
+  document.getElementById("fuelCenter").value = 0;
   figureout(config, mass, round(thrust * centerratio), 0);
 
   // remove anything with a single radial, or multiple single engines
@@ -106,11 +117,13 @@ function setmass()
 
     sortresults.push({ mask: key, val: results[key] });
   }
-  sortresults.sort(function(a,b) { return a.val.thrust == b.val.thrust ? a.val.mass - b.val.mass : a.val.thrust - b.val.thrust; });
+  sortresults.sort(function (a, b) { return a.val.thrust == b.val.thrust ? a.val.mass - b.val.mass : a.val.thrust - b.val.thrust; });
+  total += sortresults.length;
+  nomain = sortresults.length == 0 ? true : false;
 
   var out = "<table border=1>";
   for (var i = 0; i < sortresults.length; ++i)
-    out += "<tr><td>mass: "+ sortresults[i].val.mass + " missing thrust: " + sortresults[i].val.thrust + "</td><td>" + engineprint(sortresults[i].val.config) + "</td></tr>";
+    out += "<tr><td><input onclick='setfuelc(" + sortresults[i].val.mass + ");' type='radio' name='fuelc' value='" + sortresults[i].val.mass + "'></input>Mass: " + sortresults[i].val.mass + " ton - Missing thrust: " + sortresults[i].val.thrust + " kN</td><td>" + engineprint(sortresults[i].val.config) + "</td></tr>";
   document.getElementById("mainengine").innerHTML = out + "</table>";
 
 
@@ -128,11 +141,43 @@ function setmass()
     sortresults.push({ mask: key, val: results[key] });
   }
   sortresults.sort(function(a,b) { return a.val.thrust == b.val.thrust ? a.val.mass - b.val.mass : a.val.thrust - b.val.thrust; });
+  total += sortresults.length;
+  nobooster = sortresults.length == 0 ? true : false;
 
   var out = "<table border=1>";
   for (var i = 0; i < sortresults.length; ++i)
-    out += "<tr><td>mass: "+ sortresults[i].val.mass + " missing thrust: " + sortresults[i].val.thrust + "</td><td>" + engineprint(sortresults[i].val.config) + "</td></tr>";
+    out += "<tr><td><input onclick='setfuelb(" + sortresults[i].val.mass + ");' type=radio name=fuelb value=" + sortresults[i].val.mass + "></input>Mass: " + sortresults[i].val.mass + " ton - Missing thrust: " + sortresults[i].val.thrust + " kN</td><td>" + engineprint(sortresults[i].val.config) + "</td></tr>";
   document.getElementById("boosterengine").innerHTML = out + "</table>";
+
+  if (total == 0) document.getElementById("mainengine").innerHTML ="<b>No solutions</b>";
+}
+
+function setfuelb(val)
+{
+  fuelb = val;
+  setfuel();
+}
+
+function setfuelc(val)
+{
+  fuelc = val;
+  setfuel();
+}
+
+function setfuel()
+{
+  if ((fuelb > 0 || nobooster) && (fuelc > 0 || nomain))
+  {    
+    var lifter = document.getElementById("massLift").value;
+    var asp  = document.getElementById("sliderasp").value;
+    var fuel = lifter - (fuelc + fuelb * asp);
+    if (nobooster) asp = 0;
+    if (!nomain) asp = 1.0 + 1*asp;
+    var fuelper = fuel / asp;
+    document.getElementById("fuel").value = round(fuel);
+    if (!nobooster) document.getElementById("fuelPerBooster").value = round(fuelper);
+    if (!nomain) document.getElementById("fuelCenter").value = round(fuelper);
+  }
 }
 
 function engineprint(value)
@@ -151,40 +196,34 @@ function engineprint(value)
   return ret;
 }
 
-function figureout(config, mass, thrust, start)
-{
-  // find the engine that will fit
-  //   add that engine to the number, set mass
-  //   recurse
-  // if non fit, print out the config and the mass, return
-  if ((''+config).length > engines.length) return;
+var pows = [1, 10, 100, 1000, 10000, 100000, 100000, 10000000, 100000000, 1000000000, 10000000000];
 
-  for (var i = start; i < engines.length; ++i)
+function figureout(config, mass, thrust, i)
+{
+  if (i == engines.length) { save(config, mass, thrust); return; }
+
+  // how many of this engine fit? loop 0-9
+  for (var n = 0; n < 10; ++n)
   {
-    for (var n = 1; true; ++n)
+    if (thrust >= (engines[i].thrust*n)) 
     {
-      if (n == 10) break;
-      if (thrust >= (engines[i].thrust *n)) 
-      {
-        figureout((config + (Math.pow(10,i)*n)), mass + (engines[i].mass*n), thrust - (engines[i].thrust*n), start+1);
-      }
-      else break;
+      figureout((config + (Math.pow(10,i)*n)), mass + (engines[i].mass*n), thrust - (engines[i].thrust*n), i+1);
     }
   }
+}
 
+function save(config, mass, thrust)
+{
   if (config != 0) 
   {
-//    document.getElementById("mainengine").innerHTML += " try result: " + config + " mass: "+ mass + " missing thrust: " + thrust + "<Br>";
     var mask = getmask(config);
     if (mask in results)
     {
-      if (results[mask].thrust < thrust) { /*document.getElementById("mainengine").innerHTML += " got better thrust <Br>";*/ return; }
-      if (results[mask].thrust == thrust && results[mask].mass < mass) { /*document.getElementById("mainengine").innerHTML += " got better mass <Br>";*/ return; }
+      if (results[mask].thrust < thrust) { return; }
+      if (results[mask].thrust == thrust && results[mask].mass < mass) { return; }
     }
-//    document.getElementById("mainengine").innerHTML += "ok<Br>";
     var s = '' + config;
     while (s[s.length-1] == '0') s = s.substr(0,s.length-1);
-//    if (s.substr(0,s.length-1).indexOf('1') >= 0) { console.log("discard " + config); return; }
     results[mask] = { "thrust":thrust, "mass": mass, "config" : config };
   }
   return;
@@ -239,6 +278,10 @@ function update(name)
   Center thrust: <input id=thrustCenter readonly></input> kN<br>
   Booster thrust: <input id=thrustBooster readonly></input> kN<br>
   Per Booster thrust: <input id=thrustPerBooster readonly></input> kN<br>
+  <br>
+  Total fuel: <input id=fuel readonly></input> tons<br>
+  Center fuel: <input id=fuelCenter readonly></input> tons<br>
+  Per Booster fuel: <input id=fuelPerBooster readonly></input> tons<br>
   <br>
   <b>Center Engine Design Configuration</b>
   <br>
