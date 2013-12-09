@@ -267,8 +267,14 @@ function update(name)
   Instructions: <br />
   Enter the mass of the ship to get into orbit and click 'Set Mass'. Adjust the sliders to taste. <br />
   The Overall Design values will fill in describing the rocket. <br />
-  Depending on the sliders, a collection of main engine and/or booter engine configurations will appear. You can pick your preferred configuration with the radio button. Ideally, you want the least amount of 'Missed Thrust'. Once all configuration choices are picked, the fuel requirements will appear.<br />
+  Depending on the sliders, a collection of main engine and/or booter engine configurations will appear. You can pick your preferred configuration with the radio button. Ideally, you want the least amount of 'Missing Thrust'. Once all configuration choices are picked, the fuel requirements will appear.<br />
   <br>
+  Tips:<br />
+  - for small payloads, set asparagus to 0 to eliminate the use of boosters<br />
+  - If there is no solution, try adjusting the TWR slightly. <br />
+  - If only booster or only main engine solutions appear, try adjusting the Center Engine Percent slightly<br />
+  - Use of Mark 55 Radial engines in solutions is not always accurate.<br /> 
+  <br />
   <b>Rocket parameters</b>
   <br>
   Mass of payload: <input id=mass></input> tons   <button onclick="setmass();">Set Mass</button><br>
