@@ -54,13 +54,13 @@ Game.draw = function ()
   // fill the area with sprite blts and see how fast we can do it
   // sprites are 16x16 - draw 14x14 sprites randomly
 
-  for (var x = 0; x < 640; x += 16)
+  for (var x = 0; x < 640; x += 32)
   {
-    for (var y = 32; y < 640; y += 16)
+    for (var y = 32; y < 640; y += 32)
     {
       var i = (Math.random() * 20)|0;
       var j = (Math.random() * 12)|0;
-      Game.context.drawImage(Game.sprites, i * 16, j * 16, 16, 16, x, y, 16, 16);
+      Game.context.drawImage(Game.sprites, i * 16, j * 16, 16, 16, x, y, 32, 32);
     }
   }
 }
