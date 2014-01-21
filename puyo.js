@@ -54,13 +54,25 @@ Game.update = function ()
 {
 }
 
+var frame = 29;
+
 Game.draw = function ()
 {
+  frame++;
+  if (frame < 30)
+  {
+    Game.context.fillStyle = "black";
+    Game.context.fillRect(0, 0, 640, 32);
+    return;
+  }
+  frame = 0;
+
   // clear to black
-  Game.context.fillStyle = "black";
-  Game.context.fillRect(0, 0, 640, 640);
+//  Game.context.fillStyle = "black";
+//  Game.context.fillRect(0, 0, 640, 640);
 
   Game.context.drawImage(Game.spritebg,0,0);
+  Game.context.globalCompositeOperation = "source-over";
 
   // fill the area with sprite blts and see how fast we can do it
   // sprites are 16x16 - draw 14x14 sprites randomly
