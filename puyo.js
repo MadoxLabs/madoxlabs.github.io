@@ -22,8 +22,9 @@ Puyo.prototype.clone = function(p)
 
 Puyo.prototype.random = function()
 {
-  this.spritex = (Math.random() * 19) | 0;
-  this.spritey = (Math.random() * 10) | 0;
+  this.spritex = 0;
+  this.spritey = (Math.random() * 5) | 0;
+  this.spritey *= 2;
 }
 
 Puyo.prototype.place = function (x, y)
@@ -40,6 +41,13 @@ Puyo.prototype.define = function (x, y)
 
 Puyo.prototype.update = function ()
 {
+  if (this.stage == 1)
+    this.y += Game.dropspeed;
+}
+
+Puyo.prototype.stop = function()
+{
+  this.stage = 2;
 }
 
 Puyo.prototype.draw = function ()
@@ -60,18 +68,19 @@ function Player(p, x, y, nx, ny)
   this.nextoffx = nx;
   this.nextoffy = ny;
 
+  this.current = [this.makeCelPuyo(3, -1), this.makeCelPuyo(3, -2)];
+
   this.next = [this.makePuyo(this.nextoffx, this.nextoffy), this.makePuyo(this.nextoffx, this.nextoffy + 32)];
-  if (p == 1)
-    this.nextnext = [this.makePuyo(this.nextoffx + 32, this.nextoffy + 16), this.makePuyo(this.nextoffx + 32, this.nextoffy + 16 + 32)];
-  else
-    this.nextnext = [this.makePuyo(this.nextoffx - 32, this.nextoffy + 16), this.makePuyo(this.nextoffx - 32, this.nextoffy + 16 + 32)];
+  if (p == 1) this.nextnext = [this.makePuyo(this.nextoffx + 32, this.nextoffy + 16), this.makePuyo(this.nextoffx + 32, this.nextoffy + 16 + 32)];
+  else        this.nextnext = [this.makePuyo(this.nextoffx - 32, this.nextoffy + 16), this.makePuyo(this.nextoffx - 32, this.nextoffy + 16 + 32)];
 
   this.cels = [[], [], [], [], [], []];
+
   for (var i = 0; i < 6; ++i)
   {
     for (var j = 0; j < 12; ++j)
     {
-      this.cels[i][j] = this.makeCelPuyo(i, j);
+      this.cels[i][j] = this.makeBlankPuyo(i, j);
     }
   }
 }
@@ -79,7 +88,15 @@ function Player(p, x, y, nx, ny)
 Player.prototype.makeCelPuyo = function (x, y)
 {
   var p = new Puyo;
+  p.stage = 1;
   p.random();
+  p.place(this.offx + x * Game.spritesize, this.offy + y * Game.spritesize + 32);
+  return p;
+}
+
+Player.prototype.makeBlankPuyo = function (x, y)
+{
+  var p = new Puyo;
   p.place(this.offx + x * Game.spritesize, this.offy + y * Game.spritesize + 32);
   return p;
 }
@@ -87,24 +104,53 @@ Player.prototype.makeCelPuyo = function (x, y)
 Player.prototype.makePuyo = function (x, y)
 {
   var p = new Puyo;
+  p.stage = 1;
   p.random();
   p.place(x, y);
   return p;
 }
 
+Player.prototype.puyoIsLanded = function (p)
+{
+  var celx = ((p.x - this.offx) / Game.spritesize) |0;
+  var cely = ((p.y+Game.dropspeed - this.offy) / Game.spritesize) |0;
+  if (cely < 0) return false;
+  if (cely > 11) return true;
+  if (this.cels[celx][cely].stage > 0) return true;
+  return false;
+}
+
+Player.prototype.puyoLand = function (p)
+{
+  var celx = ((p.x - this.offx) / Game.spritesize) | 0;
+  var cely = ((p.y - this.offy) / Game.spritesize) | 0;
+  if (cely < 0) { Game.gameover = true; return; }
+  this.cels[celx][cely].clone(p);
+  this.cels[celx][cely].stage = 1;
+  p.stop();
+  
+}
+
 Player.prototype.update = function ()
 {
-  for (var x = 0; x < 6; x += 1)
+  // check if we can move
+  //  else stop
+  // move
+  if (this.puyoIsLanded(this.current[0]))
   {
-    for (var y = 0; y < 12; y += 1)
-    {
-      this.cels[x][y].random();
-    }
+    this.puyoLand(this.current[0]);
+    this.puyoLand(this.current[1]);
+
+    this.current = [this.makeCelPuyo(3, 0), this.makeCelPuyo(3, -1)];
+    this.current[0].clone(this.next[0]);
+    this.current[1].clone(this.next[1]);
+    this.next[0].clone(this.nextnext[0]);
+    this.next[1].clone(this.nextnext[1]);
+    this.nextnext[0].random();
+    this.nextnext[1].random();
   }
-  this.next[0].clone(this.nextnext[0]);
-  this.next[1].clone(this.nextnext[1]);
-  this.nextnext[0].random();
-  this.nextnext[1].random();
+  this.current[0].update();
+  this.current[1].update();
 }
 
 Player.prototype.draw = function ()
@@ -113,9 +159,11 @@ Player.prototype.draw = function ()
   {
     for (var y = 0; y < 12; y += 1)
     {
-      this.cels[x][y].draw();
+      if (this.cels[x][y].stage > 0) this.cels[x][y].draw();
     }
   }
+  this.current[0].draw();
+  this.current[1].draw();
   this.next[0].draw();
   this.next[1].draw();
   this.nextnext[0].draw();
@@ -137,10 +185,14 @@ Game.init = function ()
   this.frame = 29;
   this.sheetsize = 16;
   this.spritesize = 32;
-  
+  this.dropspeed = 1;
+  this.gameover = false;
+
   this.playerOne = new Player(1, 32, 192, 238, 127);
   this.playerTwo = new Player(2, 416, 192, 373, 127);
 
+  document.addEventListener('keydown', onKeyDown, false);
+  document.addEventListener('keyup', onKeyUp, false);
   this.surface = document.getElementById('surface');
   this.context = this.surface.getContext('2d');
 
@@ -161,6 +213,7 @@ Game.loadImage = function (name)
 Game.run = function ()
 {
   if (this.loading > 0) return;
+  if (this.gmaeover) return;
   Game.frame++;
 
   var d = new Date();
@@ -188,30 +241,38 @@ Game.run = function ()
   idleTime = (idleTime / perFrame * 100) | 0;
   Game.context.fillText("Frame Time: Update: " + updateTime + "%  Draw: " + drawTime + "%  Idle: " + idleTime + "%", 0, 30);
 
-  if (Game.frame == 30) Game.frame = 0;
+  if (Game.frame == 60) Game.frame = 0;
 }
 
 Game.update = function ()
 {
-  if (Game.frame < 30) return;
   Game.playerOne.update();
   Game.playerTwo.update();
 }
 
 Game.draw = function ()
 {
-  if (Game.frame < 30)
-  {
-    Game.context.fillStyle = "black";
-    Game.context.fillRect(0, 0, 640, 32);
-    return;
-  }
-
   Game.context.globalCompositeOperation = "source-over";
   Game.context.drawImage(Game.spritebg, 0, 0);
   Game.playerOne.draw();
   Game.playerTwo.draw();
   Game.context.drawImage(Game.spritefg,0,0);
+}
+
+function onKeyDown(e)
+{
+//  if (e.keyCode == 68) Game.selected.entity.velX = 1; // right
+//  if (e.keyCode == 65) Game.selected.entity.velX = -1; // left
+//  if (e.keyCode == 83) Game.selected.entity.velY = 1; // down
+//  if (e.keyCode == 87) Game.selected.entity.velY = -1; // up
+}
+
+function onKeyUp(e)
+{
+//  if (e.keyCode == 68) Game.selected.entity.velX = 0;
+//  if (e.keyCode == 65) Game.selected.entity.velX = 0;
+//  if (e.keyCode == 83) Game.selected.entity.velY = 0;
+//  if (e.keyCode == 87) Game.selected.entity.velY = 0;
 }
 
 /*
