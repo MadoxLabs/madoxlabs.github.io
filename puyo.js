@@ -91,6 +91,32 @@ Game.draw = function ()
       Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, offx + x * spritesize, offy + y * spritesize + 32, spritesize, spritesize);
     }
   }
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 238, 127, spritesize, spritesize);
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 238, 127+32, spritesize, spritesize);
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 270, 127+16, spritesize, spritesize);
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 270, 127 +16+ 32, spritesize, spritesize);
+
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 373, 127, spritesize, spritesize);
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 373, 127 + 32, spritesize, spritesize);
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 354-16, 127 + 16, spritesize, spritesize);
+  var i = (Math.random() * 19) | 0;
+  var j = (Math.random() * 10) | 0;
+  Game.context.drawImage(Game.sprites, i * sheetsize, j * sheetsize, sheetsize, sheetsize, 354-16, 127 + 16 + 32, spritesize, spritesize);
+
   offx = 320+64+32;
   for (var x = 0; x < 6; x += 1)
   {
