@@ -8,7 +8,7 @@ Game.init = function ()
   this.context = this.surface.getContext('2d');
   this.sprites = new Image();
   this.sprites.onload = function () { Game.ready = true; }
-  this.sprites.src = 'puyo3.png';
+  this.sprites.src = 'puyo.png';
 }
 
 Game.run = function ()
@@ -53,14 +53,28 @@ Game.draw = function ()
 
   // fill the area with sprite blts and see how fast we can do it
   // sprites are 16x16 - draw 14x14 sprites randomly
+  // game area is 6x12 sprites
 
-  for (var x = 0; x < 640; x += 32)
+  var spritesize = 32;
+  var offx = 32;
+  var offy = 224-32;
+  for (var x = 0; x < 6; x += 1)
   {
-    for (var y = 32; y < 640; y += 32)
+    for (var y = 0; y < 12; y += 1)
     {
-      var i = (Math.random() * 20)|0;
-      var j = (Math.random() * 12)|0;
-      Game.context.drawImage(Game.sprites, i * 16, j * 16, 16, 16, x, y, 32, 32);
+      var i = (Math.random() * 20) | 0;
+      var j = (Math.random() * 12) | 0;
+      Game.context.drawImage(Game.sprites, i * 16, j * 16, 16, 16, offx + x * spritesize, offy + y * spritesize + 32, spritesize, spritesize);
+    }
+  }
+  offx = 320+64+32;
+  for (var x = 0; x < 6; x += 1)
+  {
+    for (var y = 0; y < 12; y += 1)
+    {
+      var i = (Math.random() * 20) | 0;
+      var j = (Math.random() * 12) | 0;
+      Game.context.drawImage(Game.sprites, i * 16, j * 16, 16, 16, offx + x * spritesize, offy + y * spritesize + 32, spritesize, spritesize);
     }
   }
 }
