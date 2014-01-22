@@ -68,7 +68,7 @@ function Player(p, x, y, nx, ny)
   this.nextoffx = nx;
   this.nextoffy = ny;
 
-  this.current = [this.makeCelPuyo(3, -1), this.makeCelPuyo(3, -2)];
+  this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
 
   this.next = [this.makePuyo(this.nextoffx, this.nextoffy), this.makePuyo(this.nextoffx, this.nextoffy + 32)];
   if (p == 1) this.nextnext = [this.makePuyo(this.nextoffx + 32, this.nextoffy + 16), this.makePuyo(this.nextoffx + 32, this.nextoffy + 16 + 32)];
@@ -83,6 +83,24 @@ function Player(p, x, y, nx, ny)
       this.cels[i][j] = this.makeBlankPuyo(i, j);
     }
   }
+}
+
+Player.prototype.moveLeft = function()
+{
+  var celx1 = (this.current[0].x - this.offx);
+  var celx2 = (this.current[1].x - this.offx);
+  if (celx1 < 32 || celx2 < 32) return;
+  this.current[0].x -= 32;
+  this.current[1].x -= 32;
+}
+
+Player.prototype.moveRight = function ()
+{
+  var celx1 = (this.current[0].x - this.offx);
+  var celx2 = (this.current[1].x - this.offx);
+  if ((celx1 >= (32 * 5)) || (celx2 >= (32 * 5))) return;
+  this.current[0].x += 32;
+  this.current[1].x += 32;
 }
 
 Player.prototype.makeCelPuyo = function (x, y)
@@ -124,11 +142,15 @@ Player.prototype.puyoLand = function (p)
 {
   var celx = ((p.x - this.offx) / Game.spritesize) | 0;
   var cely = ((p.y - this.offy) / Game.spritesize) | 0;
-  if (cely < 0) { Game.gameover = true; return; }
+  if (cely < 0) { p.stop(); return; }
+  if (cely == 0 && celx == 2)
+  {
+    Game.gameover = true; return false;
+  }
   this.cels[celx][cely].clone(p);
   this.cels[celx][cely].stage = 1;
   p.stop();
-  
+  return true;
 }
 
 Player.prototype.update = function ()
@@ -138,10 +160,10 @@ Player.prototype.update = function ()
   // move
   if (this.puyoIsLanded(this.current[0]))
   {
-    this.puyoLand(this.current[0]);
-    this.puyoLand(this.current[1]);
+    if (this.puyoLand(this.current[0]) == false) return;
+    if (this.puyoLand(this.current[1]) == false) return;
 
-    this.current = [this.makeCelPuyo(3, 0), this.makeCelPuyo(3, -1)];
+    this.current = [this.makeCelPuyo(2, 0), this.makeCelPuyo(2, -1)];
     this.current[0].clone(this.next[0]);
     this.current[1].clone(this.next[1]);
     this.next[0].clone(this.nextnext[0]);
@@ -212,8 +234,8 @@ Game.loadImage = function (name)
 
 Game.run = function ()
 {
-  if (this.loading > 0) return;
-  if (this.gmaeover) return;
+  if (Game.loading > 0) return;
+  if (Game.gameover) return;
   Game.frame++;
 
   var d = new Date();
@@ -269,8 +291,8 @@ function onKeyDown(e)
 
 function onKeyUp(e)
 {
-//  if (e.keyCode == 68) Game.selected.entity.velX = 0;
-//  if (e.keyCode == 65) Game.selected.entity.velX = 0;
+  if (e.keyCode == 39) Game.playerOne.moveRight();
+  if (e.keyCode == 37) Game.playerOne.moveLeft();
 //  if (e.keyCode == 83) Game.selected.entity.velY = 0;
 //  if (e.keyCode == 87) Game.selected.entity.velY = 0;
 }
