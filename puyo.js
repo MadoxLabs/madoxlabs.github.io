@@ -20,12 +20,12 @@ Puyo.prototype.clone = function(p)
   this.spritey = p.spritey;
 }
 
-Puyo.prototype.random = function()
-{
-  this.spritex = 0;
-  this.spritey = (Math.random() * 5) | 0;
-  this.spritey *= 2;
-}
+//Puyo.prototype.random = function()
+//{
+//  this.spritex = 0;
+//  this.spritey = (Math.random() * 5) | 0;
+//  this.spritey *= 2;
+//}
 
 Puyo.prototype.place = function (x, y)
 {
@@ -62,6 +62,9 @@ Puyo.prototype.draw = function ()
  */
 function Player(p, x, y, nx, ny)
 {
+  this.rand = new mxRand();
+  this.rand.seed(Game.seed);
+
   this.player = p;
   this.offx = x;
   this.offy = y;
@@ -107,7 +110,7 @@ Player.prototype.makeCelPuyo = function (x, y)
 {
   var p = new Puyo;
   p.stage = 1;
-  p.random();
+  p.define(0, 2 * ((this.rand.pop() * 5) | 0));
   p.place(this.offx + x * Game.spritesize, this.offy + y * Game.spritesize + 32);
   return p;
 }
@@ -123,7 +126,7 @@ Player.prototype.makePuyo = function (x, y)
 {
   var p = new Puyo;
   p.stage = 1;
-  p.random();
+  p.define(0, 2 * ((this.rand.pop() * 5) | 0));
   p.place(x, y);
   return p;
 }
@@ -168,8 +171,8 @@ Player.prototype.update = function ()
     this.current[1].clone(this.next[1]);
     this.next[0].clone(this.nextnext[0]);
     this.next[1].clone(this.nextnext[1]);
-    this.nextnext[0].random();
-    this.nextnext[1].random();
+    this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
+    this.nextnext[1].define(0, 2 * ((this.rand.pop() * 5) | 0));
   }
   this.current[0].update();
   this.current[1].update();
@@ -202,7 +205,7 @@ var Game = {};
 
 Game.init = function ()
 {
-  Math.seedrandom();
+  this.seed = Math.random();
   this.loading = 0;
   this.frame = 29;
   this.sheetsize = 16;
@@ -275,6 +278,10 @@ Game.update = function ()
 Game.draw = function ()
 {
   Game.context.globalCompositeOperation = "source-over";
+  Game.context.imageSmoothingEnabled = false;
+  Game.context.webkitImageSmoothingEnabled = false;
+  Game.context.mozImageSmoothingEnabled = false;
+
   Game.context.drawImage(Game.spritebg, 0, 0);
   Game.playerOne.draw();
   Game.playerTwo.draw();
