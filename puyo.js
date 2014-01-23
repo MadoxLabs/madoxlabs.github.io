@@ -1,3 +1,23 @@
+function Animation()
+{
+  this.speed = 10;
+  this.loop = false;
+  this.x = 0;
+  this.y = [];
+}
+
+function AnimationManager()
+{
+  this.animations = {};
+}
+
+var am = new AnimationManager();
+var purplesleep = new Animation();
+purplesleep.speed = 15;
+purplesleep.y = 9;
+purplesleep.x = [1, 2, 3, 2, 1, 2, 3, 2, 1, 0];
+am.animations[1] = purplesleep;
+
 /*
  * PUYO CLASS
  * 
@@ -7,25 +27,27 @@ function Puyo()
 {
   this.spritex = 0;
   this.spritey = 0;
+  this.origspritex = 0;
+  this.origspritey = 0;
   this.x = 0;
   this.y = 0;
-  this.animation = 0;
   this.stage = 0;
+
+  this.animation = 0;
   this.curframe = 0;
+  this.lasttime = 0;
+  this.time = 0;
 }
 
 Puyo.prototype.clone = function(p)
 {
+  this.animate = 0;
+  this.time = 0;
   this.spritex = p.spritex;
   this.spritey = p.spritey;
+  this.origspritex = p.spritex;
+  this.origspritey = p.spritey;
 }
-
-//Puyo.prototype.random = function()
-//{
-//  this.spritex = 0;
-//  this.spritey = (Math.random() * 5) | 0;
-//  this.spritey *= 2;
-//}
 
 Puyo.prototype.place = function (x, y)
 {
@@ -41,8 +63,51 @@ Puyo.prototype.define = function (x, y)
 
 Puyo.prototype.update = function ()
 {
-  if (this.stage == 1)
-    this.y += Game.dropspeed;
+  this.time++;
+  if (this.stage == 1) this.y += Game.dropspeed;
+
+  // if landed, and not animating and chance
+  var chance = Math.random();
+  if (this.stage == 2 && this.animation == 0 && chance < 0.005)
+  {
+    if (this.spritey == 8)
+      this.startAnimate(1);  // animate purple upon landing
+  }
+
+  if (this.animation > 0)
+  {
+    var anim = am.animations[this.animation];
+    if (this.time - this.lasttime >= anim.speed)
+    {
+      this.lasttime = this.time;
+      this.curframe++;
+      if (this.curframe >= anim.x.length)
+      {
+        if (anim.loop)
+          this.curframe = 0;
+        else
+        {
+          this.animation = 0;
+          this.spritex = this.origspritex;
+          this.spritey = this.origspritey;
+          return;
+        }
+      }
+      else
+        this.spritex = anim.x[this.curframe];
+    }
+  }
+}
+
+Puyo.prototype.startAnimate = function(a)
+{
+  this.animation = a;
+  this.curframe = 0;
+  this.lasttime = this.time;
+
+  var anim = am.animations[this.animation];
+  this.spritey = anim.y;
+  this.spritex = anim.x[this.curframe];
 }
 
 Puyo.prototype.stop = function()
@@ -151,8 +216,9 @@ Player.prototype.puyoLand = function (p)
     Game.gameover = true; return false;
   }
   this.cels[celx][cely].clone(p);
-  this.cels[celx][cely].stage = 1;
+  this.cels[celx][cely].stage = 2;
   p.stop();
+
   return true;
 }
 
@@ -167,8 +233,8 @@ Player.prototype.update = function ()
     if (this.puyoLand(this.current[1]) == false) return;
 
     this.current = [this.makeCelPuyo(2, 0), this.makeCelPuyo(2, -1)];
-    this.current[0].clone(this.next[0]);
-    this.current[1].clone(this.next[1]);
+    this.current[0].clone(this.next[1]); // ya I know
+    this.current[1].clone(this.next[0]);
     this.next[0].clone(this.nextnext[0]);
     this.next[1].clone(this.nextnext[1]);
     this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
@@ -176,6 +242,14 @@ Player.prototype.update = function ()
   }
   this.current[0].update();
   this.current[1].update();
+
+  for (var x = 0; x < 6; x += 1)
+  {
+    for (var y = 0; y < 12; y += 1)
+    {
+      this.cels[x][y].update();
+    }
+  }
 }
 
 Player.prototype.draw = function ()
@@ -272,7 +346,7 @@ Game.run = function ()
 Game.update = function ()
 {
   Game.playerOne.update();
-  Game.playerTwo.update();
+  //Game.playerTwo.update();
 }
 
 Game.draw = function ()
@@ -284,7 +358,7 @@ Game.draw = function ()
 
   Game.context.drawImage(Game.spritebg, 0, 0);
   Game.playerOne.draw();
-  Game.playerTwo.draw();
+ // Game.playerTwo.draw();
   Game.context.drawImage(Game.spritefg,0,0);
 }
 
