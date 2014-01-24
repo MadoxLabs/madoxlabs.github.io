@@ -21,6 +21,30 @@ purplesleep.y = 9;
 purplesleep.x = [1, 2, 3, 2, 1, 2, 3, 2, 1, 0];
 am.animations[1] = purplesleep;
 
+var bluenerves = new Animation();
+bluenerves.speed = 15;
+bluenerves.y = 3;
+bluenerves.x = [5, 5, 6, 6, 5, 7, 7, 4, 4, 6, 0];
+am.animations[2] = bluenerves;
+
+var greenwaves = new Animation();
+greenwaves.speed = 15;
+greenwaves.y = 7;
+greenwaves.x = [8, 9, 8, 10, 11, 10, 8, 9, 8];
+am.animations[3] = greenwaves;
+
+var yellowwink = new Animation();
+yellowwink.speed = 15;
+yellowwink.y = 5;
+yellowwink.x = [6, 12, 12, 12, 7, 12, 0, 0, 1, 2, 2, 1];
+am.animations[4] = yellowwink;
+
+var redbounce = new Animation();
+redbounce.speed = 15;
+redbounce.y = 1;
+redbounce.x = [3, 4, 5, 6, 6, 5];
+am.animations[5] = redbounce;
+
 /*
  * PUYO CLASS
  * 
@@ -73,8 +97,11 @@ Puyo.prototype.update = function ()
   var chance = Math.random();
   if (this.stage == 2 && this.animation == 0 && chance < 0.005)
   {
-    if (this.spritey == 8)
-      this.startAnimate(1);  // animate purple upon landing
+    if (this.spritey == 8) this.startAnimate(1);  // animate purple upon landing
+    if (this.spritey == 2) this.startAnimate(2); 
+    if (this.spritey == 6) this.startAnimate(3);
+    if (this.spritey == 4) this.startAnimate(4);
+    if (this.spritey == 0) this.startAnimate(5);
   }
 
   if (this.animation > 0)
