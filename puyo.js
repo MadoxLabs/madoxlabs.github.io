@@ -1,3 +1,6 @@
+// game config
+var movepollrate = 5;
+
 function Animation()
 {
   this.speed = 10;
@@ -151,22 +154,46 @@ function Player(p, x, y, nx, ny)
       this.cels[i][j] = this.makeBlankPuyo(i, j);
     }
   }
+
+  this.movecounter = 0;
+  this.movedir = 0;
 }
 
 Player.prototype.moveLeft = function()
 {
-  var celx1 = (this.current[0].x - this.offx);
-  var celx2 = (this.current[1].x - this.offx);
-  if (celx1 < 32 || celx2 < 32) return;
+  var celx1 = ((this.current[0].x - this.offx) / Game.spritesize) | 0;
+  var celx2 = ((this.current[1].x - this.offx) / Game.spritesize) | 0;
+  if (celx1 == 0 || celx2 == 0) return; // cant go left due to edge of board
+  
+  var cely1 = ((this.current[0].y - this.offy) / Game.spritesize) | 0;
+  var cely2 = ((this.current[1].y - this.offy) / Game.spritesize) | 0;
+  if (cely1 >= 0 && cely1 <= 11)
+  {
+    if (this.cels[celx1-1][cely1].stage > 0) return; // cant go left due to puyo in the way
+  }
+  if (cely2 >= 0 && cely2 <= 11) {
+    if (this.cels[celx2 - 1][cely2].stage > 0) return; // cant go left due to puyo in the way
+  }
+
   this.current[0].x -= 32;
   this.current[1].x -= 32;
 }
 
 Player.prototype.moveRight = function ()
 {
-  var celx1 = (this.current[0].x - this.offx);
-  var celx2 = (this.current[1].x - this.offx);
-  if ((celx1 >= (32 * 5)) || (celx2 >= (32 * 5))) return;
+  var celx1 = ((this.current[0].x - this.offx) / Game.spritesize) | 0;
+  var celx2 = ((this.current[1].x - this.offx) / Game.spritesize) | 0;
+  if (celx1 >= 5 || celx2 >= 5) return; // cant go right due to edge of board
+
+  var cely1 = ((this.current[0].y - this.offy) / Game.spritesize) | 0;
+  var cely2 = ((this.current[1].y - this.offy) / Game.spritesize) | 0;
+  if (cely1 >= 0 && cely1 <= 11) {
+    if (this.cels[celx1 + 1][cely1].stage > 0) return; // cant go right due to puyo in the way
+  }
+  if (cely2 >= 0 && cely2 <= 11) {
+    if (this.cels[celx2 + 1][cely2].stage > 0) return; // cant go right due to puyo in the way
+  }
+
   this.current[0].x += 32;
   this.current[1].x += 32;
 }
@@ -224,9 +251,7 @@ Player.prototype.puyoLand = function (p)
 
 Player.prototype.update = function ()
 {
-  // check if we can move
-  //  else stop
-  // move
+  // check if current puyos are done dropping
   if (this.puyoIsLanded(this.current[0]))
   {
     if (this.puyoLand(this.current[0]) == false) return;
@@ -240,9 +265,21 @@ Player.prototype.update = function ()
     this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
     this.nextnext[1].define(0, 2 * ((this.rand.pop() * 5) | 0));
   }
+
+  // apply user inputs?
+  this.movecounter++;
+  if (this.movecounter > movepollrate)
+  {
+    this.movecounter = 0;
+    if (this.movedir > 0) this.moveRight();
+    if (this.movedir < 0) this.moveLeft();
+  }
+
+  // advance the downward motion of the current puyos
   this.current[0].update();
   this.current[1].update();
 
+  // update all puyo animations
   for (var x = 0; x < 6; x += 1)
   {
     for (var y = 0; y < 12; y += 1)
@@ -364,16 +401,16 @@ Game.draw = function ()
 
 function onKeyDown(e)
 {
-//  if (e.keyCode == 68) Game.selected.entity.velX = 1; // right
-//  if (e.keyCode == 65) Game.selected.entity.velX = -1; // left
+  if (e.keyCode == 39) Game.playerOne.movedir = 1;
+  if (e.keyCode == 37) Game.playerOne.movedir = -1;
 //  if (e.keyCode == 83) Game.selected.entity.velY = 1; // down
 //  if (e.keyCode == 87) Game.selected.entity.velY = -1; // up
 }
 
 function onKeyUp(e)
 {
-  if (e.keyCode == 39) Game.playerOne.moveRight();
-  if (e.keyCode == 37) Game.playerOne.moveLeft();
+  if (e.keyCode == 39) Game.playerOne.movedir = 0;
+  if (e.keyCode == 37) Game.playerOne.movedir = 0; 
 //  if (e.keyCode == 83) Game.selected.entity.velY = 0;
 //  if (e.keyCode == 87) Game.selected.entity.velY = 0;
 }
