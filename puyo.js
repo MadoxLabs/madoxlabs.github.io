@@ -106,7 +106,14 @@ Puyo.prototype.shift = function (x, y)
 Puyo.prototype.update = function ()
 {
   this.time++;
-  if (this.stage == 1) this.y += Game.dropspeed;
+  if (this.stage == 1)
+    // temp hack for now
+  {
+    if (Game.playerOne.split == 1)
+      this.y += 6;
+    else
+      this.y += Game.dropspeed;
+  }
 
   this.celx = Math.floor(this.x / Game.spritesize);
   this.cely = Math.floor(this.y / Game.spritesize);
@@ -193,10 +200,12 @@ function Player(p, x, y, nx, ny)
 
   this.movecounter = 0;
   this.movedir = 0;
+  this.split = 0;
 }
 
 Player.prototype.moveLeft = function()
 {
+  if (this.split) return;
   if (this.current[0].celx == 0 || this.current[1].celx == 0) return;                  // cant go left due to edge of board
   // use +1 for the bottom edge
   if (this.cels[this.current[0].celx - 1][this.current[0].cely + 1] !== undefined) return; // cant go left due to puyo in the way
@@ -208,6 +217,7 @@ Player.prototype.moveLeft = function()
 
 Player.prototype.moveRight = function ()
 {
+  if (this.split) return;
   if (this.current[0].celx >= 5 || this.current[1].celx >= 5) return;                  // cant go right due to edge of board
   // use +1 for the bottom edge
   if (this.cels[this.current[0].celx + 1][this.current[0].cely + 1] !== undefined) return; // cant go right due to puyo in the way
@@ -215,6 +225,32 @@ Player.prototype.moveRight = function ()
 
   this.current[0].x += Game.spritesize;
   this.current[1].x += Game.spritesize;
+}
+
+Player.prototype.moveCW = function()
+{
+  if (this.split) return;
+
+  if (this.current[0].celx == this.current[1].celx+1) 
+  {
+    this.current[1].x = this.current[0].x; this.current[1].celx = this.current[0].celx;
+    this.current[1].y -= Game.spritesize; this.current[1].cely--;
+  }
+  else if (this.current[0].celx == this.current[1].celx - 1) {
+    this.current[1].x = this.current[0].x; this.current[1].celx = this.current[0].celx;
+    this.current[1].y += Game.spritesize; this.current[1].cely++;
+  }
+  else if (this.current[0].cely == this.current[1].cely + 1) {
+    this.current[1].y = this.current[0].y; this.current[1].cely = this.current[0].cely;
+    this.current[1].x += Game.spritesize; this.current[1].celx++;
+  }
+  else if (this.current[0].cely == this.current[1].cely - 1) {
+    this.current[1].y = this.current[0].y; this.current[1].cely = this.current[0].cely;
+    this.current[1].x -= Game.spritesize; this.current[1].celx--;
+  }
+
+  if (this.current[1].x < 0 || this.current[1].x >= 6 * Game.spritesize) this.moveCW();
+  if (this.puyoWillLand(this.current[1])) this.moveCW();
 }
 
 Player.prototype.makeCelPuyo = function (x, y)
@@ -237,7 +273,7 @@ Player.prototype.makePuyo = function (x, y)
 
 Player.prototype.puyoWillLand = function (p)
 {
-  if (p.cely < 0) return false;
+  if (p.cely < -1) return false;
 
   // get the cel that the bottom edge will be in
   var y = p.y + Game.spritesize + Game.dropspeed;
@@ -273,11 +309,36 @@ Player.prototype.puyoLand = function (p)
 Player.prototype.update = function ()
 {
   // check if current puyos are done dropping
-  if (this.puyoWillLand(this.current[0]))
+  // check the lower one first
+  if (this.current[1].y > this.current[0].y)
   {
-    this.puyoLand(this.current[0]);
-    this.puyoLand(this.current[1]);
+    if (this.current[1].stage == 1 && this.puyoWillLand(this.current[1])) {
+      this.puyoLand(this.current[1]);
+      this.split++;
+    }
 
+    if (this.current[0].stage == 1 && this.puyoWillLand(this.current[0])) {
+      this.puyoLand(this.current[0]);
+      this.split++;
+    }
+  }
+  else
+  {
+    if (this.current[0].stage == 1 && this.puyoWillLand(this.current[0])) {
+      this.puyoLand(this.current[0]);
+      this.split++;
+    }
+
+    if (this.current[1].stage == 1 && this.puyoWillLand(this.current[1])) {
+      this.puyoLand(this.current[1]);
+      this.split++;
+    }
+  }
+
+  // are both down?
+  if (this.split == 2)
+  {
+    this.split = 0;
     this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
     this.current[0].clone(this.next[1]); // ya I know
     this.current[1].clone(this.next[0]);
@@ -433,6 +494,7 @@ function onKeyUp(e)
   if (e.keyCode == 39) Game.playerOne.movedir = 0;
   if (e.keyCode == 37) Game.playerOne.movedir = 0;
   if (e.keyCode == 40) Game.dropspeed = 1;
+  if (e.keyCode == 65) Game.playerOne.moveCW();
 }
 
 /*
