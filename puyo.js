@@ -49,6 +49,7 @@ am.animations[5] = redbounce;
  * PUYO CLASS
  * 
  * Maintains the state of a puyo at a certain location. This class mainly controls the sprite animation states of the puyo
+ * location x and y do not include the board offsets
  */
 function Puyo()
 {
@@ -64,6 +65,9 @@ function Puyo()
   this.curframe = 0;
   this.lasttime = 0;
   this.time = 0;
+
+  this.celx = 0;
+  this.cely = 0;
 }
 
 Puyo.prototype.clone = function(p)
@@ -72,8 +76,8 @@ Puyo.prototype.clone = function(p)
   this.time = 0;
   this.spritex = p.spritex;
   this.spritey = p.spritey;
-  this.origspritex = p.spritex;
-  this.origspritey = p.spritey;
+  this.origspritex = p.origspritex;
+  this.origspritey = p.origspritey;
 }
 
 Puyo.prototype.place = function (x, y)
@@ -86,6 +90,16 @@ Puyo.prototype.define = function (x, y)
 {
   this.spritex = x;
   this.spritey = y;
+  this.origspritex = x;
+  this.origspritey = y;
+}
+
+Puyo.prototype.shift = function (x, y)
+{
+  this.spritex += x;
+  this.spritey += y;
+  this.origspritex += x;
+  this.origspritey += y;
 }
 
 Puyo.prototype.update = function ()
@@ -93,9 +107,12 @@ Puyo.prototype.update = function ()
   this.time++;
   if (this.stage == 1) this.y += Game.dropspeed;
 
+  this.celx = Math.floor(this.x / Game.spritesize);
+  this.cely = Math.floor(this.y / Game.spritesize);
+
   // if landed, and not animating and chance
   var chance = Math.random();
-  if (this.stage == 2 && this.animation == 0 && chance < 0.005)
+  if (this.stage == 2 && this.origspritex == 0 && this.animation == 0 && chance < 0.005)
   {
     if (this.spritey == 8) this.startAnimate(1);  // animate purple upon landing
     if (this.spritey == 2) this.startAnimate(2); 
@@ -104,19 +121,19 @@ Puyo.prototype.update = function ()
     if (this.spritey == 0) this.startAnimate(5);
   }
 
-  if (this.animation > 0)
+  if (this.animation > 0)                          // if animating
   {
     var anim = am.animations[this.animation];
-    if (this.time - this.lasttime >= anim.speed)
+    if (this.time - this.lasttime >= anim.speed)    // if time for next frame
     {
       this.lasttime = this.time;
       this.curframe++;
-      if (this.curframe >= anim.x.length)
+      if (this.curframe >= anim.x.length)           // last frame? 
       {
-        if (anim.loop)
+        if (anim.loop)                              // loop means start over
           this.curframe = 0;
         else
-        {
+        {                                           // turn off animation
           this.animation = 0;
           this.spritex = this.origspritex;
           this.spritey = this.origspritey;
@@ -124,7 +141,7 @@ Puyo.prototype.update = function ()
         }
       }
       else
-        this.spritex = anim.x[this.curframe];
+        this.spritex = anim.x[this.curframe];       // set the current frame
     }
   }
 }
@@ -145,9 +162,9 @@ Puyo.prototype.stop = function()
   this.stage = 2;
 }
 
-Puyo.prototype.draw = function ()
+Puyo.prototype.draw = function (ox, oy)
 {
-  Game.context.drawImage(Game.sprites, this.spritex * Game.sheetsize, this.spritey * Game.sheetsize, Game.sheetsize, Game.sheetsize, this.x, this.y, Game.spritesize, Game.spritesize);
+  Game.context.drawImage(Game.sprites, this.spritex * Game.sheetsize, this.spritey * Game.sheetsize, Game.sheetsize, Game.sheetsize, ox + this.x, oy + this.y, Game.spritesize, Game.spritesize);
 }
 
 /*
@@ -165,22 +182,13 @@ function Player(p, x, y, nx, ny)
   this.offy = y;
   this.nextoffx = nx;
   this.nextoffy = ny;
+  this.nextnextoffx = (p == 1) ? nx + Game.spritesize : nx - Game.spritesize;
+  this.nextnextoffy = ny + Game.spritesize/2;
 
   this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
-
-  this.next = [this.makePuyo(this.nextoffx, this.nextoffy), this.makePuyo(this.nextoffx, this.nextoffy + Game.spritesize)];
-  if (p == 1) this.nextnext = [this.makePuyo(this.nextoffx + Game.spritesize, this.nextoffy + Game.spritesize/2), this.makePuyo(this.nextoffx + Game.spritesize, this.nextoffy + Game.spritesize/2 + Game.spritesize)];
-  else        this.nextnext = [this.makePuyo(this.nextoffx - Game.spritesize, this.nextoffy + Game.spritesize/2), this.makePuyo(this.nextoffx - Game.spritesize, this.nextoffy + Game.spritesize/2 + Game.spritesize)];
-
+  this.next = [this.makePuyo(0, 0), this.makePuyo(0, Game.spritesize)];
+  this.nextnext = [this.makePuyo(0, 0), this.makePuyo(0, Game.spritesize)];
   this.cels = [[], [], [], [], [], []];
-
-  for (var i = 0; i < 6; ++i)
-  {
-    for (var j = 0; j < 12; ++j)
-    {
-      this.cels[i][j] = this.makeBlankPuyo(i, j);
-    }
-  }
 
   this.movecounter = 0;
   this.movedir = 0;
@@ -188,19 +196,10 @@ function Player(p, x, y, nx, ny)
 
 Player.prototype.moveLeft = function()
 {
-  var celx1 = ((this.current[0].x - this.offx) / Game.spritesize) | 0;
-  var celx2 = ((this.current[1].x - this.offx) / Game.spritesize) | 0;
-  if (celx1 == 0 || celx2 == 0) return; // cant go left due to edge of board
-  
-  var cely1 = ((this.current[0].y - this.offy) / Game.spritesize) | 0;
-  var cely2 = ((this.current[1].y - this.offy) / Game.spritesize) | 0;
-  if (cely1 >= 0 && cely1 <= 11)
-  {
-    if (this.cels[celx1-1][cely1].stage > 0) return; // cant go left due to puyo in the way
-  }
-  if (cely2 >= 0 && cely2 <= 11) {
-    if (this.cels[celx2 - 1][cely2].stage > 0) return; // cant go left due to puyo in the way
-  }
+  if (this.current[0].celx == 0 || this.current[1].celx == 0) return;                  // cant go left due to edge of board
+  // use +1 for the bottom edge
+  if (this.cels[this.current[0].celx - 1][this.current[0].cely + 1] !== undefined) return; // cant go left due to puyo in the way
+  if (this.cels[this.current[1].celx - 1][this.current[1].cely + 1] !== undefined) return; // cant go left due to puyo in the way
 
   this.current[0].x -= Game.spritesize;
   this.current[1].x -= Game.spritesize;
@@ -208,18 +207,10 @@ Player.prototype.moveLeft = function()
 
 Player.prototype.moveRight = function ()
 {
-  var celx1 = ((this.current[0].x - this.offx) / Game.spritesize) | 0;
-  var celx2 = ((this.current[1].x - this.offx) / Game.spritesize) | 0;
-  if (celx1 >= 5 || celx2 >= 5) return; // cant go right due to edge of board
-
-  var cely1 = ((this.current[0].y - this.offy) / Game.spritesize) | 0;
-  var cely2 = ((this.current[1].y - this.offy) / Game.spritesize) | 0;
-  if (cely1 >= 0 && cely1 <= 11) {
-    if (this.cels[celx1 + 1][cely1].stage > 0) return; // cant go right due to puyo in the way
-  }
-  if (cely2 >= 0 && cely2 <= 11) {
-    if (this.cels[celx2 + 1][cely2].stage > 0) return; // cant go right due to puyo in the way
-  }
+  if (this.current[0].celx >= 5 || this.current[1].celx >= 5) return;                  // cant go right due to edge of board
+  // use +1 for the bottom edge
+  if (this.cels[this.current[0].celx + 1][this.current[0].cely + 1] !== undefined) return; // cant go right due to puyo in the way
+  if (this.cels[this.current[1].celx + 1][this.current[1].cely + 1] !== undefined) return; // cant go right due to puyo in the way
 
   this.current[0].x += Game.spritesize;
   this.current[1].x += Game.spritesize;
@@ -230,14 +221,7 @@ Player.prototype.makeCelPuyo = function (x, y)
   var p = new Puyo;
   p.stage = 1;
   p.define(0, 2 * ((this.rand.pop() * 5) | 0));
-  p.place(this.offx + x * Game.spritesize, this.offy + y * Game.spritesize);
-  return p;
-}
-
-Player.prototype.makeBlankPuyo = function (x, y)
-{
-  var p = new Puyo;
-  p.place(this.offx + x * Game.spritesize, this.offy + y * Game.spritesize);
+  p.place(x * Game.spritesize, y * Game.spritesize);
   return p;
 }
 
@@ -250,32 +234,37 @@ Player.prototype.makePuyo = function (x, y)
   return p;
 }
 
-Player.prototype.puyoIsLanded = function (p)
+Player.prototype.puyoWillLand = function (p)
 {
-  var celx = ((p.x - this.offx) / Game.spritesize) | 0;
-  var cely = ((p.y + Game.dropspeed - this.offy) / Game.spritesize);
-  if (cely < 0) return false;
-  // note that if cely is negative then |0 is always 0, not rounded 
-  cely = (cely | 0) + 1;  // +1 to account for bottom edge
-  if (cely > 11) return true;
-  if (this.cels[celx][cely].stage > 0) return true;
-  return false;
+  if (p.cely < 0) return false;
+
+  // get the cel that the bottom edge will be in
+  var y = p.y + Game.spritesize + Game.dropspeed;
+  var targetcel = (y / Game.spritesize) |0;
+
+  if (targetcel > 11) return true;
+
+  if (this.cels[p.celx][targetcel] === undefined) return false;
+  return true;
 }
 
 Player.prototype.puyoLand = function (p)
 {
-  var celx = ((p.x - this.offx) / Game.spritesize) | 0;
-  var cely = ((p.y - this.offy) / Game.spritesize);
-  if (cely < 0) { p.stop(); return; }
-  cely = (cely | 0)+1;
-
-  if (cely == 0 && celx == 2)
-  {
-    Game.gameover = true; return false;
-  }
-  this.cels[celx][cely].clone(p);
-  this.cels[celx][cely].stage = 2;
+  p.cely++;
+  p.y = p.cely * Game.spritesize;
   p.stop();
+
+  if (p.cely == 0 && p.celx == 2) { Game.gameover = true; }
+  this.cels[p.celx][p.cely] = p;
+
+  // check around for linkages
+  var image = 0;
+  if (p.cely > 0 && this.cels[p.celx][p.cely - 1] !== undefined && this.cels[p.celx][p.cely - 1].origspritey == p.origspritey) { image += 2; this.cels[p.celx][p.cely - 1].shift(1,0); }
+  if (p.cely < 11 && this.cels[p.celx][p.cely + 1] !== undefined && this.cels[p.celx][p.cely + 1].origspritey == p.origspritey) { image += 1; this.cels[p.celx][p.cely + 1].shift(2,0); }
+  if (p.celx > 0 && this.cels[p.celx - 1][p.cely] !== undefined && this.cels[p.celx - 1][p.cely].origspritey == p.origspritey) { image += 8; this.cels[p.celx - 1][p.cely].shift(4, 0); }
+  if (p.celx < 5 && this.cels[p.celx + 1][p.cely] !== undefined && this.cels[p.celx + 1][p.cely].origspritey == p.origspritey) { image += 4; this.cels[p.celx + 1][p.cely].shift(8, 0); }
+  p.origspritex = image;
+  p.spritex = image;
 
   return true;
 }
@@ -283,14 +272,15 @@ Player.prototype.puyoLand = function (p)
 Player.prototype.update = function ()
 {
   // check if current puyos are done dropping
-  if (this.puyoIsLanded(this.current[0]))
+  if (this.puyoWillLand(this.current[0]))
   {
-    if (this.puyoLand(this.current[0]) == false) return;
-    if (this.puyoLand(this.current[1]) == false) return;
+    this.puyoLand(this.current[0]);
+    this.puyoLand(this.current[1]);
 
-    this.current = [this.makeCelPuyo(2, 0), this.makeCelPuyo(2, -1)];
+    this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
     this.current[0].clone(this.next[1]); // ya I know
     this.current[1].clone(this.next[0]);
+
     this.next[0].clone(this.nextnext[0]);
     this.next[1].clone(this.nextnext[1]);
     this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
@@ -315,7 +305,7 @@ Player.prototype.update = function ()
   {
     for (var y = 0; y < 12; y += 1)
     {
-      this.cels[x][y].update();
+      if (this.cels[x][y] !== undefined) this.cels[x][y].update();
     }
   }
 }
@@ -326,15 +316,15 @@ Player.prototype.draw = function ()
   {
     for (var y = 0; y < 12; y += 1)
     {
-      if (this.cels[x][y].stage > 0) this.cels[x][y].draw();
+      if (this.cels[x][y] !== undefined) this.cels[x][y].draw(this.offx, this.offy);
     }
   }
-  this.current[0].draw();
-  this.current[1].draw();
-  this.next[0].draw();
-  this.next[1].draw();
-  this.nextnext[0].draw();
-  this.nextnext[1].draw();
+  this.current[0].draw(this.offx, this.offy);
+  this.current[1].draw(this.offx, this.offy);
+  this.next[0].draw(this.nextoffx, this.nextoffy);
+  this.next[1].draw(this.nextoffx, this.nextoffy);
+  this.nextnext[0].draw(this.nextnextoffx, this.nextnextoffy);
+  this.nextnext[1].draw(this.nextnextoffx, this.nextnextoffy);
 }
 
 
@@ -356,7 +346,7 @@ Game.init = function ()
   this.gameover = false;
 
   this.playerOne = new Player(1, 48, 79, 360, 15);
-  this.playerTwo = new Player(2, 552, 79, 521, 15);
+  this.playerTwo = new Player(2, 552, 79, 480, 15);
 
   document.addEventListener('keydown', onKeyDown, false);
   document.addEventListener('keyup', onKeyUp, false);
@@ -414,7 +404,7 @@ Game.run = function ()
 Game.update = function ()
 {
   Game.playerOne.update();
-  //Game.playerTwo.update();
+//  Game.playerTwo.update();
 }
 
 Game.draw = function ()
@@ -426,7 +416,7 @@ Game.draw = function ()
 
   Game.context.drawImage(Game.spritebg, 0, 0);
   Game.playerOne.draw();
- // Game.playerTwo.draw();
+  Game.playerTwo.draw();
   Game.context.drawImage(Game.spritefg,0,0);
 }
 
