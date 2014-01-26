@@ -96,6 +96,7 @@ Puyo.prototype.define = function (x, y)
 
 Puyo.prototype.shift = function (x, y)
 {
+  this.animation = 0;
   this.spritex += x;
   this.spritey += y;
   this.origspritex += x;
@@ -424,16 +425,14 @@ function onKeyDown(e)
 {
   if (e.keyCode == 39) Game.playerOne.movedir = 1;
   if (e.keyCode == 37) Game.playerOne.movedir = -1;
-//  if (e.keyCode == 83) Game.selected.entity.velY = 1; // down
-//  if (e.keyCode == 87) Game.selected.entity.velY = -1; // up
+  if (e.keyCode == 40) Game.dropspeed = 3; 
 }
 
 function onKeyUp(e)
 {
   if (e.keyCode == 39) Game.playerOne.movedir = 0;
-  if (e.keyCode == 37) Game.playerOne.movedir = 0; 
-//  if (e.keyCode == 83) Game.selected.entity.velY = 0;
-//  if (e.keyCode == 87) Game.selected.entity.velY = 0;
+  if (e.keyCode == 37) Game.playerOne.movedir = 0;
+  if (e.keyCode == 40) Game.dropspeed = 1;
 }
 
 /*
