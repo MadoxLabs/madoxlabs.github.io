@@ -1,6 +1,39 @@
 // game config
 var movepollrate = 5;
 
+//
+// PATHING
+//
+// You can define paths that a puyo will follow as it goes on with its life.
+// This is meant to be used by the bounce from nextnext to next and the spin when rotating
+// It will path while animating and falling etc.
+// Paths do not loop
+// The path x/y values are offset from the normal position, NOT from the last position. 
+// Offsets are applied at draw time, normal position is never altered
+// TODO
+// There is a probably need to chain a path after another path finishes
+// There is a definite need to chain an event after a path finishes.
+// We probably need an event system
+function Path()
+{
+  this.speed = 5;
+  this.x = [];
+  this.y = [];
+}
+
+function PathManager()
+{
+  this.paths = {};
+}
+
+// ANIMATION
+// 
+// You can define a series of frames in a sprite sheet that a puyo will use to draw itself.
+// It is assumed that all sprites in the animation are on the same Y level of the sheet
+// Animations can loop
+// TODO
+// These are animation definitions really. Need an object for a running animation to track its frame and time internally
+// Apply that to paths also
 function Animation()
 {
   this.speed = 10;
@@ -14,6 +47,15 @@ function AnimationManager()
   this.animations = {};
 }
 
+// a wiggle path for testing
+var pm = new PathManager();
+var testwiggle = new Path();
+testwiggle.speed = 1;
+testwiggle.y = [0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0, 0];
+testwiggle.x = [1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1, 0];
+pm.paths[1] = testwiggle;
+
+// some simple animations to use when a puyo is waiting to link
 var am = new AnimationManager();
 var purplesleep = new Animation();
 purplesleep.speed = 15;
@@ -61,6 +103,10 @@ function Puyo()
   this.y = 0;
   this.stage = 0;
 
+  this.path = 0;
+  this.pcurframe = 0;
+  this.plasttime = 0;
+
   this.animation = 0;
   this.curframe = 0;
   this.lasttime = 0;
@@ -72,7 +118,7 @@ function Puyo()
 
 Puyo.prototype.clone = function(p)
 {
-  this.animate = 0;
+  this.animation = 0;
   this.time = 0;
   this.spritex = p.spritex;
   this.spritey = p.spritey;
@@ -123,7 +169,7 @@ Puyo.prototype.update = function ()
   if (this.stage == 2 && this.origspritex == 0 && this.animation == 0 && chance < 0.005)
   {
     if (this.spritey == 8) this.startAnimate(1);  // animate purple upon landing
-    if (this.spritey == 2) this.startAnimate(2); 
+    if (this.spritey == 2) this.startAnimate(2); // same for other colours
     if (this.spritey == 6) this.startAnimate(3);
     if (this.spritey == 4) this.startAnimate(4);
     if (this.spritey == 0) this.startAnimate(5);
@@ -152,6 +198,22 @@ Puyo.prototype.update = function ()
         this.spritex = anim.x[this.curframe];       // set the current frame
     }
   }
+
+  if (this.path > 0)                        
+  {
+    var p = pm.paths[this.path];
+    if (this.time - this.plasttime >= p.speed)    // if time for next frame
+    {
+      this.plasttime = this.time;
+      this.pcurframe++;
+      if (this.pcurframe >= p.x.length)           // last frame? 
+      {
+        this.pcurframe = 0;
+        this.path = 0;
+        return;
+      }
+    }
+  }
 }
 
 Puyo.prototype.startAnimate = function(a)
@@ -165,13 +227,26 @@ Puyo.prototype.startAnimate = function(a)
   this.spritex = anim.x[this.curframe];
 }
 
-Puyo.prototype.stop = function()
+Puyo.prototype.startPath = function (a)
+{
+  this.path = a;
+//  this.pcurframe = 0;
+  this.plasttime = this.time;
+}
+
+Puyo.prototype.stop = function ()
 {
   this.stage = 2;
 }
 
 Puyo.prototype.draw = function (ox, oy)
 {
+  if (this.path > 0)
+  {
+    var p = pm.paths[this.path];
+    ox += p.x[this.pcurframe];
+    oy += p.y[this.pcurframe];
+  }
   Game.context.drawImage(Game.sprites, this.spritex * Game.sheetsize, this.spritey * Game.sheetsize, Game.sheetsize, Game.sheetsize, ox + this.x, oy + this.y, Game.spritesize, Game.spritesize);
 }
 
@@ -496,6 +571,7 @@ function onKeyUp(e)
   if (e.keyCode == 37) Game.playerOne.movedir = 0;
   if (e.keyCode == 40) Game.dropspeed = 1;
   if (e.keyCode == 65) Game.playerOne.moveCW();
+  if (e.keyCode == 66) Game.playerOne.current[0].startPath(1);
 }
 
 /*
