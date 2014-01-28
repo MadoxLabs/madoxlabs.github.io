@@ -47,6 +47,19 @@ function AnimationManager()
   this.animations = {};
 }
 
+// EVENTS
+//
+// Need event management
+// An event goes to the player that it is for. Events are started directly or by chaining to another event.
+// Common events:
+//    done pathing
+//    done eliminating
+//    done landing
+//  Usage:
+//    done landing -> trigger next/nextnext paths -> done pathing -> send next puyo
+//    done eliminating -> scan board -> done eliminating -> scan board -> done eliminating
+//    rotate, disallow input -> trigger rotation path -> done pathing -> finalize rotation, allow input
+
 // a wiggle path for testing
 var pm = new PathManager();
 var testwiggle = new Path();
