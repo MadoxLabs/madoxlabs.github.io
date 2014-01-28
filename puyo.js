@@ -97,10 +97,10 @@ Puyo.prototype.define = function (x, y)
 Puyo.prototype.shift = function (x, y)
 {
   this.animation = 0;
-  this.spritex += x;
-  this.spritey += y;
   this.origspritex += x;
-  this.origspritey += y;
+  this.spritex = this.origspritex;
+  this.spritey = this.origspritey;// + y;
+//  this.origspritey += y;
 }
 
 Puyo.prototype.update = function ()
@@ -301,6 +301,7 @@ Player.prototype.puyoLand = function (p)
   if (p.celx > 0 && this.cels[p.celx - 1][p.cely] !== undefined && this.cels[p.celx - 1][p.cely].origspritey == p.origspritey) { image += 8; this.cels[p.celx - 1][p.cely].shift(4, 0); }
   if (p.celx < 5 && this.cels[p.celx + 1][p.cely] !== undefined && this.cels[p.celx + 1][p.cely].origspritey == p.origspritey) { image += 4; this.cels[p.celx + 1][p.cely].shift(8, 0); }
   p.origspritex = image;
+  p.spritey = p.origspritey;
   p.spritex = image;
 
   return true;
@@ -486,7 +487,7 @@ function onKeyDown(e)
 {
   if (e.keyCode == 39) Game.playerOne.movedir = 1;
   if (e.keyCode == 37) Game.playerOne.movedir = -1;
-  if (e.keyCode == 40) Game.dropspeed = 3; 
+  if (e.keyCode == 40) Game.dropspeed = 5; 
 }
 
 function onKeyUp(e)
