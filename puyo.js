@@ -492,12 +492,12 @@ Game.init = function ()
   this.loading = 0;
   this.frame = 29;
   this.sheetsize = 16;
-  this.spritesize = 48;
+  this.spritesize = 42;
   this.dropspeed = 1;
   this.gameover = false;
 
-  this.playerOne = new Player(1, 48, 79, 360, 15);
-  this.playerTwo = new Player(2, 552, 79, 480, 15);
+  this.playerOne = new Player(1, 40, 57, 334, 15);
+  this.playerTwo = new Player(2, 522, 57, 438, 15);
 
   document.addEventListener('keydown', onKeyDown, false);
   document.addEventListener('keyup', onKeyUp, false);
