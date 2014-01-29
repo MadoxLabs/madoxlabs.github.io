@@ -68,6 +68,22 @@ testwiggle.y = [0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  
 testwiggle.x = [1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1, 0];
 pm.paths[1] = testwiggle;
 
+// path for nextnext puyo to follow, bounce into the next position
+// leading 0s make it wait for 8 frames for next puyo to stop pathing
+var p1nextnext = new Path();
+p1nextnext.speed = 1;
+p1nextnext.x = [0, 0, 0, 0, 0, 0, 0, 0, 0, -6, -12, -18, -24, -30, -36, -42];
+p1nextnext.y = [0, 0, 0, 0, 0, 0, 0, 0, 0, -9, -13, -16, -18, -20, -21, -21];
+pm.paths[2] = p1nextnext;
+
+// path for next puyo to rise up and enter the board
+// trailing -84s make it wait off screen for 8 frames while the nextnext paths.
+var p1next = new Path();
+p1next.speed = 1;
+p1next.x = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+p1next.y = [0, -12, -24, -36, -48, -60, -72, -84, -84, -84, -84, -84, -84, -84, -84, -84];
+pm.paths[3] = p1next;
+
 // some simple animations to use when a puyo is waiting to link
 var am = new AnimationManager();
 var purplesleep = new Animation();
@@ -99,6 +115,74 @@ redbounce.speed = 15;
 redbounce.y = 1;
 redbounce.x = [3, 4, 5, 6, 6, 5];
 am.animations[5] = redbounce;
+
+// animations that puyos use when waiting in the next box
+var rednext = new Animation();
+rednext.speed = 2;
+rednext.y = 0;
+rednext.x = [16, 17, 16, 17];
+am.animations[6] = rednext;
+
+var bluenext = new Animation();
+bluenext.speed = 2;
+bluenext.y = 2;
+bluenext.x = [16, 17, 16, 17];
+am.animations[7] = bluenext;
+
+var yellownext = new Animation();
+yellownext.speed = 2;
+yellownext.y = 4;
+yellownext.x = [16, 17, 16, 17];
+am.animations[8] = yellownext;
+
+var greennext = new Animation();
+greennext.speed = 2;
+greennext.y = 6;
+greennext.x = [16, 17, 16, 17];
+am.animations[9] = greennext;
+
+var purplenext = new Animation();
+purplenext.speed = 2;
+purplenext.y = 8;
+purplenext.x = [16, 17, 16, 17];
+am.animations[10] = purplenext;
+
+// the flashing position 0 puyo animation
+var redflash = new Animation();
+redflash.loop = true;
+redflash.speed = 5;
+redflash.y = 0;
+redflash.x = [0, 18, 0, 18];
+am.animations[11] = redflash;
+
+var blueflash = new Animation();
+blueflash.loop = true;
+blueflash.speed = 5;
+blueflash.y = 2;
+blueflash.x = [0, 18, 0, 18];
+am.animations[12] = blueflash;
+
+var yellowflash = new Animation();
+yellowflash.loop = true;
+yellowflash.speed = 5;
+yellowflash.y = 4;
+yellowflash.x = [0, 18, 0, 18];
+am.animations[13] = yellowflash;
+
+var greenflash = new Animation();
+greenflash.loop = true;
+greenflash.speed = 5;
+greenflash.y = 6;
+greenflash.x = [0, 18, 0, 18];
+am.animations[14] = greenflash;
+
+var purpleflash = new Animation();
+purpleflash.loop = true;
+purpleflash.speed = 5;
+purpleflash.y = 8;
+purpleflash.x = [0, 18, 0, 18];
+am.animations[15] = purpleflash;
+
 
 /*
  * PUYO CLASS
@@ -188,6 +272,14 @@ Puyo.prototype.update = function ()
     if (this.spritey == 0) this.startAnimate(5);
   }
 
+  if (this.stage == 3 && this.origspritex == 0 && this.animation == 0 && chance < 0.02) {
+    if (this.spritey == 0) this.startAnimate(6);
+    if (this.spritey == 2) this.startAnimate(7); // same for other colours
+    if (this.spritey == 4) this.startAnimate(8);
+    if (this.spritey == 6) this.startAnimate(9);
+    if (this.spritey == 8) this.startAnimate(10);  // animate purple upon landing
+  }
+
   if (this.animation > 0)                          // if animating
   {
     var anim = am.animations[this.animation];
@@ -250,6 +342,7 @@ Puyo.prototype.startPath = function (a)
 Puyo.prototype.stop = function ()
 {
   this.stage = 2;
+  this.animation = 0;
 }
 
 Puyo.prototype.draw = function (ox, oy)
@@ -282,6 +375,7 @@ function Player(p, x, y, nx, ny)
   this.nextnextoffy = ny + Game.spritesize/2;
 
   this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
+  this.current[0].startAnimate(11 + this.current[0].spritey / 2);
   this.next = [this.makePuyo(0, 0), this.makePuyo(0, Game.spritesize)];
   this.nextnext = [this.makePuyo(0, 0), this.makePuyo(0, Game.spritesize)];
   this.cels = [[], [], [], [], [], []];
@@ -353,7 +447,7 @@ Player.prototype.makeCelPuyo = function (x, y)
 Player.prototype.makePuyo = function (x, y)
 {
   var p = new Puyo;
-  p.stage = 1;
+  p.stage = 3;
   p.define(0, 2 * ((this.rand.pop() * 5) | 0));
   p.place(x, y);
   return p;
@@ -430,6 +524,7 @@ Player.prototype.update = function ()
     this.split = 0;
     this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
     this.current[0].clone(this.next[1]); // ya I know
+    this.current[0].startAnimate(11 + this.current[0].spritey/2);
     this.current[1].clone(this.next[0]);
 
     this.next[0].clone(this.nextnext[0]);
@@ -450,6 +545,10 @@ Player.prototype.update = function ()
   // advance the downward motion of the current puyos
   this.current[0].update();
   this.current[1].update();
+  this.next[0].update();
+  this.next[1].update();
+  this.nextnext[0].update();
+  this.nextnext[1].update();
 
   // update all puyo animations
   for (var x = 0; x < 6; x += 1)
@@ -585,6 +684,12 @@ function onKeyUp(e)
   if (e.keyCode == 40) Game.dropspeed = 1;
   if (e.keyCode == 65) Game.playerOne.moveCW();
   if (e.keyCode == 66) Game.playerOne.current[0].startPath(1);
+  if (e.keyCode == 67) {
+    Game.playerOne.nextnext[0].startPath(2);
+    Game.playerOne.nextnext[1].startPath(2);
+    Game.playerOne.next[0].startPath(3);
+    Game.playerOne.next[1].startPath(3);
+  }
 }
 
 /*
