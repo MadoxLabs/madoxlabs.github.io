@@ -108,10 +108,6 @@ function onKeyUp(e)
   if (e.keyCode == 65) Game.playerOne.moveCW();
   if (e.keyCode == 66) Game.playerOne.current[0].startPath(1);
   if (e.keyCode == 67) {
-    Game.playerOne.nextnext[0].startPath(2);
-    Game.playerOne.nextnext[1].startPath(2);
-    Game.playerOne.next[0].startPath(3);
-    Game.playerOne.next[1].startPath(3);
   }
 }
 

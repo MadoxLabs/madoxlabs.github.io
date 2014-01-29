@@ -31,8 +31,8 @@ Puyo.prototype.clone = function(p)
 {
   this.animation = 0;
   this.time = 0;
-  this.spritex = p.spritex;
-  this.spritey = p.spritey;
+  this.spritex = p.origspritex;
+  this.spritey = p.origspritey;
   this.origspritex = p.origspritex;
   this.origspritey = p.origspritey;
 }
@@ -127,6 +127,10 @@ Puyo.prototype.update = function ()
       this.pcurframe++;
       if (this.pcurframe >= p.x.length)           // last frame? 
       {
+        // special events
+        if (this == Game.playerOne.next[1] && this.path == 3) Game.playerOne.trigger(eventLaunchPiece);
+        if (this == Game.playerOne.nextnext[1]) Game.playerOne.trigger(eventNextReady);
+        // done
         this.pcurframe = 0;
         this.path = 0;
         return;

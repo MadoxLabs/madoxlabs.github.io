@@ -1,3 +1,7 @@
+var eventAllPiecesLanded = 1;
+var eventLaunchPiece = 2;
+var eventNextReady = 3;
+
 /*
  * PLAYER CLASS
  *
@@ -25,6 +29,7 @@ function Player(p, x, y, nx, ny)
   this.movecounter = 0;
   this.movedir = 0;
   this.split = 0;
+  this.drawnext = true;
 }
 
 Player.prototype.moveLeft = function()
@@ -112,11 +117,16 @@ Player.prototype.puyoWillLand = function (p)
 Player.prototype.puyoLand = function (p)
 {
   p.cely++;
+  // sanity check - why does this happen? - somehow, sometimes, we skip over a cel and need to pull it back one
+  while (this.cels[p.celx][p.cely] !== undefined) p.cely--;
   p.y = p.cely * Game.spritesize;
   p.stop();
 
-  if (p.cely == 0 && p.celx == 2) { Game.gameover = true; }
+  // set puyo in the board
   this.cels[p.celx][p.cely] = p;
+  console.log("set " + p.celx + " " + p.cely);
+  // game over?
+  if (p.cely == 0 && p.celx == 2) { Game.gameover = true; }
 
   // check around for linkages
   var image = 0;
@@ -161,19 +171,7 @@ Player.prototype.update = function ()
   }
 
   // are both down?
-  if (this.split == 2)
-  {
-    this.split = 0;
-    this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
-    this.current[0].clone(this.next[1]); // ya I know
-    this.current[0].startAnimate(11 + this.current[0].spritey/2);
-    this.current[1].clone(this.next[0]);
-
-    this.next[0].clone(this.nextnext[0]);
-    this.next[1].clone(this.nextnext[1]);
-    this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
-    this.nextnext[1].define(0, 2 * ((this.rand.pop() * 5) | 0));
-  }
+  if (this.split == 2) this.trigger(eventAllPiecesLanded);
 
   // apply user inputs?
   this.movecounter++;
@@ -213,8 +211,49 @@ Player.prototype.draw = function ()
   }
   this.current[0].draw(this.offx, this.offy);
   this.current[1].draw(this.offx, this.offy);
-  this.next[0].draw(this.nextoffx, this.nextoffy);
-  this.next[1].draw(this.nextoffx, this.nextoffy);
+  if (this.drawnext)
+  {
+    this.next[0].draw(this.nextoffx, this.nextoffy);
+    this.next[1].draw(this.nextoffx, this.nextoffy);
+  }
   this.nextnext[0].draw(this.nextnextoffx, this.nextnextoffy);
   this.nextnext[1].draw(this.nextnextoffx, this.nextnextoffy);
+}
+
+Player.prototype.trigger = function(e)
+{
+  console.log("triggering " + e);
+  if (e == eventAllPiecesLanded)
+  {
+      this.split = 0;
+      this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
+      this.current[0].clone(this.next[1]); // ya I know
+      this.current[0].startAnimate(11 + this.current[0].spritey/2);
+      this.current[1].clone(this.next[0]);
+      this.current[0].stage = 4; // dont drop
+      this.current[1].stage = 4;
+
+      this.next[0].startPath(3);
+      this.next[1].startPath(3);
+    }
+
+  if (e == eventLaunchPiece)
+  {
+    this.current[0].stage = 1; // drop
+    this.current[1].stage = 1;
+    this.drawnext = false;
+//    this.next[0].startPath(4);
+//    this.next[1].startPath(4);
+    this.nextnext[0].startPath(2);
+    this.nextnext[1].startPath(2);
+  }
+
+  if (e == eventNextReady)
+  {
+    this.drawnext = true;
+    this.next[0].clone(this.nextnext[0]);
+    this.next[1].clone(this.nextnext[1]);
+    this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
+    this.nextnext[1].define(0, 2 * ((this.rand.pop() * 5) | 0));
+  }
 }
