@@ -30,6 +30,8 @@ function Player(p, x, y, nx, ny)
   this.movedir = 0;
   this.split = 0;
   this.drawnext = true;
+
+  this.combopath = [];
 }
 
 Player.prototype.moveLeft = function()
@@ -124,7 +126,6 @@ Player.prototype.puyoLand = function (p)
 
   // set puyo in the board
   this.cels[p.celx][p.cely] = p;
-  console.log("set " + p.celx + " " + p.cely);
   // game over?
   if (p.cely == 0 && p.celx == 2) { Game.gameover = true; }
 
@@ -137,7 +138,6 @@ Player.prototype.puyoLand = function (p)
   p.origspritex = image;
   p.spritey = p.origspritey;
   p.spritex = image;
-
   return true;
 }
 
@@ -222,9 +222,10 @@ Player.prototype.draw = function ()
 
 Player.prototype.trigger = function(e)
 {
-  console.log("triggering " + e);
   if (e == eventAllPiecesLanded)
   {
+    this.checkforCombo();
+
       this.split = 0;
       this.current = [this.makeCelPuyo(2, -1), this.makeCelPuyo(2, -2)];
       this.current[0].clone(this.next[1]); // ya I know
@@ -256,4 +257,63 @@ Player.prototype.trigger = function(e)
     this.nextnext[0].define(0, 2 * ((this.rand.pop() * 5) | 0));
     this.nextnext[1].define(0, 2 * ((this.rand.pop() * 5) | 0));
   }
+}
+
+Player.prototype.checkforCombo = function()
+{
+  var combo = false;
+  var dead = [];
+  this.combopath = [];
+  if (this.checkforComboRecurse(this.current[0]) >= 4)
+  {
+    dead = this.combopath;
+    combo = true;
+  }
+  this.combopath = [];
+  if (this.checkforComboRecurse(this.current[1]) >= 4)
+  {
+    for (key in this.combopath) dead[key] = true;
+    combo = true;
+  }
+  if (combo)
+  {
+    // remove all combo pieces
+    for (key in dead)
+    {
+      var y = (key / 10)|0;
+      var x = key - (y * 10);
+      this.cels[x][y] = undefined;
+    }
+  }
+}
+
+Player.prototype.checkforComboRecurse = function (p)
+{
+  var total = 0;
+  var index = p.cely * 10 + p.celx;
+  if (this.combopath[index] !== undefined) return total; // already been here
+
+  // this p counts
+  this.combopath[index] = true;
+  total += 1;
+
+  // find ways to go
+  if (p.celx > 0)
+  {
+    var n = this.cels[p.celx - 1][p.cely];  // neighbour
+    if (n !== undefined && p.origspritey == n.origspritey) total += this.checkforComboRecurse(n);
+  }
+  if (p.celx < 5) {
+    var n = this.cels[p.celx + 1][p.cely];  // neighbour
+    if (n !== undefined && p.origspritey == n.origspritey) total += this.checkforComboRecurse(n);
+  }
+  if (p.cely > 0) {
+    var n = this.cels[p.celx][p.cely-1];  // neighbour
+    if (n !== undefined && p.origspritey == n.origspritey) total += this.checkforComboRecurse(n);
+  }
+  if (p.cely < 11) {
+    var n = this.cels[p.celx][p.cely + 1];  // neighbour
+    if (n !== undefined && p.origspritey == n.origspritey) total += this.checkforComboRecurse(n);
+  }
+  return total;
 }

@@ -121,3 +121,37 @@ function main()
   Game.init();
   window.setInterval(Game.run, 17);
 }
+
+
+/* 
+ * TODO
+ *
+
+ Pathing for rotating
+ rotating the other way
+ sounds
+ eliminating
+ animation for elimination
+ rotation logic
+ hooks for adding AI algorithms
+ multiplayer
+ remove player 1 hard coding
+ menus - graphics/coding
+ options - graphics/coding
+ garbage puyos
+ garbage algorithm
+ eliminating garbage
+ powers  - graphics/coding
+ replacement puyo graphics
+ replacement animations
+ game over screens
+ garbage arrival animations
+ clear board - graphics/coding
+ avatar support
+ server for data saving
+ logins
+ code cleanup
+ lens flares
+
+ *
+ */
