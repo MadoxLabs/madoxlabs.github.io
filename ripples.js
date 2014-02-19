@@ -20,18 +20,8 @@ Game.init = function ()
   this.height = [];
   this.water = [];
   this.visual = [];
-  for (var x = 0; x < 400; ++x)
-    for (var y = 0; y < 400; ++y) {
-      // hilly terrain
-      this.height[x + 400 * y] = 2 * (2 + Math.sin(x / 100) + Math.cos(y / 100));
-      this.water[x + 400 * y] = 5 - this.height[x + 400 * y];
 
-      // a pond of water
-      //      this.height[x+400*y] =  ((x+y) / 800 - 0.5*(x-y)/400) * 10;
-      //      this.water[x+400*y] = 10 - this.height[x+400*y];
-      if (this.water[x + 400 * y] < 0) this.water[x + 400 * y] = 0;
-      this.visual[x + 400 * y] = 0;
-    }
+  Game.reset();
 
   this.flowsA = [];
   this.flowsB = [];
@@ -44,6 +34,33 @@ Game.init = function ()
   this.map = Game.context.createImageData(400, 400);
 
   this.adding = false;
+}
+
+Game.reset = function ()
+{
+  for (var x = 0; x < 400; ++x)
+    for (var y = 0; y < 400; ++y)
+    {
+      // hilly terrain
+      this.height[x + 400 * y] = 2 * (2 + Math.sin(x / 100) + Math.cos(y / 100));
+
+      if (fat)
+      {
+        var i = Math.floor(x / 2) + 400 * Math.floor(y / 2);
+        this.water[i] = 5 - this.height[x + 400 * y];
+        if (this.water[i] < 0) this.water[i] = 0;
+      }
+      else
+      {
+        this.water[x + 400 * y] = 5 - this.height[x + 400 * y];
+        if (this.water[x + 400 * y] < 0) this.water[x + 400 * y] = 0;
+      }
+
+      // a pond of water
+      //      this.height[x+400*y] =  ((x+y) / 800 - 0.5*(x-y)/400) * 10;
+      //      this.water[x+400*y] = 10 - this.height[x+400*y];
+      this.visual[x + 400 * y] = 0;
+    }
 }
 
 Game.run = function ()
@@ -80,14 +97,17 @@ var heightDif = new Dir();
 var outflow = new Dir();
 
 var rain = false;
+var fat = false;
 
 Game.update = function ()
 {
   // process water
   //   calc flows
 
-  for (var x = 1; x < 400 - 1; ++x)
+  for (var x = 1; x < 400 - 1; ++x) {
+    if (x >= 199 && fat) break;
     for (var y = 1; y < 400 - 1; ++y) {
+      if (y >= 199 && fat) break;
       var index = x + 400 * y;
       var waterC = Game.water[index];
       var heightC = Game.height[index];
@@ -144,6 +164,7 @@ Game.update = function ()
       f.above = outflow.above;
       f.below = outflow.below;
     }
+  }
 
   var tmp = Game.flowsA;
   Game.flowsA = Game.flowsB;
@@ -153,7 +174,11 @@ Game.update = function ()
   var evaporate = 1.0; //0.99;
 
   for (var x = 1; x < 400 - 1; ++x)
-    for (var y = 1; y < 400 - 1; ++y) {
+  {
+    if (x >= 199 && fat) break;
+    for (var y = 1; y < 400 - 1; ++y)
+    {
+      if (y >= 199 && fat) break;
       var flowC = Game.flowsA[x + 400 * y];
       var flowL = Game.flowsA[(x - 1) + 400 * y];
       var flowR = Game.flowsA[(x + 1) + 400 * y];
@@ -170,6 +195,7 @@ Game.update = function ()
 
       Game.visual[x + 400 * y] = inflows - outflows;
     }
+  }
 }
 
 var brighter = false;
@@ -179,26 +205,35 @@ Game.draw = function ()
   var i = 0;
   var sandA = 0;
   var waterA = 0;
+  var visual = 0;
   for (var x = 0; x < 400; ++x)
+  {
     for (var y = 0; y < 400; ++y) {
-      waterA = Game.water[x + 400 * y] / 5.0;
-
-      if (brighter)
+      if (fat)
       {
-        visualA = 1;// - Game.visual[x + 400 * y] / 20.0;
-        sandA = Game.height[x + 400 * y] / 14.0 + 0.3;
+        waterA = Game.water[Math.floor(x / 2) + 400 * Math.floor(y / 2)] / 5.0;
+        visual = Game.visual[Math.floor(x / 2) + 400 * Math.floor(y / 2)];
       }
       else
       {
+        waterA = Game.water[x + 400 * y] / 5.0;
+        visual = Game.visual[x + 400 * y];
+      }
+
+      if (brighter) {
+        visualA = 1;// - Game.visual[x + 400 * y] / 20.0;
+        sandA = Game.height[x + 400 * y] / 14.0 + 0.3;
+      }
+      else {
         visualA = waterA + 0.5;
         sandA = 1.0 - waterA;
       }
 
       //                  | sand        |  water       |
-      if (Game.visual[x + 400 * y] > 0.00001) {
+      if (visual > 0.00001) {
         Game.map.data[i++] = 237 * sandA + (brighter ? 255 : 0) * visualA;
         Game.map.data[i++] = 201 * sandA + 0 * visualA;
-        Game.map.data[i++] = 175 * sandA + (brighter? 0 : 255) * visualA;
+        Game.map.data[i++] = 175 * sandA + (brighter ? 0 : 255) * visualA;
         Game.map.data[i++] = 255;
       }
       else {
@@ -208,11 +243,17 @@ Game.draw = function ()
         Game.map.data[i++] = 255;
       }
     }
+  }
   Game.context.putImageData(Game.map, 0, 0, 0, 0, 400, 400);
 }
 
 Game.addLand = function (x, y)
 {
+  if (fat)
+  {
+    x = (x / 2) | 0;
+    y = (y / 2) | 0;
+  }
   this.water[y + 400 * x] += 0.1;
 }
 
