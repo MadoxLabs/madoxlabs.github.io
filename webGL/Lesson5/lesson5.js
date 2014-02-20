@@ -4,7 +4,14 @@ var square;
 var uOnce;
 var uPerObject;
 
-var rCube = 0;
+var xRot = 0;
+var xSpeed = 0;
+var yRot = 0;
+var ySpeed = 0;
+var z = -5.0;
+
+var filter = 0;
+var currentlyPressedKeys = {};
 
 function degToRad(degrees)
 {
@@ -14,7 +21,7 @@ function degToRad(degrees)
 Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
-  Game.loadTextureFile("cubeside", "madox2.png");
+  Game.loadTextureFile("cubeside", "box.jpg", true);
 
   var attr = { 'POS': 0, 'COLOR0': 12, 'TEX0': 28 }
   var vertices = [
@@ -86,7 +93,21 @@ Game.deviceReady = function ()
 
 Game.appUpdate = function ()
 {
-  rCube += (75 * Game.elapsed) / 1000.0;
+  if (currentlyPressedKeys[33])  // Page Up
+    z -= 0.05;
+  if (currentlyPressedKeys[34])  // Page Down
+    z += 0.05;
+  if (currentlyPressedKeys[37])  // Left cursor key
+    ySpeed -= 1;
+  if (currentlyPressedKeys[39])  // Right cursor key
+    ySpeed += 1;
+  if (currentlyPressedKeys[38])  // Up cursor key
+    xSpeed -= 1;
+  if (currentlyPressedKeys[40])  // Down cursor key
+    xSpeed += 1;
+
+  xRot += (xSpeed * Game.elapsed) / 1000.0;
+  yRot += (ySpeed * Game.elapsed) / 1000.0;
 }
 
 Game.appDraw = function ()
@@ -98,11 +119,40 @@ Game.appDraw = function ()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   mat4.identity(uPerObject.uMVMatrix);
-  mat4.translate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, [0.0, 0.0, -5.0]);
-  mat4.rotate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, degToRad(rCube), [1, 1, 1]);
+  mat4.translate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, [0.0, 0.0, z]);
+  mat4.rotate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, degToRad(xRot), [1, 0, 0]);
+  mat4.rotate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, degToRad(yRot), [0, 1, 0]);
   effect.setUniforms(uPerObject);
 
-  effect.bindTexture('uSampler', Game.assetMan.assets['cubeside'].texture)
+  switch (filter)
+  {
+    case 0:
+      effect.bindTexture('uSampler', Game.assetMan.assets['cubeside'].texture, gl.NEAREST, gl.NEAREST);
+      break;
+    case 1:
+      effect.bindTexture('uSampler', Game.assetMan.assets['cubeside'].texture, gl.LINEAR, gl.LINEAR);
+      break;
+    case 2:
+      effect.bindTexture('uSampler', Game.assetMan.assets['cubeside'].texture, gl.LINEAR, gl.LINEAR_MIPMAP_NEAREST);
+      break;
+  }
   effect.draw(square);
 }
 
+Game.handleKeyDown = function ()
+{
+  currentlyPressedKeys[event.keyCode] = true;
+
+  if (String.fromCharCode(event.keyCode) == "F") {
+    filter += 1;
+    if (filter == 3) {
+      filter = 0;
+    }
+    console.log("filter is " + filter);
+  }
+}
+
+Game.handleKeyUp = function ()
+{
+  currentlyPressedKeys[event.keyCode] = false;
+}
