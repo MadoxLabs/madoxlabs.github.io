@@ -1,0 +1,3 @@
+cube textures
+more mesh types as we encounter them
+resize canvas
