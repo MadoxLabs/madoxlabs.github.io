@@ -1,4 +1,17 @@
+var RenderState = function(state)
+{
 
+}
+
+RenderState.prototype.set()
+{
+
+}
+
+RenderState.prototype.unset()
+{
+
+}
 
 //
 // The shader manager loads effect files and holds all programs
@@ -6,6 +19,8 @@
 var ShaderManager = function()
 {
   this.shaders = {};
+  this.rendetstates = {};
+  this.currentRenderState = null;
 }
 
 ShaderManager.prototype.compileVertexShader = function (src) 
@@ -34,7 +49,8 @@ ShaderManager.prototype.extractShaderPart = function(src, type)
 {
   var part = "";
   var start;
-  
+
+// find and concats all the parts labels as a type  
   for (;;)
   {
     start = src.indexOf(type);
@@ -84,7 +100,7 @@ ShaderManager.prototype.findParam = function(src, name, param, def)
   // find uniform line with the name on it
   var code = def;
   var start = 0;
-  for (var i = 0; i < 100; ++i)
+  for (var i = 0; i < 256; ++i)
   {
     var line = src.indexOf("uniform", start); if (line == -1) return code;
     var end = src.indexOf("\n", line);          if (end == -1) return code;
@@ -114,15 +130,71 @@ ShaderManager.prototype.findTexParam = function(src, name, param, def)
   return v;
 }
 
+ShaderManager.prototype.processRenderStates = function(src)
+{
+  // render states start with: name blah
+  // find all name blah parts and sub parse
+  // for each part, find all lines and divide into: state, args[]
+
+  var renderstates = {};
+
+  var start;
+  var part;
+  // find and concats all the parts labels as a type  
+  for (;;)
+  {
+    start = src.indexOf("name");
+    if (start == -1) break;
+
+    src = src.substring(start + 4);
+    var end = src.indexOf("name");
+
+    if (end >= 0) 
+    {
+      part = "name"+src.substring(0, end);
+      src = src.substring(end);
+    }
+    else 
+    {
+      part = "name"+src;
+      src = "";
+    }
+
+    // get each state
+    var state = {};
+    var lines = part.replace("\r","").split("\n");
+    for (var line in lines)
+    {
+      var words = lines[line].split(" ");
+      state[words.shift()] = words;
+    }
+    renderstates[state.name] = state;
+  }
+
+  return renderstates;
+}
+
 ShaderManager.prototype.processEffect = function(src)
 {
   Game.loading -= 1;
 
-  var name   = this.extractShaderPart(src, "[NAME]");
+  var name   = this.extractShaderPart(src, "[NAME]").trim();
   var vertex = this.extractShaderPart(src, "[VERTEX]");
   var pixel  = this.extractShaderPart(src, "[PIXEL]");
   var common = this.extractShaderPart(src, "[COMMON]");
+  var usestate = this.extractShaderPart(src, "[APPLY]").trim();
+  var renderstates = this.processRenderStates(this.extractShaderPart(src, "[RENDERSTATE]"));
 
+  // save renderstates
+  for (var n in renderstates)
+  {
+    if (!this.renderstates[n]) this.renderstates[n] = new RenderState(renderstates[n]);
+  }
+
+  // early exit for noop shaders
+  if (vertex.length == 0 && pixel.length == 0) return;
+
+  // make a shader
   var vertexShader   = this.compileVertexShader(common + vertex);
   var fragmentShader = this.compilePixelShader(common + pixel);
 
@@ -136,6 +208,7 @@ ShaderManager.prototype.processEffect = function(src)
   //
   // turn on all the attributes and create properties for each
 
+  shaderProgram.renderstate = this.renderstates[usestate];
   shaderProgram.attributes = [];
   shaderProgram.stride = 0;
   for (var i = 0; i < 16; ++i)
@@ -191,12 +264,13 @@ ShaderManager.prototype.processEffect = function(src)
     }
   }
 
+  shaderProgram.bind = bind;
   shaderProgram.bindMesh = bindMesh;
   shaderProgram.bindTexture = bindTexture;
   shaderProgram.draw = draw;
   shaderProgram.createUniform = createUniform;
   shaderProgram.setUniforms = setUniforms;
 
-  this.shaders[name.trim()] = shaderProgram;
+  this.shaders[name] = shaderProgram;
 }
 

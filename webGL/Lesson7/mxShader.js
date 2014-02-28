@@ -1,6 +1,17 @@
 //
 // These functions get added to each WebGL shader object
 
+function bind()
+{
+  gl.useProgram(this);
+  if (this.renderstate && this.renderstate != Game.shaderMan.currentRenderState)
+  {
+    if (Game.shaderMan.currentRenderState) Game.shaderMan.currentRenderState.unset();
+    Game.shaderMan.currentRenderState = this.renderstate;
+    this.renderstate.set();
+  }
+}
+
 function bindMesh(mesh)
 {
   gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);

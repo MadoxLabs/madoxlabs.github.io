@@ -21,6 +21,19 @@ varying vec3 vLight;
 
 [END]
 
+[RENDERSTATE]
+name teststate
+something value
+blend true
+[END]
+
+[RENDERSTATE]
+name teststate2
+something value
+blend false
+cull none
+[END]
+
 Vertex shader has to define the incoming pixel attributes. 
 Each attribute should have a commented out SEMANTIC that the code uses to match up byte offsets to.
 SEMANTICs can be anything you want, but should follow DX names for clarity

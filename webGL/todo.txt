@@ -6,40 +6,44 @@ resize canvas
 plan for recreating shader controlled DX states:
 
 Raster states
-  fill mode
-  cull mode
-  frontCCW
-  depth bias
-  depth bias clamp
-  slope scale depth bias
-  depth clip  bool
-  scissor  bool
-  multisample  bool
-  antialiased line  bool
+  fill mode               Not available
+  cull mode               cullFace(), glEnable()       cull CW|CCW|NONE
+  frontCCW                fromtFace()                  frontCCW  CW|CCW
+  depth bias              ploygonOffset(), glEnable()  depthBias x y
+  depth bias clamp		  Not available
+  slope scale depth bias  Not available
+  depth clip  bool		  depthRange()                 depthClip n f
+  scissor  bool           glEnable()                   scissor on|off
+  multisample  bool       Not available
+  antialiased line  bool  Not available
 
 Blend states
-  blend  bool
-  src blend
-  dest blend
-  blend op
-  src blend alpha
-  dest blend alpha
-  blend op alpha
+  blend  bool       glEnable()                 blend on|off
+  src blend         blendFunc()                blendsrc type
+  dest blend        blendFunc()                blenddest type
+  blend op          blendEquation()            blendop op
+  src blend alpha   blendFuncSeparate()        blendsrca type
+  dest blend alpha  blendFuncSeparate()        blenddesta type
+  blend op alpha    blendEquationSeparate()    blendopa type
   write mask
   
-  blend factors
-  mask
+  blend factors     blendColor()               blendfactors r g b a
+  mask              colorMask()                blendmask m
   
 Depth states
-  depth bool
-  write mask
-  func
-  stencil bool
-  stencil read mask
-  stencil write mask
-  front stencil op
-  back stencil op
+  depth bool          glEnable()                depth on|off
+  write mask          depthMask()  on or off    depthwrite on|off
+  func                depthFunc()               depthfunc type
+  stencil bool        glEnable()                stencil on|off
+  stencil read mask   stencilFunc()
+  stencil write mask  stencilMask()
+  front stencil op    stencilOp()
+  back stencil op     stencilOp()
   
+sample alpha to coverage, sample coverage   glEnable()
+
+
+
 What are the webgl versions of these? Are they settable? Make a mapping thingy
  register states, save, load, use states
  
@@ -69,11 +73,13 @@ function resetToInitialState(ctx)
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, null);
   ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
   ctx.bindRenderbuffer(ctx.RENDERBUFFER, null);
+
   ctx.disable(ctx.BLEND);
   ctx.disable(ctx.CULL_FACE);
   ctx.disable(ctx.DEPTH_TEST);
   ctx.disable(ctx.DITHER);
   ctx.disable(ctx.SCISSOR_TEST);
+
   ctx.blendColor(0, 0, 0, 0);
   ctx.blendEquation(ctx.FUNC_ADD);
   ctx.blendFunc(ctx.ONE, ctx.ZERO);
@@ -92,16 +98,14 @@ function resetToInitialState(ctx)
   ctx.pixelStorei(ctx.UNPACK_ALIGNMENT, 4);
   ctx.pixelStorei(ctx.UNPACK_FLIP_Y_WEBGL, false);
   ctx.pixelStorei(ctx.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-  // TODO: Delete this IF.
-  if (ctx.UNPACK_COLORSPACE_CONVERSION_WEBGL) {
-    ctx.pixelStorei(ctx.UNPACK_COLORSPACE_CONVERSION_WEBGL, ctx.BROWSER_DEFAULT_WEBGL);
-  }
+  if (ctx.UNPACK_COLORSPACE_CONVERSION_WEBGL) ctx.pixelStorei(ctx.UNPACK_COLORSPACE_CONVERSION_WEBGL, ctx.BROWSER_DEFAULT_WEBGL);
   ctx.polygonOffset(0, 0);
   ctx.sampleCoverage(1, false);
   ctx.scissor(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.stencilFunc(ctx.ALWAYS, 0, 0xFFFFFFFF);
   ctx.stencilMask(0xFFFFFFFF);
   ctx.stencilOp(ctx.KEEP, ctx.KEEP, ctx.KEEP);
+
   ctx.viewport(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT | ctx.STENCIL_BUFFER_BIT);
 
