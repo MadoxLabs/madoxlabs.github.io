@@ -1,16 +1,44 @@
 var RenderState = function(state)
 {
-
+  // convert the hash to states
+  // render states
+  if (state.cull)         this.cull = state.cull[0];
+  if (state.cullmode)     this.cullmode = gl[state.cullmode[0]];
+  if (state.frontface)    this.frontface = gl[state.frontface[0]];
+  if (state.depthbias)    this.depthbias = { factor: state.depthbias[0], units: state.depthbias[1] }
+  if (state.depthrange)   this.depthrange = { near: state.depthbias[0], far: state.depthbias[1] }
+  if (state.scissor)      this.scissor = state.scissor[0];
+  // blend states
+  if (state.blend)   this.blend = gl[state.blend[0]];
+  if (state.blendop) this.blendop = gl[state.blendop[0]];
+  if (state.blendopalpha) this.blendopalpha = gl[state.blendopalpha[0]];
+  // depth states
 }
 
-RenderState.prototype.set()
+RenderState.prototype.set = function()
 {
-
+  // render states
+  if (typeof this.cull === typeof (true)) this.cull ? gl.enable(gl.GL_CULL_FACE) : gl.disable(gl.GL_CULL_FACE);
+  if (this.cullmode) gl.cullFace(this.cullmode);
+  if (this.frontface) gl.frontFace(this.frontface);
+  if (this.depthbias) { gl.enable(gl.GL_POLYGON_OFFSET_FILL); gl.polygonOffset(this.depthbias.factor, this.depthbias.units); }
+  if (this.depthrange) gl.depthRange(this.depthrange.near, this.depthrange.far);
+  if (typeof this.scissor === typeof (true)) this.scissor ? gl.enable(gl.GL_SCISSOR_TEST) : gl.disable(gl.GL_SCISSOR_TEST);
+  // blend states
+  // depth states
 }
 
-RenderState.prototype.unset()
+RenderState.prototype.unset = function()
 {
-
+  // render states
+  if (typeof this.cull === typeof (true)) gl.disable(gl.GL_CULL_FACE);
+  if (this.cullmode) gl.cullFace(gl.GL_BACK);
+  if (this.frontface) gl.frontFace(gl.GL_CCW);
+  if (this.depthbias) { gl.disable(gl.GL_POLYGON_OFFSET_FILL); gl.polygonOffset(0, 0); }
+  if (this.depthrange) gl.depthRange(0, 1);
+  if (typeof this.scissor === typeof (true)) gl.disable(gl.GL_SCISSOR_TEST);
+  // blend states
+  // depth states
 }
 
 //
