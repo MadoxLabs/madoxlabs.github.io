@@ -5,27 +5,47 @@ var RenderState = function(state)
   if (state.cull)         this.cull = state.cull[0];
   if (state.cullmode)     this.cullmode = gl[state.cullmode[0]];
   if (state.frontface)    this.frontface = gl[state.frontface[0]];
-  if (state.depthbias)    this.depthbias = { factor: state.depthbias[0], units: state.depthbias[1] }
-  if (state.depthrange)   this.depthrange = { near: state.depthbias[0], far: state.depthbias[1] }
+  if (state.depthbias)    this.depthbias = { factor: state.depthbias[0], units: state.depthbias[1] };
+  if (state.depthrange)   this.depthrange = { near: state.depthbias[0], far: state.depthbias[1] };
   if (state.scissor)      this.scissor = state.scissor[0];
   // blend states
   if (state.blend)   this.blend = gl[state.blend[0]];
   if (state.blendop) this.blendop = gl[state.blendop[0]];
   if (state.blendopalpha) this.blendopalpha = gl[state.blendopalpha[0]];
+  if (state.blendfunc) this.blendfunc = { src: gl[state.blendfunc[0]], dest: gl[state.blendfunc[0]] };
+  if (state.blendfuncalpha) this.blendfuncalpha = { src: gl[state.blendfuncalpha[0]], dest: gl[state.blendfuncalpha[0]] };
+  if (state.blendfactors) this.blendfactors = { r: state.blendfactors[0], g: state.blendfactors[1], b: state.blendfactors[2], a: state.blendfactors[3] };
+  if (state.blendmask) this.blendmask = { r: state.blendmask[0], g: state.blendmask[1], b: state.blendmask[2], a: state.blendmask[3] };
   // depth states
+  if (state.depth) this.depth = state.depth[0];
+  if (state.depthwrite) this.depthwrite = state.depthwrite[0];
+  if (state.depthfunc) this.depthfunc = gl[state.depthfunc[0]];
+  if (state.stencil) this.stencil = state.stencil[0];
+  if (state.stencilfunc) this.stencilfunc = { func: gl[state.stencilfunc[0]], ref: state.stencilfunc[1], mask: state.stencilfunc[2]};
+  if (state.stencilmask) this.stencilmask = state.stencilmask[0];
+  if (state.stencilfront) this.stencilfront = { sfail: gl[state.stencilfront[0]], dpfail: gl[state.stencilfront[0]], pass: gl[state.stencilfront[0]] };
+  if (state.stencilback) this.stencilback = { sfail: gl[state.stencilback[0]], dpfail: gl[state.stencilback[0]], pass: gl[state.stencilback[0]] };
 }
 
 RenderState.prototype.set = function()
 {
   // render states
-  if (typeof this.cull === typeof (true)) this.cull ? gl.enable(gl.GL_CULL_FACE) : gl.disable(gl.GL_CULL_FACE);
+  if (typeof this.cull === typeof (true)) this.cull ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE);
   if (this.cullmode) gl.cullFace(this.cullmode);
   if (this.frontface) gl.frontFace(this.frontface);
   if (this.depthbias) { gl.enable(gl.GL_POLYGON_OFFSET_FILL); gl.polygonOffset(this.depthbias.factor, this.depthbias.units); }
   if (this.depthrange) gl.depthRange(this.depthrange.near, this.depthrange.far);
-  if (typeof this.scissor === typeof (true)) this.scissor ? gl.enable(gl.GL_SCISSOR_TEST) : gl.disable(gl.GL_SCISSOR_TEST);
+  if (typeof this.scissor === typeof (true)) this.scissor ? gl.enable(gl.SCISSOR_TEST) : gl.disable(gl.SCISSOR_TEST);
   // blend states
+  if (typeof this.blend === typeof (true)) this.blend ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND);
+  if (this.blendop && !this.blendopalpha) gl.blendEquation(this.blendop);
+  if (this.blendop && this.blendopalpha) gl.blendEquationSeparate(this.blendop, this.blendopalpha);
+  if (this.blendfunc && !this.blendfuncalpha) gl.blendFunc(this.blendfunc.src, this.blendfunc.dest);
+  if (this.blendfunc && this.blendfuncalpha) gl.blendFunc(this.blendfunc.src, this.blendfunc.dest, this.blendfuncalpha.src, this.blendfuncalpha.dest);
+  if (this.blendfactors) gl.blendColor(this.blendfactors.r, this.blendfactors.g, this.blendfactors.b, this.blendfactors.a);
+  if (this.blendmask) gl.colorMask(this.colorMask.r, this.colorMask.g, this.colorMask.b, this.colorMask.a);
   // depth states
+
 }
 
 RenderState.prototype.unset = function()
@@ -38,6 +58,13 @@ RenderState.prototype.unset = function()
   if (this.depthrange) gl.depthRange(0, 1);
   if (typeof this.scissor === typeof (true)) gl.disable(gl.GL_SCISSOR_TEST);
   // blend states
+  if (typeof this.blend === typeof (true)) gl.disable(gl.BLEND);
+  if (this.blendop && !this.blendopalpha) gl.blendEquation(gl.FUNC_ADD);
+  if (this.blendop && this.blendopalpha) gl.blendEquationSeparate(gl.FUNC_ADD,gl.FUNC_ADD);
+  if (this.blendfunc && !this.blendfuncalpha) gl.blendFunc(gl.ONE, gl.ZERO);
+  if (this.blendfunc && this.blendfuncalpha) gl.blendFunc(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
+  if (this.blendfactors) gl.blendColor(0,0,0,0);
+  if (this.blendmask) gl.colorMask(true, true, true, true);
   // depth states
 }
 
