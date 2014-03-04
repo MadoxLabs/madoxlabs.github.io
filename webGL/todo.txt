@@ -1,6 +1,7 @@
 cube textures
 more mesh types as we encounter them
 resize canvas
+precomputed alpha
 
 
 plan for recreating shader controlled DX states:
