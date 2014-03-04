@@ -51,8 +51,8 @@ RenderState.prototype.set = function()
   if (typeof this.stencil === typeof (true)) this.stencil ? gl.enable(gl.STENCIL_TEST) : gl.disable(gl.STENCIL_TEST);
   if (this.stencilfunc) gl.stencilFunc(this.stencilfunc.func, this.stencilfunc.ref, this.stencilfunc.mask);
   if (this.stencilmask) gl.stencilMask(this.stencilmask);
-  if (this.stencilfront) gl.stencilOpSeparate(gl.FRONT , this.stencilfront.sfail, this.stencilfront.dpfail, , this.stencilfront.pass);
-  if (this.stencilback) gl.stencilOpSeparate(gl.BACK , this.stencilback.sfail, this.stencilback.dpfail, , this.stencilback.pass);
+  if (this.stencilfront) gl.stencilOpSeparate(gl.FRONT , this.stencilfront.sfail, this.stencilfront.dpfail, this.stencilfront.pass);
+  if (this.stencilback) gl.stencilOpSeparate(gl.BACK , this.stencilback.sfail, this.stencilback.dpfail, this.stencilback.pass);
 }
 
 RenderState.prototype.unset = function()
@@ -79,8 +79,8 @@ RenderState.prototype.unset = function()
   if (typeof this.stencil === typeof (true)) gl.disable(gl.STENCIL_TEST);
   if (this.stencilfunc) gl.stencilFunc(gl.ALWAYS, 0, 0xFFFFFFFF);
   if (this.stencilmask) gl.stencilMask(0xFFFFFFFF);
-  if (this.stencilfront) gl.stencilOpSeparate(gl.KEEP, gl.KEEP, gl.KEEP);
-  if (this.stencilback) gl.stencilOpSeparate (gl.KEEP, gl.KEEP, gl.KEEP);
+  if (this.stencilfront) gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
+  if (this.stencilback) gl.stencilOpSeparate (gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
 }
 
 //
@@ -278,7 +278,7 @@ ShaderManager.prototype.processEffect = function(src)
   //
   // turn on all the attributes and create properties for each
 
-  shaderProgram.renderstate = this.renderstates[usestate];
+  if (usestate) shaderProgram.renderstate = this.renderstates[usestate];
   shaderProgram.attributes = [];
   shaderProgram.stride = 0;
   for (var i = 0; i < 16; ++i)
