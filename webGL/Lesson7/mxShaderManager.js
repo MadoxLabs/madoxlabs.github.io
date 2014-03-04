@@ -45,7 +45,14 @@ RenderState.prototype.set = function()
   if (this.blendfactors) gl.blendColor(this.blendfactors.r, this.blendfactors.g, this.blendfactors.b, this.blendfactors.a);
   if (this.blendmask) gl.colorMask(this.colorMask.r, this.colorMask.g, this.colorMask.b, this.colorMask.a);
   // depth states
-
+  if (typeof this.depth === typeof (true)) this.depth ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST);
+  if (typeof this.depthwrite === typeof (true)) this.depthwrite ? gl.depthMask(true) : gl.depthMask(false);
+  if (this.depthfunc) gl.depthFunc(this.depthfunc);
+  if (typeof this.stencil === typeof (true)) this.stencil ? gl.enable(gl.STENCIL_TEST) : gl.disable(gl.STENCIL_TEST);
+  if (this.stencilfunc) gl.stencilFunc(this.stencilfunc.func, this.stencilfunc.ref, this.stencilfunc.mask);
+  if (this.stencilmask) gl.stencilMask(this.stencilmask);
+  if (this.stencilfront) gl.stencilOpSeparate(gl.FRONT , this.stencilfront.sfail, this.stencilfront.dpfail, , this.stencilfront.pass);
+  if (this.stencilback) gl.stencilOpSeparate(gl.BACK , this.stencilback.sfail, this.stencilback.dpfail, , this.stencilback.pass);
 }
 
 RenderState.prototype.unset = function()
@@ -66,6 +73,14 @@ RenderState.prototype.unset = function()
   if (this.blendfactors) gl.blendColor(0,0,0,0);
   if (this.blendmask) gl.colorMask(true, true, true, true);
   // depth states
+  if (typeof this.depth === typeof (true)) gl.disable(gl.DEPTH_TEST);
+  if (typeof this.depthwrite === typeof (true)) gl.depthMask(true);
+  if (this.depthfunc) gl.depthFunc(gl.LESS);
+  if (typeof this.stencil === typeof (true)) gl.disable(gl.STENCIL_TEST);
+  if (this.stencilfunc) gl.stencilFunc(gl.ALWAYS, 0, 0xFFFFFFFF);
+  if (this.stencilmask) gl.stencilMask(0xFFFFFFFF);
+  if (this.stencilfront) gl.stencilOpSeparate(gl.KEEP, gl.KEEP, gl.KEEP);
+  if (this.stencilback) gl.stencilOpSeparate (gl.KEEP, gl.KEEP, gl.KEEP);
 }
 
 //
