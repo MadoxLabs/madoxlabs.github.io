@@ -2,6 +2,30 @@ cube textures
 more mesh types as we encounter them
 resize canvas
 precomputed alpha
+check on w buffer to replace z
+
+
+instancing
+ - instance data is a second buffer that hooks up to attributes the same way
+ - have bindInstanceData(data, number of instances) call
+ - if instance data, call the angle functions
+ - can we keep two attrib sets seperate?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 plan for recreating shader controlled DX states:

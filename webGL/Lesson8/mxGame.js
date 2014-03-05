@@ -1,4 +1,5 @@
 var gl;
+var angle;
 var Game = {};
 
 Game.init = function ()
@@ -18,11 +19,13 @@ Game.init = function ()
 
   try {
     gl = this.surface.getContext("experimental-webgl");
+    angle = gl.getExtension("ANGLE_instanced_arrays");
     gl.viewportWidth = this.surface.width;
     gl.viewportHeight = this.surface.height;
   } catch (e) { }
 
-  if (!gl) alert("Could not initialise WebGL, sorry :-(");
+  if (!gl) { alert("Could not initialise WebGL, sorry :-("); return; }
+  if (!angle) alert("Could not find instanced draw calls");
 
   document.onkeydown = Game.handleKeyDown;
   document.onkeyup = Game.handleKeyUp;

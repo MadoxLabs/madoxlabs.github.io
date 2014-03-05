@@ -30,55 +30,29 @@ var RenderState = function(state)
 RenderState.prototype.set = function()
 {
   // render states
-  if (typeof this.cull === typeof (true))
-    this.cull ?
-      gl.enable(gl.CULL_FACE) :
-      gl.disable(gl.CULL_FACE);
-  if (this.cullmode)
-    gl.cullFace(this.cullmode);
-  if (this.frontface)
-    gl.frontFace(this.frontface);
-  if (this.depthbias)
-  { gl.enable(gl.GL_POLYGON_OFFSET_FILL); gl.polygonOffset(this.depthbias.factor, this.depthbias.units); }
-  if (this.depthrange)
-    gl.depthRange(this.depthrange.near, this.depthrange.far);
-  if (typeof this.scissor === typeof (true))
-    this.scissor ? gl.enable(gl.SCISSOR_TEST) : gl.disable(gl.SCISSOR_TEST);
+  if (typeof this.cull === typeof (true))    this.cull ?      gl.enable(gl.CULL_FACE) :      gl.disable(gl.CULL_FACE);
+  if (this.cullmode)    gl.cullFace(this.cullmode);
+  if (this.frontface)    gl.frontFace(this.frontface);
+  if (this.depthbias) { gl.enable(gl.GL_POLYGON_OFFSET_FILL); gl.polygonOffset(this.depthbias.factor, this.depthbias.units); }
+  if (this.depthrange)    gl.depthRange(this.depthrange.near, this.depthrange.far);
+  if (typeof this.scissor === typeof (true))    this.scissor ? gl.enable(gl.SCISSOR_TEST) : gl.disable(gl.SCISSOR_TEST);
   // blend states
-  if (typeof this.blend === typeof (true))
-    this.blend ?
-      gl.enable(gl.BLEND) :
-      gl.disable(gl.BLEND);
-  if (this.blendop && !this.blendopalpha)
-    gl.blendEquation(this.blendop);
-  if (this.blendop && this.blendopalpha)
-    gl.blendEquationSeparate(this.blendop, this.blendopalpha);
-  if (this.blendfunc && !this.blendfuncalpha)
-    gl.blendFunc(this.blendfunc.src, this.blendfunc.dest);
-  if (this.blendfunc && this.blendfuncalpha)
-    gl.blendFunc(this.blendfunc.src, this.blendfunc.dest, this.blendfuncalpha.src, this.blendfuncalpha.dest);
-  if (this.blendfactors)
-    gl.blendColor(this.blendfactors.r, this.blendfactors.g, this.blendfactors.b, this.blendfactors.a);
-  if (this.blendmask)
-    gl.colorMask(this.colorMask.r, this.colorMask.g, this.colorMask.b, this.colorMask.a);
+  if (typeof this.blend === typeof (true))    this.blend ?      gl.enable(gl.BLEND) :      gl.disable(gl.BLEND);
+  if (this.blendop && !this.blendopalpha)    gl.blendEquation(this.blendop);
+  if (this.blendop && this.blendopalpha)    gl.blendEquationSeparate(this.blendop, this.blendopalpha);
+  if (this.blendfunc && !this.blendfuncalpha)    gl.blendFunc(this.blendfunc.src, this.blendfunc.dest);
+  if (this.blendfunc && this.blendfuncalpha)    gl.blendFunc(this.blendfunc.src, this.blendfunc.dest, this.blendfuncalpha.src, this.blendfuncalpha.dest);
+  if (this.blendfactors)    gl.blendColor(this.blendfactors.r, this.blendfactors.g, this.blendfactors.b, this.blendfactors.a);
+  if (this.blendmask)    gl.colorMask(this.colorMask.r, this.colorMask.g, this.colorMask.b, this.colorMask.a);
   // depth states
-  if (typeof this.depth === typeof (true)) this.depth ?
-    gl.enable(gl.DEPTH_TEST) :
-    gl.disable(gl.DEPTH_TEST);
-  if (typeof this.depthwrite === typeof (true)) this.depthwrite ?
-    gl.depthMask(true) :
-    gl.depthMask(false);
-  if (this.depthfunc)
-    gl.depthFunc(this.depthfunc);
+  if (typeof this.depth === typeof (true)) this.depth ?    gl.enable(gl.DEPTH_TEST) :    gl.disable(gl.DEPTH_TEST);
+  if (typeof this.depthwrite === typeof (true)) this.depthwrite ?    gl.depthMask(true) :    gl.depthMask(false);
+  if (this.depthfunc)    gl.depthFunc(this.depthfunc);
   if (typeof this.stencil === typeof (true)) this.stencil ? gl.enable(gl.STENCIL_TEST) : gl.disable(gl.STENCIL_TEST);
-  if (this.stencilfunc)
-    gl.stencilFunc(this.stencilfunc.func, this.stencilfunc.ref, this.stencilfunc.mask);
-  if (this.stencilmask)
-    gl.stencilMask(this.stencilmask);
-  if (this.stencilfront)
-    gl.stencilOpSeparate(gl.FRONT, this.stencilfront.sfail, this.stencilfront.dpfail, this.stencilfront.pass);
-  if (this.stencilback)
-    gl.stencilOpSeparate(gl.BACK, this.stencilback.sfail, this.stencilback.dpfail, this.stencilback.pass);
+  if (this.stencilfunc)    gl.stencilFunc(this.stencilfunc.func, this.stencilfunc.ref, this.stencilfunc.mask);
+  if (this.stencilmask)    gl.stencilMask(this.stencilmask);
+  if (this.stencilfront)    gl.stencilOpSeparate(gl.FRONT, this.stencilfront.sfail, this.stencilfront.dpfail, this.stencilfront.pass);
+  if (this.stencilback)    gl.stencilOpSeparate(gl.BACK, this.stencilback.sfail, this.stencilback.dpfail, this.stencilback.pass);
 }
 
 RenderState.prototype.unset = function()
@@ -91,21 +65,17 @@ RenderState.prototype.unset = function()
   if (this.depthrange) gl.depthRange(0, 1);
   if (typeof this.scissor === typeof (true)) gl.disable(gl.GL_SCISSOR_TEST);
   // blend states
-  if (typeof this.blend === typeof (true))
-    gl.disable(gl.BLEND);
+  if (typeof this.blend === typeof (true))    gl.disable(gl.BLEND);
   if (this.blendop && !this.blendopalpha) gl.blendEquation(gl.FUNC_ADD);
   if (this.blendop && this.blendopalpha) gl.blendEquationSeparate(gl.FUNC_ADD,gl.FUNC_ADD);
-  if (this.blendfunc && !this.blendfuncalpha)
-    gl.blendFunc(gl.ONE, gl.ZERO);
+  if (this.blendfunc && !this.blendfuncalpha)    gl.blendFunc(gl.ONE, gl.ZERO);
   if (this.blendfunc && this.blendfuncalpha) gl.blendFunc(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
   if (this.blendfactors) gl.blendColor(0,0,0,0);
   if (this.blendmask) gl.colorMask(true, true, true, true);
   // depth states
-  if (typeof this.depth === typeof (true))
-    gl.disable(gl.DEPTH_TEST);
+  if (typeof this.depth === typeof (true))    gl.disable(gl.DEPTH_TEST);
   if (typeof this.depthwrite === typeof (true)) gl.depthMask(true);
-  if (this.depthfunc)
-    gl.depthFunc(gl.LESS);
+  if (this.depthfunc)    gl.depthFunc(gl.LESS);
   if (typeof this.stencil === typeof (true)) gl.disable(gl.STENCIL_TEST);
   if (this.stencilfunc) gl.stencilFunc(gl.ALWAYS, 0, 0xFFFFFFFF);
   if (this.stencilmask) gl.stencilMask(0xFFFFFFFF);
@@ -321,7 +291,7 @@ ShaderManager.prototype.processEffect = function(src)
     shaderProgram.attributes[i] = {};
     shaderProgram.attributes[i].size = uniformSizes[info.type - 0x8b50];
     shaderProgram.attributes[i].type = uniformTypes[info.type - 0x8b50];   // convert uniform type to data type
-    shaderProgram.stride += uniformByteSizes[info.type - 0x8b50];
+    if (info.name.indexOf("Instance") == -1) shaderProgram.stride += uniformByteSizes[info.type - 0x8b50];
 
     var code = this.findCode(src, info.name);
     if (!code) alert("missing code for " + info.name);
@@ -366,6 +336,7 @@ ShaderManager.prototype.processEffect = function(src)
 
   shaderProgram.bind = bind;
   shaderProgram.bindMesh = bindMesh;
+  shaderProgram.bindInstanceData = bindInstanceData;
   shaderProgram.bindTexture = bindTexture;
   shaderProgram.draw = draw;
   shaderProgram.createUniform = createUniform;

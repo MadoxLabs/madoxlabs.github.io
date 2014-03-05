@@ -21,6 +21,8 @@ varying vec3 vLight;
 
 [END]
 
+Renderstates require a name followed by the states to set. This just defines the states
+
 [RENDERSTATE]
 name noblend
 depth true
@@ -32,6 +34,8 @@ name blend
 blend true
 blendfunc SRC_ALPHA ONE
 [END]
+
+Apply will pick what state this shader sets. This is also settable in code.
 
 [APPLY]
 noblend
@@ -52,6 +56,8 @@ attribute vec4 aVertexColor;     // COLOR0
 attribute vec2 aTextureCoord;    // TEX0
 attribute vec3 aVertexNormal;    // NORM
 
+attribute vec3 aInstanceOffset;  // OFFSET
+
 uniform mat4 uPMatrix;           // group once
 
 uniform vec3 uAmbientColor;      // group light
@@ -62,7 +68,11 @@ uniform mat4 uMVMatrix;          // group perobject
 
 void main(void) 
 {
-  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+  mat4 offset = mat4(1.0, 0.0, 0.0, 0.0,
+                     0.0, 1.0, 0.0, 0.0,
+                     0.0, 0.0, 1.0, 0.0,
+                     aInstanceOffset.x, aInstanceOffset.y, aInstanceOffset.z, 1.0);
+  gl_Position = uPMatrix * uMVMatrix * offset * vec4(aVertexPosition + aInstanceOffset, 1.0);
   vColor = aVertexColor;
   vTextureCoord = aTextureCoord;
 
