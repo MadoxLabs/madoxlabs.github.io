@@ -14,17 +14,35 @@ function bind()
 
 function bindMesh(mesh)
 {
-  gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
   if (mesh.indexbuffer) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexbuffer);
   else gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
+  gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
   for (var code in mesh.attributes)          // code is what this attribute represents - IE TEX0, POSITION
   {
     var offset = mesh.attributes[code];     // get offset into the vertex buffer definition
     var attr = this.attributes[code];       // look up what attribute number this is in the shader
     var size = this.attributes[attr].size;  // get the size and type for this attribute as set in the shader
     var type = this.attributes[attr].type;
+    gl.enableVertexAttribArray(attr);
     gl.vertexAttribPointer(attr, size, type, false, this.stride, offset);
+  }
+}
+
+function bindInstanceData(mesh)
+{
+  if (!mesh.instanceBuffer) return;
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, mesh.instanceBuffer);
+  for (var code in mesh.instance)
+  {
+    var offset = mesh.instance[code];     // get offset into the vertex buffer definition
+    var attr = this.attributes[code];       // look up what attribute number this is in the shader
+    var size = this.attributes[attr].size;  // get the size and type for this attribute as set in the shader
+    var type = this.attributes[attr].type;
+    gl.enableVertexAttribArray(attr);
+    gl.vertexAttribPointer(attr, size, type, false, mesh.instanceStride, offset);
+    angle.vertexAttribDivisorANGLE(attr, 1); // This makes it instanced!
   }
 }
 
@@ -109,9 +127,18 @@ function createUniform(group)
 function draw(mesh)
 {
   this.bindMesh(mesh);
+  if (mesh.instanceBuffer)
+  {
+    this.bindInstanceData(mesh);
+    if (mesh.indexbuffer)
+      angle.drawElementsInstancedANGLE(mesh.type, mesh.prims, gl.UNSIGNED_SHORT, 0, mesh.instanceNumber);
+    else
+      angle.drawArraysInstancedANGLE(mesh.type, 0, mesh.prims, mesh.instanceNumber);
+    return;
+  }
+
   if (mesh.indexbuffer)
     gl.drawElements(mesh.type, mesh.prims, gl.UNSIGNED_SHORT, 0);
   else
     gl.drawArrays(mesh.type, 0, mesh.prims);
-
 }
