@@ -1,6 +1,7 @@
 
 var effect;
 var square;
+var cone;
 var uOnce;
 var uPerObject;
 var uLight;
@@ -22,55 +23,6 @@ Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
   Game.loadMesh("sample", "test.fbx");
-
-  var attr = { 'POS': 0, 'TEX0': 12, 'NORM': 20 }
-  var vertices = [
-//  | position       | texture UVs   |  normal |
-    // Front face      // Front face   // Front face     
-    -1.0, -1.0,  1.0,  0.0, 0.0,       0.0, 0.0, 1.0,
-     1.0, -1.0,  1.0,  1.0, 0.0,       0.0, 0.0, 1.0,
-     1.0,  1.0,  1.0,  1.0, 1.0,       0.0, 0.0, 1.0,
-    -1.0,  1.0,  1.0,  0.0, 1.0,       0.0, 0.0, 1.0,
-
-    // Back face       // Back face    // Back face
-    -1.0, -1.0, -1.0,  1.0, 0.0,       0.0, 0.0, -1.0,
-    -1.0,  1.0, -1.0,  1.0, 1.0,       0.0, 0.0, -1.0,
-     1.0,  1.0, -1.0,  0.0, 1.0,       0.0, 0.0, -1.0,
-     1.0, -1.0, -1.0,  0.0, 0.0,       0.0, 0.0, -1.0,
-
-    // Top face        // Top face     // Top face
-    -1.0, 1.0, -1.0,    0.0, 1.0,       0.0, 1.0, 0.0,
-    -1.0, 1.0,  1.0,    0.0, 0.0,       0.0, 1.0, 0.0,
-     1.0, 1.0,  1.0,    1.0, 0.0,       0.0, 1.0, 0.0,
-     1.0, 1.0, -1.0,    1.0, 1.0,       0.0, 1.0, 0.0,
-
-    // Bottom face     // Bottom face  // Bottom face
-    -1.0, -1.0, -1.0,  1.0, 1.0,       0.0, -1.0, 0.0,
-     1.0, -1.0, -1.0,  0.0, 1.0,       0.0, -1.0, 0.0,
-     1.0, -1.0,  1.0,  0.0, 0.0,       0.0, -1.0, 0.0,
-    -1.0, -1.0,  1.0,  1.0, 0.0,       0.0, -1.0, 0.0,
-
-    // Right face      // Right face   // Right face
-     1.0, -1.0, -1.0,  1.0, 0.0,       1.0, 0.0, 0.0,
-     1.0,  1.0, -1.0,  1.0, 1.0,       1.0, 0.0, 0.0,
-     1.0,  1.0,  1.0,  0.0, 1.0,       1.0, 0.0, 0.0,
-     1.0, -1.0,  1.0,  0.0, 0.0,       1.0, 0.0, 0.0,
-
-    // Left face       // Left face    // Left face
-    -1.0, -1.0, -1.0,  0.0, 0.0,       -1.0, 0.0, 0.0,
-    -1.0, -1.0,  1.0,  1.0, 0.0,       -1.0, 0.0, 0.0,
-    -1.0,  1.0,  1.0,  1.0, 1.0,       -1.0, 0.0, 0.0,
-    -1.0,  1.0, -1.0,  0.0, 1.0,       -1.0, 0.0, 0.0
-  ];
-  var indices = [
-    0, 1, 2, 0, 2, 3,    // Front face
-    4, 5, 6, 4, 6, 7,    // Back face
-    8, 9, 10, 8, 10, 11,  // Top face
-    12, 13, 14, 12, 14, 15, // Bottom face
-    16, 17, 18, 16, 18, 19, // Right face
-    20, 21, 22, 20, 22, 23  // Left face
-  ];
-  square = new Mesh(vertices, indices, attr, 36, gl.TRIANGLES);
 }
 
 Game.deviceReady = function ()
@@ -83,6 +35,7 @@ Game.deviceReady = function ()
   // make verts for sample
   var sampleAttr = { 'POS': 0, 'TEX0': 12, 'NORM': 20 };
   square = new Mesh(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, mesh[1].models[0].mesh.indexes.length, gl.TRIANGLES);
+  cone = new Mesh(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, mesh[0].models[0].mesh.indexes.length, gl.TRIANGLES);
 
   uOnce = effect.createUniform('once');
   uOnce.uPMatrix = mat4.create();
@@ -135,7 +88,8 @@ Game.appDraw = function ()
   mat4.rotate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, degToRad(yRot), [0, 1, 0]);
   effect.setUniforms(uPerObject);
 
-  effect.draw(square);
+//  effect.draw(square);
+  effect.draw(cone);
 }
 
 Game.handleKeyDown = function ()

@@ -54,7 +54,7 @@ void main(void)
 
 void main(void) 
 {
-  gl_FragColor = vec4(1, 1, 1, 1); // vec4(vLight, 1.0);
+  gl_FragColor = vec4(vLight, 1.0);
 }
 
 [END]
