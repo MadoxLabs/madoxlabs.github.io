@@ -1,0 +1,303 @@
+<html>
+<head>
+<title>FBX Importer</title>
+<script>
+
+function load()
+{
+  var div = document.getElementById("error");
+  div.innerHTML = "";
+
+  var file = document.getElementById("file").value;
+  var client = new XMLHttpRequest();
+  client.open('GET', file);
+  client.onload = function() { process(client.responseText); }
+  client.send();
+}
+
+var States = {FindObjects: 1, FindTag: 2, ParseGeometry: 3, ParseModel: 4, ParseMaterial: 5, ParseConnections: 6 };
+var groups = [];
+var objects = { };
+var curmesh = { type: "mesh" };
+var curmodel = { type: "model" };
+var curmaterial = { type: "material", models: [] };
+
+function done()
+{
+  for (id in objects) 
+  {
+    if (objects[id].type === "material") groups[groups.length] = objects[id];
+  }
+  var div = document.getElementById("output");
+  div.innerHTML = "<textarea rows=20 cols=80>"+JSON.stringify(groups)+"</textarea>";
+}
+
+function save()
+{
+  if (curmesh.id)
+  {
+    objects[curmesh.id] = curmesh;
+    curmesh = { type: "mesh" };
+  }
+  if (curmodel.id)
+  {
+    objects[curmodel.id] = curmodel;
+    curmodel = { type: "model" };
+  }
+  if (curmaterial.id)
+  {
+    objects[curmaterial.id] = curmaterial;
+    curmaterial = { type: "material", models: [] };
+  }
+}
+
+function error(msg)
+{
+  var div = document.getElementById("error");
+  div.innerHTML += msg + "<br>";
+}
+
+function process(data)
+{
+  var lines = data.replace("\r","").split("\n");
+  // hunt for objects
+  var i = 0;
+  var state = States.FindObjects;
+
+  for (;i < lines.length; ++i) if (lines[i].indexOf("Objects: ") != -1) { state = States.FindTag; break; }
+  if (state == States.FindObjects) { error("File is not an FBX file."); return; }
+
+  // watch for geometry, model, material, connections
+  for (; i < lines.length; ++i)
+  {
+    if (lines[i].indexOf("Geometry: ") != -1)
+    {
+      save();
+      curmesh.id = lines[i].split(":")[1].split(",")[0].trim();
+      state = States.ParseGeometry;
+    }
+    else if (lines[i].indexOf("ShadingModel: ") != -1) {}
+    else if (lines[i].indexOf("Model: ") != -1)
+    {
+      save();
+      curmodel.id = lines[i].split(":")[1].split(",")[0].trim();
+      curmodel.name = lines[i].replace("::",",").split(":")[1].split(",")[2].replace(/\"/g,"").trim();
+      state = States.ParseModel;
+    }
+    else if (lines[i].indexOf("LayerElementMaterial: ") != -1) {}
+    else if (lines[i].indexOf("Material: ") != -1)
+    {
+      save();
+      curmaterial.id = lines[i].split(":")[1].split(",")[0].trim();
+      curmaterial.name = lines[i].replace("::",",").split(":")[1].split(",")[2].replace(/\"/g,"").trim();
+      state = States.ParseMaterial;
+    }
+    else if (lines[i].indexOf("Connections: ") != -1)
+    {
+      save();
+      state = States.ParseConnections;
+    }
+
+    if (state == States.ParseConnections)
+    {
+      if (lines[i].indexOf("C: ") != -1)
+      {
+        var values = lines[i].split(",");
+        var obj1 = objects[values[1]];
+        var obj2 = objects[values[2]];
+        if (!obj1 || !obj2) continue;
+
+        if (obj1.type === "mesh" && obj2.type === "model") obj2.mesh = obj1;
+        else if (obj1.type === "material" && obj2.type === "model") obj1.models[obj1.models.length] = obj2;
+      }
+    }
+
+    else if (state == States.ParseModel)
+    {
+      if (lines[i].indexOf("Lcl Translation") != -1)
+      {
+        var values = lines[i].trim().split(",");
+        curmodel.translation = values.slice(4,7);
+      }
+      else if (lines[i].indexOf("Lcl Scaling") != -1)
+      {
+        var values = lines[i].trim().split(",");
+        curmodel.scale = values.slice(4,7);
+      }
+    }
+
+    else if (state == States.ParseMaterial)
+    {
+      if (lines[i].indexOf("P: ") != -1)
+      {
+        var values = lines[i].split(":")[1].trim().split(",");
+        curmaterial[values[0].replace(/\"/g,"")] = values.slice(4,7);
+      }
+    }
+
+    else if (state == States.ParseGeometry)
+    {
+      if (lines[i].indexOf("Vertices: ") != -1)
+      {
+        if (curmesh.vertexs) { error("Error: multiple vertexes at line "+i); continue; }
+
+        var num = lines[i].split("*")[1].split(" ")[0];
+        var values = [];
+        // get lines until values is num
+        for (++i; i < lines.length; ++i)
+        {
+          if (lines[i].indexOf('}') != -1) break;
+          var a = lines[i].indexOf('a:');
+          if (a != -1) lines[i] = lines[i].substr(a+3);
+          values = values.concat( lines[i].split(",") );
+          if (values.length == num) break;
+        }
+        curmesh.vertexs = values;
+      }
+      else if (lines[i].indexOf("PolygonVertexIndex: ") != -1)
+      {
+        if (curmesh.indexs) { error("Error: multiple indexes at line "+i); continue; }
+
+        var num = lines[i].split("*")[1].split(" ")[0];
+        var values = [];
+        // get lines until values is num
+        for (++i; i < lines.length; ++i)
+        {
+          if (lines[i].indexOf('}') != -1) break;
+          var a = lines[i].indexOf('a:');
+          if (a != -1) lines[i] = lines[i].substr(a+3);
+          values = values.concat( lines[i].split(",") );
+          if (values.length == num) break;
+        }
+        // check that its trilist and flip the negative ones
+        for (var j = 2; j < values.length; j += 3)
+        {
+          if (values[j] >=0) { error("Error: mesh is not a triangle list at line "+i); break; }
+          values[j] = (values[j] * -1) - 1;
+        }
+        curmesh.indexes = values;
+      }
+      else if (lines[i].indexOf("Normals: ") != -1)
+      {
+        if (curmesh.normals) { error("Error: multiple normals at line "+i); continue; }
+
+        var num = lines[i].split("*")[1].split(" ")[0];
+        var values = [];
+        // get lines until values is num
+        for (++i; i < lines.length; ++i)
+        {
+          if (lines[i].indexOf('}') != -1) break;
+          var a = lines[i].indexOf('a:');
+          if (a != -1) lines[i] = lines[i].substr(a+3);
+          values = values.concat( lines[i].split(",") );
+          if (values.length == num) break;
+        }
+        curmesh.normals = values;
+      }
+      else if (lines[i].indexOf("LayerElementUV: ") != -1)      {      }
+      else if (lines[i].indexOf("UV: ") != -1)
+      {
+        if (curmesh.uv) { error("Error: multiple UVs at line "+i); continue; }
+
+        var num = lines[i].split("*")[1].split(" ")[0];
+        var uvvalues = [];
+        var values = [];
+        // get lines until values is num
+        for (++i; i < lines.length; ++i)
+        {
+          if (lines[i].indexOf('}') != -1) break;
+          var a = lines[i].indexOf('a:');
+          if (a != -1) lines[i] = lines[i].substr(a+3);
+          uvvalues = uvvalues.concat( lines[i].split(",") );
+          if (uvvalues.length == num) break;
+        }
+        for (++i; i < lines.length; ++i) if (lines[i].indexOf("UVIndex: ") != -1) break;
+        if (lines[i].indexOf("UVIndex: ") != -1)
+        {
+          num = lines[i].split("*")[1].split(" ")[0];
+          // get lines until values is num
+          for (++i; i < lines.length; ++i)
+          {
+            if (lines[i].indexOf('}') != -1) break;
+            var a = lines[i].indexOf('a:');
+            if (a != -1) lines[i] = lines[i].substr(a+3);
+            values = values.concat( lines[i].split(",") );
+            if (values.length == num) break;
+          }
+        } 
+        else { error("Error: unexpected UV format at line "+i); continue; }
+        for (var j = 0; j < values.length; ++j) values[j] = uvvalues[values[j]];
+        curmesh.uv = values;
+      }
+    }
+  }
+  save();
+  done();
+}
+
+</script>
+</head>
+<body>
+
+ASCII FBX Mesh file (2013 format): <input id="file"></input><br>
+<input type=button onClick="load();" value="Load"></input><br>
+<div id="error"></div>
+<div id="output"></div>
+<pre>
+FXB importer
+
+This outputs JSON in the following format:
+
+[] array of materials
+  material
+    type = "material"
+    name = (string)
+    (various lighting properties)
+    models = [] array of models
+      model
+        type = "model"
+        name = (string)
+        translation = (vec3)
+        scaling = (vec3)
+        mesh = (object)
+          mesh
+            type = "mesh"
+            vertexs = [] array of float
+            indexes = [] array of float
+            uv = [] array of float
+            normals = [] array of float
+
+This format is intended to be a collections of meshes, grouped by material.
+
+Upon loading, each mesh object should have its arrays of floats smushed into a single vertex array.
+The vertex definition will be:
+  position: 3 floats
+  texcoord: 2 floats
+  normal: 3 floats
+Total vertex stride: 8 floats
+Ideally, this fbx parser will do this part for you.
+
+Pseudo WebGL code to handle this grouping is like this:
+
+for each material
+  create uniforms for lighting parameters
+  set uniforms 
+  locate material's texture
+  set texture uniform
+  for each model
+    get translation and scaling vectors
+    adjust the world matrixes accordingly
+    set uniforms
+    bind mesh buffer
+    draw
+
+TODO: 
+- scaling, translating works?
+- material texture filename?
+- frames and such
+- proper interpretation of normals
+- animations
+</pre>
+
+</body>
+</html>
