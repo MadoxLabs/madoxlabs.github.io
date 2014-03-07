@@ -27,9 +27,67 @@ function done()
   for (id in objects) 
   {
     if (objects[id].type === "material") groups[groups.length] = objects[id];
+    else if (objects[id].type === "model") objects[id].mesh = bake(objects[id].mesh);
   }
   var div = document.getElementById("output");
   div.innerHTML = "<textarea rows=20 cols=80>"+JSON.stringify(groups)+"</textarea>";
+}
+
+  // bake mesh
+  // create non-indexed vertex lists using the given data
+  // determine how many verts are exactly the same via hashing?
+  // if it is worth it, generate index buffer to optimize
+Array.prototype.unique = function ()
+{
+  var unique = [];
+  for (var i = 0; i < this.length; i++) {
+    if (unique.indexOf(this[i]) == -1) unique.push(this[i]);
+  }
+  return unique;
+};
+
+function bake(mesh)
+{
+  var vertexs = [];
+  var indexes = [];
+
+  var vertexstring = [];  // the stringified vertex list uniq to cull duplicate verts
+  var index = 0;
+  var normal = 0;
+  do {
+    var vert = []
+    var v = mesh.indexes[index] * 3;
+    vert.push(mesh.vertexs[v]);
+    vert.push(mesh.vertexs[v + 1]);
+    vert.push(mesh.vertexs[v + 2]);
+    v = mesh.uvindex[index] * 2;
+    vert.push(mesh.uv[v]);
+    vert.push(mesh.uv[v + 1]);
+    vert.push(mesh.normals[normal]);
+    vert.push(mesh.normals[normal + 1]);
+    vert.push(mesh.normals[normal + 2]);
+    index += 1;
+    normal += 3;
+    vertexstring.push(JSON.stringify(vert));
+  } while (index != mesh.indexes.length);
+
+  // how many are the same?
+  var uniq = vertexstring.unique();
+  error("Info: mesh has " + vertexstring.length + " verts");
+  error("Info: mesh has " + uniq.length + " unique verts");
+  // convert this to an actual vertex list
+  var vertexobj = [];
+  for (var i = 0; i < uniq.length; ++i) vertexobj.push(JSON.parse(uniq[i]));
+  for (var i = 0; i < vertexobj.length; ++i) for (var j = 0; j < 8; ++j) vertexs.push(vertexobj[i][j]);
+
+  // use the vertexstring list as a key to build the index list
+  //   to do this we need a convenience reverse lookup array
+  var reverse = {};
+  for (var i = 0; i < uniq.length; ++i) reverse[uniq[i]] = i;
+  for (var i = 0; i < vertexstring.length; ++i) indexes.push(reverse[vertexstring[i]]);
+
+  var ret = { vertexs: vertexs, indexes: indexes };
+  return ret;
 }
 
 function save()
@@ -59,7 +117,7 @@ function error(msg)
 
 function process(data)
 {
-  var lines = data.replace("\r","").split("\n");
+  var lines = data.replace(/\r/g,"").split("\n");
   // hunt for objects
   var i = 0;
   var state = States.FindObjects;
@@ -103,8 +161,8 @@ function process(data)
       if (lines[i].indexOf("C: ") != -1)
       {
         var values = lines[i].split(",");
-        var obj1 = objects[values[1]];
-        var obj2 = objects[values[2]];
+        var obj1 = objects[values[1].trim()];
+        var obj2 = objects[values[2].trim()];
         if (!obj1 || !obj2) continue;
 
         if (obj1.type === "mesh" && obj2.type === "model") obj2.mesh = obj1;
@@ -211,23 +269,21 @@ function process(data)
           uvvalues = uvvalues.concat( lines[i].split(",") );
           if (uvvalues.length == num) break;
         }
-        for (++i; i < lines.length; ++i) if (lines[i].indexOf("UVIndex: ") != -1) break;
-        if (lines[i].indexOf("UVIndex: ") != -1)
+        curmesh.uv = uvvalues;
+      }
+      else if (lines[i].indexOf("UVIndex: ") != -1)
+      {
+        num = lines[i].split("*")[1].split(" ")[0];
+        // get lines until values is num
+        for (++i; i < lines.length; ++i)
         {
-          num = lines[i].split("*")[1].split(" ")[0];
-          // get lines until values is num
-          for (++i; i < lines.length; ++i)
-          {
-            if (lines[i].indexOf('}') != -1) break;
-            var a = lines[i].indexOf('a:');
-            if (a != -1) lines[i] = lines[i].substr(a+3);
-            values = values.concat( lines[i].split(",") );
-            if (values.length == num) break;
-          }
-        } 
-        else { error("Error: unexpected UV format at line "+i); continue; }
-        for (var j = 0; j < values.length; ++j) values[j] = uvvalues[values[j]];
-        curmesh.uv = values;
+          if (lines[i].indexOf('}') != -1) break;
+          var a = lines[i].indexOf('a:');
+          if (a != -1) lines[i] = lines[i].substr(a+3);
+          values = values.concat( lines[i].split(",") );
+          if (values.length == num) break;
+        }
+        curmesh.uvindex = values;
       }
     }
   }
