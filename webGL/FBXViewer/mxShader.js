@@ -3,6 +3,9 @@
 
 function bind()
 {
+  if (!this.uMat) this.uMat = this.createUniform('material');
+  if (!this.uPart) this.uPart = this.createUniform('perpart');
+
   gl.useProgram(this);
   if (this.renderstate && this.renderstate != Game.shaderMan.currentRenderState)
   {
@@ -126,19 +129,33 @@ function createUniform(group)
 
 function draw(mesh)
 {
-  this.bindMesh(mesh);
-  if (mesh.instanceBuffer)
+  for (var i = 0; i < mesh.groups.length; ++i)
   {
-    this.bindInstanceData(mesh);
-    if (mesh.indexbuffer)
-      angle.drawElementsInstancedANGLE(mesh.type, mesh.prims, gl.UNSIGNED_SHORT, 0, mesh.instanceNumber);
-    else
-      angle.drawArraysInstancedANGLE(mesh.type, 0, mesh.prims, mesh.instanceNumber);
-    return;
-  }
+    // set materials
+    this.setUniforms(this.uMat);
 
-  if (mesh.indexbuffer)
-    gl.drawElements(mesh.type, mesh.prims, gl.UNSIGNED_SHORT, 0);
-  else
-    gl.drawArrays(mesh.type, 0, mesh.prims);
+    // render the parts
+    for (var p = 0; p < mesh.groups[i].parts.length; ++p)
+    {
+      var part = mesh.groups[i].parts[p];
+      if (this.uPart.local !== undefined) this.uPart.local = part.localTransform;
+      this.setUniforms(this.uPart);
+
+      this.bindMesh(part);
+      if (part.instanceBuffer)
+      {
+        this.bindInstanceData(part);
+        if (part.indexbuffer)
+          angle.drawElementsInstancedANGLE(part.type, part.prims, gl.UNSIGNED_SHORT, 0, part.instanceNumber);
+        else
+          angle.drawArraysInstancedANGLE(part.type, 0, part.prims, part.instanceNumber);
+        return;
+      }
+
+      if (part.indexbuffer)
+        gl.drawElements(part.type, part.prims, gl.UNSIGNED_SHORT, 0);
+      else
+        gl.drawArrays(part.type, 0, part.prims);
+    }
+  }
 }

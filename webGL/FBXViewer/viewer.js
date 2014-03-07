@@ -1,16 +1,18 @@
 
 var effect;
 var square;
-var cone;
+var normals;
+
 var uOnce;
 var uPerObject;
+var uPerObjectN;
 var uLight;
 
 var xRot = 0;
 var xSpeed = 0;
 var yRot = 0;
 var ySpeed = 0;
-var z = -5.0;
+var z = -15.0;
 
 var currentlyPressedKeys = {};
 
@@ -22,6 +24,7 @@ function degToRad(degrees)
 Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
+  Game.loadShaderFile("normalShader.fx");
   Game.loadMesh("sample", "test.fbx");
 }
 
@@ -29,13 +32,21 @@ Game.deviceReady = function ()
 {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-  var effect = Game.shaderMan.shaders["meshViewer"];
+  // do setup work for the mesh, this is until we automate it
+  // also create the normals nesh
   var mesh = Game.assetMan.assets["sample"];
 
-  // make verts for sample
+  var pos = mat4.create();
+  mat4.translate(pos, pos, [0.0, 5.0, 0.0]);
+
   var sampleAttr = { 'POS': 0, 'TEX0': 12, 'NORM': 20 };
-  square = new Mesh(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, mesh[1].models[0].mesh.indexes.length, gl.TRIANGLES);
-  cone = new Mesh(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, mesh[0].models[0].mesh.indexes.length, gl.TRIANGLES);
+  square = new Mesh();
+  square.loadFromArrays(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[1].models[0].mesh.indexes.length);
+  square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length, 0, pos);
+  normals = square.drawNormals();
+
+  // do setup work for the plain object shader
+  var effect = Game.shaderMan.shaders["meshViewer"];
 
   uOnce = effect.createUniform('once');
   uOnce.uPMatrix = mat4.create();
@@ -47,10 +58,21 @@ Game.deviceReady = function ()
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uMVMatrix = mat4.create();
-
+  uPerObject.uMVMatrixT = mat3.create();
+  
   mat4.perspective(uOnce.uPMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
   gl.useProgram(effect);
   effect.setUniforms(uOnce);
+
+  // do setup work for the normal shader
+  var effect = Game.shaderMan.shaders["normalViewer"];
+
+  uPerObjectN = effect.createUniform('perobject');
+  uPerObjectN.uMVMatrix = uPerObject.uMVMatrix;
+
+  gl.useProgram(effect);
+  effect.setUniforms(uOnce);
+
 }
 
 Game.appUpdate = function ()
@@ -70,26 +92,38 @@ Game.appUpdate = function ()
 
   xRot += (xSpeed * Game.elapsed) / 1000.0;
   yRot += (ySpeed * Game.elapsed) / 1000.0;
-}
-
-Game.appDraw = function ()
-{
-  var effect = Game.shaderMan.shaders["meshViewer"];
-  effect.bind();
-
-  gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  effect.setUniforms(uLight);
 
   mat4.identity(uPerObject.uMVMatrix);
   mat4.translate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, [0.0, 0.0, z]);
   mat4.rotate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, degToRad(xRot), [1, 0, 0]);
   mat4.rotate(uPerObject.uMVMatrix, uPerObject.uMVMatrix, degToRad(yRot), [0, 1, 0]);
-  effect.setUniforms(uPerObject);
+  mat3.normalFromMat4(uPerObject.uMVMatrixT, uPerObject.uMVMatrix);
+}
 
-//  effect.draw(square);
-  effect.draw(cone);
+Game.appDraw = function ()
+{
+  var effect;
+
+  gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  if (document.getElementById("model").checked)
+  {
+    effect = Game.shaderMan.shaders["meshViewer"];
+    effect.bind();
+    effect.setUniforms(uPerObject);
+    effect.setUniforms(uLight);
+    effect.draw(square);
+  }
+
+  if (document.getElementById("normals").checked)
+  {
+    effect = Game.shaderMan.shaders["normalViewer"];
+    effect.bind();
+    uPerObjectN.uMVMatrix = uPerObject.uMVMatrix;
+    effect.setUniforms(uPerObjectN);
+    effect.draw(normals);
+  }
 }
 
 Game.handleKeyDown = function ()
