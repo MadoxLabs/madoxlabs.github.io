@@ -92,3 +92,49 @@ Mesh.prototype.drawNormals = function()
 
   return ret;
 }
+
+Mesh.prototype.drawWireframe = function () {
+  var ret = new Mesh();
+
+  for (var i = 0; i < this.groups.length; ++i) {
+    for (var p = 0; p < this.groups[i].parts.length; ++p) {
+      var part = this.groups[i].parts[p];
+
+      var verts = [];
+      for (var v = 0; v < part.indexs.length; v += 3)
+      {
+        var v1 = part.indexs[v] * 8;
+        var v2 = part.indexs[v + 1] * 8;
+        var v3 = part.indexs[v + 2] * 8;
+
+        verts.push(part.verts[v1]);
+        verts.push(part.verts[v1 + 1]);
+        verts.push(part.verts[v1 + 2]);
+
+        verts.push(part.verts[v2]);
+        verts.push(part.verts[v2 + 1]);
+        verts.push(part.verts[v2 + 2]);
+
+        verts.push(part.verts[v2]);
+        verts.push(part.verts[v2 + 1]);
+        verts.push(part.verts[v2 + 2]);
+
+        verts.push(part.verts[v3]);
+        verts.push(part.verts[v3 + 1]);
+        verts.push(part.verts[v3 + 2]);
+
+        verts.push(part.verts[v3]);
+        verts.push(part.verts[v3 + 1]);
+        verts.push(part.verts[v3 + 2]);
+
+        verts.push(part.verts[v1]);
+        verts.push(part.verts[v1 + 1]);
+        verts.push(part.verts[v1 + 2]);
+      }
+
+      ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, part.localTransform);
+    }
+  }
+
+  return ret;
+}

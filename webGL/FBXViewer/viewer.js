@@ -1,7 +1,9 @@
 
 var effect;
 var square;
+
 var normals;
+var wire;
 
 var uOnce;
 var uPerObject;
@@ -44,6 +46,7 @@ Game.deviceReady = function ()
   square.loadFromArrays(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[1].models[0].mesh.indexes.length);
   square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length, 0, pos);
   normals = square.drawNormals();
+  wire = square.drawWireframe();
 
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
@@ -59,7 +62,8 @@ Game.deviceReady = function ()
   uPerObject = effect.createUniform('perobject');
   uPerObject.uMVMatrix = mat4.create();
   uPerObject.uMVMatrixT = mat3.create();
-  
+  uPerObject.options = vec4.create();
+
   mat4.perspective(uOnce.uPMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
   gl.useProgram(effect);
   effect.setUniforms(uOnce);
@@ -107,8 +111,12 @@ Game.appDraw = function ()
   gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  if (document.getElementById("explode").checked) uPerObject.options[0] = 1;
+  else uPerObject.options[0] = 0;
+
   if (document.getElementById("model").checked)
   {
+
     effect = Game.shaderMan.shaders["meshViewer"];
     effect.bind();
     effect.setUniforms(uPerObject);
@@ -116,13 +124,14 @@ Game.appDraw = function ()
     effect.draw(square);
   }
 
-  if (document.getElementById("normals").checked)
+  if (document.getElementById("normals").checked || document.getElementById("wire").checked)
   {
     effect = Game.shaderMan.shaders["normalViewer"];
     effect.bind();
     uPerObjectN.uMVMatrix = uPerObject.uMVMatrix;
     effect.setUniforms(uPerObjectN);
-    effect.draw(normals);
+    if (document.getElementById("normals").checked) effect.draw(normals);
+    if (document.getElementById("wire").checked) effect.draw(wire);
   }
 }
 

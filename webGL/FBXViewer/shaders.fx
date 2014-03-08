@@ -39,12 +39,15 @@ uniform vec3 uDirectionalColor;  // group light
 
 uniform mat4 uMVMatrix;          // group perobject
 uniform mat3 uMVMatrixT;         // group perobject
+uniform vec4 options;            // group perobject
 
 uniform mat4 local;              // group perpart
 
 void main(void) 
 {
-  gl_Position = uPMatrix * uMVMatrix * local * vec4(aVertexPosition, 1.0);
+  vec3 pos = aVertexPosition;
+  if (options.x > 0.0) pos += aVertexNormal * 0.5;
+  gl_Position = uPMatrix * uMVMatrix * local * vec4(pos, 1.0);
   vTextureCoord = aTextureCoord;
 
   float directionalLightWeighting = max(dot(uMVMatrixT * normalize(aVertexNormal), uLightingDirection), 0.0);
