@@ -138,3 +138,57 @@ Mesh.prototype.drawWireframe = function () {
 
   return ret;
 }
+
+// make a copy of the mesh where the normal is the face normal, let shader do the rest
+Mesh.prototype.drawExploded = function () {
+  var ret = new Mesh();
+
+  for (var i = 0; i < this.groups.length; ++i) {
+    for (var p = 0; p < this.groups[i].parts.length; ++p) {
+      var part = this.groups[i].parts[p];
+      var verts = [];
+
+      var n = vec3.create();
+
+      for (var v = 0; v < part.indexs.length; v += 3)
+      {
+        var v1 = part.indexs[v] * 8;
+        var v2 = part.indexs[v + 1] * 8;
+        var v3 = part.indexs[v + 2] * 8;
+
+        n[0] = part.verts[v1 + 5] + part.verts[v2 + 5] + part.verts[v3+ 5];
+        n[1] = part.verts[v1 + 6] + part.verts[v2 + 6] + part.verts[v3+ 6];
+        n[2] = part.verts[v1 + 7] + part.verts[v2 + 7] + part.verts[v3 + 7];
+        vec3.normalize(n, n);
+        verts.push(part.verts[v1 + 0]);
+        verts.push(part.verts[v1 + 1]);
+        verts.push(part.verts[v1 + 2]);
+        verts.push(part.verts[v1 + 3]);
+        verts.push(part.verts[v1 + 4]);
+        verts.push(n[0]);
+        verts.push(n[1]);
+        verts.push(n[2]);
+        verts.push(part.verts[v2 + 0]);
+        verts.push(part.verts[v2 + 1]);
+        verts.push(part.verts[v2 + 2]);
+        verts.push(part.verts[v2 + 3]);
+        verts.push(part.verts[v2 + 4]);
+        verts.push(n[0]);
+        verts.push(n[1]);
+        verts.push(n[2]);
+        verts.push(part.verts[v3 + 0]);
+        verts.push(part.verts[v3 + 1]);
+        verts.push(part.verts[v3 + 2]);
+        verts.push(part.verts[v3 + 3]);
+        verts.push(part.verts[v3 + 4]);
+        verts.push(n[0]);
+        verts.push(n[1]);
+        verts.push(n[2]);
+      }
+
+      ret.loadFromArrays(verts, null, part.attributes, gl.TRIANGLES, verts.length/8, 0, part.localTransform);
+    }
+  }
+
+  return ret;
+}

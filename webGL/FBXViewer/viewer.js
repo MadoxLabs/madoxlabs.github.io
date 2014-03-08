@@ -4,6 +4,7 @@ var square;
 
 var normals;
 var wire;
+var explode;
 
 var uOnce;
 var uPerObject;
@@ -47,6 +48,7 @@ Game.deviceReady = function ()
   square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length, 0, pos);
   normals = square.drawNormals();
   wire = square.drawWireframe();
+  explode = square.drawExploded();
 
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
@@ -114,14 +116,17 @@ Game.appDraw = function ()
   if (document.getElementById("explode").checked) uPerObject.options[0] = 1;
   else uPerObject.options[0] = 0;
 
-  if (document.getElementById("model").checked)
+  if (document.getElementById("model").checked || document.getElementById("explode").checked)
   {
 
     effect = Game.shaderMan.shaders["meshViewer"];
     effect.bind();
     effect.setUniforms(uPerObject);
     effect.setUniforms(uLight);
-    effect.draw(square);
+    if (document.getElementById("explode").checked)
+      effect.draw(explode);
+    else
+      effect.draw(square);
   }
 
   if (document.getElementById("normals").checked || document.getElementById("wire").checked)
