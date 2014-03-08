@@ -28,7 +28,7 @@ Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
   Game.loadShaderFile("normalShader.fx");
-  Game.loadMesh("sample", "test.fbx");
+  Game.loadMesh("sample", "teapot.mesh");
 }
 
 Game.deviceReady = function ()
@@ -44,8 +44,11 @@ Game.deviceReady = function ()
 
   var sampleAttr = { 'POS': 0, 'TEX0': 12, 'NORM': 20 };
   square = new Mesh();
-  square.loadFromArrays(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[1].models[0].mesh.indexes.length);
-  square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length, 0, pos);
+//  square.loadFromArrays(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[1].models[0].mesh.indexes.length);
+//  square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length, 0, pos);
+  square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length);
+  square.loadFromArrays(mesh[0].models[1].mesh.vertexs, mesh[0].models[1].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[1].mesh.indexes.length);
+  square.loadFromArrays(mesh[0].models[2].mesh.vertexs, mesh[0].models[2].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[2].mesh.indexes.length);
   normals = square.drawNormals();
   wire = square.drawWireframe();
   explode = square.drawExploded();
