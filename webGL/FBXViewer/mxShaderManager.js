@@ -58,12 +58,12 @@ RenderState.prototype.set = function()
 RenderState.prototype.unset = function()
 {
   // render states
-  if (typeof this.cull === typeof (true)) gl.disable(gl.GL_CULL_FACE);
-  if (this.cullmode) gl.cullFace(gl.GL_BACK);
-  if (this.frontface) gl.frontFace(gl.GL_CCW);
-  if (this.depthbias) { gl.disable(gl.GL_POLYGON_OFFSET_FILL); gl.polygonOffset(0, 0); }
+  if (typeof this.cull === typeof (true)) gl.disable(gl.CULL_FACE);
+  if (this.cullmode) gl.cullFace(gl.BACK);
+  if (this.frontface) gl.frontFace(gl.CCW);
+  if (this.depthbias) { gl.disable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(0, 0); }
   if (this.depthrange) gl.depthRange(0, 1);
-  if (typeof this.scissor === typeof (true)) gl.disable(gl.GL_SCISSOR_TEST);
+  if (typeof this.scissor === typeof (true)) gl.disable(gl.SCISSOR_TEST);
   // blend states
   if (typeof this.blend === typeof (true))    gl.disable(gl.BLEND);
   if (this.blendop && !this.blendopalpha) gl.blendEquation(gl.FUNC_ADD);

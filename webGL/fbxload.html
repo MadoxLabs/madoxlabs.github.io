@@ -78,7 +78,7 @@ function bake(mesh)
   // convert this to an actual vertex list
   var vertexobj = [];
   for (var i = 0; i < uniq.length; ++i) vertexobj.push(JSON.parse(uniq[i]));
-  for (var i = 0; i < vertexobj.length; ++i) for (var j = 0; j < 8; ++j) vertexs.push(vertexobj[i][j]);
+  for (var i = 0; i < vertexobj.length; ++i) for (var j = 0; j < 8; ++j) vertexs.push(parseFloat(vertexobj[i][j]));
 
   // use the vertexstring list as a key to build the index list
   //   to do this we need a convenience reverse lookup array
@@ -207,7 +207,8 @@ function process(data)
           if (lines[i].indexOf('}') != -1) break;
           var a = lines[i].indexOf('a:');
           if (a != -1) lines[i] = lines[i].substr(a+3);
-          values = values.concat( lines[i].split(",") );
+          values.pop();
+          values = values.concat(lines[i].split(","));
           if (values.length == num) break;
         }
         curmesh.vertexs = values;
@@ -224,7 +225,8 @@ function process(data)
           if (lines[i].indexOf('}') != -1) break;
           var a = lines[i].indexOf('a:');
           if (a != -1) lines[i] = lines[i].substr(a+3);
-          values = values.concat( lines[i].split(",") );
+          values.pop();
+          values = values.concat(lines[i].split(","));
           if (values.length == num) break;
         }
         // check that its trilist and flip the negative ones
@@ -247,7 +249,8 @@ function process(data)
           if (lines[i].indexOf('}') != -1) break;
           var a = lines[i].indexOf('a:');
           if (a != -1) lines[i] = lines[i].substr(a+3);
-          values = values.concat( lines[i].split(",") );
+          values.pop();
+          values = values.concat(lines[i].split(","));
           if (values.length == num) break;
         }
         curmesh.normals = values;
@@ -266,7 +269,8 @@ function process(data)
           if (lines[i].indexOf('}') != -1) break;
           var a = lines[i].indexOf('a:');
           if (a != -1) lines[i] = lines[i].substr(a+3);
-          uvvalues = uvvalues.concat( lines[i].split(",") );
+          uvvalues.pop();
+          uvvalues = uvvalues.concat(lines[i].split(","));
           if (uvvalues.length == num) break;
         }
         curmesh.uv = uvvalues;
@@ -280,7 +284,8 @@ function process(data)
           if (lines[i].indexOf('}') != -1) break;
           var a = lines[i].indexOf('a:');
           if (a != -1) lines[i] = lines[i].substr(a+3);
-          values = values.concat( lines[i].split(",") );
+          values.pop();
+          values = values.concat(lines[i].split(","));
           if (values.length == num) break;
         }
         curmesh.uvindex = values;
