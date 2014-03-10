@@ -3,8 +3,11 @@
 
 function bind()
 {
-  if (!this.uMat) this.uMat = this.createUniform('material');
-  if (!this.uPart) this.uPart = this.createUniform('perpart');
+  if (!this.uMat)
+  {
+    this.uMat = this.createUniform('material');
+    this.uMat.materialoption = vec3.create(); 
+  }
 
   gl.useProgram(this);
   if (this.renderstate && this.renderstate != Game.shaderMan.currentRenderState)
@@ -57,6 +60,7 @@ function bindTexture(name, texture, mag, min, wraps, wrapt)
   gl.activeTexture(gl.TEXTURE0 + tnum);
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.uniform1i(t.loc, tnum);
+  if (!texture) return;
 
   if (arguments.length < 3 || !mag) mag = t.mag;
   if (arguments.length < 4 || !min) min = t.min;
@@ -73,6 +77,7 @@ function setUniforms(vals)
 {
   for (var name in vals)
   {
+    if (!this[name]) continue;
     switch (this[name].type)
     {
       case gl.FLOAT:
@@ -131,15 +136,19 @@ function draw(mesh)
 {
   for (var i = 0; i < mesh.groups.length; ++i)
   {
-    // set materials
-    this.setUniforms(this.uMat);
+    // set material
+    this.setUniforms(mesh.groups[i].material);
+    if (this.textures.length)
+    {
+      if (mesh.groups[i].texture) this.bindTexture('uTexture', Game.assetMan.assets[mesh.groups[i].texture].texture);
+      else this.bindTexture('uTexture', null);
+    }
 
     // render the parts
     for (var p = 0; p < mesh.groups[i].parts.length; ++p)
     {
       var part = mesh.groups[i].parts[p];
-      if (this.uPart.local !== undefined) this.uPart.local = part.localTransform;
-      this.setUniforms(this.uPart);
+      this.setUniforms(part.uniforms);
 
       this.bindMesh(part);
       if (part.instanceBuffer)

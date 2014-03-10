@@ -1,11 +1,21 @@
-var Material = function()
+var Material = function(data)
 {
+  this.materialoptions = vec4.create();
+  this.ambientcolor = vec3.fromValues(0.2, 0.2, 0.2);
+  this.diffusecolor = vec3.fromValues(0.8, 0.8, 0.8);
+  this.emissivecolor = vec3.create();
+  this.specularcolor = vec3.create();
 }
 
 Material.prototype.loadFromFBX = function(data)
 {
-  // store lighting information
-  // store texture asset
+  if (data.AmbientColor) this.ambientcolor = vec3.fromValues(data.AmbientColor[0], data.AmbientColor[1], data.AmbientColor[2]);
+  var factor = 1.0;
+  if (data.DiffuseFactor) factor = data.DiffuseFactor;
+  if (data.DiffuseColor) this.diffusecolor = vec3.fromValues(data.DiffuseColor[0] * factor, data.DiffuseColor[1] * factor, data.DiffuseColor[2] * factor);
+  if (data.Emissive) this.emissivecolor = vec3.fromValues(data.Emissive[0], data.Emissive[1], data.Emissive[2]);
+  if (data.SpecularColor) this.specularcolor = vec3.fromValues(data.SpecularColor[0], data.SpecularColor[1], data.SpecularColor[2]);
+  if (data.ShininessExponent) this.materialoptions[1] = data.ShininessExponent;
 }
 
 // a mesh needs to store set of materials and subsets of meshparts
@@ -20,11 +30,18 @@ Mesh.prototype.loadFromArrays = function(verts, indexs, attr, type, prims, group
 {
   var part = {};
 
-  if (arguments.length > 5) part.localTransform = trans;
+  part.uniforms = {};
+  part.uniforms.partcolor = vec3.create();
+  vec3.random(part.uniforms.partcolor);
+  vec3.abs(part.uniforms.partcolor, part.uniforms.partcolor);
+  if (part.uniforms.partcolor[0] < 0.3) part.uniforms.partcolor[0] += 0.3;
+  if (part.uniforms.partcolor[1] < 0.3) part.uniforms.partcolor[1] += 0.3;
+  if (part.uniforms.partcolor[2] < 0.3) part.uniforms.partcolor[2] += 0.3;
+  if (arguments.length > 6) part.uniforms.localTransform = trans;
   else
   {
-    part.localTransform = mat4.create();
-    mat4.identity(part.localTransform);
+    part.uniforms.localTransform = mat4.create();
+    mat4.identity(part.uniforms.localTransform);
   }
 
   part.attributes = attr;
@@ -53,7 +70,26 @@ Mesh.prototype.loadFromArrays = function(verts, indexs, attr, type, prims, group
 
 Mesh.prototype.loadFromFBX = function(data)
 {
-
+  // todo materials
+  // todo transforms
+  var trans = mat4.create();
+  mat4.identity(trans);
+  for (var g = 0; g < data.groups.length; ++g)
+  {
+    for (var m = 0; m < data.groups[g].models.length; ++m)
+      this.loadFromArrays(data.groups[g].models[m].mesh.vertexs, data.groups[g].models[m].mesh.indexes, data.attributes, gl.TRIANGLES, data.groups[g].models[m].mesh.indexes.length, g, trans);
+    this.groups[g].material.loadFromFBX(data.groups[g]);
+    if (data.groups[g].texture)
+    {
+      var name = data.groups[g].texture.lastIndexOf('/');
+      if (name == -1) name = data.groups[g].texture.lastIndexOf('\\');
+      if (name == -1) name = data.groups[g].texture.split(".")[0];
+      else name = data.groups[g].texture.substr(name + 1).split(".")[0];
+      Game.loadTextureFile(name, data.groups[g].texture, true);
+      this.groups[g].texture = name;
+      this.groups[g].material.materialoptions[0] = 1.0;
+    }
+  }
 }
 
 Mesh.prototype.setInstances = function(data, number)
@@ -86,7 +122,7 @@ Mesh.prototype.drawNormals = function()
         verts.push(part.verts[v + 2] + part.verts[v + 7]);
       }
 
-      ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length/3.0, 0, part.localTransform);
+      ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, part.uniforms.localTransform);
     }
   }
 
@@ -132,7 +168,7 @@ Mesh.prototype.drawWireframe = function () {
         verts.push(part.verts[v1 + 2]);
       }
 
-      ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, part.localTransform);
+      ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, part.uniforms.localTransform);
     }
   }
 
@@ -186,7 +222,7 @@ Mesh.prototype.drawExploded = function () {
         verts.push(n[2]);
       }
 
-      ret.loadFromArrays(verts, null, part.attributes, gl.TRIANGLES, verts.length/8, 0, part.localTransform);
+      ret.loadFromArrays(verts, null, part.attributes, gl.TRIANGLES, verts.length/8, 0, part.uniforms.localTransform);
     }
   }
 

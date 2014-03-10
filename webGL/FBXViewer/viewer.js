@@ -35,20 +35,8 @@ Game.deviceReady = function ()
 {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-  // do setup work for the mesh, this is until we automate it
-  // also create the normals nesh
-  var mesh = Game.assetMan.assets["sample"];
-
-  var pos = mat4.create();
-  mat4.translate(pos, pos, [0.0, 5.0, 0.0]);
-
-  var sampleAttr = { 'POS': 0, 'TEX0': 12, 'NORM': 20 };
-  square = new Mesh();
-//  square.loadFromArrays(mesh[1].models[0].mesh.vertexs, mesh[1].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[1].models[0].mesh.indexes.length);
-//  square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length, 0, pos);
-  square.loadFromArrays(mesh[0].models[0].mesh.vertexs, mesh[0].models[0].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[0].mesh.indexes.length);
-  square.loadFromArrays(mesh[0].models[1].mesh.vertexs, mesh[0].models[1].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[1].mesh.indexes.length);
-  square.loadFromArrays(mesh[0].models[2].mesh.vertexs, mesh[0].models[2].mesh.indexes, sampleAttr, gl.TRIANGLES, mesh[0].models[2].mesh.indexes.length);
+  // do setup work for the mesh
+  square = Game.assetMan.assets["sample"];
   normals = square.drawNormals();
   wire = square.drawWireframe();
   explode = square.drawExploded();
@@ -118,6 +106,10 @@ Game.appDraw = function ()
 
   if (document.getElementById("explode").checked) uPerObject.options[0] = 1;
   else uPerObject.options[0] = 0;
+  uPerObject.options[1] = 0;
+  if (document.getElementById("uvs").checked) uPerObject.options[1] = 1;
+  else if (document.getElementById("xseams").checked) uPerObject.options[1] = 2;
+  else if (document.getElementById("yseams").checked) uPerObject.options[1] = 3;
 
   if (document.getElementById("model").checked || document.getElementById("explode").checked)
   {

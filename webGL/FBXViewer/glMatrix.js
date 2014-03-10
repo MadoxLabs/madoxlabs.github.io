@@ -961,6 +961,13 @@ vec3.negate = function(out, a) {
     return out;
 };
 
+vec3.abs = function (out, a)
+{
+  out[0] = a[0] < 0.0 ? -a[0] : a[0];
+  out[1] = a[1] < 0.0 ? -a[1] : a[1];
+  out[2] = a[2] < 0.0 ? -a[2] : a[2];
+  return out;
+};
 /**
  * Normalize a vec3
  *

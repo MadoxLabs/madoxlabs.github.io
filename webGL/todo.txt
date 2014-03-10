@@ -4,6 +4,66 @@ resize canvas
 precomputed alpha
 check on w buffer to replace z
 
+viewer
+ lighting
+ proper camera and World View Proj matrixes
+ mouse moves
+ shadows
+ bounding boxes
+ floor
+
+Lighting
+ 
+ Lighting is computed as: ambient + diffuse + specular + emissive
+ Ambient:  Ma * ( Ga + sum(At * Sp * La) )
+ Diffuse:  sum (Md * Ld * (normal'.Ldir) * At * Sp)
+ Specular: Ms * sum (Ls * (normal.H) ^ S * At * Sp)
+ Emissive: this is just the materal emissive 
+
+Light storage in uniforms
+ mat4[]  light details
+ float[] light type
+
+ Each light:  [ ambient color ] [attenuation 0]    La   A0
+              [ diffuse color ] [attenuation 1]    Ld   A1
+			  [ specular color ] [attenuation 2]   Ls   A2
+			  [ position ] [range]                 Lp   Lr
+ Computed values: Distance: | position - Lp |      D	 	 	      
+                  Attentuation :  1 / (A0 + A1 D + A2 D D)   At 
+				  Spotlight factos:  1 ???                   Sp
+				  Light direction: Lp - position             Ldir
+				  Half vector: norm(norm( Cp - position ) + Ldir)  H
+ light types: 0 off 
+              1 point
+			  2 direction
+			  3 spot 
+ range of 0 is infinite range
+point lights - have position and range.  
+directional lights - position is actually direction, has range
+spot lights - has position and range, what else?
+
+how many lights is enough? 8? 8 of each? 
+ - if off each, we dont need type float[]
+ - game keeps a list of all lights, and set the 8 closest lights?
+ - 8 closest light that are in range?
+
+Each part has its own material data:
+  ambient color        Ma
+  diffuse color        Md
+  specular color       Ms
+  emmisive color       E
+  shininiess exponant  S
+
+Global settings:
+  global ambient      Ga
+  camera position     Cp
+
+What is the spotlight factor
+
+
+
+
+
 
 fbx importer
  - make the mesh actually load properly

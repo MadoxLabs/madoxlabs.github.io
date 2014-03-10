@@ -15,11 +15,14 @@
     <script src="viewer.js"></script>
   </head>
   <body onload="main();">
-    <div><canvas id='surface' width="400" height="400"></div>
+    <div><canvas id='surface' width="800" height="600"></div>
     <div><canvas id='output' width="400" height="50"></div>
     <input type=checkbox id="model" checked>Show Model</input>
     <input type=checkbox id="normals">Show Normals</input>
     <input type=checkbox id="explode">Show Exploded</input>
-    <input type=checkbox id="wire">Show Wireframe</input>
+    <input type=checkbox id="wire">Show Wireframe</input><br />
+    <input type=checkbox id="uvs">Visualize UVs</input>
+    <input type=checkbox id="xseams">Check for U seams</input>
+    <input type=checkbox id="yseams">Check for V seams</input>
   </body>
 </html>

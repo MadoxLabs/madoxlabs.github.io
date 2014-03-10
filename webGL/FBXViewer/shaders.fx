@@ -13,6 +13,9 @@ precision mediump float;
 varying vec2 vTextureCoord;
 varying vec3 vLight;
 
+// options from viewer app are: x: explode y/n  y: 1 uv view, 2 x seams, 3 y seams  z: n/a  w: n/a
+uniform vec4 options;            // group perobject
+
 [END]
 
 [RENDERSTATE]
@@ -39,15 +42,14 @@ uniform vec3 uDirectionalColor;  // group light
 
 uniform mat4 uMVMatrix;          // group perobject
 uniform mat3 uMVMatrixT;         // group perobject
-uniform vec4 options;            // group perobject
 
-uniform mat4 local;              // group perpart
+uniform mat4 localTransform;     // group perpart
 
 void main(void) 
 {
   vec3 pos = aVertexPosition;
   if (options.x > 0.0) pos += aVertexNormal * 0.5;
-  gl_Position = uPMatrix * uMVMatrix * local * vec4(pos, 1.0);
+  gl_Position = uPMatrix * uMVMatrix * localTransform * vec4(pos, 1.0);
   vTextureCoord = aTextureCoord;
 
   float directionalLightWeighting = max(dot(uMVMatrixT * normalize(aVertexNormal), uLightingDirection), 0.0);
@@ -57,9 +59,42 @@ void main(void)
 
 [PIXEL]
 
+uniform vec3 partcolor;         // group perpart
+
+// material options are: x: texture y/n   y: specular exponant  z: n/a   w: n/a
+uniform vec4 materialoptions;    // group material
+uniform vec3 ambientcolor;       // group material
+uniform vec3 diffusecolor;       // group material
+uniform vec3 specularcolor;      // group material
+uniform vec3 emissivecolor;      // group material
+
+uniform sampler2D uTexture; // mag LINEAR, min LINEAR
+
+// try to draw a checkboard to expose the uv mapping
 void main(void) 
 {
-  gl_FragColor = vec4(vLight, 1.0);
+  vec4 tex = vec4(1.0, 1.0, 1.0, 1.0);
+
+  if (options.y == 1.0)
+  {
+    float color = 0.2;
+    float u = floor(vTextureCoord.x * 10.0);
+    float v = floor(vTextureCoord.y * 10.0);
+    color = mod((mod(u,2.0) + mod(v,2.0)),2.0) + 0.2;
+    tex = vec4(partcolor * color, 1.0);
+  }
+  else if (options.y == 2.0)
+  {
+    tex = vec4(0.0, vTextureCoord.x, 0.0, 1.0);
+  }
+  else if (options.y == 3.0)
+  {
+    tex = vec4(0.0, vTextureCoord.y, 0.0, 1.0);
+  }
+  else if (materialoptions.x > 0.0)
+    tex = texture2D(uTexture, vec2(vTextureCoord.x, vTextureCoord.y));
+
+  gl_FragColor = tex * vec4(vLight, 1.0);
 }
 
 [END]

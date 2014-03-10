@@ -16,7 +16,8 @@ AssetManager.prototype.processTexture = function(tex)
 
 AssetManager.prototype.processMesh = function(name, mesh)
 {
-  var o = JSON.parse(mesh);
-  this.assets[name] = o;
+  var model = new Mesh();
+  model.loadFromFBX(JSON.parse(mesh));
+  this.assets[name] = model;
   Game.loading -= 1;
 }
