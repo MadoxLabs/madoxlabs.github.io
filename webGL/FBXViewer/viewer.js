@@ -29,7 +29,7 @@ Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
   Game.loadShaderFile("normalShader.fx");
-  Game.loadMesh("sample", "joan.mesh");
+  Game.loadMeshPNG("sample", "joan.png");
 }
 
 Game.deviceReady = function ()

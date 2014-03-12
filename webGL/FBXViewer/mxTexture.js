@@ -12,3 +12,16 @@ Texture.prototype.load = function(file)
   this.image.onload = function () { Game.assetMan.processTexture(tex); }
   this.image.src = file;
 }
+
+var MeshPNG = function (name)
+{
+  this.name = name;
+}
+
+MeshPNG.prototype.load = function (file)
+{
+  var tex = this;  // cant use 'this' in the onload line below.
+  this.image = new Image();
+  this.image.onload = function () { Game.assetMan.processMeshPNG(tex); }
+  this.image.src = file;
+}

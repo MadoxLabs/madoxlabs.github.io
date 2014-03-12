@@ -21,3 +21,30 @@ AssetManager.prototype.processMesh = function(name, mesh)
   this.assets[name] = model;
   Game.loading -= 1;
 }
+
+AssetManager.prototype.processMeshPNG = function (tex)
+{
+  var model = new Mesh();
+
+  var img = document.createElement('canvas');
+  img.width = tex.image.width;
+  img.height = tex.image.height;
+  var context = img.getContext('2d');
+  context.drawImage(tex.image, 0, 0);
+  var map = context.getImageData(0, 0, img.width, img.height);
+  var len = map.data.length;
+  var txt = "";
+  var j = 0;
+  var i = 0;
+  for (i = 0; i < len; i++) {
+    if (j == 3) { j = 0; continue; }
+    if (map.data[i] === 0) break;
+    txt += String.fromCharCode(map.data[i]);
+    ++j;
+  }
+  txt += '}';
+
+  model.loadFromFBX(JSON.parse(txt));
+  this.assets[tex.name] = model;
+  Game.loading -= 1;
+}

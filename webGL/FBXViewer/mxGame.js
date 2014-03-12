@@ -105,6 +105,15 @@ Game.loadTextureFile = function (name, file, mipmap)
   tex.load(file);
 }
 
+Game.loadMeshPNG = function (name, file)
+{
+  Game.loading += 1;
+  Game.ready = false;
+
+  var tex = new MeshPNG(name);
+  tex.load(file);
+}
+
 Game.loadMesh = function (name, file) {
   Game.loading += 1;
   Game.ready = false;
