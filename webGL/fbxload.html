@@ -123,6 +123,7 @@ Array.prototype.unique = function ()
 function getBB(model)
 {
   if (!model.translation) model.translation = [0, 0, 0];
+  if (!model.rotation) model.rotation = [0, 0, 0];
   if (!model.scale) model.scale = [1, 1, 1];
 
   var bb = { min: [model.mesh.vertexs[0], model.mesh.vertexs[1], model.mesh.vertexs[2]], max: [model.mesh.vertexs[0], model.mesh.vertexs[1], model.mesh.vertexs[2]] };
@@ -304,6 +305,10 @@ function process(data)
     }
     else if (state == States.ParseModel)
     {
+      if (lines[i].indexOf("Lcl Rotation") != -1) {
+        var values = lines[i].trim().split(",");
+        curmodel.rotation = [parseFloat(values[4]), parseFloat(values[5]), parseFloat(values[6])];
+      }
       if (lines[i].indexOf("Lcl Translation") != -1)
       {
         var values = lines[i].trim().split(",");

@@ -74,15 +74,25 @@ Mesh.prototype.loadFromFBX = function(data)
 
   var trans = mat4.create();
   var t = mat4.create();
+  var r = mat4.create();
   var s = mat4.create();
+  var rot = quat.create();
+
   for (var g = 0; g < data.groups.length; ++g)
   {
     for (var m = 0; m < data.groups[g].models.length; ++m)
     {
       this.boundingbox.push(data.groups[g].models[m].boundingbox);
       mat4.identity(t); mat4.translate(t, t, data.groups[g].models[m].translation);
+
+      quat.identity(rot);
+      quat.rotateX(rot, rot, data.groups[g].models[m].rotation[0] * 2 * 3.14159 / 360.0);
+      quat.rotateY(rot, rot, data.groups[g].models[m].rotation[1] * 2 * 3.14159 / 360.0);
+      quat.rotateZ(rot, rot, data.groups[g].models[m].rotation[2] * 2 * 3.14159 / 360.0);
+      mat4.fromQuat(r, rot);
+
       mat4.identity(s); mat4.scale(s, s, data.groups[g].models[m].scale);
-      mat4.identity(trans); mat4.multiply(trans, s, t);
+      mat4.identity(trans); mat4.multiply(trans, r, s);  mat4.multiply(trans, t, trans);
       this.loadFromArrays(data.groups[g].models[m].mesh.vertexs, data.groups[g].models[m].mesh.indexes, data.attributes, gl.TRIANGLES, data.groups[g].models[m].mesh.indexes.length, g, trans);
     }
     this.groups[g].material.loadFromFBX(data.groups[g]);

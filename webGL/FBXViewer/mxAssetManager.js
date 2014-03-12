@@ -42,9 +42,13 @@ AssetManager.prototype.processMeshPNG = function (tex)
     txt += String.fromCharCode(map.data[i]);
     ++j;
   }
-  txt += '}';
 
-  model.loadFromFBX(JSON.parse(txt));
+  try { model.loadFromFBX(JSON.parse(txt)); } catch(err)
+  {
+    txt += "}";
+    model.loadFromFBX(JSON.parse(txt));
+  }
+
   this.assets[tex.name] = model;
   Game.loading -= 1;
 }
