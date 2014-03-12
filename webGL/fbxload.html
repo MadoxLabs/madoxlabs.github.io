@@ -28,7 +28,7 @@ function done()
   for (id in objects) 
   {
     if (objects[id].type === "material") groups[groups.length] = objects[id];
-    else if (objects[id].type === "model")
+    else if (objects[id].type === "model" && objects[id].mesh)
     {
       objects[id].mesh = bake(objects[id].mesh);
       objects[id].boundingbox = getBB(objects[id])
