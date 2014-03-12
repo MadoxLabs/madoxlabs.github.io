@@ -28,11 +28,39 @@ function done()
   for (id in objects) 
   {
     if (objects[id].type === "material") groups[groups.length] = objects[id];
-    else if (objects[id].type === "model") objects[id].mesh = bake(objects[id].mesh);
+    else if (objects[id].type === "model")
+    {
+      objects[id].mesh = bake(objects[id].mesh);
+      objects[id].boundingbox = getBB(objects[id])
+    }
   }
+
   var file = {};
   file.attributes = { 'POS': 0, 'TEX0': 12, 'NORM': 20 };
   file.groups = groups;
+
+  // get full bb
+  var bb = { };
+  for (var g = 0; g < groups.length; ++g)
+    for (var m = 0; m < groups[g].models.length; ++m)
+    {
+      var mbb = groups[g].models[m].boundingbox;
+      if (!bb.min) bb.min = [mbb.min[0], mbb.min[1], mbb.min[2]];
+      else
+      {
+        if (mbb.min[0] < bb.min[0]) bb.min[0] = mbb.min[0];
+        if (mbb.min[1] < bb.min[1]) bb.min[1] = mbb.min[1];
+        if (mbb.min[2] < bb.min[2]) bb.min[2] = mbb.min[2];
+      }
+      if (!bb.max) bb.max = [mbb.max[0], mbb.max[1], mbb.max[2]];
+      else
+      {
+        if (mbb.max[0] > bb.max[0]) bb.max[0] = mbb.max[0];
+        if (mbb.max[1] > bb.max[1]) bb.max[1] = mbb.max[1];
+        if (mbb.max[2] > bb.max[2]) bb.max[2] = mbb.max[2];
+      }
+    }
+  file.boundingbox = bb;
 
   var div = document.getElementById("output");
   div.innerHTML = "<textarea rows=20 cols=80>"+JSON.stringify(file)+"</textarea>";
@@ -50,6 +78,30 @@ Array.prototype.unique = function ()
   }
   return unique;
 };
+
+function getBB(model)
+{
+  if (!model.translation) model.translation = [0, 0, 0];
+  if (!model.scale) model.scale = [1, 1, 1];
+
+  var bb = { min: [model.mesh.vertexs[0], model.mesh.vertexs[1], model.mesh.vertexs[2]], max: [model.mesh.vertexs[0], model.mesh.vertexs[1], model.mesh.vertexs[2]] };
+  for (var i = 8; i < model.mesh.vertexs.length; i += 8)
+  {
+    if (model.mesh.vertexs[i + 0] < bb.min[0]) bb.min[0] = model.mesh.vertexs[i + 0];
+    if (model.mesh.vertexs[i + 1] < bb.min[1]) bb.min[1] = model.mesh.vertexs[i + 1];
+    if (model.mesh.vertexs[i + 2] < bb.min[2]) bb.min[2] = model.mesh.vertexs[i + 2];
+    if (model.mesh.vertexs[i + 0] > bb.max[0]) bb.max[0] = model.mesh.vertexs[i + 0];
+    if (model.mesh.vertexs[i + 1] > bb.max[1]) bb.max[1] = model.mesh.vertexs[i + 1];
+    if (model.mesh.vertexs[i + 2] > bb.max[2]) bb.max[2] = model.mesh.vertexs[i + 2];
+  }
+  bb.min[0] = bb.min[0] * model.scale[0] + model.translation[0];
+  bb.min[1] = bb.min[1] * model.scale[1] + model.translation[1];
+  bb.min[2] = bb.min[2] * model.scale[2] + model.translation[2];
+  bb.max[0] = bb.max[0] * model.scale[0] + model.translation[0];
+  bb.max[1] = bb.max[1] * model.scale[1] + model.translation[1];
+  bb.max[2] = bb.max[2] * model.scale[2] + model.translation[2];
+  return bb;
+}
 
 function bake(mesh)
 {
@@ -214,12 +266,12 @@ function process(data)
       if (lines[i].indexOf("Lcl Translation") != -1)
       {
         var values = lines[i].trim().split(",");
-        curmodel.translation = values.slice(4, 7);
+        curmodel.translation = [parseFloat(values[4]), parseFloat(values[5]), parseFloat(values[6])];
       }
       else if (lines[i].indexOf("Lcl Scaling") != -1)
       {
         var values = lines[i].trim().split(",");
-        curmodel.scale = values.slice(4, 7);
+        curmodel.scale = [parseFloat(values[4]), parseFloat(values[5]), parseFloat(values[6])];
       }
     }
 

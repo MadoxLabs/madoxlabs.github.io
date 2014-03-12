@@ -37,7 +37,7 @@ Mesh.prototype.loadFromArrays = function(verts, indexs, attr, type, prims, group
   if (part.uniforms.partcolor[0] < 0.3) part.uniforms.partcolor[0] += 0.3;
   if (part.uniforms.partcolor[1] < 0.3) part.uniforms.partcolor[1] += 0.3;
   if (part.uniforms.partcolor[2] < 0.3) part.uniforms.partcolor[2] += 0.3;
-  if (arguments.length > 6) part.uniforms.localTransform = trans;
+  if (arguments.length > 6) part.uniforms.localTransform = mat4.clone(trans);
   else
   {
     part.uniforms.localTransform = mat4.create();
@@ -70,14 +70,21 @@ Mesh.prototype.loadFromArrays = function(verts, indexs, attr, type, prims, group
 
 Mesh.prototype.loadFromFBX = function(data)
 {
-  // todo materials
-  // todo transforms
+  this.boundingbox = [ data.boundingbox ];
+
   var trans = mat4.create();
-  mat4.identity(trans);
+  var t = mat4.create();
+  var s = mat4.create();
   for (var g = 0; g < data.groups.length; ++g)
   {
     for (var m = 0; m < data.groups[g].models.length; ++m)
+    {
+      this.boundingbox.push(data.groups[g].models[m].boundingbox);
+      mat4.identity(t); mat4.translate(t, t, data.groups[g].models[m].translation);
+      mat4.identity(s); mat4.scale(s, s, data.groups[g].models[m].scale);
+      mat4.identity(trans); mat4.multiply(trans, s, t);
       this.loadFromArrays(data.groups[g].models[m].mesh.vertexs, data.groups[g].models[m].mesh.indexes, data.attributes, gl.TRIANGLES, data.groups[g].models[m].mesh.indexes.length, g, trans);
+    }
     this.groups[g].material.loadFromFBX(data.groups[g]);
     if (data.groups[g].texture)
     {
@@ -129,7 +136,49 @@ Mesh.prototype.drawNormals = function()
   return ret;
 }
 
-Mesh.prototype.drawWireframe = function () {
+Mesh.prototype.drawBB = function ()
+{
+  var ret = new Mesh();
+  var verts = [];
+
+  for (var i = 0; i < this.boundingbox.length; ++i)
+  {
+    var bb = this.boundingbox[i];
+    verts.push(bb.min[0]); verts.push(bb.min[1]); verts.push(bb.min[2]);
+    verts.push(bb.max[0]); verts.push(bb.min[1]); verts.push(bb.min[2]);
+    verts.push(bb.max[0]); verts.push(bb.min[1]); verts.push(bb.min[2]);
+    verts.push(bb.max[0]); verts.push(bb.max[1]); verts.push(bb.min[2]);
+    verts.push(bb.max[0]); verts.push(bb.max[1]); verts.push(bb.min[2]);
+    verts.push(bb.min[0]); verts.push(bb.max[1]); verts.push(bb.min[2]);
+    verts.push(bb.min[0]); verts.push(bb.max[1]); verts.push(bb.min[2]);
+    verts.push(bb.min[0]); verts.push(bb.min[1]); verts.push(bb.min[2]);
+    verts.push(bb.min[0]); verts.push(bb.min[1]); verts.push(bb.max[2]);
+    verts.push(bb.max[0]); verts.push(bb.min[1]); verts.push(bb.max[2]);
+    verts.push(bb.max[0]); verts.push(bb.min[1]); verts.push(bb.max[2]);
+    verts.push(bb.max[0]); verts.push(bb.max[1]); verts.push(bb.max[2]);
+    verts.push(bb.max[0]); verts.push(bb.max[1]); verts.push(bb.max[2]);
+    verts.push(bb.min[0]); verts.push(bb.max[1]); verts.push(bb.max[2]);
+    verts.push(bb.min[0]); verts.push(bb.max[1]); verts.push(bb.max[2]);
+    verts.push(bb.min[0]); verts.push(bb.min[1]); verts.push(bb.max[2]);
+    verts.push(bb.min[0]); verts.push(bb.min[1]); verts.push(bb.min[2]);
+    verts.push(bb.min[0]); verts.push(bb.min[1]); verts.push(bb.max[2]);
+    verts.push(bb.min[0]); verts.push(bb.max[1]); verts.push(bb.min[2]);
+    verts.push(bb.min[0]); verts.push(bb.max[1]); verts.push(bb.max[2]);
+    verts.push(bb.max[0]); verts.push(bb.max[1]); verts.push(bb.min[2]);
+    verts.push(bb.max[0]); verts.push(bb.max[1]); verts.push(bb.max[2]);
+    verts.push(bb.max[0]); verts.push(bb.min[1]); verts.push(bb.min[2]);
+    verts.push(bb.max[0]); verts.push(bb.min[1]); verts.push(bb.max[2]);
+
+    var t = mat4.create();
+    mat4.identity(t);
+    ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, t);
+  }
+
+  return ret;
+}
+
+Mesh.prototype.drawWireframe = function ()
+{
   var ret = new Mesh();
 
   for (var i = 0; i < this.groups.length; ++i) {

@@ -9,7 +9,6 @@ viewer
  proper camera and World View Proj matrixes
  mouse moves
  shadows
- bounding boxes
  floor
 
 Lighting
