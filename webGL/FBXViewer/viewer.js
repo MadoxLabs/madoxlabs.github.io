@@ -1,3 +1,42 @@
+// camera can be in:
+//   free mode - camera has position and orientation
+//   offset target mode - camera only has offset, using a target object as reference. Has orientation
+//                      - act like on a string, user can still make slight adjustments like Z axis
+//   free target mode - camera has position and orientation but always faces target object
+//                    - set which axis to lock, x or y or none
+
+function Camera(w, h)
+{
+  this.width = w;
+  this.height = h;
+  this.fov = Math.PI / 4.0;
+  this.near = 0.1;
+  this.far = 10000.0;
+
+  this.view       = mat4.create();  
+  this.projection = mat4.create();
+  this.position   = vec3.create();
+  this.angles     = vec3.create();
+  this.orientation = mat4.create();
+
+  this.update();
+}
+
+Camera.prototype.update()
+{
+  var q = quat.create();
+  quat.rotateX(q, q, this.angles[0]); uat.rotateX(q, q, this.angles[1]); uat.rotateX(q, q, this.angles[1]);
+  mat4.fromQuat(this.orientation, q);
+
+  mat4.projection(this.view, this.fov, this.width / this.height, this.near, this.far);
+
+  var at = vec3.fromValues(0, 0, 1);
+  vec3.transformQuat(at, q);
+  var up = vec3.fromValues(0, 1, 0);
+  vec3.transformQuat(up, q);
+  mat4.lookAt(this.view, this.position, at, up);
+}
+
 
 var effect;
 var square;
@@ -17,6 +56,7 @@ var xSpeed = 0;
 var yRot = 0;
 var ySpeed = 0;
 var z = -15.0;
+var decay = 0.98;
 
 var currentlyPressedKeys = {};
 
@@ -88,6 +128,9 @@ Game.appUpdate = function ()
     xSpeed -= 1;
   if (currentlyPressedKeys[40])  // Down cursor key
     xSpeed += 1;
+
+  ySpeed *= decay;
+  xSpeed *= decay;
 
   xRot += (xSpeed * Game.elapsed) / 1000.0;
   yRot += (ySpeed * Game.elapsed) / 1000.0;
