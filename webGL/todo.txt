@@ -10,6 +10,11 @@ viewer
  mouse moves
  shadows
  floor
+mesh 
+ animations
+ bump maps
+ tangents
+ binormals
 
 Lighting
  

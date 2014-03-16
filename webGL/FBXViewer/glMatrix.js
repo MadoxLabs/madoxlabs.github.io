@@ -3482,8 +3482,9 @@ mat4.ortho = function (out, left, right, bottom, top, near, far) {
  * @param {vec3} up vec3 pointing up
  * @returns {mat4} out
  */
-mat4.lookAt = function (out, eye, center, up) {
-    var x0, x1, x2, y0, y1, y2, z0, z1, z2, len,
+mat4.lookAt = function (out, eye, center, up)
+{
+      var x0, x1, x2, y0, y1, y2, z0, z1, z2, len,
         eyex = eye[0],
         eyey = eye[1],
         eyez = eye[2],
