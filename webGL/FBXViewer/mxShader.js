@@ -18,6 +18,11 @@ function bind()
   }
 }
 
+function bindCamera(camera)
+{
+  this.setUniforms(camera.uniforms);
+}
+
 function bindMesh(mesh)
 {
   if (mesh.indexbuffer) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexbuffer);

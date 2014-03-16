@@ -34,14 +34,16 @@ attribute vec3 aVertexPosition;  // POS
 attribute vec2 aTextureCoord;    // TEX0
 attribute vec3 aVertexNormal;    // NORM
 
-uniform mat4 uPMatrix;           // group once
+uniform mat4 projection;         // group camera
+uniform mat4 view;               // group camera
+uniform vec3 camera;             // group camera
 
 uniform vec3 uAmbientColor;      // group light
 uniform vec3 uLightingDirection; // group light
 uniform vec3 uDirectionalColor;  // group light
 
-uniform mat4 uMVMatrix;          // group perobject
-uniform mat3 uMVMatrixT;         // group perobject
+uniform mat4 uWorld;          // group perobject
+uniform mat3 uWorldT;         // group perobject
 
 uniform mat4 localTransform;     // group perpart
 
@@ -49,10 +51,11 @@ void main(void)
 {
   vec3 pos = aVertexPosition;
   if (options.x > 0.0) pos += aVertexNormal * 0.5;
-  gl_Position = uPMatrix * uMVMatrix * localTransform * vec4(pos, 1.0);
+
+  gl_Position = projection * view * uWorld * localTransform * vec4(pos, 1.0);
   vTextureCoord = aTextureCoord;
 
-  float directionalLightWeighting = max(dot(uMVMatrixT * normalize(aVertexNormal), uLightingDirection), 0.0);
+  float directionalLightWeighting = max(dot(normalize(aVertexNormal) * mat3(localTransform) * mat3(uWorld), uLightingDirection), 0.0);
   vLight = uAmbientColor + uDirectionalColor * directionalLightWeighting;
 }
 [END]

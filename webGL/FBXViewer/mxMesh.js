@@ -134,9 +134,9 @@ Mesh.prototype.drawNormals = function()
         verts.push(part.verts[v]);
         verts.push(part.verts[v + 1]);
         verts.push(part.verts[v + 2]);
-        verts.push(part.verts[v]     + part.verts[v + 5]);
-        verts.push(part.verts[v + 1] + part.verts[v + 6]);
-        verts.push(part.verts[v + 2] + part.verts[v + 7]);
+        verts.push(part.verts[v]     + part.verts[v + 5] * 0.1);
+        verts.push(part.verts[v + 1] + part.verts[v + 6] * 0.1);
+        verts.push(part.verts[v + 2] + part.verts[v + 7] * 0.1);
       }
 
       ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, part.uniforms.localTransform);

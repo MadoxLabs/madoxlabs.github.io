@@ -335,6 +335,7 @@ ShaderManager.prototype.processEffect = function(src)
   }
 
   shaderProgram.bind = bind;
+  shaderProgram.bindCamera = bindCamera;
   shaderProgram.bindMesh = bindMesh;
   shaderProgram.bindInstanceData = bindInstanceData;
   shaderProgram.bindTexture = bindTexture;
