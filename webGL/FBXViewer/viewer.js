@@ -112,10 +112,6 @@ Game.deviceReady = function ()
 Game.appUpdate = function ()
 {
   if (!camera) return;
-  if (currentlyPressedKeys[16] && currentlyPressedKeys[38])
-    camera.position[1] += 0.1;
-  if (currentlyPressedKeys[16] && currentlyPressedKeys[40])
-    camera.position[1] -= 0.1;
   if (currentlyPressedKeys[33])  // Page Up
     z -= 0.1;
   if (currentlyPressedKeys[34])  // Page Down
@@ -124,10 +120,16 @@ Game.appUpdate = function ()
     ySpeed -= 2;
   if (currentlyPressedKeys[39])  // Right cursor key
     ySpeed += 2;
-//  if (currentlyPressedKeys[38])  // Up cursor key
-  //  xSpeed -= 2;
-  //if (currentlyPressedKeys[40])  // Down cursor key
-    //xSpeed += 2;
+  if (currentlyPressedKeys[38])  // Up cursor key
+  {
+    if (currentlyPressedKeys[16])      camera.position[1] += 0.1;
+    else xSpeed -= 2;
+  }
+  if (currentlyPressedKeys[40])  // Down cursor key
+  {
+    if (currentlyPressedKeys[16])      camera.position[1] -= 0.1;
+    else xSpeed += 2;
+  }
 
   ySpeed *= decay;
   xSpeed *= decay;
