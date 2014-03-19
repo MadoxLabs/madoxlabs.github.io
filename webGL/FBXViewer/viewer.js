@@ -99,7 +99,6 @@ Game.deviceReady = function ()
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
-  uPerObject.uWorldT = mat3.create();
   uPerObject.options = vec4.create();
 
   // do setup work for the normal shader
@@ -143,7 +142,6 @@ Game.appUpdate = function ()
   mat4.translate(uPerObject.uWorld, uPerObject.uWorld, [0.0, 0.0, z]);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(xRot), [1, 0, 0]);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(yRot), [0, 1, 0]);
-  mat3.normalFromMat4(uPerObject.uWorldT, uPerObject.uWorld);
 }
 
 Game.appDraw = function ()
