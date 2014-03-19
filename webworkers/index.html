@@ -1,0 +1,149 @@
+<html>
+  <head>
+  <script>
+
+var div;
+var worker;
+
+function out(msg)
+{
+  if (!div) div = document.getElementById("output");
+  div.innerHTML = msg + "<br>";
+}
+
+function main()
+{
+  out("Running...");
+  for (var j = 0; j < 1000000; ++j)
+  {
+    for (var i = 0; i < 1000; ++i)
+    {
+      var num = (Math.random() * 100000000 + 100000000) |0;
+      var root = Math.sqrt(num);
+    }
+    out("Completed: " + (j * 1000));
+  }
+}
+
+
+
+
+function fromWorker(e)
+{
+  out(e.data);
+}
+
+function mainww()
+{
+  if (worker) return;
+  worker = new Worker("webworkers.js");
+  worker.onmessage  = fromWorker;
+  worker.postMessage("");
+}
+
+
+
+
+
+var divC;
+var workerC;
+var countC = 0;
+
+function outc(msg)
+{
+  if (!divC) divC = document.getElementById("outputc");
+  divC.innerHTML = msg + "<br>";
+}
+
+function mainwwcopy()
+{
+  if (workerC) return;
+  workerC = new Worker("webworkersPass.js");
+  workerC.onmessage  = fromWorkerCopy;
+  workerC.postMessage("");
+}
+
+function fromWorkerCopy(e)
+{
+  if (e.data.ready)
+  {
+    if (countC >= 1000000000) return;
+
+    var nums = [];
+    for (var i = 0; i < 10000; ++i)
+    {
+      var num = (Math.random() * 100000000 + 100000000) |0;
+      nums.push(num);
+    }
+    workerC.postMessage(nums);
+  }
+  else if (e.data.length)
+  {
+    countC += e.data.length;
+    outc("Completed: " + countC);
+  }
+}
+
+
+
+
+
+
+var divR;
+var workerR;
+var countR = 0;
+
+function outr(msg)
+{
+  if (!divR) divR = document.getElementById("outputr");
+  divR.innerHTML = msg + "<br>";
+}
+
+function fromWorkerRef(e)
+{
+  if (e.data.ready)
+  {
+    if (countR >= 1000000000) return;
+
+    var nums = new Uint32Array(10000);
+    for (var i = 0; i < 10000; ++i)
+    {
+      var num = (Math.random() * 100000000 + 100000000) |0;
+      nums[i] = num;
+    }
+    workerR.postMessage(nums.buffer, [nums.buffer]);
+  }
+  else if (e.data.byteLength)
+  {
+    countR += e.data.byteLength / 4;
+    outr("Completed: " + countR);
+  }
+}
+
+function mainwwref()
+{
+  if (workerR) return;
+  workerR = new Worker("webworkersref.js");
+  workerR.onmessage  = fromWorkerRef;
+  workerR.postMessage("");
+}
+
+
+
+
+
+</script>
+  </head>
+  <body>
+    <button onclick="main();">Normal</button>
+    <button onclick="mainww();">Webworker</button>
+    <button onclick="mainwwcopy();">Webworker via copy</button>
+    <button onclick="mainwwref();">Webworker via ref</button>
+    <br>
+    <select><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+    <br>
+    Webworker: <div id="output"></div><br>
+    Webworker Copy: <div id="outputc"></div><br>
+    Webworker Ref: <div id="outputr"></div><br>
+  </body>
+</html>
