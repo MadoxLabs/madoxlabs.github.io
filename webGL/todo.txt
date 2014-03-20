@@ -30,17 +30,17 @@ Light storage in uniforms
 
  Each light:  [ ambient color ] [attenuation 0]    La   A0
               [ diffuse color ] [attenuation 1]    Ld   A1
-			  [ specular color ] [attenuation 2]   Ls   A2
-			  [ position ] [range]                 Lp   Lr
- Computed values: Distance: | position - Lp |      D	 	 	      
+              [ specular color ] [attenuation 2]   Ls   A2
+              [ position ] [range]                 Lp   Lr
+ Computed values: Distance: | position - Lp |      D
                   Attentuation :  1 / (A0 + A1 D + A2 D D)   At 
-				  Spotlight factos:  1 ???                   Sp
-				  Light direction: Lp - position             Ldir
-				  Half vector: norm(norm( Cp - position ) + Ldir)  H
+                  Spotlight factos:  1 ???                   Sp
+                  Light direction: Lp - position             Ldir
+                  Half vector: norm(norm( Cp - position ) + Ldir)  H
  light types: 0 off 
               1 point
-			  2 direction
-			  3 spot 
+              2 direction
+              3 spot 
  range of 0 is infinite range
 point lights - have position and range.  
 directional lights - position is actually direction, has range

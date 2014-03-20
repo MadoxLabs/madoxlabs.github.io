@@ -37,11 +37,6 @@ attribute vec3 aVertexNormal;    // NORM
 
 uniform mat4 projection;         // group camera
 uniform mat4 view;               // group camera
-uniform vec3 camera;             // group camera
-
-uniform vec3 uAmbientColor;      // group light
-uniform vec3 uLightingDirection; // group light
-uniform vec3 uDirectionalColor;  // group light
 
 uniform mat4 uWorld;          // group perobject
 
@@ -57,13 +52,22 @@ void main(void)
 
   vTextureCoord = aTextureCoord;
 
-  vNormal = normalize(aVertexNormal) * mat3(localTransform) * mat3(uWorld);
+  vNormal = mat3(uWorld) * mat3(localTransform) *  aVertexNormal;
 }
 [END]
 
 [PIXEL]
 
 uniform vec3 partcolor;         // group perpart
+
+uniform vec3 camera;             // group camera
+
+uniform vec3 uGlobalAmbientRGB ;  // group light 
+uniform vec3 uLightAmbientRGB  ;  // group light
+uniform vec3 uLightDiffuseRGB  ;  // group light
+uniform vec3 uLightSpecularRGB ;  // group light
+uniform vec3 uLightAttenuation ;  // group light
+uniform vec3 uLightPosition    ;  // group light
 
 // material options are: x: texture y/n   y: specular exponant  z: n/a   w: n/a
 uniform vec4 materialoptions;    // group material
@@ -79,6 +83,18 @@ void main(void)
   vec4 tex = vec4(1.0, 1.0, 1.0, 1.0);
 
   // work out the lighting
+  float d = distance(uLightPosition, vec3(vPosition));
+  float attenuation = 1.0 / dot (vec3(1, d, d*d), uLightAttenuation);
+
+  vec3 ambient = ambientcolor * (uGlobalAmbientRGB + (uLightAmbientRGB * attenuation));
+  vec3 diffuse = diffusecolor * uLightDiffuseRGB * attenuation * dot(vNormal, uLightPosition - vec3(vPosition));
+
+  vec3 cameradir = normalize(camera - vec3(vPosition));
+  vec3 reflection = reflect(uLightPosition - vec3(vPosition), vNormal);
+  float rDotV = pow(clamp(dot(reflection, cameradir), 0.0, 1.0), 70.0);
+  vec3 specular =  specularcolor * uLightSpecularRGB * rDotV ;//* attenuation;
+
+  vec3 light = ambient + diffuse + specular + emissivecolor;
 
   // work out the texture color
 
@@ -107,7 +123,7 @@ void main(void)
     tex = texture2D(uTexture, vec2(vTextureCoord.x, vTextureCoord.y));
   }
 
-  gl_FragColor = tex;// * vec4(vLight, 1.0);
+  gl_FragColor = tex * vec4(light, 1.0);
 }
 
 [END]

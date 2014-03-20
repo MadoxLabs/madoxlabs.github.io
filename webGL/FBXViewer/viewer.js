@@ -93,9 +93,12 @@ Game.deviceReady = function ()
   var effect = Game.shaderMan.shaders["meshViewer"];
 
   uLight = effect.createUniform('light');
-  uLight.uAmbientColor      = [0.2, 0.2, 0.2];
-  uLight.uLightingDirection = [0, 0, 1];
-  uLight.uDirectionalColor  = [0.8, 0.8, 0.8];
+  uLight.uGlobalAmbientRGB = [0.2, 0.2, 0.2];
+  uLight.uLightAmbientRGB = [0,0,0];
+  uLight.uLightDiffuseRGB = [1,1,1];
+  uLight.uLightSpecularRGB = [1,1,1];
+  uLight.uLightAttenuation = [0, 1, 0];
+  uLight.uLightPosition  = [10.0, 10.0, 10.0];
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
@@ -185,13 +188,12 @@ Game.appDraw = function ()
   }
 }
 
-Game.handleKeyDown = function ()
+Game.handleKeyDown = function (event)
 {
-  console.log(event.keyCode);
   currentlyPressedKeys[event.keyCode] = true;
 }
 
-Game.handleKeyUp = function ()
+Game.handleKeyUp = function (event)
 {
   currentlyPressedKeys[event.keyCode] = false;
 }
