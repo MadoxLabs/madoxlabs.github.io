@@ -27,6 +27,19 @@ function Camera(w, h)
   this.update();
 }
 
+Camera.prototype.lookAt = function(x,y,z)
+{
+  // set orientation to look at a point
+  var forward = vec3.fromValues(0, 0, -1);
+  var t = vec3.fromValues(x, y, z);
+  var target = vec3.create();
+  vec3.subtract(t, target, this.position);
+  vec3.normalize(t, t);
+  var rot = quat.create();
+  quat.rotationTo(rot, forward, t);
+  mat4.fromQuat(this.orientation, rot);
+}
+
 Camera.prototype.update = function()
 {
   var q = quat.create();
@@ -59,7 +72,7 @@ var xRot = 0;
 var xSpeed = 0;
 var yRot = 0;
 var ySpeed = 0;
-var z = -15.0;
+var z = 0.0;
 var decay = 0.98;
 
 var currentlyPressedKeys = {};
@@ -81,13 +94,24 @@ Game.deviceReady = function ()
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
   // do setup work for the mesh
-  camera = new Camera(gl.viewportWidth, gl.viewportHeight);
-
   square = Game.assetMan.assets["sample"];
   normals = square.drawNormals();
   wire = square.drawWireframe();
   explode = square.drawExploded();
   bb = square.drawBB();
+
+  var len = 0;
+  for (var i = 0; i < 2; ++i)
+  {
+    var l = square.boundingbox[0].max[i] - square.boundingbox[0].min[i];
+    if (l > len) len = l;
+  }
+
+  camera = new Camera(gl.viewportWidth, gl.viewportHeight);
+  camera.position[1] = square.boundingbox[0].max[1];// + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
+  camera.position[2] = 1.0 * len / (Math.tan(camera.fov));
+  camera.lookAt(0, square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0, 0);
+  camera.update();
 
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
@@ -98,7 +122,7 @@ Game.deviceReady = function ()
   uLight.uLightDiffuseRGB = [1,1,1];
   uLight.uLightSpecularRGB = [1,1,1];
   uLight.uLightAttenuation = [0, 1, 0];
-  uLight.uLightPosition  = [10.0, 10.0, 10.0];
+  uLight.uLightPosition  = [3.0, 1.0, 3.0];
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
