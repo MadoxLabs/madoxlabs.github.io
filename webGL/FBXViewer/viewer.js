@@ -30,25 +30,22 @@ function Camera(w, h)
 Camera.prototype.lookAt = function(x,y,z)
 {
   // set orientation to look at a point
-  var forward = vec3.fromValues(0, 0, -1);
-  var t = vec3.fromValues(x, y, z);
-  var target = vec3.create();
-  vec3.subtract(t, target, this.position);
-  vec3.normalize(t, t);
-  var rot = quat.create();
-  quat.rotationTo(rot, forward, t);
-  mat4.fromQuat(this.orientation, rot);
+  var diffx = this.position[0] - x;
+  var diffy = this.position[1] - y;
+  var diffz = this.position[2] - z;
+  this.angles[1] = Math.atan(diffx / diffz);
+  this.angles[0] = Math.atan(diffy / diffz);
 }
 
 Camera.prototype.update = function()
 {
   var q = quat.create();
-  quat.rotateX(q, q, this.angles[0]); quat.rotateX(q, q, this.angles[1]); quat.rotateX(q, q, this.angles[1]);
+  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
   mat4.fromQuat(this.orientation, q);
 
   mat4.perspective(this.projection, this.fov, this.width / this.height, this.near, this.far);
 
-  var at = vec3.fromValues(this.position[0], this.position[1], this.position[2]-1);
+  var at = vec3.fromValues(0,0,-1);//this.position[0], this.position[1], this.position[2]-1);
   vec3.transformQuat(at, at, q);
   var up = vec3.fromValues(0, 1, 0);
   vec3.transformQuat(up, up, q);
@@ -72,7 +69,6 @@ var xRot = 0;
 var xSpeed = 0;
 var yRot = 0;
 var ySpeed = 0;
-var z = 0.0;
 var decay = 0.98;
 
 var currentlyPressedKeys = {};
@@ -108,9 +104,9 @@ Game.deviceReady = function ()
   }
 
   camera = new Camera(gl.viewportWidth, gl.viewportHeight);
-  camera.position[1] = square.boundingbox[0].max[1];// + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
-  camera.position[2] = 1.0 * len / (Math.tan(camera.fov));
-  camera.lookAt(0, square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0, 0);
+  camera.position[0] = square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0;
+  camera.position[1] = square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
+  camera.position[2] = 1.3 * len / (Math.tan(camera.fov));
   camera.update();
 
   // do setup work for the plain object shader
@@ -139,9 +135,9 @@ Game.appUpdate = function ()
 {
   if (!camera) return;
   if (currentlyPressedKeys[33])  // Page Up
-    z -= 0.1;
+    camera.position[2] -= 0.1;
   if (currentlyPressedKeys[34])  // Page Down
-    z += 0.1;
+    camera.position[2] += 0.1;
   if (currentlyPressedKeys[37])  // Left cursor key
     ySpeed -= 2;
   if (currentlyPressedKeys[39])  // Right cursor key
@@ -166,7 +162,6 @@ Game.appUpdate = function ()
   camera.update();
 
   mat4.identity(uPerObject.uWorld);
-  mat4.translate(uPerObject.uWorld, uPerObject.uWorld, [0.0, 0.0, z]);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(xRot), [1, 0, 0]);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(yRot), [0, 1, 0]);
 }
