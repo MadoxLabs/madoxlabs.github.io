@@ -36,7 +36,7 @@ Camera.prototype.lookAt = function(x,y,z)
   this.angles[1] = Math.atan(diffx / diffz);
   this.angles[0] = Math.atan(diffy / diffz);
 }
-
+  
 Camera.prototype.update = function()
 {
   var q = quat.create();
@@ -45,7 +45,7 @@ Camera.prototype.update = function()
 
   mat4.perspective(this.projection, this.fov, this.width / this.height, this.near, this.far);
 
-  var at = vec3.fromValues(0,0,-1);//this.position[0], this.position[1], this.position[2]-1);
+  var at = vec3.fromValues(this.position[0], this.position[1], this.position[2]-1);
   vec3.transformQuat(at, at, q);
   var up = vec3.fromValues(0, 1, 0);
   vec3.transformQuat(up, up, q);
