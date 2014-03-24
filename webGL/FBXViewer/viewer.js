@@ -55,6 +55,7 @@ Camera.prototype.update = function()
 var camera;
 var effect;
 var square;
+var grid;
 
 var normals;
 var wire;
@@ -64,6 +65,7 @@ var bb;
 var uPerObject;
 var uPerObjectN;
 var uLight;
+var uGrid;
 
 var xRot = 0;
 var xSpeed = 0;
@@ -82,7 +84,8 @@ Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
   Game.loadShaderFile("normalShader.fx");
-  Game.loadMeshPNG("sample", "joan.png");
+  Game.loadMeshPNG("sample", "joan.model.png");
+  Game.loadMeshPNG("floor", "grid.model.png");
 }
 
 Game.deviceReady = function ()
@@ -91,6 +94,8 @@ Game.deviceReady = function ()
 
   // do setup work for the mesh
   square = Game.assetMan.assets["sample"];
+  grid = Game.assetMan.assets["floor"];
+
   normals = square.drawNormals();
   wire = square.drawWireframe();
   explode = square.drawExploded();
@@ -102,6 +107,8 @@ Game.deviceReady = function ()
     var l = square.boundingbox[0].max[i] - square.boundingbox[0].min[i];
     if (l > len) len = l;
   }
+  var max = square.boundingbox[0].max[2] - square.boundingbox[0].min[2]
+  if (max < len) max = len;
 
   camera = new Camera(gl.viewportWidth, gl.viewportHeight);
   camera.position[0] = square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0;
@@ -113,7 +120,7 @@ Game.deviceReady = function ()
   var effect = Game.shaderMan.shaders["meshViewer"];
 
   uLight = effect.createUniform('light');
-  uLight.uGlobalAmbientRGB = [0.2, 0.2, 0.2];
+  uLight.uGlobalAmbientRGB = [0.5, 0.5, 0.5];
   uLight.uLightAmbientRGB = [0,0,0];
   uLight.uLightDiffuseRGB = [1,1,1];
   uLight.uLightSpecularRGB = [1,1,1];
@@ -123,6 +130,12 @@ Game.deviceReady = function ()
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
   uPerObject.options = vec4.create();
+
+  uGrid = effect.createUniform('perobject');
+  uGrid.options = vec4.fromValues(0, 0, 0, 0);
+  uGrid.uWorld = mat4.create();
+  mat4.identity(uGrid.uWorld);
+  mat4.scale(uGrid.uWorld, uGrid.uWorld, vec3.fromValues(max*2, 0, max*2));
 
   // do setup work for the normal shader
   var effect = Game.shaderMan.shaders["normalViewer"];
@@ -173,6 +186,7 @@ Game.appDraw = function ()
   gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+
   if (document.getElementById("explode").checked) uPerObject.options[0] = 1;
   else uPerObject.options[0] = 0;
   uPerObject.options[1] = 0;
@@ -192,6 +206,9 @@ Game.appDraw = function ()
       effect.draw(explode);
     else
       effect.draw(square);
+
+    effect.setUniforms(uGrid);
+    effect.draw(grid);
   }
 
   if (document.getElementById("normals").checked || document.getElementById("wire").checked || document.getElementById("bb").checked)

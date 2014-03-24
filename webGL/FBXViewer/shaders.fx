@@ -76,7 +76,7 @@ uniform vec3 diffusecolor;       // group material
 uniform vec3 specularcolor;      // group material
 uniform vec3 emissivecolor;      // group material
 
-uniform sampler2D uTexture; // mag LINEAR, min LINEAR
+uniform sampler2D uTexture; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 
 void main(void) 
 {

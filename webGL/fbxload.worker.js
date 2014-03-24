@@ -250,7 +250,8 @@ function process(data)
       if (lines[i].indexOf("RelativeFilename") != -1)
       {
         var values = lines[i].trim().split("\"");
-        curTexture.file = values[1];
+        var parts = values[1].trim().split("\\");
+        curTexture.file = parts[parts.length-1];
         error("Found texture: " + curTexture.file);
       }
     }
