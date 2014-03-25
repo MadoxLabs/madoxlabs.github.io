@@ -4,6 +4,13 @@ resize canvas
 precomputed alpha
 check on w buffer to replace z
 
+
+use viewports for occulus mode
+use non power of 2s if - min filter is LINEAR or NEAREST
+                       - WRAP_S and T are CLAMP_TO_EDGE
+
+
+
 viewer
  lighting
  proper camera and World View Proj matrixes

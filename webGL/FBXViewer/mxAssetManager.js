@@ -11,7 +11,7 @@ AssetManager.prototype.processTexture = function(tex)
   if (tex.mipmap) { console.log("mipped"); gl.generateMipmap(gl.TEXTURE_2D); }
   gl.bindTexture(gl.TEXTURE_2D, null);
   this.assets[tex.name] = tex;
-  Game.loading -= 1;
+  Game.loadingDecr();
 }
 
 AssetManager.prototype.processMesh = function(name, mesh)
@@ -19,7 +19,7 @@ AssetManager.prototype.processMesh = function(name, mesh)
   var model = new Mesh();
   model.loadFromFBX(JSON.parse(mesh));
   this.assets[name] = model;
-  Game.loading -= 1;
+  Game.loadingDecr();
 }
 
 AssetManager.prototype.processMeshPNG = function (tex)
@@ -50,5 +50,5 @@ AssetManager.prototype.processMeshPNG = function (tex)
   }
 
   this.assets[tex.name] = model;
-  Game.loading -= 1;
+  Game.loadingDecr();
 }

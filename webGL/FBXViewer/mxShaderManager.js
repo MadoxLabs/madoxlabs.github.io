@@ -246,7 +246,7 @@ ShaderManager.prototype.processRenderStates = function(src)
 
 ShaderManager.prototype.processEffect = function(src)
 {
-  Game.loading -= 1;
+  Game.loadingDecr();
 
   var name   = this.extractShaderPart(src, "[NAME]").trim();
   var vertex = this.extractShaderPart(src, "[VERTEX]");

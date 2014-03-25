@@ -18,9 +18,9 @@ function bind()
   }
 }
 
-function bindCamera(camera)
+function bindCamera(eye)
 {
-  this.setUniforms(camera.uniforms);
+  this.setUniforms(eye.uniforms);
 }
 
 function bindMesh(mesh)
