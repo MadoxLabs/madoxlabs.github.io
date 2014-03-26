@@ -69,6 +69,7 @@ Game.loadingStop = function ()
   Game.camera.position[0] = square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0;
   Game.camera.position[1] = square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
   Game.camera.position[2] = 1.3 * len / (Math.tan(Game.camera.fov));
+  Game.camera.setIPD(1.0);
 
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
@@ -96,8 +97,6 @@ Game.loadingStop = function ()
 
   uPerObjectN = effect.createUniform('perobject');
   uPerObjectN.uWorld = uPerObject.uMVMatrix;
-
-  //Game.postprocess("post");
 }
 
 Game.appUpdate = function ()
@@ -183,7 +182,11 @@ Game.appDraw = function (eye)
 
 Game.handleKeyDown = function (event)
 {
-  if (event.keyCode == 83) Game.oculusMode(!Game.isOculus); 
+  if (event.keyCode == 83)
+  {
+    Game.oculusMode(!Game.isOculus);
+    Game.postprocess(Game.isOculus ? "post" : null);
+  }
   currentlyPressedKeys[event.keyCode] = true;
 }
 

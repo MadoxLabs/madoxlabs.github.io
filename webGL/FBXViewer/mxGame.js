@@ -1,3 +1,14 @@
+var oculus = {};
+oculus.HResolution = 1280;
+oculus.VResolution = 800;
+oculus.HScreenSize = 0.14976;
+oculus.VScreenSize = 0.0935;
+oculus.DistortionK = vec4.fromValues(1.0, 0.22, 0.24, 0.0);
+oculus.VScreenCenter = oculus.VScreenSize/ 2.0;
+oculus.EyeToScreenDistance = 0.1;
+oculus.LensSeparationDistance = 0.05;
+oculus.InterpupillaryDistance = 0;
+
 var gl;
 var angle;
 var Game = {};
@@ -31,7 +42,7 @@ Game.init = function ()
   if (!angle) alert("Could not find instanced draw calls");
   
   // GL is ready, graphics specific init now happens
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.05, 0.05, 0.05, 1.0);
   Game.camera = new Camera(gl.viewportWidth, gl.viewportHeight);
   Game.makeFSQ();
 
@@ -56,19 +67,41 @@ Game.init = function ()
 Game.makeFSQ = function()
 {
   fsqvertices = [
-    1.0, 1.0,   1.0, 1.0,
-   -1.0, 1.0,   0.0, 1.0,
+   -1.0, -1.0, 0.0, 0.0,
     1.0, -1.0,  1.0, 0.0,
-   -1.0, -1.0,  0.0, 0.0];
+   -1.0, 1.0,   0.0, 1.0,
+    1.0, 1.0,   1.0, 1.0
+  ];
   var attr = { 'POS': 0, 'TEX0': 8 };
   var fsq = new Mesh();
-  fsq.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 2);
+  fsq.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 4);
   Game.assetMan.assets['fsq'] = fsq;
+
+  fsqvertices = [
+   -1.0, -1.0, 0.0, 0.0,
+    1.0, -1.0, 0.5, 0.0,
+   -1.0, 1.0, 0.0, 1.0,
+    1.0, 1.0, 0.5, 1.0
+  ];
+  var fsqleft = new Mesh();
+  fsqleft.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 4);
+  Game.assetMan.assets['fsqleft'] = fsqleft;
+
+  fsqvertices = [
+   -1.0, -1.0, 0.5, 0.0,
+    1.0, -1.0, 1.0, 0.0,
+   -1.0, 1.0, 0.5, 1.0,
+    1.0, 1.0, 1.0, 1.0
+  ];
+  var fsqright = new Mesh();
+  fsqright.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 4);
+  Game.assetMan.assets['fsqright'] = fsqright;
 }
 
 Game.postprocess = function (name)
 {
-  Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
+  if (!name) Game.frontbuffer = null;
+  else Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
   Game.postprocessShader = name;
 }
 
@@ -123,21 +156,23 @@ Game.draw = function ()
   // post process here
   if (Game.frontbuffer)
   {
-//    var scale = {};
-//    scale.scaleSurfaceToProj = vec2.fromValues(2.0 / gl.viewportWidth, 2.0 / gl.viewportHeight);
-
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     for (var eye in Game.camera.eyes)
     {
       Game.camera.eyes[eye].engage();
+      var uniforms = {};
+      uniforms.distortionscale = 0.8;
+      uniforms.aspect = oculus.HResolution * 0.5 / oculus.VResolution;
+      uniforms.ScreenCenter = Game.camera.eyes[eye].center;
+      uniforms.LensCenter = Game.camera.eyes[eye].lenscenter;
 
       var effect = Game.shaderMan.shaders[Game.postprocessShader];
       effect.bind();
-      //    effect.setUniforms(scale);
+      effect.setUniforms(uniforms);
       effect.bindTexture("uFrontbuffer", Game.frontbuffer.texture);
-      effect.draw(Game.assetMan.assets["fsq"]);
+      effect.draw(Game.assetMan.assets[Game.camera.eyes[eye].fsq]);
     }
   }
 }
@@ -178,8 +213,12 @@ function handleSizeChange()
 {
   Game.surface.width = Game.surface.clientWidth;
   Game.surface.height = Game.surface.clientHeight;
-  gl.viewportWidth = this.surface.clientWidth;
-  gl.viewportHeight = this.surface.clientHeight;
+  gl.viewportWidth = Game.surface.clientWidth;
+  gl.viewportHeight = Game.surface.clientHeight;
+
+  oculus.HResolution = Game.surface.clientWidth;
+  oculus.VResolution = Game.surface.clientHeight;
+
   Game.camera.handleSizeChange(Game.surface.width, Game.surface.height);
   if (Game.frontbuffer) Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
 //  Game.makeFSQ();
