@@ -37,7 +37,7 @@ Game.appInit = function ()
 
 Game.deviceReady = function ()
 {
-  Game.postprocess("post");
+//  Game.postprocess("post");
 }
 
 Game.loadingStart = function ()
