@@ -32,8 +32,10 @@ Game.init = function ()
   
   // GL is ready, graphics specific init now happens
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  this.camera = new Camera(gl.viewportWidth, gl.viewportHeight);
+  Game.camera = new Camera(gl.viewportWidth, gl.viewportHeight);
+  Game.makeFSQ();
 
+  // handlers
   document.onkeydown = Game.handleKeyDown;
   document.onkeyup = Game.handleKeyUp;
   window.addEventListener('resize', handleSizeChange);
@@ -49,6 +51,25 @@ Game.init = function ()
   Game.lastTime = Game.now();
   handleSizeChange();
   Game.deviceReady();
+}
+
+Game.makeFSQ = function()
+{
+  fsqvertices = [
+    gl.viewportWidth, gl.viewportHeight, 0.0, 1.0, 1.0,
+    0.0, gl.viewportHeight, 0.0, 0.0, 1.0,
+    gl.viewportWidth, 0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0];
+  var attr = { 'POS': 0, 'TEX0': 12 };
+  var fsq = new Mesh();
+  fsq.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 2);
+  this.assetMan.assets['fsq'] = fsq;
+}
+
+Game.postprocess = function (name)
+{
+  Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
+  Game.postprocessShader = name;
 }
 
 Game.run = function ()
@@ -88,11 +109,28 @@ Game.update = function ()
 
 Game.draw = function ()
 {
+  Game.appDrawAux();
+
+  if (Game.frontbuffer) Game.frontbuffer.engage();
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
   for (var eye in Game.camera.eyes)
   {
     Game.camera.eyes[eye].engage();
     Game.appDraw(Game.camera.eyes[eye]);
+  }
+
+  // post process here
+  if (Game.frontbuffer)
+  {
+    var scale = {};
+    scale.scaleSurfaceToProj = vec2.fromValues(2.0 / gl.viewportWidth, 2.0 / gl.viewportHeight);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    var effect = Game.shaderMan.shaders[Game.postprocessShader];
+    effect.bind();
+    effect.setUniforms(scale);
+    effect.draw(Game.assetMan.assets["fsq"], Game.frontbuffer.texture);
   }
 }
 
@@ -135,6 +173,8 @@ function handleSizeChange()
   gl.viewportWidth = this.surface.clientWidth;
   gl.viewportHeight = this.surface.clientHeight;
   Game.camera.handleSizeChange(Game.surface.width, Game.surface.height);
+  if (Game.frontbuffer) Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
+  Game.makeFSQ();
   Game.deviceReady();
 }
 
@@ -223,7 +263,11 @@ function main()
 // 
 // }
 // 
-// Game.appDraw = function ()
+// Game.appDrawAux = function ()
+// {
+// }
+// 
+// Game.appDrawMain = function (eye)
 // {
 // }
 // 

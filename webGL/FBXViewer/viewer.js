@@ -31,17 +31,19 @@ Game.appInit = function ()
   Game.loadShaderFile("normalShader.fx");
   Game.loadMeshPNG("sample", "joan.model.png");
   Game.loadMeshPNG("floor", "grid.model.png");
+
+  Game.loadShaderFile("post.fx");
 }
 
 Game.deviceReady = function ()
 {
+  Game.postprocess("post");
 }
 
 Game.loadingStart = function ()
 {
   Game.ready = false;
 }
-
 
 Game.loadingStop = function ()
 {
@@ -136,6 +138,11 @@ Game.appUpdate = function ()
   if (document.getElementById("uvs").checked) uPerObject.options[1] = 1;
   else if (document.getElementById("xseams").checked) uPerObject.options[1] = 2;
   else if (document.getElementById("yseams").checked) uPerObject.options[1] = 3;
+}
+
+Game.appDrawAux = function ()
+{
+
 }
 
 Game.appDraw = function (eye)

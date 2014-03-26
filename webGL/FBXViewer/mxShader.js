@@ -137,7 +137,7 @@ function createUniform(group)
   return ret;
 }
 
-function draw(mesh)
+function draw(mesh, texture)
 {
   for (var i = 0; i < mesh.groups.length; ++i)
   {
@@ -145,7 +145,8 @@ function draw(mesh)
     this.setUniforms(mesh.groups[i].material);
     if (this.textures.length)
     {
-      if (mesh.groups[i].texture) this.bindTexture('uTexture', Game.assetMan.assets[mesh.groups[i].texture].texture);
+      if (texture) this.bindTexture('uTexture', texture);
+      else if (mesh.groups[i].texture) this.bindTexture('uTexture', Game.assetMan.assets[mesh.groups[i].texture].texture);
       else this.bindTexture('uTexture', null);
     }
 
