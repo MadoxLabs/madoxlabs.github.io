@@ -60,6 +60,7 @@ function bindInstanceData(mesh)
 function bindTexture(name, texture, mag, min, wraps, wrapt)
 {
   var tnum = this[name];
+  if (tnum === undefined) return;
   var t = this.textures[tnum];
 
   gl.activeTexture(gl.TEXTURE0 + tnum);
@@ -137,7 +138,7 @@ function createUniform(group)
   return ret;
 }
 
-function draw(mesh, texture)
+function draw(mesh)
 {
   for (var i = 0; i < mesh.groups.length; ++i)
   {
@@ -145,8 +146,7 @@ function draw(mesh, texture)
     this.setUniforms(mesh.groups[i].material);
     if (this.textures.length)
     {
-      if (texture) this.bindTexture('uTexture', texture);
-      else if (mesh.groups[i].texture) this.bindTexture('uTexture', Game.assetMan.assets[mesh.groups[i].texture].texture);
+      if (mesh.groups[i].texture) this.bindTexture('uTexture', Game.assetMan.assets[mesh.groups[i].texture].texture);
       else this.bindTexture('uTexture', null);
     }
 

@@ -56,14 +56,14 @@ Game.init = function ()
 Game.makeFSQ = function()
 {
   fsqvertices = [
-    gl.viewportWidth, gl.viewportHeight, 0.0, 1.0, 1.0,
-    0.0, gl.viewportHeight, 0.0, 0.0, 1.0,
-    gl.viewportWidth, 0.0, 0.0, 1.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0];
-  var attr = { 'POS': 0, 'TEX0': 12 };
+    1.0, 1.0,   1.0, 1.0,
+   -1.0, 1.0,   0.0, 1.0,
+    1.0, -1.0,  1.0, 0.0,
+   -1.0, -1.0,  0.0, 0.0];
+  var attr = { 'POS': 0, 'TEX0': 8 };
   var fsq = new Mesh();
   fsq.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 2);
-  this.assetMan.assets['fsq'] = fsq;
+  Game.assetMan.assets['fsq'] = fsq;
 }
 
 Game.postprocess = function (name)
@@ -123,14 +123,22 @@ Game.draw = function ()
   // post process here
   if (Game.frontbuffer)
   {
-    var scale = {};
-    scale.scaleSurfaceToProj = vec2.fromValues(2.0 / gl.viewportWidth, 2.0 / gl.viewportHeight);
+//    var scale = {};
+//    scale.scaleSurfaceToProj = vec2.fromValues(2.0 / gl.viewportWidth, 2.0 / gl.viewportHeight);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    var effect = Game.shaderMan.shaders[Game.postprocessShader];
-    effect.bind();
-    effect.setUniforms(scale);
-    effect.draw(Game.assetMan.assets["fsq"], Game.frontbuffer.texture);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    for (var eye in Game.camera.eyes)
+    {
+      Game.camera.eyes[eye].engage();
+
+      var effect = Game.shaderMan.shaders[Game.postprocessShader];
+      effect.bind();
+      //    effect.setUniforms(scale);
+      effect.bindTexture("uFrontbuffer", Game.frontbuffer.texture);
+      effect.draw(Game.assetMan.assets["fsq"]);
+    }
   }
 }
 
@@ -174,7 +182,7 @@ function handleSizeChange()
   gl.viewportHeight = this.surface.clientHeight;
   Game.camera.handleSizeChange(Game.surface.width, Game.surface.height);
   if (Game.frontbuffer) Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
-  Game.makeFSQ();
+//  Game.makeFSQ();
   Game.deviceReady();
 }
 

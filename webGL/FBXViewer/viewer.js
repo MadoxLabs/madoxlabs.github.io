@@ -37,7 +37,6 @@ Game.appInit = function ()
 
 Game.deviceReady = function ()
 {
-//  Game.postprocess("post");
 }
 
 Game.loadingStart = function ()
@@ -97,6 +96,8 @@ Game.loadingStop = function ()
 
   uPerObjectN = effect.createUniform('perobject');
   uPerObjectN.uWorld = uPerObject.uMVMatrix;
+
+  //Game.postprocess("post");
 }
 
 Game.appUpdate = function ()
