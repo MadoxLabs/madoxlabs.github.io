@@ -1,13 +1,13 @@
-var oculus = {};
-oculus.HResolution = 1280;
-oculus.VResolution = 800;
-oculus.HScreenSize = 0.14976;
-oculus.VScreenSize = 0.0935;
-oculus.DistortionK = vec4.fromValues(1.0, 0.22, 0.24, 0.0);
-oculus.VScreenCenter = oculus.VScreenSize/ 2.0;
-oculus.EyeToScreenDistance = 0.1;
-oculus.LensSeparationDistance = 0.05;
-oculus.InterpupillaryDistance = 0;
+var oculusDefault = {};
+oculusDefault.hResolution = 1280;
+oculusDefault.vResolution = 800;
+oculusDefault.hScreenSize = 0.14976;
+oculusDefault.vScreenSize = 0.0935;
+oculusDefault.distortionK = [1.0, 0.22, 0.24, 0.0];
+oculusDefault.vScreenCenter = oculusDefault.VScreenSize / 2.0;
+oculusDefault.eyeToScreenDistance = 0.041;
+oculusDefault.lensSeparationDistance = 0.0635;
+oculusDefault.interpupillaryDistance = 0.065;
 
 var gl;
 var angle;
@@ -55,7 +55,16 @@ Game.init = function ()
   addEventListener('mozfullscreenchange', function () { handlefullscreen(document.mozFullScreen); });
   addEventListener('webkitfullscreenchange', function () { handlefullscreen(document.webkitIsFullScreen); });
 
+  this.oculus = oculusDefault;
+  this.oculusReady = 0;
+  this.oculusBridge = new OculusBridge({
+    onConfigUpdate: bridgeConfigUpdated,
+    onConnect: bridgeConnected,
+    onDisconnect: bridgeDisconnected
+  });
+
   // let game specific stuff init
+  Game.loadShaderFile("oculus.fx");
   Game.appInit();
 
   Game.ready = true;
@@ -64,7 +73,26 @@ Game.init = function ()
   Game.deviceReady();
 }
 
-Game.makeFSQ = function()
+function bridgeConfigUpdated(config)
+{
+  console.log("Oculus config gotten!");
+  Game.oculus = config;
+  Game.oculusReady |= 2;
+}
+
+function bridgeConnected()
+{
+  console.log("Bridge gotten!");
+  Game.oculusReady |= 1;
+}
+
+function bridgeDisconnected()
+{
+  console.log("Bridge not here!");
+  Game.oculusReady = 0;
+}
+
+Game.makeFSQ = function ()
 {
   fsqvertices = [
    -1.0, -1.0, 0.0, 0.0,
@@ -154,7 +182,7 @@ Game.draw = function ()
   }
 
   // post process here
-  if (Game.frontbuffer)
+  if (Game.isOculus)
   {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -164,7 +192,7 @@ Game.draw = function ()
       Game.camera.eyes[eye].engage();
       var uniforms = {};
       uniforms.distortionscale = 0.8;
-      uniforms.aspect = oculus.HResolution * 0.5 / oculus.VResolution;
+      uniforms.aspect = Game.oculus.hResolution * 0.5 / Game.oculus.vResolution;
       uniforms.ScreenCenter = Game.camera.eyes[eye].center;
       uniforms.LensCenter = Game.camera.eyes[eye].lenscenter;
 
@@ -181,6 +209,7 @@ Game.oculusMode = function(state)
 {
   if (state && !Game.isOculus)
   {
+    Game.oculusBridge.connect();
     var docElm = document.documentElement;
     if (docElm.requestFullscreen)      docElm.requestFullscreen();
     else if (docElm.mozRequestFullScreen)      docElm.mozRequestFullScreen();
@@ -188,17 +217,20 @@ Game.oculusMode = function(state)
     else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
     Game.surface.style.width = "100%";
     Game.surface.style.height = "100%";
+    Game.postprocess("oculus");
     Game.camera.splitscreen(true);
     Game.isOculus = true;
   }
   else if (!state && Game.isOculus)
   {
+    Game.oculusBridge.disconnect();
     if (document.exitFullscreen) document.exitFullscreen();
     else if (document.mozCancelFullScreen)      document.mozCancelFullScreen();
     else if (document.webkitCancelFullScreen)      document.webkitCancelFullScreen();
     else if (document.msExitFullscreen)      document.msExitFullscreen();
     Game.surface.style.width = "800px";
     Game.surface.style.height = "600px";
+    Game.postprocess(null);
     Game.camera.splitscreen(false);
     Game.isOculus = false;
   }
@@ -216,8 +248,8 @@ function handleSizeChange()
   gl.viewportWidth = Game.surface.clientWidth;
   gl.viewportHeight = Game.surface.clientHeight;
 
-  oculus.HResolution = Game.surface.clientWidth;
-  oculus.VResolution = Game.surface.clientHeight;
+  Game.oculus.hResolution = Game.surface.clientWidth;
+  Game.oculus.vResolution = Game.surface.clientHeight;
 
   Game.camera.handleSizeChange(Game.surface.width, Game.surface.height);
   if (Game.frontbuffer) Game.frontbuffer = new RenderSurface(gl.viewportWidth, gl.viewportHeight);
@@ -280,11 +312,26 @@ Game.loadingDecr = function ()
   Game.loading -= 1;
 }
 
+Game.handleKeyDown = function (event)
+{
+  // space and arrow keys dont scroll
+  if ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) event.preventDefault();
+  Game.appHandleKeyDown(event);
+}
+
+Game.handleKeyUp = function (event)
+{
+  Game.appHandleKeyUp(event);
+}
+
+
+
 function main()
 {
   Game.init();
   window.setInterval(Game.run, 17);
 }
+
 
 
 // Start Game specific stuff
@@ -318,11 +365,11 @@ function main()
 // {
 // }
 // 
-// Game.handleKeyDown = function (event)
+// Game.appHandleKeyDown = function (event)
 // {
 // }
 //
-// Game.handleKeyUp = function (event)
+// Game.appHandleKeyUp = function (event)
 // {
 // }
 // 

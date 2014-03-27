@@ -30,6 +30,7 @@ CameraEye.prototype.handleSizeChange = function()
 {
   if (this.type == CAMERA_MAIN)
   {
+    this.ipd = 0;
     this.viewport[0] = 0;
     this.viewport[1] = 0;
     this.viewport[2] = this.camera.width;
@@ -40,23 +41,25 @@ CameraEye.prototype.handleSizeChange = function()
   }
   else if (this.type == CAMERA_LEFTEYE)
   {
+    this.ipd = Game.oculus.interpupillaryDistance / 2.0;
     this.viewport[0] = 0;
     this.viewport[1] = 0;
     this.viewport[2] = (this.camera.width / 2) | 0;
     this.viewport[3] = this.camera.height;
     this.fsq = "fsqleft";
     this.center = vec2.fromValues(0.25, 0.5);
-    this.lenscenter = vec2.fromValues(0.5-oculus.LensSeparationDistance / oculus.HScreenSize, 0.5);
+    this.lenscenter = vec2.fromValues(0.5 - Game.oculus.lensSeparationDistance / Game.oculus.hScreenSize, 0.5);
   }
   else if (this.type == CAMERA_RIGHTEYE)
   {
+    this.ipd = Game.oculus.interpupillaryDistance / -2.0;
     this.viewport[0] = (this.camera.width / 2) | 0;
     this.viewport[1] = 0;
     this.viewport[2] = (this.camera.width / 2) | 0;
     this.viewport[3] = this.camera.height;
     this.fsq = "fsqright";
     this.center = vec2.fromValues(0.75, 0.5);
-    this.lenscenter = vec2.fromValues(0.5+oculus.LensSeparationDistance / oculus.HScreenSize, 0.5);
+    this.lenscenter = vec2.fromValues(0.5 + Game.oculus.lensSeparationDistance / Game.oculus.hScreenSize, 0.5);
   }
 }
 
@@ -66,13 +69,13 @@ CameraEye.prototype.update = function (q)
 
   if (this.ipd)
   {
-    var aspectRatio = oculus.HResolution * 0.5 / oculus.VResolution;
-    var halfScreenDistance = (oculus.VScreenSize / 2.0);
-    var yfov = 2.0 * Math.atan(halfScreenDistance / oculus.EyeToScreenDistance);
+    var aspectRatio = Game.oculus.hResolution * 0.5 / Game.oculus.vResolution;
+    var halfScreenDistance = (Game.oculus.vScreenSize / 2.0);
+    var yfov = 2.0 * Math.atan(halfScreenDistance / Game.oculus.eyeToScreenDistance);
 
-    var viewCenter = oculus.HScreenSize * 0.25;
-    var eyeProjectionShift = viewCenter - oculus.LensSeparationDistance * 0.5;
-    var projectionCenterOffset = 4.0 * eyeProjectionShift / oculus.HScreenSize;
+    var viewCenter = Game.oculus.hScreenSize * 0.25;
+    var eyeProjectionShift = viewCenter - Game.oculus.lensSeparationDistance * 0.5;
+    var projectionCenterOffset = 4.0 * eyeProjectionShift / Game.oculus.hScreenSize;
     if (this.type == CAMERA_RIGHTEYE) projectionCenterOffset *= -1;
 
     mat4.perspective(this.projection, yfov, aspectRatio, this.camera.near, this.camera.far);
@@ -116,19 +119,6 @@ function Camera(w, h)
   this.splitscreen(false);
 }
 
-Camera.prototype.setIPD = function(i)
-{
-  this.ipd = i;
-  oculus.InterpupillaryDistance = i;
-
-  for (var eye in this.eyes)
-  {
-    var e = this.eyes[eye];
-    if (e.type == CAMERA_MAIN) e.ipd = 0.0;
-    else if (e.type == CAMERA_LEFTEYE) e.ipd = i / 2.0;
-    else if (e.type == CAMERA_RIGHTEYE) e.ipd = i / -2.0;
-  }
-}
 Camera.prototype.handleSizeChange = function(w, h)
 {
   this.width = w;
@@ -149,7 +139,6 @@ Camera.prototype.splitscreen = function (s)
     this.eyes = [];
     this.eyes.push(new CameraEye(this, CAMERA_MAIN));
   }
-  this.setIPD(this.ipd);
   this.update();
 }
 
@@ -167,6 +156,12 @@ Camera.prototype.update = function ()
 {
   var q = quat.create();
   quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
+  if (Game.isOculus && Game.oculusReady == 3)
+  {
+    var vals = Game.oculusBridge.getOrientation();
+    var oq = quat.fromValues(vals.x, vals.y, vals.z, vals.w);
+    quat.multiply(q, q, oq);
+  }
   mat4.fromQuat(this.orientation, q);
 
   for (var eye in this.eyes) this.eyes[eye].update(q);
