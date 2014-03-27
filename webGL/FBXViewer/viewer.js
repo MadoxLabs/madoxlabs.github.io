@@ -29,6 +29,8 @@ Game.appInit = function ()
 {
   Game.loadShaderFile("shaders.fx");
   Game.loadShaderFile("normalShader.fx");
+  Game.loadShaderFile("shadowcast.fx");
+
   Game.loadMeshPNG("sample", "joan.model.png");
   Game.loadMeshPNG("floor", "grid.model.png");
 }
@@ -77,15 +79,17 @@ Game.loadingStop = function ()
   uLight.uLightDiffuseRGB = [1,1,1];
   uLight.uLightSpecularRGB = [1,1,1];
   uLight.uLightAttenuation = [0, 1, 0];
-  uLight.uLightPosition  = [3.0, 1.0, 3.0];
+  uLight.uLightPosition = [0, 0, 50]; //[13.0, 1.0, 3.0];
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
+  uPerObject.uWorldToLight = mat4.create();
   uPerObject.options = vec4.create();
 
   uGrid = effect.createUniform('perobject');
   uGrid.options = vec4.fromValues(0, 0, 0, 0);
   uGrid.uWorld = mat4.create();
+  uGrid.uWorldToLight = mat4.create();
   mat4.identity(uGrid.uWorld);
   mat4.scale(uGrid.uWorld, uGrid.uWorld, vec3.fromValues(max*2, 0, max*2));
 
@@ -94,6 +98,17 @@ Game.loadingStop = function ()
 
   uPerObjectN = effect.createUniform('perobject');
   uPerObjectN.uWorld = uPerObject.uMVMatrix;
+
+  // shadowing support
+  shadowmap = new RenderSurface(2048, 2048, gl.RGBA);
+  lighteye = new Camera(2048, 2048);
+  lighteye.position = vec3.fromValues(0.0, 0.0, 50.0);
+//  lighteye.angles[1] = Math.PI;
+  //lighteye.lookAt(0.0, 1.0, 3.0);
+  lighteye.update();
+
+  mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].view, lighteye.eyes[0].projection);
+  mat4.multiply(uGrid.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 }
 
 Game.appUpdate = function ()
@@ -101,9 +116,9 @@ Game.appUpdate = function ()
   if (Game.loading) return;
   if (!Game.camera) return;
   if (currentlyPressedKeys[33])  // Page Up
-    Game.camera.position[2] -= 0.1;
+    Game.camera.position[0] -= 0.1;
   if (currentlyPressedKeys[34])  // Page Down
-    Game.camera.position[2] += 0.1;
+    Game.camera.position[0] += 0.1;
   if (currentlyPressedKeys[37])  // Left cursor key
     ySpeed -= 2;
   if (currentlyPressedKeys[39])  // Right cursor key
@@ -139,7 +154,15 @@ Game.appUpdate = function ()
 
 Game.appDrawAux = function ()
 {
-
+  if (Game.loading) return;
+  // shadowing render
+  shadowmap.engage();
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  var effect = Game.shaderMan.shaders["shadowcast"];
+  effect.bind();
+  effect.bindCamera(lighteye);
+  effect.setUniforms(uPerObject);
+  effect.draw(square);
 }
 
 Game.appDraw = function (eye)
@@ -155,10 +178,11 @@ Game.appDraw = function (eye)
     effect.bindCamera(eye);
     effect.setUniforms(uPerObject);
     effect.setUniforms(uLight);
-    if (document.getElementById("explode").checked)
-      effect.draw(explode);
-    else
-      effect.draw(square);
+    effect.bindTexture("shadow", shadowmap.texture);
+//    if (document.getElementById("explode").checked)
+//      effect.draw(explode);
+//    else
+//      effect.draw(square);
 
     effect.setUniforms(uGrid);
     effect.draw(grid);

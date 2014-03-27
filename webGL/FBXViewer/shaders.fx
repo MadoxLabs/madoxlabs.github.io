@@ -60,6 +60,8 @@ void main(void)
 
 uniform vec3 partcolor;         // group perpart
 
+uniform mat4 uWorldToLight;   // group perobject
+
 uniform vec3 camera;             // group camera
 
 uniform vec3 uGlobalAmbientRGB ;  // group light 
@@ -77,6 +79,25 @@ uniform vec3 specularcolor;      // group material
 uniform vec3 emissivecolor;      // group material
 
 uniform sampler2D uTexture; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
+uniform sampler2D shadow; // mag LINEAR, min LINEAR
+
+bool IsShadow(vec4 position, vec3 normal)
+{
+  vec4 positionFromLight =  uWorldToLight * position;
+
+  // if face is away from light - shadowed
+  vec3 lightDir = uLightPosition - vec3(position);
+  if (dot(normal, lightDir) < 0.0) return true;
+
+  // convert light POV location to a spot on the shadow map
+  vec2 shadowLookup = 0.5 * (positionFromLight.xy / positionFromLight.w) + vec2(0.5, 0.5);
+  shadowLookup.y = 1.0 - shadowLookup.y;
+	vec4 depth = texture2D(shadow, shadowLookup);
+  float depthFromLight = positionFromLight.z / positionFromLight.w;
+//  if (depth+0.001 < depthFromLight) return true;
+  if (depth.x > 0.0) return true;
+  return false;
+}
 
 void main(void) 
 {
@@ -94,7 +115,9 @@ void main(void)
   float rDotV = pow(clamp(dot(reflection, cameradir), 0.0, 1.0), 70.0);
   vec3 specular =  specularcolor * uLightSpecularRGB * rDotV ;//* attenuation;
 
-  vec3 light = ambient + diffuse + specular + emissivecolor;
+  vec3 light = ambient;
+  
+  if (IsShadow(vPosition, vNormal) == false) light += diffuse + specular + emissivecolor;
 
   // work out the texture color
 

@@ -87,8 +87,9 @@ CameraEye.prototype.update = function (q)
   else   
     mat4.perspective(this.projection, this.camera.fov, this.viewport[2] / this.viewport[3], this.camera.near, this.camera.far);
 
-  var at = vec3.fromValues(this.camera.position[0], this.camera.position[1], this.camera.position[2] - 1);
+  var at = vec3.fromValues(0,0,-1);
   vec3.transformQuat(at, at, q);
+  vec3.add(at, at, this.camera.position);
   var up = vec3.fromValues(0, 1, 0);
   vec3.transformQuat(up, up, q);
 

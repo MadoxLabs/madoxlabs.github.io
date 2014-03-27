@@ -20,6 +20,7 @@ function bind()
 
 function bindCamera(eye)
 {
+  if (eye.eyes) eye = eye.eyes[0];
   this.setUniforms(eye.uniforms);
 }
 
@@ -33,6 +34,7 @@ function bindMesh(mesh)
   {
     var offset = mesh.attributes[code];     // get offset into the vertex buffer definition
     var attr = this.attributes[code];       // look up what attribute number this is in the shader
+    if (attr == undefined) continue;                    // shader doesnt use this
     var size = this.attributes[attr].size;  // get the size and type for this attribute as set in the shader
     var type = this.attributes[attr].type;
     gl.enableVertexAttribArray(attr);
