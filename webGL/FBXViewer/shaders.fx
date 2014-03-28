@@ -93,7 +93,7 @@ bool IsShadow(vec4 position, vec3 normal)
   vec2 shadowLookup = 0.5 + 0.5 * (positionFromLight.xy / positionFromLight.w);
   vec4 depth = texture2D(shadow, shadowLookup);
   float depthFromLight = positionFromLight.z / positionFromLight.w;
-  if (depth.x  < depthFromLight) return true;
+  if (depth.x + 0.00001 < depthFromLight) return true;
   return false;
 }
 

@@ -100,7 +100,7 @@ Game.loadingStop = function ()
   uPerObjectN.uWorld = uPerObject.uMVMatrix;
 
   // shadowing support
-  shadowmap = new RenderSurface(2048, 2048, gl.RGBA);
+  shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
   lighteye.position = vec3.fromValues(0.0, 20.0, 50.0);
   lighteye.update();

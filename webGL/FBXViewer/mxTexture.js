@@ -26,9 +26,10 @@ MeshPNG.prototype.load = function (file)
   this.image.src = file;
 }
 
-function RenderSurface(w, h, format)
+function RenderSurface(w, h, format, type)
 {
   if (!format) format = gl.RGBA;
+  if (!type) type = gl.UNSIGNED_BYTE;
 
   this.surface = gl.createFramebuffer();
   gl.bindFramebuffer(gl.FRAMEBUFFER, this.surface);
@@ -41,7 +42,7 @@ function RenderSurface(w, h, format)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texImage2D(gl.TEXTURE_2D, 0, format, this.surface.width, this.surface.height, 0, format, gl.UNSIGNED_BYTE, null);
+  gl.texImage2D(gl.TEXTURE_2D, 0, format, this.surface.width, this.surface.height, 0, format, type, null);
 
   this.depth = gl.createRenderbuffer();
   gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth);

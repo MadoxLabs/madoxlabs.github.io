@@ -10,7 +10,7 @@ oculusDefault.lensSeparationDistance = 0.0635;
 oculusDefault.interpupillaryDistance = 0.065;
 
 var gl;
-var angle;
+var ext = {};
 var Game = {};
 
 // game renders to texture for possible post processing
@@ -33,13 +33,17 @@ Game.init = function ()
 
   try {
     gl = this.surface.getContext("experimental-webgl");
-    angle = gl.getExtension("ANGLE_instanced_arrays");
+    ext.angle = gl.getExtension("ANGLE_instanced_arrays");
+    ext.index = gl.getExtension("OES_element_index_uint");
+    ext.std = gl.getExtension("OES_standard_derivitives");
+    ext.float = gl.getExtension("OES_texture_float");
+    ext.floatlinear = gl.getExtension("OES_texture_float_linear");
     gl.viewportWidth = this.surface.clientWidth;
     gl.viewportHeight = this.surface.clientHeight;
   } catch (e) { }
 
   if (!gl) { alert("Could not initialise WebGL, sorry :-("); return; }
-  if (!angle) alert("Could not find instanced draw calls");
+//  if (!angle) alert("Could not find instanced draw calls");
   
   // GL is ready, graphics specific init now happens
   gl.clearColor(0.05, 0.05, 0.05, 1.0);

@@ -55,7 +55,7 @@ function bindInstanceData(mesh)
     var type = this.attributes[attr].type;
     gl.enableVertexAttribArray(attr);
     gl.vertexAttribPointer(attr, size, type, false, mesh.instanceStride, offset);
-    angle.vertexAttribDivisorANGLE(attr, 1); // This makes it instanced!
+    ext.angle.vertexAttribDivisorANGLE(attr, 1); // This makes it instanced!
   }
 }
 
@@ -163,9 +163,9 @@ function draw(mesh)
       {
         this.bindInstanceData(part);
         if (part.indexbuffer)
-          angle.drawElementsInstancedANGLE(part.type, part.prims, gl.UNSIGNED_SHORT, 0, part.instanceNumber);
+          ext.angle.drawElementsInstancedANGLE(part.type, part.prims, gl.UNSIGNED_SHORT, 0, part.instanceNumber);
         else
-          angle.drawArraysInstancedANGLE(part.type, 0, part.prims, part.instanceNumber);
+          ext.angle.drawArraysInstancedANGLE(part.type, 0, part.prims, part.instanceNumber);
         return;
       }
 
