@@ -90,18 +90,17 @@ bool IsShadow(vec4 position, vec3 normal)
   if (dot(normal, lightDir) < 0.0) return true;
 
   // convert light POV location to a spot on the shadow map
-  vec2 shadowLookup = 0.5 * (positionFromLight.xy / positionFromLight.w) + vec2(0.5, 0.5);
-  shadowLookup.y = 1.0 - shadowLookup.y;
-	vec4 depth = texture2D(shadow, shadowLookup);
+  vec2 shadowLookup = 0.5 + 0.5 * (positionFromLight.xy / positionFromLight.w);
+  vec4 depth = texture2D(shadow, shadowLookup);
   float depthFromLight = positionFromLight.z / positionFromLight.w;
-//  if (depth+0.001 < depthFromLight) return true;
-  if (depth.x > 0.0) return true;
+  if (depth.x  < depthFromLight) return true;
   return false;
 }
 
 void main(void) 
 {
   vec4 tex = vec4(1.0, 1.0, 1.0, 1.0);
+  vec3 light;
 
   // work out the lighting
   float d = distance(uLightPosition, vec3(vPosition));
@@ -109,15 +108,15 @@ void main(void)
 
   vec3 ambient = ambientcolor * (uGlobalAmbientRGB + (uLightAmbientRGB * attenuation));
   vec3 diffuse = diffusecolor * uLightDiffuseRGB * attenuation * dot(vNormal, uLightPosition - vec3(vPosition));
-
   vec3 cameradir = normalize(camera - vec3(vPosition));
   vec3 reflection = reflect(uLightPosition - vec3(vPosition), vNormal);
   float rDotV = pow(clamp(dot(reflection, cameradir), 0.0, 1.0), 70.0);
   vec3 specular =  specularcolor * uLightSpecularRGB * rDotV ;//* attenuation;
 
-  vec3 light = ambient;
-  
-  if (IsShadow(vPosition, vNormal) == false) light += diffuse + specular + emissivecolor;
+  if (IsShadow(vPosition, vNormal))  
+    light = vec3(0.0, 0.0, 0.0);
+  else   
+    light = ambient + diffuse + specular + emissivecolor;
 
   // work out the texture color
 

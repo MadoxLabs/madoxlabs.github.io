@@ -102,12 +102,10 @@ Game.loadingStop = function ()
   // shadowing support
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA);
   lighteye = new Camera(2048, 2048);
-  lighteye.position = vec3.fromValues(0.0, 0.0, 50.0);
-//  lighteye.angles[1] = Math.PI;
-  //lighteye.lookAt(0.0, 1.0, 3.0);
+  lighteye.position = vec3.fromValues(0.0, 20.0, 50.0);
   lighteye.update();
 
-  mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].view, lighteye.eyes[0].projection);
+  mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   mat4.multiply(uGrid.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 }
 
@@ -156,7 +154,9 @@ Game.appDrawAux = function ()
 {
   if (Game.loading) return;
   // shadowing render
+  lighteye.engage();
   shadowmap.engage();
+  gl.clearColor(1.0, 1.0, 1.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   var effect = Game.shaderMan.shaders["shadowcast"];
   effect.bind();
@@ -179,10 +179,10 @@ Game.appDraw = function (eye)
     effect.setUniforms(uPerObject);
     effect.setUniforms(uLight);
     effect.bindTexture("shadow", shadowmap.texture);
-//    if (document.getElementById("explode").checked)
-//      effect.draw(explode);
-//    else
-//      effect.draw(square);
+    if (document.getElementById("explode").checked)
+      effect.draw(explode);
+    else
+      effect.draw(square);
 
     effect.setUniforms(uGrid);
     effect.draw(grid);

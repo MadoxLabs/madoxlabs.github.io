@@ -175,6 +175,8 @@ Game.draw = function ()
   if (Game.frontbuffer) Game.frontbuffer.engage();
   else gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
+  gl.clearColor(0.05, 0.05, 0.05, 1.0);
+  gl.clearDepth(1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   for (var eye in Game.camera.eyes)

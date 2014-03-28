@@ -167,3 +167,8 @@ Camera.prototype.update = function ()
 
   for (var eye in this.eyes) this.eyes[eye].update(q);
 }
+
+Camera.prototype.engage = function()
+{
+  this.eyes[0].engage();
+}
