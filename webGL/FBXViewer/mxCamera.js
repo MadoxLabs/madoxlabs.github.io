@@ -87,15 +87,24 @@ CameraEye.prototype.update = function (q)
   else   
     mat4.perspective(this.projection, this.camera.fov, this.viewport[2] / this.viewport[3], this.camera.near, this.camera.far);
 
-  var at = vec3.fromValues(0,0,-1);
-  vec3.transformQuat(at, at, q);
-  vec3.add(at, at, this.camera.position);
-  var up = vec3.fromValues(0, 1, 0);
-  vec3.transformQuat(up, up, q);
-
-  mat4.lookAt(this.view, this.camera.position, at, up);
-
+//  var at = vec3.fromValues(0,0,1);
+//  vec3.transformQuat(at, at, q);
+//  vec3.add(at, at, this.camera.position);
+//
+//  var up = vec3.fromValues(0, 1, 0);
+//  vec3.transformQuat(up, up, q);
+//
+//  mat4.lookAt(this.view, this.camera.position, at, up);
+ 
+  var up = vec3.create();
+  vec3.transformMat4(up, vec3.fromValues(0,1,0), this.camera.orientation);
+  mat4.lookAt(this.view, this.camera.position, this.camera.target, up)
   this.camera.position[0] -= this.ipd;
+
+  this.uniforms.camera = this.camera.position;
+  this.uniforms.view = this.view;
+  this.uniforms.projection = this.projection;
+
 }
 
 CameraEye.prototype.engage = function ()
@@ -113,8 +122,11 @@ function Camera(w, h)
   this.near = 0.1;
   this.far = 10000.0;
 
-  this.position = vec3.create();
   this.angles = vec3.create();
+  this.target = vec3.create();
+  this.offset = vec3.create();
+
+  this.position = vec3.create();
   this.orientation = mat4.create();
 
   this.splitscreen(false);
@@ -145,27 +157,35 @@ Camera.prototype.splitscreen = function (s)
 
 Camera.prototype.lookAt = function (x, y, z)
 {
-  // set orientation to look at a point
-  var diffx = this.position[0] - x;
-  var diffy = this.position[1] - y;
-  var diffz = this.position[2] - z;
-  this.angles[1] = Math.atan(diffx / diffz);
-  this.angles[0] = Math.atan(diffy / diffz);
+  this.target = vec3.fromValues(x, y, z);
 }
 
 Camera.prototype.update = function ()
 {
-  var q = quat.create();
-  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
-  if (Game.isOculus && Game.oculusReady == 3)
-  {
-    var vals = Game.oculusBridge.getOrientation();
-    var oq = quat.fromValues(vals.x, vals.y, vals.z, vals.w);
-    quat.multiply(q, q, oq);
-  }
-  mat4.fromQuat(this.orientation, q);
+  // assume target orient is identity
+  // get our orient from angles
 
-  for (var eye in this.eyes) this.eyes[eye].update(q);
+  var targetOrient = mat4.create();  mat4.identity(targetOrient);
+  var orientX = mat4.create(); mat4.identity(orientX);
+  var orientY = mat4.create(); mat4.identity(orientY);
+  mat4.rotate(orientX, orientX, this.angles[1], vec3.fromValues(0, 1, 0));
+  mat4.rotate(orientY, orientY, this.angles[0], vec3.fromValues(1, 0, 0));
+  mat4.multiply(this.orientation, orientX, orientY);
+
+  vec3.transformMat4(this.position, this.offset, this.orientation);
+  vec3.add(this.position, this.position, this.target);
+
+//  var q = quat.create();
+//  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
+//  if (Game.isOculus && Game.oculusReady == 3)
+//  {
+//    var vals = Game.oculusBridge.getOrientation();
+//    var oq = quat.fromValues(vals.x, vals.y, vals.z, vals.w);
+//    quat.multiply(q, q, oq);
+//  }
+//  mat4.fromQuat(this.orientation, q);
+//
+  for (var eye in this.eyes) this.eyes[eye].update();
 }
 
 Camera.prototype.engage = function()

@@ -9,7 +9,6 @@ check on w buffer to replace z
 viewer
  lighting
  mouse moves
- shadows
 mesh 
  animations
  bump maps
