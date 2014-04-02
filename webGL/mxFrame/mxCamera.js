@@ -65,7 +65,7 @@ CameraEye.prototype.handleSizeChange = function()
 
 CameraEye.prototype.update = function (q)
 {
-  this.camera.position[0] += this.ipd;
+  this.camera.offset[0] += this.ipd;
 
   if (this.ipd)
   {
@@ -99,7 +99,7 @@ CameraEye.prototype.update = function (q)
   var up = vec3.create();
   vec3.transformMat4(up, vec3.fromValues(0,1,0), this.camera.orientation);
   mat4.lookAt(this.view, this.camera.position, this.camera.target, up)
-  this.camera.position[0] -= this.ipd;
+  this.camera.offset[0] -= this.ipd;
 
   this.uniforms.camera = this.camera.position;
   this.uniforms.view = this.view;

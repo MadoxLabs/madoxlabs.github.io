@@ -1,25 +1,14 @@
 <html>
-  <head>
+  <head><title>FBX Viewer</title>
     <style type="text/css">
       #surface { border: solid black 1px;
                  width: 800px;
                  height: 600px;
                }
     </style>
-    <script src="glMatrix.js"></script>
-    <script src="oculus.lib.js"></script>
-
-    <script src="mxMesh.js"></script>
-    <script src="mxTexture.js"></script>
-    <script src="mxShader.js"></script>
-    <script src="mxShaderManager.js"></script>
-    <script src="mxAssetManager.js"></script>
-    <script src="mxCamera.js"></script>
-    <script src="mxGame.js"></script>
-    
-    <script src="viewer.js"></script>
+    <script src="../mxFrame/mxFrame.js"></script>
   </head>
-  <body style="margin:0;padding:0;" onload="main();">
+  <body style="margin:0;padding:0;" onload="launchApp('viewer.js', '../mxFrame', WITH_MXFRAME|WITH_OCULUS);">
     <div><canvas id='surface'></div>
     <div style="top:5px; left:5px; position:fixed;"><canvas id='output' width="400" height="50"></div>
     <input type=checkbox id="model" checked>Show Model</input>

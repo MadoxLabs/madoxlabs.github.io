@@ -1,0 +1,189 @@
+<html>
+<head>
+<title>FBX Importer</title>
+<script>
+
+  var ready = true;
+  var log = "";
+
+function encode(txt)
+  {
+    var len = txt.length;
+    var data = [];
+    var j = 0;
+    var linecomment = false;
+    var blockcomment = false;
+    var space = false;
+    var skip = 0;
+    for (var i = 0; i < len; ++i) {
+      if (blockcomment) { if (txt.charAt(i) == '*' && txt.charAt(i + 1) == '/') blockcomment = false; ++i; continue; }
+      if (linecomment) { if (txt.charAt(i) == '\n') linecomment = false; continue; }
+      if (txt.charAt(i) == '/' && txt.charAt(i + 1) == '/') { linecomment = true; continue; }
+      else if (txt.charAt(i) == '/' && txt.charAt(i + 1) == '*') { blockcomment = true; continue; }
+      if (txt.charAt(i) == ' ') { if (!space) space = true; else continue; }
+      else if (space) space = false;
+      data[j++] = (txt.charCodeAt(i));
+      ++skip;
+      if (skip == 3) { skip = 0; data[j++] = 255; }
+    }
+    data[j++] = 0;
+    ++skip;
+    if (skip == 3) { skip = 0; data[j++] = 255; }
+
+    // load all image data
+    var img = document.createElement('canvas'); // document.getElementById('surface');
+    var width = (Math.sqrt(j / 4) | 0) + 1;
+    for (var i = j; i < width * width * 4; ++i) data[i] = 0;
+
+    img.width = width;
+    img.height = width;
+    var context = img.getContext('2d');
+    var map = context.createImageData(width, width);
+    map.data.set(data);
+    context.putImageData(map, 0, 0, 0, 0, width, width);
+
+    var save = document.getElementById('save');
+    save.src = img.toDataURL("image/png");
+
+    ready = true;
+  }
+
+function load()
+{
+  if (!ready) return;
+  ready = false;
+  var sdiv = document.getElementById("state");
+  sdiv.innerHTML = "Please wait... processing.";
+
+  var div = document.getElementById("error");
+  div.innerHTML = "";
+  var save = document.getElementById('save');
+  save.src = "";
+
+  var file = document.getElementById("file").value;
+  var client = new XMLHttpRequest();
+  client.open('GET', file);
+  client.onload = function() { process(client.responseText); }
+  client.send();
+}
+
+function fromWorker(oEvent)
+{
+  if (!oEvent.data.type) return;
+  if (oEvent.data.type == 1)  // result
+  {
+    var sdiv = document.getElementById("state");
+    sdiv.innerHTML = "Please wait... encoding.";
+    encode(oEvent.data.result);
+    sdiv.innerHTML = "Done.";
+  }
+  else if (oEvent.data.type == 2)  // message
+  {
+    error(oEvent.data.result);
+  }
+};
+
+function error(msg)
+{
+  var div = document.getElementById("error");
+  log += msg + "<br>";
+  if (show) div.innerHTML = log;
+}
+
+function process(text)
+{
+  var myWorker = new Worker("fbxload.worker.js");
+  myWorker.onmessage = fromWorker;
+  myWorker.postMessage(text);
+}
+
+var show = false;
+
+function toggle()
+{
+  var div = document.getElementById("error");
+  if (show)
+  {
+    show = false;
+    div.innerHTML = "";
+  }
+  else
+  {
+    div.innerHTML = log;
+    show = true;
+  }
+
+}
+</script>
+</head>
+<body>
+
+ASCII FBX Mesh file (2013 format): <input id="file"></input>
+<input type=button onClick="load();" value="Load"></input><br>
+<input type="checkbox" id="uvs" checked />UVs
+<input type="checkbox" id="normals" checked />Normals
+<input type="checkbox" id="tangets"  />Tangents
+<input type="checkbox" id="binormals"  />Binormals<br />
+<input type="checkbox" id="animations"  />Animations<br />
+<br />
+<div id="state"></div><br />
+Processing log: <input type=button onClick="toggle();" value="Toggle"></input>  <br>
+<div id="error"></div>  <br />
+Result: <br />
+<div><image id='save'></div><br />
+  <pre>
+FBX importer
+
+This outputs JSON in the following format:
+
+[] array of materials
+  material
+    type = "material"
+    name = (string)
+    (various lighting properties)
+    models = [] array of models
+      model
+        type = "model"
+        name = (string)
+        translation = (vec3)
+        scaling = (vec3)
+        mesh = (object)
+          mesh
+            type = "mesh"
+            vertexs = [] array of float
+            indexes = [] array of float
+            uv = [] array of float
+            normals = [] array of float
+
+This format is intended to be a collections of meshes, grouped by material.
+
+Upon loading, each mesh object should have its arrays of floats smushed into a single vertex array.
+The vertex definition will be:
+  position: 3 floats
+  texcoord: 2 floats
+  normal: 3 floats
+Total vertex stride: 8 floats
+Ideally, this fbx parser will do this part for you.
+
+Pseudo WebGL code to handle this grouping is like this:
+
+for each material
+  create uniforms for lighting parameters
+  set uniforms 
+  locate material's texture
+  set texture uniform
+  for each model
+    get translation and scaling vectors
+    adjust the world matrixes accordingly
+    set uniforms
+    bind mesh buffer
+    draw
+
+TODO: 
+- material texture filename?
+- frames and such
+- animations
+</pre>
+
+</body>
+</html>

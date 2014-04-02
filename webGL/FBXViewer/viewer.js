@@ -31,8 +31,8 @@ Game.appInit = function ()
   Game.loadShaderFile("normalShader.fx");
   Game.loadShaderFile("shadowcast.fx");
 
-  Game.loadMeshPNG("sample", "joan.model.png");
-  Game.loadMeshPNG("floor", "grid.model.png");
+  Game.loadMeshPNG("sample", "joan.model");
+  Game.loadMeshPNG("floor", "grid.model");
 }
 
 Game.deviceReady = function ()
@@ -66,10 +66,10 @@ Game.loadingStop = function ()
   var max = square.boundingbox[0].max[2] - square.boundingbox[0].min[2]
   if (max < len) max = len;
 
-  Game.camera.offset[0] = square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0;
-  Game.camera.offset[1] = square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
   Game.camera.offset[2] = 1.3 * len / (Math.tan(Game.camera.fov));
-  Game.camera.lookAt(Game.camera.offset[0], Game.camera.offset[1], 0.0);
+  Game.camera.lookAt(square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0,
+                     square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0,
+                     0.0);
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
 
@@ -79,7 +79,7 @@ Game.loadingStop = function ()
   uLight.uLightDiffuseRGB = [1,1,1];
   uLight.uLightSpecularRGB = [1,1,1];
   uLight.uLightAttenuation = [0, 1, 0];
-  uLight.uLightPosition = [0, 0, 50]; //[13.0, 1.0, 3.0];
+  uLight.uLightPosition = [13.0, 10.0, 3.0];
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
@@ -102,7 +102,7 @@ Game.loadingStop = function ()
   // shadowing support
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
-  lighteye.offset = vec3.fromValues(0.0, 20.0, 50.0);
+  lighteye.offset = vec3.fromValues(39.0, 10.0, 9.0);
   lighteye.update();
 
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
@@ -114,13 +114,19 @@ Game.appUpdate = function ()
   if (Game.loading) return;
   if (!Game.camera) return;
   if (currentlyPressedKeys[33])  // Page Up
-    Game.camera.angles[1] -= 0.1;
+    Game.camera.offset[2] -= 0.1;
   if (currentlyPressedKeys[34])  // Page Down
-    Game.camera.angles[1] += 0.1;
+    Game.camera.offset[2] += 0.1;
   if (currentlyPressedKeys[37])  // Left cursor key
-    ySpeed -= 2;
+  {
+    if (currentlyPressedKeys[16]) { Game.camera.angles[1] += 0.1; }
+    else ySpeed -= 2;
+  }
   if (currentlyPressedKeys[39])  // Right cursor key
-    ySpeed += 2;
+  {
+    if (currentlyPressedKeys[16]) { Game.camera.angles[1] -= 0.1; }
+    else ySpeed += 2;
+  }
   if (currentlyPressedKeys[38])  // Up cursor key
   {
     if (currentlyPressedKeys[16]) { Game.camera.target[1] += 0.1; }

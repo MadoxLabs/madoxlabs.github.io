@@ -87,7 +87,7 @@ bool IsShadow(vec4 position, vec3 normal)
 
   // if face is away from light - shadowed
   vec3 lightDir = uLightPosition - vec3(position);
-  if (dot(normal, lightDir) < 0.0) return true;
+ // if (dot(normal, lightDir) < 0.0) return true;
 
   // convert light POV location to a spot on the shadow map
   vec2 shadowLookup = 0.5 + 0.5 * (positionFromLight.xy / positionFromLight.w);
