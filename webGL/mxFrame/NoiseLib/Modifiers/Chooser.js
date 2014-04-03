@@ -59,13 +59,16 @@ LibNoise.SelectOutput = function (s1, s2, c)
 
   var EdgeFalloff = 0.0;
   this.__defineGetter__("EdgeFalloff", function () { return EdgeFalloff; });
-  this.__defineSetter__("EdgeFalloff", function (value) { EdgeFalloff = value; this.FixFalloff(); });
+  this.__defineSetter__("EdgeFalloff", function (value) {
+    var boundSize = this.UpperBound - this.LowerBound;
+    EdgeFalloff = (value > boundSize / 2) ? boundSize / 2 : value;
+  });
   var LowerBound = -1.0;
   this.__defineGetter__("LowerBound", function () { return LowerBound; });
-  this.__defineSetter__("LowerBound", function (value) { LowerBound = value; this.FixFalloff(); });
+  this.__defineSetter__("LowerBound", function (value) { LowerBound = value; this.EdgeFalloff = EdgeFalloff; });
   var UpperBound = 1.0;
   this.__defineGetter__("UpperBound", function () { return UpperBound; });
-  this.__defineSetter__("UpperBound", function (value) { UpperBound = value; });
+  this.__defineSetter__("UpperBound", function (value) { UpperBound = value; this.EdgeFalloff = EdgeFalloff; });
 }
 
 LibNoise.SelectOutput.prototype.GetValue = function (x, y, z)
@@ -127,8 +130,8 @@ LibNoise.SelectOutput.prototype.GetValue = function (x, y, z)
   }
 }
 
-LibNoise.SelectOutput.prototype.FixFalloff = function ()
+LibNoise.SelectOutput.prototype.FixFalloff = function (value)
 {
   var boundSize = this.UpperBound - this.LowerBound;
-  this.EdgeFalloff = (value > boundSize / 2) ? boundSize / 2 : value;
+  if (this.EdgeFalloff) this.EdgeFalloff = (value > boundSize / 2) ? boundSize / 2 : value;
 }

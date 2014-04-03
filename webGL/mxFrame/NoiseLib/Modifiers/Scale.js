@@ -31,14 +31,14 @@ LibNoise.ScaleInput.prototype.GetValue = function (x, y, z)
 
 
 
-LibNoise.ScaleBias = function (source)
+LibNoise.ScaleBiasOutput = function (source)
 {
   this.SourceModule = source;
   this.Scale = 1.0;
   this.Bias = 0.0;
 }
 
-LibNoise.ScaleBias.prototype.GetValue = function (x, y, z)
+LibNoise.ScaleBiasOutput.prototype.GetValue = function (x, y, z)
 {
   return this.SourceModule.GetValue(x, y, z) * this.Scale + this.Bias;
 }

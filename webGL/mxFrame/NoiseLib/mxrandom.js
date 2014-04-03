@@ -53,6 +53,7 @@ function mxRand()
   this.mask = this.width - 1;
 
   this.mixkey(Math.random(), this.pool);
+  this.seed(Math.random(), false);
 }
 
 mxRand.prototype.flatten = function(obj, depth)

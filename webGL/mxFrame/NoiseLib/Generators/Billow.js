@@ -28,7 +28,7 @@ LibNoise.Billow.prototype.GetValue = function( x,  y,  z)
 
     seed = (this.Seed + currentOctave) & 0xffffffff;
     signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
-    signal = 2.0 * Math.Abs(signal) - 1.0;
+    signal = 2.0 * Math.abs(signal) - 1.0;
     value += signal * curPersistence;
 
     x *= this.Lacunarity;

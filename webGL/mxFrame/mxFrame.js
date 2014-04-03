@@ -65,7 +65,7 @@ function include(filename)
 function extend(obj, base)
 {
   for (var property in base)
-    if (base.hasOwnProperty(property)) obj[property] = base[property];
+    if (base.hasOwnProperty(property) || base.__proto__.hasOwnProperty(property)) obj[property] = base[property];
 }
 
 // call this from the page's onload to launch your app
