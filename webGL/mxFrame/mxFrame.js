@@ -15,8 +15,24 @@ var perlinSrc = ["NoiseLib/mxrandom.js",
                  "NoiseLib/FastGenerators/FastBillow.js",
                  "NoiseLib/FastGenerators/FastPerlin.js",
                  "NoiseLib/FastGenerators/FastRidgedMultifractal.js",
-                 "NoiseLib/FastGenerators/FastTurbulence.js"
-];
+                 "NoiseLib/FastGenerators/FastTurbulence.js",
+                 "NoiseLib/Generators/Constant.js",
+                 "NoiseLib/Generators/Checkerboard.js",
+                 "NoiseLib/Generators/Gradient.js",
+                 "NoiseLib/Generators/Cylinders.js",
+                 "NoiseLib/Generators/Spheres.js",
+                 "NoiseLib/Generators/Perlin.js",
+                 "NoiseLib/Generators/Billow.js",
+                 "NoiseLib/Generators/RidgedMultifractal.js",
+                 "NoiseLib/Generators/Voronoi.js",
+                 "NoiseLib/Models/Plane.js",
+                 "NoiseLib/Models/Cylinder.js",
+                 "NoiseLib/Models/Sphere.js",
+                 "NoiseLib/Models/Line.js",
+                 "NoiseLib/Modifiers/Invert.js",
+                 "NoiseLib/Modifiers/Scale.js",
+                 "NoiseLib/Modifiers/Combine.js",
+                 "NoiseLib/Modifiers/Displace.js"];
 
 // define what parts of the lib to load
 var WITH_MXFRAME = 1;
