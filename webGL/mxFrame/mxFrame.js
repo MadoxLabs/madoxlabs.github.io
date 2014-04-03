@@ -32,6 +32,10 @@ var perlinSrc = ["NoiseLib/mxrandom.js",
                  "NoiseLib/Modifiers/Invert.js",
                  "NoiseLib/Modifiers/Scale.js",
                  "NoiseLib/Modifiers/Combine.js",
+                 "NoiseLib/Modifiers/Chooser.js",
+                 "NoiseLib/Modifiers/TerraceOutput.js",
+                 "NoiseLib/Modifiers/CurveOutput.js",
+                 "NoiseLib/Modifiers/Turbulence.js",
                  "NoiseLib/Modifiers/Displace.js"];
 
 // define what parts of the lib to load
