@@ -60,7 +60,7 @@ LibNoise.FastMath.prototype.SetSeed = function(value)
 
     // Generate new random permutations with this seed.
     var random = new mxRand();
-    random.seed(this.Seed);
+    random.seed(this.Seed, true);
 
     for (var i = 0; i < 512; i++)        this.RandomPermutations[i] = random.popInt(255);
     for (var i = 0; i < 256; i++)        { this.SelectedPermutations[256 + i] = this.RandomPermutations[i]; this.SelectedPermutations[i] = this.RandomPermutations[i]; }

@@ -38,6 +38,8 @@ Game.init = function ()
     ext.std = gl.getExtension("OES_standard_derivitives");
     ext.float = gl.getExtension("OES_texture_float");
     ext.floatlinear = gl.getExtension("OES_texture_float_linear");
+    ext.halffloat = gl.getExtension("OES_texture_half_float");
+    ext.halffloatlinear = gl.getExtension("OES_texture_half_float_linear");
     gl.viewportWidth = this.surface.clientWidth;
     gl.viewportHeight = this.surface.clientHeight;
   } catch (e) { }

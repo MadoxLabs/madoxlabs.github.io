@@ -246,8 +246,6 @@ ShaderManager.prototype.processRenderStates = function(src)
 
 ShaderManager.prototype.processEffect = function(src)
 {
-  Game.loadingDecr();
-
   var name   = this.extractShaderPart(src, "[NAME]").trim();
   var vertex = this.extractShaderPart(src, "[VERTEX]");
   var pixel  = this.extractShaderPart(src, "[PIXEL]");
@@ -344,5 +342,7 @@ ShaderManager.prototype.processEffect = function(src)
   shaderProgram.setUniforms = setUniforms;
 
   this.shaders[name] = shaderProgram;
+  Game.loadingDecr();
+
 }
 
