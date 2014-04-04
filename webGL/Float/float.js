@@ -155,7 +155,7 @@ fRegion.prototype.getUnknownPoint = function(x,y)
 // should only be used internally
 fRegion.prototype.getMapPoint = function (x, y)
 {
-  if (x >= this.VisibleMeshSize || y >= this.VisibleMeshSize || x < 0 || y < 0)  return this.getUnknownPoint(x, y);
+  if (x >= this.VisibleMeshSize || y >= this.VisibleMeshSize || x < 0 || y < 0) return 0;//this.getUnknownPoint(x, y);
 
   ++x; ++y; // account for skirt to convert to index
   return this.Map[y * (this.MeshSize) + x];
@@ -169,6 +169,7 @@ fRegion.prototype.getMapPoint = function (x, y)
 var p0 = vec3.create();
 var p1 = vec3.create();
 var p2 = vec3.create();
+var n = vec3.create();
 fRegion.prototype.getPoint = function( x,  y)
 {
   x -= this.Area.X;  // translate to the range 0 to RegionArea
@@ -201,7 +202,7 @@ fRegion.prototype.getPoint = function( x,  y)
   p2.Y = this.getMapPoint(p2.X, p2.Z);
 
   // get the face normal
-  var n = vec3.create();
+//  var n = vec3.create();
   vec3.subtract(p1, p1, p0);
   vec3.subtract(p2, p2, p0);
   vec3.cross(n,p1,p2);
