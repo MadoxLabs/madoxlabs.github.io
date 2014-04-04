@@ -13,6 +13,78 @@ function fRectangle(x,y,w,h)
 
 }
 
+//----------------------------------------------------------------
+function fRay(x,y,z,raySteps)
+{
+  this.ray = vec3.fromValues(x,y,z);
+  this.offsets = [];
+
+  // compute the integer-based cels this ray crosses - up to a max length
+  var step = vec3.clone(this.ray);
+  var current = vec3.create();
+  for (var i = 0; i < raySteps; ++i)     // 100 steps defines the length of the ray casting vector
+  {
+    var cel = vec3.create();
+    cel[0] = current[0];
+    cel[1] = current[1] + 0.5;
+    cel[2] = current[2];
+    this.offsets.push(cel);
+    vec3.add(current, current, step);
+  }
+}
+
+function fRayCasting(numRays)
+{
+  this.rays = [];
+  this.raySteps = 5;
+  this.createRays(numRays);
+}
+
+fRayCasting.prototype.createRays = function( numRays)
+{
+  this.rays = [];
+
+  // use a Golden spiral to pick ray directions on a unit sphere - http://cgafaq.info/wiki/Evenly_distributed_points_on_sphere
+  var dlong = LibNoise.NMath.PI * (3.0 - Math.sqrt(5.0));
+  var dz = 2.0 / numRays;
+  var _long = 0;
+  var z = 1.0 - dz / 2.0;
+  for (var k = 0; k < numRays; ++k)
+  {
+    var r = Math.sqrt(1.0 - z * z);
+    this.rays[k] = new fRay(Math.cos(_long) * r, Math.sin(_long) * r, z, this.raySteps);
+    z -= dz;
+    _long += dlong;
+  }
+}
+
+fRayCasting.prototype.calculate = function(x,y,z,ground)
+{
+  // Ambient Occlusion
+  var escapes = 0;
+  for (var ray in this.rays)
+  {
+    if (this.calculateRay(this.rays[ray], x, y, z, ground)) escapes++;
+  }
+  // convert the influence value to a percent.
+  // invert the percent so 1.0 is not occluded
+  return escapes / this.rays.length;
+}
+
+fRayCasting.prototype.calculateRay = function(ray, x,y,z,ground)
+{
+  var ok = true;
+  for (var offset in ray.offsets)
+  {
+    var o = ray.offsets[offset];
+    var h = ground.getPoint(x - o[0], z - o[2]);
+    if (y + o[1] <= h) { ok = false; break; }
+  }
+  // hit a cel, abort
+  return ok;
+}
+  
+
 //----------------------------------------------------------------------------------------------------
 // Define a patch of ground using the area rect. This contains real world whole-number coords
 // Its pointless to have ground patches extend fractional amounts.
@@ -24,6 +96,8 @@ function fRegion(area)
   this.Map = new Float32Array(this.MeshSize * this.MeshSize);
   this.mesh = null;
   this.heightmap = null;
+  this.aomap = null;
+
   this.create();
   this.createBuffers();
 }
@@ -186,6 +260,27 @@ fRegion.prototype.createBuffers = function()
     this.heightmap = new Texture('heightmap');
     this.heightmap.fromArray(this.MeshSize, this.MeshSize, this.Map, gl.LUMINANCE, gl.FLOAT);
   }
+
+  if (!this.aomap)
+  {
+    // ao data
+    var index = 0;
+    var savedFactors = new Float32Array(this.MeshSize * this.MeshSize);
+    
+    var g = 0;
+    for (var j = -1; j < this.VisibleMeshSize+1; ++j)
+    {
+      for (var i = -1; i < this.VisibleMeshSize + 1; ++i)
+      {
+        g  = this.getMapPoint(i, j);
+        savedFactors[index] = Game.World.cast.calculate((this.Area.X + i), g, (this.Area.Y + j), this);
+        ++index;
+      }
+    }
+
+    this.aomap = new Texture('aomap');
+    this.aomap.fromArray(this.MeshSize, this.MeshSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -216,6 +311,7 @@ function fWorld()
   final.LowerBound = 0;
 
   this.Generator = final;
+  this.cast = new fRayCasting(32);
 }
 
 // Takes in a location in world coords from player view
@@ -305,9 +401,10 @@ Game.loadingStop = function ()
 {
   Game.ready = true;
 
-  Game.camera.offset[0] = 50.0;
-  Game.camera.offset[1] = 50.0;
-  Game.camera.offset[2] = 150.0;
+  Game.camera.offset[0] = 0.0;
+  Game.camera.offset[1] = 0.0;
+  Game.camera.offset[2] = 100.0;
+  Game.camera.angles[0] = -0.55;
   Game.camera.lookAt(50.0, 0.0, 50.0);
 
   var effect = Game.shaderMan.shaders["ground"];
@@ -350,6 +447,7 @@ Game.appDraw = function (eye)
   effect.bindCamera(eye);
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
+  effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
   effect.draw(Game.World.Regions[0].mesh);
 }
 
@@ -373,18 +471,18 @@ shader includes
 v create a sized grid with NxN divisions and a skirt for future
 v have a ground definition object that run noise lib
 v create a heightmap from ground
-  create an AO map from raycasting
-  render the ground provided height, ao maps
-    vertex shader: set height from height map
-                   get ao factor and interpolate it
-    pixel shader: determine the light based on aio factor
+v  create an AO map from raycasting
+v  render the ground provided height, ao maps
+v    vertex shader: set height from height map
+v                   get ao factor and interpolate it
+ v   pixel shader: determine the light based on ao factor
   sky colour
   moving light
 
 v  camera - fixed looking at center of ground
-            rotate about Y
-            rotate about X
-            in and out
+v            rotate about Y
+v            rotate about X
+v            in and out
 
 PHASE 2
 
