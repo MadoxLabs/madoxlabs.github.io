@@ -16,6 +16,7 @@ uniform sampler2D aomap; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv C
 varying vec2 vTextureCoord;
 varying vec4 vPosition;
 varying float vAOFactor;
+varying vec3 vNormal;
 
 [END]
 
@@ -48,6 +49,15 @@ void main(void)
   vPosition.y = texture2D(heightmap, aTextureCoord).x;
 
   gl_Position = projection * view * uWorld * localTransform * vPosition;
+
+  float tex = 1.0 / 102.0;
+  vec2 px = vec2(tex, 0);
+  vec2 py = vec2(0, tex);
+  float top    = texture2D(heightmap, vTextureCoord - py).x;
+  float bottom = texture2D(heightmap, vTextureCoord + py).x;
+  float left   = texture2D(heightmap, vTextureCoord - px).x;
+  float right  = texture2D(heightmap, vTextureCoord + px).x;
+  vNormal = normalize( cross( vec3(2, right-left, 0), vec3(0, top-bottom, -2) ) );
 }
 [END]
 
@@ -64,6 +74,16 @@ uniform vec3 emissivecolor;      // group material
 
 void main(void) 
 { 
+//  float tex = 1.0 / 102.0;
+//  vec2 px = vec2(tex, 0);
+//  vec2 py = vec2(0, tex);
+//  float top    = texture2D(heightmap, vTextureCoord - py).x;
+//  float bottom = texture2D(heightmap, vTextureCoord + py).x;
+//  float left   = texture2D(heightmap, vTextureCoord - px).x;
+//  float right  = texture2D(heightmap, vTextureCoord + px).x;
+//  vec3 normal = normalize( cross( vec3(2, right-left, 0), vec3(0, top-bottom, -2) ) );
+//  normal = mul(normal, (float3x3)World);
+
   vec3 color = vec3(1.0,1.0,1.0);
 
   if (vPosition.y > 20.0)  // white snow
@@ -78,7 +98,7 @@ void main(void)
   }
   else if (vPosition.y > -10.0) // greenery
   {
-    float c = 0.5 + (vPosition.y + 10.0)/15.0;
+    float c = 0.2 + (vPosition.y + 10.0)/15.0;
     color = vec3(0.0,c,0.0);
   }
   else  // sand
@@ -86,8 +106,11 @@ void main(void)
     color = vec3(237.0/255.0, 201.0/255.0, 175.0/255.0);
   }
 
-//  color = vec3(0.0, 0.8, 0.0);
-  gl_FragColor = vec4(color * min(1.0,vAOFactor + 0.8), 1.0);
+//  vec3 lightDir = vec3(1.0,0.0,1.0);
+  vec3 lightDir = vec3(0.5,1.0,0.2);
+  float nDotL = dot(normalize(vNormal), lightDir);
+
+  gl_FragColor = vec4(color * (nDotL + 0.1) * min(1.0,vAOFactor + 0.9), 1.0);
 }
 
 [END]

@@ -21,6 +21,9 @@ function fRay(x,y,z,raySteps)
 
   // compute the integer-based cels this ray crosses - up to a max length
   var step = vec3.clone(this.ray);
+  step[0] *= 0.1;
+  step[1] *= 0.1;
+  step[2] *= 0.1;
   var current = vec3.create();
   for (var i = 0; i < raySteps; ++i)     // 100 steps defines the length of the ray casting vector
   {
