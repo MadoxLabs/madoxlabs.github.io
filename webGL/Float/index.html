@@ -7,10 +7,24 @@
                }
     </style>
     <script src="../mxFrame/mxFrame.js"></script>
+    <script>
+      function setrange(name)
+      {
+        var r = document.getElementById(name);
+        var v = document.getElementById(name + "val");
+        v.innerHTML = r.value;
+        Game.setparam(name, r.value);
+      }
+    </script>
   </head>
   <body style="margin:0;padding:0;" onload="launchApp('float.js', '../mxFrame', WITH_MXFRAME|WITH_OCULUS|WITH_NOISE);">
     <div><canvas id='surface'></div>
     <div style="top:5px; left:5px; position:fixed;"><canvas id='output' width="400" height="50"></div>
     <br />
+    Diffuse: <input type="checkbox" checked onchange="Game.setparam('diffuse', this.checked);"/><br />
+    Ambient Occlusion: <input type="checkbox" checked onchange="Game.setparam('ao', this.checked);"/><br />
+    Ray Count: 1 <input id="count" type="range" min="1" max="50" value="32" onchange="setrange('count');"/> 50 : <span id="countval">32</span><br /> 
+    Ray Step: 1 <input id="step" type="range" min="1" max="20" value="5" onchange="setrange('step');"/> 20 : <span id="stepval">5</span><br /> 
+    Ray Step Size: 0.1 <input id="size" type="range" min="0.1" max="1" step="0.1" value="0.5" onchange="setrange('size');"/> 1.0 : <span id="sizeval">0.5</span><br /> 
   </body>
 </html>

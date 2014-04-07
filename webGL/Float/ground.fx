@@ -63,6 +63,8 @@ void main(void)
 
 [PIXEL]
 
+uniform vec2 options;            // group perobject
+
 uniform vec3 camera;             // group camera
 
 uniform vec4 materialoptions;    // group material
@@ -74,16 +76,6 @@ uniform vec3 emissivecolor;      // group material
 
 void main(void) 
 { 
-//  float tex = 1.0 / 102.0;
-//  vec2 px = vec2(tex, 0);
-//  vec2 py = vec2(0, tex);
-//  float top    = texture2D(heightmap, vTextureCoord - py).x;
-//  float bottom = texture2D(heightmap, vTextureCoord + py).x;
-//  float left   = texture2D(heightmap, vTextureCoord - px).x;
-//  float right  = texture2D(heightmap, vTextureCoord + px).x;
-//  vec3 normal = normalize( cross( vec3(2, right-left, 0), vec3(0, top-bottom, -2) ) );
-//  normal = mul(normal, (float3x3)World);
-
   vec3 color = vec3(1.0,1.0,1.0);
 
   if (vPosition.y > 20.0)  // white snow
@@ -98,7 +90,7 @@ void main(void)
   }
   else if (vPosition.y > -10.0) // greenery
   {
-    float c = 0.2 + (vPosition.y + 10.0)/15.0;
+    float c = 0.6; //0.2 + (vPosition.y + 10.0)/15.0;
     color = vec3(0.0,c,0.0);
   }
   else  // sand
@@ -106,11 +98,12 @@ void main(void)
     color = vec3(237.0/255.0, 201.0/255.0, 175.0/255.0);
   }
 
-//  vec3 lightDir = vec3(1.0,0.0,1.0);
   vec3 lightDir = vec3(0.5,1.0,0.2);
   float nDotL = dot(normalize(vNormal), lightDir);
 
-  gl_FragColor = vec4(color * (nDotL + 0.1) * min(1.0,vAOFactor + 0.9), 1.0);
+  if (options.x > 0.0) color = color * (nDotL + 0.1);
+  if (options.y > 0.0) color = color * min(1.0,vAOFactor + 0.9);
+  gl_FragColor = vec4(color, 1.0);
 }
 
 [END]

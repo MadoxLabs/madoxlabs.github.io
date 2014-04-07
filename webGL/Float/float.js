@@ -38,12 +38,19 @@ function fRay(x,y,z,raySteps)
 
 function fRayCasting(numRays)
 {
-  this.rays = [];
-  this.raySteps = 5;
-  this.createRays(numRays);
+//  this.setRays(numRays, 5);
+  this.setRays(50,10);
 }
 
-fRayCasting.prototype.createRays = function( numRays)
+fRayCasting.prototype.setRays = function(numRays, steps)
+{
+  this.rays = [];
+  if (steps) this.raySteps = steps;
+  if (numRays) this.numRays = numRays;
+  this.createRays(this.numRays);
+}
+
+fRayCasting.prototype.createRays = function (numRays)
 {
   this.rays = [];
 
@@ -265,26 +272,25 @@ fRegion.prototype.createBuffers = function()
     this.heightmap.fromArray(this.MeshSize, this.MeshSize, this.Map, gl.LUMINANCE, gl.FLOAT);
   }
 
-  if (!this.aomap)
-  {
-    // ao data
-    var index = 0;
-    var savedFactors = new Float32Array(this.MeshSize * this.MeshSize);
-    
-    var g = 0;
-    for (var j = -1; j < this.VisibleMeshSize+1; ++j)
-    {
-      for (var i = -1; i < this.VisibleMeshSize + 1; ++i)
-      {
-        g  = this.getMapPoint(i, j);
-        savedFactors[index] = Game.World.cast.calculate((this.Area.X + i), g, (this.Area.Y + j), this);
-        ++index;
-      }
-    }
+  if (!this.aomap) this.createAOMap();
+}
 
-    this.aomap = new Texture('aomap');
-    this.aomap.fromArray(this.MeshSize, this.MeshSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
+fRegion.prototype.createAOMap = function ()
+{
+  // ao data
+  var index = 0;
+  var savedFactors = new Float32Array(this.MeshSize * this.MeshSize);
+
+  var g = 0;
+  for (var j = -1; j < this.VisibleMeshSize + 1; ++j) {
+    for (var i = -1; i < this.VisibleMeshSize + 1; ++i) {
+      g = this.getMapPoint(i, j);
+      savedFactors[index] = Game.World.cast.calculate((this.Area.X + i), g, (this.Area.Y + j), this);
+      ++index;
+    }
   }
+  this.aomap = new Texture('aomap');
+  this.aomap.fromArray(this.MeshSize, this.MeshSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -414,6 +420,7 @@ Game.loadingStop = function ()
   var effect = Game.shaderMan.shaders["ground"];
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
+  uPerObject.options = vec2.fromValues(1.0, 1.0);
   mat4.identity(uPerObject.uWorld);
 }
 
@@ -467,6 +474,14 @@ Game.appHandleKeyUp = function (event)
 
 }
 
+Game.setparam = function(name, value)
+{
+  if (name == 'ao')           uPerObject.options[1] = (value ? 1.0 : 0.0);
+  else if (name == 'diffuse') uPerObject.options[0] = (value ? 1.0 : 0.0);
+  else if (name == 'count') { Game.World.cast.setRays(value, 0); Game.World.Regions[0].createAOMap(); }
+ // else if (name == 'size') { Game.World.cast.setRays(value, 0); Game.World.Regions[0].createAOMap(); }
+  else if (name == 'step') { Game.World.cast.setRays(0, value); Game.World.Regions[0].createAOMap(); }
+}
 /*
 PHASE 1
 
