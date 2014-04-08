@@ -14,16 +14,16 @@ function fRectangle(x,y,w,h)
 }
 
 //----------------------------------------------------------------
-function fRay(x,y,z,raySteps)
+function fRay(x,y,z,raySteps, size)
 {
   this.ray = vec3.fromValues(x,y,z);
   this.offsets = [];
 
   // compute the integer-based cels this ray crosses - up to a max length
   var step = vec3.clone(this.ray);
-  step[0] *= 0.1;
-  step[1] *= 0.1;
-  step[2] *= 0.1;
+  step[0] *= size;
+  step[1] *= size;
+  step[2] *= size;
   var current = vec3.create();
   for (var i = 0; i < raySteps; ++i)     // 100 steps defines the length of the ray casting vector
   {
@@ -38,31 +38,31 @@ function fRay(x,y,z,raySteps)
 
 function fRayCasting(numRays)
 {
-//  this.setRays(numRays, 5);
-  this.setRays(50,10);
+  this.setRays(numRays, 5, 0.5);
 }
 
-fRayCasting.prototype.setRays = function(numRays, steps)
+fRayCasting.prototype.setRays = function(numRays, steps, stepsize)
 {
   this.rays = [];
   if (steps) this.raySteps = steps;
+  if (stepsize) this.stepsize = stepsize;
   if (numRays) this.numRays = numRays;
-  this.createRays(this.numRays);
+  this.createRays();
 }
 
-fRayCasting.prototype.createRays = function (numRays)
+fRayCasting.prototype.createRays = function ()
 {
   this.rays = [];
 
   // use a Golden spiral to pick ray directions on a unit sphere - http://cgafaq.info/wiki/Evenly_distributed_points_on_sphere
   var dlong = LibNoise.NMath.PI * (3.0 - Math.sqrt(5.0));
-  var dz = 2.0 / numRays;
+  var dz = 2.0 / this.numRays;
   var _long = 0;
   var z = 1.0 - dz / 2.0;
-  for (var k = 0; k < numRays; ++k)
+  for (var k = 0; k < this.numRays; ++k)
   {
     var r = Math.sqrt(1.0 - z * z);
-    this.rays[k] = new fRay(Math.cos(_long) * r, Math.sin(_long) * r, z, this.raySteps);
+    this.rays[k] = new fRay(Math.cos(_long) * r, Math.sin(_long) * r, z, this.raySteps, this.stepsize);
     z -= dz;
     _long += dlong;
   }
@@ -94,6 +94,77 @@ fRayCasting.prototype.calculateRay = function(ray, x,y,z,ground)
   return ok;
 }
   
+function aoHelper(r)
+{
+  this.cast = r;
+  this.groundVertex = [];
+  this.aoBuf = null;
+}
+
+aoHelper.prototype.Update = function(aoLoc /* vec3 */)
+{
+  if (this.aoBuf == null)
+  {
+    this.aoBuf = new Mesh();
+    for (r in this.cast.rays)
+    {
+      var ray = this.cast.rays[r];
+      this.groundVertex.push(ray.offsets[0][0]);
+      this.groundVertex.push(ray.offsets[0][1]);
+      this.groundVertex.push(ray.offsets[0][2]);
+      this.groundVertex.push(0.0);
+      this.groundVertex.push(0.0);
+      this.groundVertex.push(0.0);
+      this.groundVertex.push(1.0);
+      this.groundVertex.push(ray.offsets[this.cast.raySteps - 1][0]);
+      this.groundVertex.push(ray.offsets[this.cast.raySteps - 1][1]);
+      this.groundVertex.push(ray.offsets[this.cast.raySteps - 1][2]);
+      this.groundVertex.push(0.0);
+      this.groundVertex.push(0.0);
+      this.groundVertex.push(0.0);
+      this.groundVertex.push(1.0);
+    }
+  }
+
+  {
+    var i = -1;
+    var reg = Game.World.Regions[0];   // fRegion
+    var total = 0;
+    for (var r in this.cast.rays) // set colors
+    {
+      var ray = this.cast.rays[r];
+      if (this.cast.calculateRay(ray, aoLoc[0], aoLoc[1], aoLoc[2], reg))
+      {
+        i += 4;
+        this.groundVertex[i++] = 0.0;
+        this.groundVertex[i++] = 0.0;
+        this.groundVertex[i++] = 1.0;
+        i += 4;
+        this.groundVertex[i++] = 0.0;
+        this.groundVertex[i++] = 0.0;
+        this.groundVertex[i++] = 1.0;
+        total++;
+      }
+      else
+      {
+        i += 4;
+        this.groundVertex[i++] = 1.0;
+        this.groundVertex[i++] = 0.0;
+        this.groundVertex[i++] = 0.0;
+        i += 4;
+        this.groundVertex[i++] = 1.0;
+        this.groundVertex[i++] = 0.0;
+        this.groundVertex[i++] = 0.0;
+        total++;
+      }
+    }
+    var pos = mat4.create();
+    mat4.identity(pos);
+    mat4.translate(pos, pos, vec3.fromValues(aoLoc[0], aoLoc[1], aoLoc[2]));
+    this.aoBuf.loadFromArrays(this.groundVertex, null, { 'POS': 0, 'COLOR': 12 }, gl.LINES, this.groundVertex.length / 7.0, 0, pos);
+  }
+}
+
 
 //----------------------------------------------------------------------------------------------------
 // Define a patch of ground using the area rect. This contains real world whole-number coords
@@ -195,21 +266,21 @@ fRegion.prototype.getPoint = function( x,  y)
   // which triangle for this cell is the point in? get the points for that triangle
   if (dx > dz)
   {
-    p0.X = x; p0.Y = 0; p0.Z = y;
-    p1.X = x + 1; p1.Y = 0; p1.Z = y + 1;
-    p2.X = x + 1; p2.Y = 0; p2.Z = y;
+    p0[0] = x;     p0[1] = 0; p0[2] = y;
+    p1[0] = x + 1; p1[1] = 0; p1[2] = y + 1;
+    p2[0] = x + 1; p2[1] = 0; p2[2] = y;
   }
   else
   {
-    p0.X = x; p0.Y = 0; p0.Z = y;
-    p1.X = x; p1.Y = 0; p1.Z = y + 1;
-    p2.X = x + 1; p2.Y = 0; p2.Z = y + 1;
+    p0[0] = x;     p0[1] = 0; p0[2] = y;
+    p1[0] = x;     p1[1] = 0; p1[2] = y + 1;
+    p2[0] = x + 1; p2[1] = 0; p2[2] = y + 1;
   }
 
   // fill in the 0 y values above
-  p0.Y = this.getMapPoint(p0.X, p0.Z);
-  p1.Y = this.getMapPoint(p1.X, p1.Z);
-  p2.Y = this.getMapPoint(p2.X, p2.Z);
+  p0[1] = this.getMapPoint(p0[0], p0[2]);
+  p1[1] = this.getMapPoint(p1[0], p1[2]);
+  p2[1] = this.getMapPoint(p2[0], p2[2]);
 
   // get the face normal
 //  var n = vec3.create();
@@ -219,8 +290,7 @@ fRegion.prototype.getPoint = function( x,  y)
   vec3.normalize(n,n);   // normalize( (p1-p0) x (p2-p0) )
 
   // calculate height at the point using normal
-  ret = p0.Y + (n.X * dx + n.Z * dz) / -n.Y;
-  return true;
+  return p0[1] + (n[0] * dx + n[2] * dz) / -n[1];
 }
 
 fRegion.prototype.createBuffers = function()
@@ -390,12 +460,14 @@ fWorld.prototype.getRegionByIndex = function( x,  y)
 
 var uPerObject;
 var currentlyPressedKeys = [];
+var helper;
 
 Game.appInit = function ()
 {
   Game.World = new fWorld();
   Game.World.createRegionContaining(0, 0);
   Game.loadShaderFile("ground.fx");
+  Game.loadShaderFile("colorlines.fx");
 }
 
 Game.deviceReady = function ()
@@ -422,6 +494,15 @@ Game.loadingStop = function ()
   uPerObject.uWorld = mat4.create();
   uPerObject.options = vec2.fromValues(1.0, 1.0);
   mat4.identity(uPerObject.uWorld);
+
+  Game.makeHelper();
+}
+
+Game.makeHelper = function()
+{
+  helper = new aoHelper(Game.World.cast);
+  var pos = vec3.fromValues(50.0, Game.World.getHeight(50.0,50.0), 50.0);
+  helper.Update(pos);
 }
 
 Game.appUpdate = function ()
@@ -460,6 +541,12 @@ Game.appDraw = function (eye)
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
   effect.draw(Game.World.Regions[0].mesh);
+
+  effect = Game.shaderMan.shaders["colorlines"];
+  effect.bind();
+  effect.bindCamera(eye);
+//  effect.setUniforms(uPerObject);
+  effect.draw(helper.aoBuf);
 }
 
 Game.appHandleKeyDown = function (event)
@@ -478,10 +565,11 @@ Game.setparam = function(name, value)
 {
   if (name == 'ao')           uPerObject.options[1] = (value ? 1.0 : 0.0);
   else if (name == 'diffuse') uPerObject.options[0] = (value ? 1.0 : 0.0);
-  else if (name == 'count') { Game.World.cast.setRays(value, 0); Game.World.Regions[0].createAOMap(); }
- // else if (name == 'size') { Game.World.cast.setRays(value, 0); Game.World.Regions[0].createAOMap(); }
-  else if (name == 'step') { Game.World.cast.setRays(0, value); Game.World.Regions[0].createAOMap(); }
+  else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
+  else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
+  else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
 }
+
 /*
 PHASE 1
 

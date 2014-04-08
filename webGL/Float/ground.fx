@@ -102,7 +102,7 @@ void main(void)
   float nDotL = dot(normalize(vNormal), lightDir);
 
   if (options.x > 0.0) color = color * (nDotL + 0.1);
-  if (options.y > 0.0) color = color * min(1.0,vAOFactor + 0.9);
+  if (options.y > 0.0) color = color * min(1.0,vAOFactor);
   gl_FragColor = vec4(color, 1.0);
 }
 
