@@ -247,10 +247,10 @@ fRegion.prototype.getMapPoint = function (x, y)
 //
 // The logic for this comes from http://www.toymaker.info/Games/html/terrain_follow.html
 //
-var p0 = vec3.create();
-var p1 = vec3.create();
-var p2 = vec3.create();
-var n = vec3.create();
+var p0;
+var p1;
+var p2;
+var n ;
 fRegion.prototype.getPoint = function( x,  y)
 {
   x -= this.Area.X;  // translate to the range 0 to RegionArea
@@ -370,6 +370,11 @@ var NoiseScale = 20;
 
 function fWorld()
 {
+  p0 = vec3.create(); // init the cache variables used by regions
+  p1 = vec3.create();
+  p2 = vec3.create();
+  n = vec3.create();
+
   this.Regions = [];
   var d = new Date(); var r = new mxRand(); r.seed(d.getTime(), true);
   var mountains = new LibNoise.FastRidgedMultifractal();
