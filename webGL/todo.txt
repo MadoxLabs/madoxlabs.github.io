@@ -71,13 +71,7 @@ What is the spotlight factor
 
 
 fbx importer
- - make the mesh actually load properly
- - textures
  - options for tangent binormal
- - add attr to mesh
- - add bounding boxes
- - shadowing to viewer
- - a floor in the viewer, scaled to bb
 
 
 
