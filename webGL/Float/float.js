@@ -14,6 +14,102 @@ function fRectangle(x,y,w,h)
 }
 
 //----------------------------------------------------------------
+
+var Sides = { 'None': 0, 'Top': 1, 'Bottom': 2, 'Left': 4, 'Right': 8 };
+
+function wtSquare(x,y,o)     // a section of the wang texture file, it holds 4x4 squares
+{
+  this.X = x;                // uv coords
+  this.Y = y;
+  this.Oranges = o;          // bitmap of how many sides are orange
+}
+
+function WangTiles()
+{
+  // set up the 4x4 squares of the texture map
+  this.squares = [];
+  this.squares.push(new wtSquare(0.0 / 4.0, 0.0 / 4.0, Sides.Left | Sides.Top | Sides.Right));
+  this.squares.push(new wtSquare(1.0 / 4.0, 0.0 / 4.0, Sides.Left | Sides.Top));
+  this.squares.push(new wtSquare(2.0 / 4.0, 0.0 / 4.0, Sides.Top));
+  this.squares.push(new wtSquare(3.0 / 4.0, 0.0 / 4.0, Sides.Top | Sides.Right));
+
+  this.squares.push(new wtSquare(0.0 / 4.0, 1.0 / 4.0, Sides.Left | Sides.Right));
+  this.squares.push(new wtSquare(1.0 / 4.0, 1.0 / 4.0, Sides.Left));
+  this.squares.push(new wtSquare(2.0 / 4.0, 1.0 / 4.0, Sides.None));
+  this.squares.push(new wtSquare(3.0 / 4.0, 1.0 / 4.0, Sides.Right));
+
+  this.squares.push(new wtSquare(0.0 / 4.0, 2.0 / 4.0, Sides.Left | Sides.Bottom | Sides.Right));
+  this.squares.push(new wtSquare(1.0 / 4.0, 2.0 / 4.0, Sides.Left | Sides.Bottom));
+  this.squares.push(new wtSquare(2.0 / 4.0, 2.0 / 4.0, Sides.Bottom));
+  this.squares.push(new wtSquare(3.0 / 4.0, 2.0 / 4.0, Sides.Bottom | Sides.Right));
+
+  this.squares.push(new wtSquare(0.0 / 4.0, 3.0 / 4.0, Sides.Top | Sides.Left | Sides.Bottom | Sides.Right));
+  this.squares.push(new wtSquare(1.0 / 4.0, 3.0 / 4.0, Sides.Top | Sides.Left | Sides.Bottom));
+  this.squares.push(new wtSquare(2.0 / 4.0, 3.0 / 4.0, Sides.Top | Sides.Bottom));
+  this.squares.push(new wtSquare(3.0 / 4.0, 3.0 / 4.0, Sides.Top | Sides.Bottom | Sides.Right));
+}
+
+// e's are 0 or 1 for orange/blue
+// e1 = left/top
+// e2 = right/bottom
+WangTiles.prototype.TileIndexX = function(e1, e2)
+{
+  var result;
+  if (e1 < e2) result = 1;
+  else if (e1 == e2)
+  {
+    if (e1 > 0) result = 2;
+    else result = 0;
+  }
+  else result = 3;
+  return result;
+}
+
+WangTiles.prototype.TileIndexY = function(e1, e2)
+{
+  var result;
+  if (e1 < e2) result = 0;
+  else if (e1 == e2)
+  {
+    if (e1 > 0) result = 1;
+    else result = 3;
+  }
+  else result = 2;
+  return result;
+}
+
+WangTiles.prototype.Create = function(x, y)
+{
+  var r = new mxRand();
+  var map = [];          // an arrangemnt of pointers to the square array, stores our arrangement
+  var outmap = new Float32Array(x*y*2);       // float array for making a texture
+
+  var index = 0;
+  for (var j = 0; j < y; ++j)
+  {
+    for (var i = 0; i < x; ++i)
+    {
+      var top = 1, left = 1, right = 0, bottom = 0;    // start with top and left orange
+
+      if (j == 0) top = 0;                                                              // top row is always top orange
+      else if ((map[(j - 1) * x + i].Oranges & Sides.Bottom) == Sides.Bottom) top = 0;  // top orange if the one above has bottom orange
+      if (i == 0) left = 0;                                                             // left col is always left orange
+      else if ((map[j * x + (i - 1)].Oranges & Sides.Right) == Sides.Right) left = 0;   // left orange if the one beside is right orange
+
+      if (j == y - 1) bottom = 0;  // bottom row always bottom orange
+      else bottom = (r.pop() * 2)|0;     // else random
+      if (i == x - 1) right = 0;
+      else right = (r.pop() * 2)|0;
+
+      map[j * x + i] = this.squares[this.TileIndexY(top, bottom) * 4 + this.TileIndexX(left, right)];
+      outmap[index++] = (map[j * x + i].X);
+      outmap[index++] = (map[j * x + i].Y);
+    }
+  }
+  return outmap;
+}
+
+//----------------------------------------------------------------
 function fRay(x,y,z,raySteps, size)
 {
   this.ray = vec3.fromValues(x,y,z);
@@ -26,29 +122,29 @@ function fRay(x,y,z,raySteps, size)
   step[2] *= size;
   var current = vec3.create();
   for (var i = 0; i < raySteps; ++i)     // 100 steps defines the length of the ray casting vector
-  {
+{
     var cel = vec3.create();
     cel[0] = current[0];
     cel[1] = current[1] + 0.5;
     cel[2] = current[2];
     this.offsets.push(cel);
     vec3.add(current, current, step);
+}
+}
+
+function fRayCasting()
+{
+  this.setRays(30, 10, 1.0);
+}
+
+  fRayCasting.prototype.setRays = function(numRays, steps, stepsize)
+  {
+    this.rays = [];
+    if (steps) this.raySteps = steps;
+    if (stepsize) this.stepsize = stepsize;
+    if (numRays) this.numRays = numRays;
+    this.createRays();
   }
-}
-
-function fRayCasting(numRays)
-{
-  this.setRays(numRays, 5, 0.5);
-}
-
-fRayCasting.prototype.setRays = function(numRays, steps, stepsize)
-{
-  this.rays = [];
-  if (steps) this.raySteps = steps;
-  if (stepsize) this.stepsize = stepsize;
-  if (numRays) this.numRays = numRays;
-  this.createRays();
-}
 
 fRayCasting.prototype.createRays = function ()
 {
@@ -178,6 +274,7 @@ function fRegion(area)
   this.mesh = null;
   this.heightmap = null;
   this.aomap = null;
+  this.wangmap = null;
 
   this.create();
   this.createBuffers();
@@ -342,6 +439,14 @@ fRegion.prototype.createBuffers = function()
     this.heightmap.fromArray(this.MeshSize, this.MeshSize, this.Map, gl.LUMINANCE, gl.FLOAT);
   }
 
+  if (!this.wangmap)
+  {
+    var wangsize = 64.0;
+    var data = Game.World.wang.Create(wangsize, wangsize);
+    this.wangmap = new Texture('wangmap');
+    this.wangmap.fromArray(wangsize, wangsize, data, gl.LUMINANCE_ALPHA, gl.FLOAT);
+  }
+
   if (!this.aomap) this.createAOMap();
 }
 
@@ -396,7 +501,8 @@ function fWorld()
   final.LowerBound = 0;
 
   this.Generator = final;
-  this.cast = new fRayCasting(32);
+  this.cast = new fRayCasting();
+  this.wang = new WangTiles();
 }
 
 // Takes in a location in world coords from player view
@@ -473,6 +579,10 @@ Game.appInit = function ()
   Game.World.createRegionContaining(0, 0);
   Game.loadShaderFile("ground.fx");
   Game.loadShaderFile("colorlines.fx");
+  Game.loadTextureFile("tile", "tile.jpg", true);
+  Game.loadTextureFile("grass", "grass.png", true);
+  Game.loadTextureFile("sand", "sand.jpg", true);
+  Game.loadTextureFile("dirt", "dirtcliff.png", true);
 }
 
 Game.deviceReady = function ()
@@ -545,13 +655,25 @@ Game.appDraw = function (eye)
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
+  effect.bindTexture("wang", Game.World.Regions[0].wangmap.texture);
+  if (showWang)
+  {
+    effect.bindTexture("grass", Game.assetMan.assets['tile'].texture);
+    effect.bindTexture("dirt", Game.assetMan.assets['tile'].texture);
+    effect.bindTexture("sand", Game.assetMan.assets['tile'].texture);
+  }
+  else
+  {
+    effect.bindTexture("grass", Game.assetMan.assets['grass'].texture);
+    effect.bindTexture("dirt", Game.assetMan.assets['dirt'].texture);
+    effect.bindTexture("sand", Game.assetMan.assets['sand'].texture);
+  }
   effect.draw(Game.World.Regions[0].mesh);
 
-  effect = Game.shaderMan.shaders["colorlines"];
-  effect.bind();
-  effect.bindCamera(eye);
-//  effect.setUniforms(uPerObject);
-  effect.draw(helper.aoBuf);
+//  effect = Game.shaderMan.shaders["colorlines"];
+//  effect.bind();
+//  effect.bindCamera(eye);
+//  effect.draw(helper.aoBuf);
 }
 
 Game.appHandleKeyDown = function (event)
@@ -566,10 +688,13 @@ Game.appHandleKeyUp = function (event)
 
 }
 
+var showWang = false;
+
 Game.setparam = function(name, value)
 {
   if (name == 'ao')           uPerObject.options[1] = (value ? 1.0 : 0.0);
   else if (name == 'diffuse') uPerObject.options[0] = (value ? 1.0 : 0.0);
+  else if (name == 'wang')    showWang = !showWang;
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
@@ -598,13 +723,13 @@ v            in and out
 
 PHASE 2
 
-basic textures
+v basic textures
 basic shadow map
 dual shadow map
  
 PHASE 3
 
-wang tiles
+v wang tiles
 water, doesnt use shadows
 
 */

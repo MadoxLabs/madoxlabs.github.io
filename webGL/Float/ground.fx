@@ -73,37 +73,60 @@ uniform vec3 diffusecolor;       // group material
 uniform vec3 specularcolor;      // group material
 uniform vec3 emissivecolor;      // group material
 
+uniform sampler2D wang; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
+uniform sampler2D grass; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
+uniform sampler2D dirt; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
+uniform sampler2D sand; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 
 void main(void) 
 { 
-  vec3 color = vec3(1.0,1.0,1.0);
+  float wangsize = 64.0;
+  vec4 color = vec4(1.0,1.0,1.0,1.0);
 
-  if (vPosition.y > 20.0)  // white snow
+  // wang tiles
+  vec2 mappingScale = vec2(wangsize, wangsize);                 // we are hardcoding the fact that each ground segment is made up of 100x100 tiles
+  vec2 mappingAddress = vTextureCoord * mappingScale;  // convert the 0:1 uvs to 0:100 tile index
+  vec4 whichTile = texture2D(wang, (floor(mappingAddress) + 0.5) / mappingScale ); // floor the tile index to get the interger array indexes into the index
+                                                                                               // then convert backto 0:1 range for reading
+  vec2 tileScale = vec2(4.0, 4.0);                     // we know the tile textures is always 4x4
+  vec2 tileScaledTex = vTextureCoord * vec2(wangsize/4.0, wangsize/4.0);
+
+  float f = abs(vNormal.x) + abs(vNormal.z);
+  vec4 texColorA = texture2D(grass, whichTile.xw + fract(mappingAddress)/tileScale);
+  vec4 texColorB = texture2D(dirt, whichTile.xw + fract(mappingAddress)/tileScale);
+  vec4 texColorC = texture2D(sand, whichTile.xw + fract(mappingAddress)/tileScale);
+
+  // lerp between dirt and grass based on terrain slope
+  if (f > 0.9) color = texColorB;
+  else if (f > 0.7) 
   {
-    float c = (vPosition.y - 20.0) / 30.0 + 0.80;
-    color = vec3(c,c,c);
+    f = ((f - 0.7) * 5.0) * 0.7 + 0.3;  // scale to 0 to 1, then bias towards dirt by 30%
+    color = texColorB * f + texColorA * (1.0-f);
   }
-  else if (vPosition.y > 5.0) // stones
-  {
-    float c = 0.5 + (vPosition.y-5.0)/20.0;
-    color = vec3(c-0.1,c,c);
-  }
-  else if (vPosition.y > -10.0) // greenery
-  {
-    float c = 0.6; //0.2 + (vPosition.y + 10.0)/15.0;
-    color = vec3(0.0,c,0.0);
-  }
-  else  // sand
-  {
-    color = vec3(237.0/255.0, 201.0/255.0, 175.0/255.0);
+  else color = texColorA;
+
+  // below a certain height lerp with sand
+  float wHeight = vPosition.y;
+  if (wHeight <= -11.0) {
+    color = texColorC;
+  } else
+  if (wHeight < -9.0) {
+    f = (wHeight + 11.0)/2.0;
+    color = color * f + texColorC * (1.0-f);
   }
 
+  // lighting
   vec3 lightDir = vec3(0.5,1.0,0.2);
   float nDotL = dot(normalize(vNormal), lightDir);
 
+  // apply user options
+  float a = color.a;
   if (options.x > 0.0) color = color * (nDotL + 0.1);
   if (options.y > 0.0) color = color * min(1.0,vAOFactor+0.3);
-  gl_FragColor = vec4(color, 1.0);
+  color.a = a;
+
+  // out
+  gl_FragColor = color;
 }
 
 [END]

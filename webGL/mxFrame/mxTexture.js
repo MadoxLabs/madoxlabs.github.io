@@ -16,7 +16,7 @@ Texture.prototype.load = function(file)
 Texture.prototype.fromArray = function(w, h, data, format, type)
 {
   gl.bindTexture(gl.TEXTURE_2D, this.texture);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+//  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texImage2D(gl.TEXTURE_2D, 0, format, w, h, 0, format, type, data);
   if (this.mipmap) { gl.generateMipmap(gl.TEXTURE_2D); }
   gl.bindTexture(gl.TEXTURE_2D, null);
