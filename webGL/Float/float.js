@@ -623,6 +623,7 @@ Game.loadingStop = function ()
   lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
   lighteye.lookAt(50.0, 0.0, 50.0);
   lighteye.update();
+  uPerObject.uLightPosition = lighteye.position;
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 
   Game.makeHelper();
@@ -657,11 +658,13 @@ Game.appUpdate = function ()
     Game.camera.angles[0] -= 0.01;
 
   sunpos += 0.1;
+  if (sunpos >= 150.0) sunpos = -150.0;
 //  if (sunpos != lighteye.offset[0])
   {
     lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
     lighteye.lookAt(50.0, 0.0, 50.0);
     lighteye.update();
+    uPerObject.uLightPosition = lighteye.position;
     mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
 }
@@ -738,7 +741,7 @@ Game.setparam = function(name, value)
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
-//  else if (name == 'sun') sunpos = value;
+  else if (name == 'sun') sunpos = value;
 }
 
 /*

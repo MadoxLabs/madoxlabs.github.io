@@ -53,7 +53,7 @@ void main(void)
 
 uniform vec2 options;            // group perobject
 uniform mat4 uWorldToLight;      // group perobject
-uniform vec3 uLightPosition    ;  // group light
+uniform vec3 uLightPosition    ;  // group perobject
 
 uniform vec3 camera;             // group camera
 
@@ -124,7 +124,7 @@ void main(void)
 
   // lighting
   vec3 lightDir = vec3(0.5,1.0,0.2);
-  float nDotL = dot(normalize(vNormal), lightDir);
+  float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
 
   // apply user options
   float a = color.a;
