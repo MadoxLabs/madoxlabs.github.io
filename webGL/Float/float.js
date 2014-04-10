@@ -619,7 +619,8 @@ Game.loadingStop = function ()
 
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
-  lighteye.offset = vec3.fromValues(0.0, 150.0, 0.0);
+  sunpos = 100.0;
+  lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
   lighteye.lookAt(50.0, 0.0, 50.0);
   lighteye.update();
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
@@ -640,8 +641,10 @@ Game.appUpdate = function ()
   if (!Game.camera) return;
   if (currentlyPressedKeys[33])  // Page Up
     Game.camera.offset[2] -= 1;
+    //sunpos -= 1;
   if (currentlyPressedKeys[34])  // Page Down
     Game.camera.offset[2] += 1;
+    //sunpos += 1;
 
   if (currentlyPressedKeys[37])  // Left cursor key
     Game.camera.angles[1] += 0.01;
@@ -653,14 +656,14 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[40])  // Down cursor key
     Game.camera.angles[0] -= 0.01;
 
-  if (sunpos != lighteye.offset[0])
+  sunpos += 0.1;
+//  if (sunpos != lighteye.offset[0])
   {
     lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
     lighteye.lookAt(50.0, 0.0, 50.0);
     lighteye.update();
     mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
-
 }
 
 Game.appDrawAux = function ()
@@ -672,6 +675,7 @@ Game.appDrawAux = function ()
   shadowmap.engage();
   gl.clearColor(1.0, 1.0, 1.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
   var effect = Game.shaderMan.shaders["shadowcast"];
   effect.bind();
   effect.bindCamera(lighteye);
@@ -705,7 +709,7 @@ Game.appDraw = function (eye)
     effect.bindTexture("sand", Game.assetMan.assets['sand'].texture);
   }
   effect.draw(Game.World.Regions[0].mesh);
-
+  gl.finish();
 //  effect = Game.shaderMan.shaders["colorlines"];
 //  effect.bind();
 //  effect.bindCamera(eye);
@@ -734,7 +738,7 @@ Game.setparam = function(name, value)
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
-  else if (name == 'sun') sunpos = value;
+//  else if (name == 'sun') sunpos = value;
 }
 
 /*

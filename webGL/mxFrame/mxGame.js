@@ -139,17 +139,31 @@ Game.postprocess = function (name)
   Game.postprocessShader = name;
 }
 
+var done = true;
 Game.run = function ()
 {
   if (Game.ready == false) return;
 
-  Game.lastTime = Game.time;
-  Game.time = Game.now();
-  Game.elapsed = Game.time - Game.lastTime;
+  if (done)
+  {
+    done = false;
+    Game.lastTime = Game.time;
+    Game.time = Game.now();
+    Game.elapsed = Game.time - Game.lastTime;
 
-  Game.update();              var updateTime = Game.now() - Game.time;
-  Game.draw();                var drawTime = Game.now() - Game.time - updateTime;
-                              var idleTime = 17 - updateTime - drawTime;
+    Game.update(); var updateTime = Game.now() - Game.time;
+    Game.draw();   var drawTime = Game.now() - Game.time - updateTime;
+                   var idleTime = 17 - updateTime - drawTime;
+    done = true;
+  }
+  else
+  {
+    Game.context.clearRect(0, 0, 400, 50);
+    Game.context.font = "bold 8px Arial";
+    Game.context.fillStyle = "#ff0000";
+    Game.context.fillText("STALLED", 0, 10);
+    return;
+  }
 
   //////////
   // draw the timing stats
