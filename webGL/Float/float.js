@@ -484,16 +484,16 @@ function fWorld()
   var d = new Date(); var r = new mxRand(); r.seed(d.getTime(), true);
   var mountains = new LibNoise.FastRidgedMultifractal();
   mountains.Seed = r.pop();
-  mountains.Frequency = 5.0;
+  mountains.Frequency = 4.0;//0.5;
   var baseFlat = new LibNoise.FastBillow();
   baseFlat.Seed = r.pop();
-  baseFlat.Frequency = 1;
+  baseFlat.Frequency = 4.0;//1.0;
   var flat = new LibNoise.ScaleBiasOutput(baseFlat);
   flat.Scale = 0.25;
-  flat.Bias = -0.75;
+  flat.Bias = -1.75;//-0.75
   var terrain = new LibNoise.FastPerlin();
   terrain.Seed = r.pop();
-  terrain.Frequency = 5.0;
+  terrain.Frequency = 3.0;//0.5;
   terrain.Persistence = 0.25;
   var final = new LibNoise.SelectOutput(terrain, mountains, flat);
   final.EdgeFalloff = 0.125;
