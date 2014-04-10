@@ -2,22 +2,10 @@
 colorlines
 [END]
 
+[INCLUDE renderstates]
+
 [COMMON]
-
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-
 varying vec4 pColor;
-
-[END]
-
-[RENDERSTATE]
-name colorlines
-depth true
-cull false
 [END]
 
 [APPLY]

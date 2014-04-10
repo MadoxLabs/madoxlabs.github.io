@@ -2,14 +2,9 @@
 ground
 [END]
 
+[INCLUDE renderstates]
+
 [COMMON]
-
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-
 uniform sampler2D heightmap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 uniform sampler2D aomap; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 
@@ -17,13 +12,6 @@ varying vec2 vTextureCoord;
 varying vec4 vPosition;
 varying float vAOFactor;
 varying vec3 vNormal;
-
-[END]
-
-[RENDERSTATE]
-name plain
-depth true
-depthfunc LESS
 [END]
 
 [APPLY]
@@ -64,6 +52,8 @@ void main(void)
 [PIXEL]
 
 uniform vec2 options;            // group perobject
+uniform mat4 uWorldToLight;      // group perobject
+uniform vec3 uLightPosition    ;  // group light
 
 uniform vec3 camera;             // group camera
 
@@ -77,6 +67,23 @@ uniform sampler2D wang; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CL
 uniform sampler2D grass; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 uniform sampler2D dirt; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 uniform sampler2D sand; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
+uniform sampler2D shadow; // mag LINEAR, min LINEAR
+
+bool IsShadow(vec4 position, vec3 normal)
+{
+  vec4 positionFromLight =  uWorldToLight * position;
+
+  // if face is away from light - shadowed
+  vec3 lightDir = uLightPosition - vec3(position);
+ // if (dot(normal, lightDir) < 0.0) return true;
+
+  // convert light POV location to a spot on the shadow map
+  vec2 shadowLookup = 0.5 + 0.5 * (positionFromLight.xy / positionFromLight.w);
+  vec4 depth = texture2D(shadow, shadowLookup);
+  float depthFromLight = positionFromLight.z / positionFromLight.w;
+  if (depth.x + 0.00001 < depthFromLight) return true;
+  return false;
+}
 
 void main(void) 
 { 
@@ -123,6 +130,9 @@ void main(void)
   float a = color.a;
   if (options.x > 0.0) color = color * (nDotL + 0.1);
   if (options.y > 0.0) color = color * min(1.0,vAOFactor+0.3);
+
+  if (IsShadow(vPosition, vNormal))  color = color * 0.4;
+
   color.a = a;
 
   // out

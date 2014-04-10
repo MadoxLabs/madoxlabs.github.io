@@ -89,6 +89,7 @@ RenderState.prototype.unset = function()
 var ShaderManager = function()
 {
   this.shaders = {};
+  this.shaderParts = {};
   this.renderstates = {};
   this.currentRenderState = null;
 }
@@ -244,9 +245,43 @@ ShaderManager.prototype.processRenderStates = function(src)
   return renderstates;
 }
 
+ShaderManager.prototype.storeEffect = function(src)
+{
+  var name = this.extractShaderPart(src, "[NAME]").trim();
+  if (!name) name = this.extractShaderPart(src, "[PARTNAME]").trim();
+  this.shaderParts[name] = src;
+  Game.loadingDecr();
+}
+
+ShaderManager.prototype.processEffects = function()
+{
+  for (name in this.shaderParts)
+  {
+    if (this.shaders[name]) continue;
+
+    var src = this.shaderParts[name];
+
+    // resolve includes
+    for (;;)
+    {
+      var start = src.indexOf("[INCLUDE ");
+      if (start == -1) break;
+      var end = src.indexOf("]", start);
+
+      var n = src.substring(start+9, end); // get name
+      var newsrc = src.substring(0, start) + this.shaderParts[n] + src.substring(end + 1); // replace line with shaderpart
+      src = newsrc; // do it again
+    }
+
+    this.processEffect(src);
+  }
+}
+
 ShaderManager.prototype.processEffect = function(src)
 {
   var name   = this.extractShaderPart(src, "[NAME]").trim();
+  if (!name) return;
+
   var vertex = this.extractShaderPart(src, "[VERTEX]");
   var pixel  = this.extractShaderPart(src, "[PIXEL]");
   var common = this.extractShaderPart(src, "[COMMON]");
@@ -342,7 +377,5 @@ ShaderManager.prototype.processEffect = function(src)
   shaderProgram.setUniforms = setUniforms;
 
   this.shaders[name] = shaderProgram;
-  Game.loadingDecr();
-
 }
 

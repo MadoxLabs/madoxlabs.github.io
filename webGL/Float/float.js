@@ -310,7 +310,8 @@ fRegion.prototype.generate = function()
 
     for (var x = -1; x < this.VisibleMeshSize + 1; ++x)
     {
-      val = noise.GetValue(xf, 0, zf) * NoiseScale;
+      if (x < 1 || y < 1 || x >= this.VisibleMeshSize-1 || y >= this.VisibleMeshSize-1) val = -100.0;
+      else val = noise.GetValue(xf, 0, zf) * NoiseScale;
       this.Map[i++] = val
       if (val > max) max = val;
       xf += step;
@@ -572,17 +573,22 @@ fWorld.prototype.getRegionByIndex = function( x,  y)
 var uPerObject;
 var currentlyPressedKeys = [];
 var helper;
+var shadowmap;
+var lighteye;
+var sunpos = 0.0;
 
 Game.appInit = function ()
 {
   Game.World = new fWorld();
   Game.World.createRegionContaining(0, 0);
+  Game.loadShaderFile("renderstates.fx");
   Game.loadShaderFile("ground.fx");
   Game.loadShaderFile("colorlines.fx");
+  Game.loadShaderFile("shadowcast.fx");
   Game.loadTextureFile("tile", "tile.jpg", true);
-  Game.loadTextureFile("grass", "grass.png", true);
+  Game.loadTextureFile("grass", "grass.jpg", true);
   Game.loadTextureFile("sand", "sand.jpg", true);
-  Game.loadTextureFile("dirt", "dirtcliff.png", true);
+  Game.loadTextureFile("dirt", "dirtcliff.jpg", true);
 }
 
 Game.deviceReady = function ()
@@ -607,8 +613,16 @@ Game.loadingStop = function ()
   var effect = Game.shaderMan.shaders["ground"];
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
+  uPerObject.uWorldToLight = mat4.create();
   uPerObject.options = vec2.fromValues(1.0, 1.0);
   mat4.identity(uPerObject.uWorld);
+
+  shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
+  lighteye = new Camera(2048, 2048);
+  lighteye.offset = vec3.fromValues(0.0, 150.0, 0.0);
+  lighteye.lookAt(50.0, 0.0, 50.0);
+  lighteye.update();
+  mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 
   Game.makeHelper();
 }
@@ -638,11 +652,32 @@ Game.appUpdate = function ()
     Game.camera.angles[0] += 0.01;
   if (currentlyPressedKeys[40])  // Down cursor key
     Game.camera.angles[0] -= 0.01;
+
+  if (sunpos != lighteye.offset[0])
+  {
+    lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
+    lighteye.lookAt(50.0, 0.0, 50.0);
+    lighteye.update();
+    mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+  }
+
 }
 
 Game.appDrawAux = function ()
 {
+  if (Game.loading) return;
 
+  // shadowing render
+  lighteye.engage();
+  shadowmap.engage();
+  gl.clearColor(1.0, 1.0, 1.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  var effect = Game.shaderMan.shaders["shadowcast"];
+  effect.bind();
+  effect.bindCamera(lighteye);
+  effect.setUniforms(uPerObject);
+  effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
+  effect.draw(Game.World.Regions[0].mesh);
 }
 
 Game.appDraw = function (eye)
@@ -656,6 +691,7 @@ Game.appDraw = function (eye)
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
   effect.bindTexture("wang", Game.World.Regions[0].wangmap.texture);
+  effect.bindTexture("shadow", shadowmap.texture);
   if (showWang)
   {
     effect.bindTexture("grass", Game.assetMan.assets['tile'].texture);
@@ -692,12 +728,13 @@ var showWang = false;
 
 Game.setparam = function(name, value)
 {
-  if (name == 'ao')           uPerObject.options[1] = (value ? 1.0 : 0.0);
+  if (name == 'ao') uPerObject.options[1] = (value ? 1.0 : 0.0);
   else if (name == 'diffuse') uPerObject.options[0] = (value ? 1.0 : 0.0);
-  else if (name == 'wang')    showWang = !showWang;
+  else if (name == 'wang') showWang = !showWang;
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
+  else if (name == 'sun') sunpos = value;
 }
 
 /*
@@ -714,7 +751,7 @@ v    vertex shader: set height from height map
 v                   get ao factor and interpolate it
  v   pixel shader: determine the light based on ao factor
   sky colour
-  moving light
+v   moving light
 
 v  camera - fixed looking at center of ground
 v            rotate about Y
@@ -724,7 +761,7 @@ v            in and out
 PHASE 2
 
 v basic textures
-basic shadow map
+v basic shadow map
 dual shadow map
  
 PHASE 3

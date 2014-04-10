@@ -279,7 +279,7 @@ Game.loadShaderFile = function (name)
 
   var client = new XMLHttpRequest();
   client.open('GET', name);
-  client.onload = function () { Game.shaderMan.processEffect(client.responseText); }
+  client.onload = function () { Game.shaderMan.storeEffect(client.responseText); }
   client.send();
 }
 
@@ -318,7 +318,7 @@ Game.loadingIncr = function()
 
 Game.loadingDecr = function ()
 {
-  if (Game.loading == 1) Game.loadingStop();
+  if (Game.loading == 1) { Game.shaderMan.processEffects(); Game.loadingStop(); }
   Game.loading -= 1;
 }
 

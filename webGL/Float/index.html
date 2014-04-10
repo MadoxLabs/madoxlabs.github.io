@@ -23,6 +23,8 @@
     <br />
     Diffuse: <input type="checkbox" checked onchange="Game.setparam('diffuse', this.checked);"/><br />
     Ambient Occlusion: <input type="checkbox" checked onchange="Game.setparam('ao', this.checked);"/><br />
+    Sun: Set <input id="sun" type="range" min="-150" max="150" value="0" onchange="setrange('sun');"/> Rise : <span id="sunval">0</span><br /> 
+    <br />
     Show Wang Tile Pattern: <input type="checkbox" onchange="Game.setparam('wang', this.checked);"/><br />
     <br />
     Ray Count: 1 <input id="count" type="range" min="1" max="50" value="30" onchange="setrange('count');"/> 50 : <span id="countval">30</span><br /> 
