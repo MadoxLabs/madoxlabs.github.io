@@ -153,7 +153,7 @@ Game.run = function ()
 
     Game.update(); var updateTime = Game.now() - Game.time;
     Game.draw();   var drawTime = Game.now() - Game.time - updateTime;
-                   var idleTime = 17 - updateTime - drawTime;
+                   var idleTime = Game.framerate - updateTime - drawTime;
     done = true;
   }
   else
@@ -353,7 +353,8 @@ Game.handleKeyUp = function (event)
 function main()
 {
   Game.init();
-  window.setInterval(Game.run, 17);
+  Game.framerate = 34;
+  window.setInterval(Game.run, Game.framerate);
 }
 
 
