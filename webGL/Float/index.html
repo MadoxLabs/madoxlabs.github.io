@@ -21,6 +21,8 @@
     <div><canvas id='surface'></div>
     <div style="top:5px; left:5px; position:fixed;"><canvas id='output' width="400" height="50"></div>
     <br />
+    Arrow keys, Page up/down<bR />
+    <br />
     Diffuse: <input type="checkbox" checked onchange="Game.setparam('diffuse', this.checked);"/><br />
     Ambient Occlusion: <input type="checkbox" checked onchange="Game.setparam('ao', this.checked);"/><br />
     Sun: Set <input id="sun" type="range" required min="-150" max="150" value="0" oninput="setrange('sun');"/> Rise : <span id="sunval">0</span><br /> 

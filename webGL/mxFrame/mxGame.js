@@ -139,31 +139,20 @@ Game.postprocess = function (name)
   Game.postprocessShader = name;
 }
 
-var done = true;
 Game.run = function ()
 {
+//  window.setTimeout(Game.run, Game.framerate);
+
   if (Game.ready == false) return;
 
-  if (done)
-  {
-    done = false;
-    Game.lastTime = Game.time;
-    Game.time = Game.now();
-    Game.elapsed = Game.time - Game.lastTime;
+  Game.lastTime = Game.time;
+  Game.time = Game.now();
+  Game.elapsed = Game.time - Game.lastTime;
 
-    Game.update(); var updateTime = Game.now() - Game.time;
-    Game.draw();   var drawTime = Game.now() - Game.time - updateTime;
-                   var idleTime = Game.framerate - updateTime - drawTime;
-    done = true;
-  }
-  else
-  {
-    Game.context.clearRect(0, 0, 400, 50);
-    Game.context.font = "bold 8px Arial";
-    Game.context.fillStyle = "#ff0000";
-    Game.context.fillText("STALLED", 0, 10);
-    return;
-  }
+  Game.update(); var updateTime = Game.now() - Game.time;
+  Game.draw();   var drawTime = Game.now() - Game.time - updateTime;
+                 var idleTime = Game.elapsed - updateTime - drawTime;
+  window.requestAnimationFrame(Game.run);
 
   //////////
   // draw the timing stats
@@ -174,7 +163,8 @@ Game.run = function ()
   if (idleTime < 0) { idleTime = 0; Game.context.fillStyle = "#ff0000"; }
   var perFrame = idleTime + drawTime + updateTime;
 
-  Game.context.fillText("FPS: " + ((1000 / perFrame) | 0) + "  Each frame: " + perFrame + " ms", 0, 10);
+//  Game.context.fillText("FPS: " + ((1000 / perFrame) | 0) + "  Each frame: " + perFrame + " ms", 0, 10);
+  Game.context.fillText("FPS: " + ((1000 / Game.elapsed) | 0) + "  Each frame: " + Game.elapsed + " ms", 0, 10);
   Game.context.fillText("Frame Time: Update: " + updateTime + "ms  Draw: " + drawTime + "ms  Idle: " + idleTime + "ms", 0, 20);
   updateTime = (updateTime / perFrame * 100) | 0;
   drawTime = (drawTime / perFrame * 100) | 0;
@@ -227,6 +217,8 @@ Game.draw = function ()
       effect.draw(Game.assetMan.assets[Game.camera.eyes[eye].fsq]);
     }
   }
+  gl.flush();
+  gl.finish();
 }
 
 Game.oculusMode = function(state)
@@ -352,9 +344,12 @@ Game.handleKeyUp = function (event)
 
 function main()
 {
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+
   Game.init();
   Game.framerate = 34;
-  window.setInterval(Game.run, Game.framerate);
+  window.requestAnimationFrame(Game.run);
+//  window.setTimeout(Game.run, Game.framerate);
 }
 
 

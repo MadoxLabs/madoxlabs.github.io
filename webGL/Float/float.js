@@ -712,8 +712,6 @@ Game.appDraw = function (eye)
     effect.bindTexture("sand", Game.assetMan.assets['sand'].texture);
   }
   effect.draw(Game.World.Regions[0].mesh);
-  gl.flush();
-  gl.finish();
 //  effect = Game.shaderMan.shaders["colorlines"];
 //  effect.bind();
 //  effect.bindCamera(eye);
