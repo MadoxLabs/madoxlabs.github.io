@@ -70,64 +70,74 @@ function bindTexture(name, texture, mag, min, wraps, wrapt)
   gl.uniform1i(t.loc, tnum);
   if (!texture) return;
 
-  if (arguments.length < 3 || !mag) mag = t.mag;
-  if (arguments.length < 4 || !min) min = t.min;
-  if (arguments.length < 5 || !wraps) wraps = t.wraps;
-  if (arguments.length < 6 || !wrapt) wrapt = t.wrapt;
+  var fmag = mag;
+  var fmin = min;
+  var fwraps = wraps;
+  var fwrapt = wrapt;
+  if (arguments.length < 3 || !mag) fmag = t.mag;
+  if (arguments.length < 4 || !min) fmin = t.min;
+  if (arguments.length < 5 || !wraps) fwraps = t.wraps;
+  if (arguments.length < 6 || !wrapt) fwrapt = t.wrapt;
 
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, mag);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, min);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wraps);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapt);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, fmag);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, fmin);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, fwraps);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, fwrapt);
 }
 
 function setUniforms(vals)
 {
   for (var name in vals)
+    _setUniforms(this, name, vals);
+}
+
+function _setUniforms(obj, name, vals)
   {
-    if (!this[name]) continue;
-    switch (this[name].type)
+    var n = obj[name];
+
+    if (!n) return;
+    switch (n.type)
     {
       case gl.FLOAT:
-        gl.uniform1f(this[name], vals[name]);
+        gl.uniform1f(n, vals[name]);
         break;
       case gl.FLOAT_VEC2:
-        gl.uniform2fv(this[name], vals[name]);
+        gl.uniform2fv(n, vals[name]);
         break;
       case gl.FLOAT_VEC3:
-        gl.uniform3fv(this[name], vals[name]);
+        gl.uniform3fv(n, vals[name]);
         break;
       case gl.FLOAT_VEC4:
-        gl.uniform4fv(this[name], vals[name]);
+        gl.uniform4fv(n, vals[name]);
         break;
       case gl.BOOL:
       case gl.INT:
-        gl.uniform1i(this[name], vals[name]);
+        gl.uniform1i(n, vals[name]);
         break;
       case gl.BOOL_VEC2:
       case gl.INT_VEC2:
-        gl.uniform2iv(this[name], vals[name]);
+        gl.uniform2iv(n, vals[name]);
         break;
       case gl.BOOL_VEC3:
       case gl.INT_VEC3:
-        gl.uniform3iv(this[name], vals[name]);
+        gl.uniform3iv(n, vals[name]);
         break;
       case gl.BOOL_VEC4:
       case gl.INT_VEC4:
-        gl.uniform4iv(this[name], vals[name]);
+        gl.uniform4iv(n, vals[name]);
         break;
       case gl.FLOAT_MAT2:
-        gl.uniformMatrix2fv(this[name], false, vals[name]);
+        gl.uniformMatrix2fv(n, false, vals[name]);
         break;
       case gl.FLOAT_MAT3:
-        gl.uniformMatrix3fv(this[name], false, vals[name]);
+        gl.uniformMatrix3fv(n, false, vals[name]);
         break;
       case gl.FLOAT_MAT4:
-        gl.uniformMatrix4fv(this[name], false, vals[name]);
+        gl.uniformMatrix4fv(n, false, vals[name]);
         break;
     }
   }
-}
+
 
 function createUniform(group)
 {
@@ -144,18 +154,19 @@ function draw(mesh)
 {
   for (var i = 0; i < mesh.groups.length; ++i)
   {
+    var group = mesh.groups[i];
     // set material
-    this.setUniforms(mesh.groups[i].material);
+    this.setUniforms(group.material);
     if (this.textures.length)
     {
-      if (mesh.groups[i].texture) this.bindTexture('uTexture', Game.assetMan.assets[mesh.groups[i].texture].texture);
+      if (group.texture) this.bindTexture('uTexture', Game.assetMan.assets[group.texture].texture);
       else this.bindTexture('uTexture', null);
     }
 
     // render the parts
-    for (var p = 0; p < mesh.groups[i].parts.length; ++p)
+    for (var p = 0; p < group.parts.length; ++p)
     {
-      var part = mesh.groups[i].parts[p];
+      var part = group.parts[p];
       this.setUniforms(part.uniforms);
 
       this.bindMesh(part);

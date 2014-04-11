@@ -114,6 +114,10 @@ CameraEye.prototype.engage = function ()
 
 function Camera(w, h)
 {
+  this.targetOrient = mat4.create();     // optimize these creates out. its pointless to recretes them all the time
+  this.orientX = mat4.create();
+  this.orientY = mat4.create();
+
   this.ipd = 0.0;
 
   this.width = w;
@@ -165,26 +169,32 @@ Camera.prototype.update = function ()
   // assume target orient is identity
   // get our orient from angles
 
-  var targetOrient = mat4.create();  mat4.identity(targetOrient);
-  var orientX = mat4.create(); mat4.identity(orientX);
-  var orientY = mat4.create(); mat4.identity(orientY);
-  mat4.rotate(orientX, orientX, this.angles[1], vec3.fromValues(0, 1, 0));
-  mat4.rotate(orientY, orientY, this.angles[0], vec3.fromValues(1, 0, 0));
-  mat4.multiply(this.orientation, orientX, orientY);
+  mat4.identity(this.targetOrient);
+  mat4.identity(this.orientX);
+  mat4.identity(this.orientY);
+  mat4.rotate(this.orientX, this.orientX, this.angles[1], yAxis);
+  mat4.rotate(this.orientY, this.orientY, this.angles[0], xAxis);
+  mat4.multiply(this.orientation, this.orientX, this.orientY);
 
   vec3.transformMat4(this.position, this.offset, this.orientation);
   vec3.add(this.position, this.position, this.target);
 
-//  var q = quat.create();
-//  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
-//  if (Game.isOculus && Game.oculusReady == 3)
-//  {
-//    var vals = Game.oculusBridge.getOrientation();
-//    var oq = quat.fromValues(vals.x, vals.y, vals.z, vals.w);
-//    quat.multiply(q, q, oq);
-//  }
-//  mat4.fromQuat(this.orientation, q);
-//
+  //  var q = quat.create();
+  //  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
+  //  if (Game.isOculus && Game.oculusReady == 3)
+  //  {
+  //    var vals = Game.oculusBridge.getOrientation();
+  //    var oq = quat.fromValues(vals.x, vals.y, vals.z, vals.w);
+  //    quat.multiply(q, q, oq);
+  //  }
+  //  mat4.fromQuat(this.orientation, q);
+  //
+
+  this.updateEyes();
+}
+
+Camera.prototype.updateEyes = function()   // optimize: forin in its own function
+{
   for (var eye in this.eyes) this.eyes[eye].update();
 }
 

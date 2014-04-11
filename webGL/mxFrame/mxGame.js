@@ -11,12 +11,24 @@ oculusDefault.interpupillaryDistance = 0.065;
 
 var gl;
 var ext = {};
+// 
+// some graphical helpers for global use
+var xAxis;
+var yAxis;
+var zAxis;
+
+
 var Game = {};
 
 // game renders to texture for possible post processing
 
 Game.init = function ()
 {
+  // init globals
+  xAxis = vec3.fromValues(1, 0, 0);
+  yAxis = vec3.fromValues(0, 1, 0);
+  zAxis = vec3.fromValues(0, 0, 1);
+
   // initial set up of the game object, init gl, create helpers
   this.loading = 0;
   this.ready = false;
@@ -189,39 +201,52 @@ Game.draw = function ()
   gl.clearDepth(1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  for (var eye in Game.camera.eyes)
-  {
-    Game.camera.eyes[eye].engage();
-    Game.appDraw(Game.camera.eyes[eye]);
-  }
+  Game.drawEachEye();
 
   // post process here
   if (Game.isOculus)
   {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    for (var eye in Game.camera.eyes)
-    {
-      Game.camera.eyes[eye].engage();
-      var uniforms = {};
-      uniforms.distortionscale = 0.8;
-      uniforms.aspect = Game.oculus.hResolution * 0.5 / Game.oculus.vResolution;
-      uniforms.ScreenCenter = Game.camera.eyes[eye].center;
-      uniforms.LensCenter = Game.camera.eyes[eye].lenscenter;
-
-      var effect = Game.shaderMan.shaders[Game.postprocessShader];
-      effect.bind();
-      effect.setUniforms(uniforms);
-      effect.bindTexture("uFrontbuffer", Game.frontbuffer.texture);
-      effect.draw(Game.assetMan.assets[Game.camera.eyes[eye].fsq]);
-    }
+    Game.drawEachEyeOculusEffect();
   }
   gl.flush();
   gl.finish();
 }
 
-Game.oculusMode = function(state)
+Game.drawEachEye = function()
+{
+  for (var eye in Game.camera.eyes) Game.drawEye(Game.camera.eyes[eye]);
+}
+
+Game.drawEye = function(eye)
+{
+  eye.engage();
+  Game.appDraw(eye);
+}
+
+Game.drawEachEyeOculusEffect = function ()
+{
+  for (var eye in Game.camera.eyes) Game.drawEyeOculusEffect(Game.camera.eyes[eye]);
+}
+
+Game.drawEyeOculusEffect = function (eye)
+{
+  eye.engage();
+  var uniforms = {};
+  uniforms.distortionscale = 0.8;
+  uniforms.aspect = Game.oculus.hResolution * 0.5 / Game.oculus.vResolution;
+  uniforms.ScreenCenter = eye.center;
+  uniforms.LensCenter = eye.lenscenter;
+
+  var effect = Game.shaderMan.shaders[Game.postprocessShader];
+  effect.bind();
+  effect.setUniforms(uniforms);
+  effect.bindTexture("uFrontbuffer", Game.frontbuffer.texture);
+  effect.draw(Game.assetMan.assets[eye.fsq]);
+}
+
+Game.oculusMode = function (state)
 {
   if (state && !Game.isOculus)
   {

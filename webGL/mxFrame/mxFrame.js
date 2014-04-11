@@ -82,3 +82,4 @@ function launchApp(appname, lib, type)
   for (i in src) include(libdir + "/" + src[i]);
   include(appname);
 }
+
