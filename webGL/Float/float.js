@@ -619,7 +619,7 @@ Game.loadingStop = function ()
 
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
-  sunpos = 100.0;
+  sunpos = 0.0;
   lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
   lighteye.lookAt(50.0, 0.0, 50.0);
   lighteye.update();
@@ -657,11 +657,11 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[40])  // Down cursor key
     Game.camera.angles[0] -= 0.01;
 
-  sunpos += 0.1;
-  if (sunpos >= 150.0) sunpos = -150.0;
-//  if (sunpos != lighteye.offset[0])
+//  sunpos += 0.05;
+  if (sunpos > 150.0) sunpos = -150.0;
+  if (sunpos != lighteye.offset[0])
   {
-    lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
+    lighteye.offset = vec3.fromValues(sunpos, (120.0 - Math.abs(sunpos)) * 2.0, 0.0);
     lighteye.lookAt(50.0, 0.0, 50.0);
     lighteye.update();
     uPerObject.uLightPosition = lighteye.position;
