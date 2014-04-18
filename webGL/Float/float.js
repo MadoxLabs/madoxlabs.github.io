@@ -271,10 +271,12 @@ function fRegion(area)
   this.MeshSize = RegionSize+2;
   this.VisibleMeshSize = RegionSize;
   this.Map = new Float32Array(this.MeshSize * this.MeshSize);
+  this.Water = new Float32Array(this.MeshSize * this.MeshSize);
   this.mesh = null;
   this.heightmap = null;
   this.aomap = null;
   this.wangmap = null;
+  this.watermap = null;
 
   this.create();
   this.createBuffers();
@@ -284,7 +286,11 @@ function fRegion(area)
 fRegion.prototype.create = function()
 {
   var size = this.MeshSize * this.MeshSize;
-  for (var i = 0; i < size; ++i) this.Map[i] = 0;
+  for (var i = 0; i < size; ++i)
+  {
+    this.Map[i] = 0;
+    this.Water[i] = -12.0;
+  }
   this.generate();
 }
 
@@ -310,7 +316,7 @@ fRegion.prototype.generate = function()
 
     for (var x = -1; x < this.VisibleMeshSize + 1; ++x)
     {
-      if (x < 1 || y < 1 || x >= this.VisibleMeshSize-1 || y >= this.VisibleMeshSize-1) val = -100.0;
+      if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { this.Water[i] = -99.0; val = -100.0; }
       else val = noise.GetValue(xf, 0, zf) * NoiseScale;
       this.Map[i++] = val
       if (val > max) max = val;
@@ -438,6 +444,12 @@ fRegion.prototype.createBuffers = function()
   {
     this.heightmap = new Texture('heightmap');
     this.heightmap.fromArray(this.MeshSize, this.MeshSize, this.Map, gl.LUMINANCE, gl.FLOAT);
+  }
+
+  if (!this.watermap)
+  {
+    this.watermap = new Texture('watermap');
+    this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.LUMINANCE, gl.FLOAT);
   }
 
   if (!this.wangmap)
@@ -583,6 +595,7 @@ Game.appInit = function ()
   Game.World.createRegionContaining(0, 0);
   Game.loadShaderFile("renderstates.fx");
   Game.loadShaderFile("ground.fx");
+  Game.loadShaderFile("water.fx");
   Game.loadShaderFile("colorlines.fx");
   Game.loadShaderFile("shadowcast.fx");
   Game.loadTextureFile("tile", "tile.jpg", true);
@@ -657,7 +670,7 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[40])  // Down cursor key
     Game.camera.angles[0] -= 0.01;
 
-//  sunpos += 0.05;
+  sunpos += 0.1;
   if (sunpos > 150.0) sunpos = -150.0;
   if (sunpos != lighteye.offset[0])
   {
@@ -712,6 +725,16 @@ Game.appDraw = function (eye)
     effect.bindTexture("sand", Game.assetMan.assets['sand'].texture);
   }
   effect.draw(Game.World.Regions[0].mesh);
+
+  effect = Game.shaderMan.shaders["water"];
+  effect.bind();
+  effect.bindCamera(eye);
+  effect.setUniforms(uPerObject);
+  effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
+  effect.bindTexture("watermap", Game.World.Regions[0].watermap.texture);
+  effect.bindTexture("shadow", shadowmap.texture);
+  effect.draw(Game.World.Regions[0].mesh);
+
 //  effect = Game.shaderMan.shaders["colorlines"];
 //  effect.bind();
 //  effect.bindCamera(eye);
@@ -727,7 +750,8 @@ Game.appHandleKeyDown = function (event)
 Game.appHandleKeyUp = function (event)
 {
   currentlyPressedKeys[event.keyCode] = false;
-
+  if (event.keyCode == 70) Game.fullscreenMode(!Game.isFullscreen);
+  if (event.keyCode == 79) Game.oculusMode(!Game.isOculus);
 }
 
 var showWang = false;

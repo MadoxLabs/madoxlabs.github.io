@@ -32,6 +32,8 @@ Game.init = function ()
   // initial set up of the game object, init gl, create helpers
   this.loading = 0;
   this.ready = false;
+  this.isOculus = false;
+  this.isFullscreen = false;
   this.shaderMan = new ShaderManager();
   this.assetMan = new AssetManager();
 
@@ -69,9 +71,9 @@ Game.init = function ()
   document.onkeyup = Game.handleKeyUp;
   window.addEventListener('resize', handleSizeChange);
 
-  addEventListener('fullscreenchange', function () { handlefullscreen(document.fullscreen); });
-  addEventListener('mozfullscreenchange', function () { handlefullscreen(document.mozFullScreen); });
-  addEventListener('webkitfullscreenchange', function () { handlefullscreen(document.webkitIsFullScreen); });
+//  addEventListener('fullscreenchange', function () { handlefullscreen(document.fullscreen); });
+//  addEventListener('mozfullscreenchange', function () { handlefullscreen(document.mozFullScreen); });
+//  addEventListener('webkitfullscreenchange', function () { handlefullscreen(document.webkitIsFullScreen); });
 
   this.oculus = oculusDefault;
   this.oculusReady = 0;
@@ -151,6 +153,11 @@ Game.postprocess = function (name)
   Game.postprocessShader = name;
 }
 
+var frametime = 0;
+var frametotal = 0;
+var framenum = 0;
+var lastfps = 0;
+
 Game.run = function ()
 {
 //  window.setTimeout(Game.run, Game.framerate);
@@ -166,6 +173,17 @@ Game.run = function ()
                  var idleTime = Game.elapsed - updateTime - drawTime;
   window.requestAnimationFrame(Game.run);
 
+  frametime += Game.elapsed;
+  frametotal += ((1000 / Game.elapsed) | 0);
+  framenum += 1;
+
+  if (frametime > 1000)
+  {
+    lastfps = (frametotal / framenum) |0;
+    frametime = 0;
+    frametotal = 0;
+    framenum = 0;
+  }
   //////////
   // draw the timing stats
   //
@@ -176,7 +194,7 @@ Game.run = function ()
   var perFrame = idleTime + drawTime + updateTime;
 
 //  Game.context.fillText("FPS: " + ((1000 / perFrame) | 0) + "  Each frame: " + perFrame + " ms", 0, 10);
-  Game.context.fillText("FPS: " + ((1000 / Game.elapsed) | 0) + "  Each frame: " + Game.elapsed + " ms", 0, 10);
+  Game.context.fillText("FPS: " + lastfps + "  Each frame: " + Game.elapsed + " ms", 0, 10);
   Game.context.fillText("Frame Time: Update: " + updateTime + "ms  Draw: " + drawTime + "ms  Idle: " + idleTime + "ms", 0, 20);
   updateTime = (updateTime / perFrame * 100) | 0;
   drawTime = (drawTime / perFrame * 100) | 0;
@@ -250,36 +268,45 @@ Game.oculusMode = function (state)
 {
   if (state && !Game.isOculus)
   {
+    Game.fullscreenMode(true);
     Game.oculusBridge.connect();
-    var docElm = document.documentElement;
-    if (docElm.requestFullscreen)      docElm.requestFullscreen();
-    else if (docElm.mozRequestFullScreen)      docElm.mozRequestFullScreen();
-    else if (docElm.webkitRequestFullScreen) { docElm.webkitRequestFullScreen(); docElm.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT); }
-    else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
-    Game.surface.style.width = "100%";
-    Game.surface.style.height = "100%";
     Game.postprocess("oculus");
     Game.camera.splitscreen(true);
     Game.isOculus = true;
   }
   else if (!state && Game.isOculus)
   {
+    Game.fullscreenMode(false);
     Game.oculusBridge.disconnect();
-    if (document.exitFullscreen) document.exitFullscreen();
-    else if (document.mozCancelFullScreen)      document.mozCancelFullScreen();
-    else if (document.webkitCancelFullScreen)      document.webkitCancelFullScreen();
-    else if (document.msExitFullscreen)      document.msExitFullscreen();
-    Game.surface.style.width = "800px";
-    Game.surface.style.height = "600px";
     Game.postprocess(null);
     Game.camera.splitscreen(false);
     Game.isOculus = false;
   }
 }
 
-function handlefullscreen(state)
+Game.fullscreenMode = function(state)
 {
-  Game.oculusMode(state);
+  if (state && !Game.isFullscreen)
+  {
+    var docElm = document.documentElement;
+    if (docElm.requestFullscreen) docElm.requestFullscreen();
+    else if (docElm.mozRequestFullScreen) docElm.mozRequestFullScreen();
+    else if (docElm.webkitRequestFullScreen) { docElm.webkitRequestFullScreen(); docElm.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT); }
+    else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
+    Game.surface.style.width = "100%";
+    Game.surface.style.height = "100%";
+    Game.isFullscreen = true;
+  }
+  else if (!state && Game.isFullscreen)
+  {
+    if (document.isFullscreen) document.exitFullscreen();
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    else if (document.webkitCancelFullScreen) document.webkitCancelFullScreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+    Game.surface.style.width = "800px";
+    Game.surface.style.height = "600px";
+    Game.isFullscreen = false;
+  }
 }
 
 function handleSizeChange()
@@ -372,7 +399,7 @@ function main()
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
 
   Game.init();
-  Game.framerate = 34;
+//  Game.framerate = 34;
   window.requestAnimationFrame(Game.run);
 //  window.setTimeout(Game.run, Game.framerate);
 }
