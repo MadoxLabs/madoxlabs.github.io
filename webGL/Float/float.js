@@ -289,7 +289,7 @@ fRegion.prototype.create = function()
   for (var i = 0; i < size; ++i)
   {
     this.Map[i] = 0;
-    this.Water[i] = -12.0;
+    this.Water[i] = 0.0;
   }
   this.generate();
 }
@@ -316,8 +316,9 @@ fRegion.prototype.generate = function()
 
     for (var x = -1; x < this.VisibleMeshSize + 1; ++x)
     {
-      if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { this.Water[i] = -99.0; val = -100.0; }
+      if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { this.Water[i] = 0.0; val = -100.0; }
       else val = noise.GetValue(xf, 0, zf) * NoiseScale;
+      //this.Water[i] = Math.max(-12.0 - val, 0.0);
       this.Map[i++] = val
       if (val > max) max = val;
       xf += step;
@@ -463,6 +464,17 @@ fRegion.prototype.createBuffers = function()
   if (!this.aomap) this.createAOMap();
 }
 
+fRegion.prototype.jiggleWater = function()
+{
+  var size = this.MeshSize * this.MeshSize;
+  for (var i = 0; i < size; ++i)
+  {
+//    this.Water[i] = Math.max(-12.0 - this.Map[i], 0.0);
+    this.Water[i] += Math.random() * 0.01 - 0.005;
+  }
+  this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.LUMINANCE, gl.FLOAT);
+}
+
 fRegion.prototype.createAOMap = function ()
 {
   // ao data
@@ -589,15 +601,30 @@ var shadowmap;
 var lighteye;
 var sunpos = 0.0;
 
+var highRez = true;
+
 Game.appInit = function ()
 {
   Game.World = new fWorld();
   Game.World.createRegionContaining(0, 0);
+
   Game.loadShaderFile("renderstates.fx");
-  Game.loadShaderFile("ground.fx");
-  Game.loadShaderFile("water.fx");
-  Game.loadShaderFile("colorlines.fx");
-  Game.loadShaderFile("shadowcast.fx");
+  //  Game.loadShaderFile("colorlines.fx");
+
+  if (highRez)
+  {
+    Game.loadShaderFile("shadowrecieve.fx");
+    Game.loadShaderFile("ground.fx");
+    Game.loadShaderFile("water.fx");
+    Game.loadShaderFile("shadowcast.fx");
+  }
+  else
+  {
+    Game.loadShaderFile("shadowoff.fx");
+    Game.loadShaderFile("groundlow.fx");
+    Game.loadShaderFile("waterlow.fx");
+  }
+
   Game.loadTextureFile("tile", "tile.jpg", true);
   Game.loadTextureFile("grass", "grass.jpg", true);
   Game.loadTextureFile("sand", "sand.jpg", true);
@@ -630,7 +657,7 @@ Game.loadingStop = function ()
   uPerObject.options = vec2.fromValues(1.0, 1.0);
   mat4.identity(uPerObject.uWorld);
 
-  shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
+  if (highRez) shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
   sunpos = 0.0;
   lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
@@ -680,12 +707,15 @@ Game.appUpdate = function ()
     uPerObject.uLightPosition = lighteye.position;
     mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
+
+  Game.World.Regions[0].jiggleWater();
 }
 
 Game.appDrawAux = function ()
 {
   if (Game.loading) return;
-
+  if (!highRez) return;
+  
   // shadowing render
   lighteye.engage();
   shadowmap.engage();
@@ -698,6 +728,11 @@ Game.appDrawAux = function ()
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.draw(Game.World.Regions[0].mesh);
+
+  // water
+  // render pass 1 water: calculate incoming
+  // render pass 2 water: calculate output
+  // create texture?
 }
 
 Game.appDraw = function (eye)
@@ -711,7 +746,8 @@ Game.appDraw = function (eye)
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
   effect.bindTexture("wang", Game.World.Regions[0].wangmap.texture);
-  effect.bindTexture("shadow", shadowmap.texture);
+  if (highRez) effect.bindTexture("shadow", shadowmap.texture);
+
   if (showWang)
   {
     effect.bindTexture("grass", Game.assetMan.assets['tile'].texture);
@@ -732,7 +768,7 @@ Game.appDraw = function (eye)
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("watermap", Game.World.Regions[0].watermap.texture);
-  effect.bindTexture("shadow", shadowmap.texture);
+  if (highRez) effect.bindTexture("shadow", shadowmap.texture);
   effect.draw(Game.World.Regions[0].mesh);
 
 //  effect = Game.shaderMan.shaders["colorlines"];

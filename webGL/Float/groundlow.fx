@@ -3,16 +3,13 @@ ground
 [END]
 
 [INCLUDE renderstates]
-[INCLUDE shadowrecieve]
+[INCLUDE shadowoff]
 
 [COMMON]
-uniform sampler2D heightmap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
-uniform sampler2D aomap; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
-
 varying vec2 vTextureCoord;
 varying vec4 vPosition;
-varying float vAOFactor;
-varying vec3 vNormal;
+//varying float vAOFactor;
+//varying vec3 vNormal;
 [END]
 
 [APPLY]
@@ -32,21 +29,11 @@ uniform mat4 localTransform;     // group perpart
 void main(void) 
 {
   vTextureCoord = aTextureCoord;
-  vAOFactor = texture2D(aomap, aTextureCoord).x;
 
   vPosition = vec4(aVertexPosition, 1.0);
-  vPosition.y = texture2D(heightmap, aTextureCoord).x;
+//  vPosition.y = texture2D(heightmap, aTextureCoord).x;
 
   gl_Position = projection * view * uWorld * localTransform * vPosition;
-
-  float tex = 1.0 / 102.0;
-  vec2 px = vec2(tex, 0);
-  vec2 py = vec2(0, tex);
-  float top    = texture2D(heightmap, vTextureCoord - py).x;
-  float bottom = texture2D(heightmap, vTextureCoord + py).x;
-  float left   = texture2D(heightmap, vTextureCoord - px).x;
-  float right  = texture2D(heightmap, vTextureCoord + px).x;
-  vNormal = normalize( cross( vec3(2, right-left, 0), vec3(0, top-bottom, -2) ) );
 }
 [END]
 
@@ -64,6 +51,9 @@ uniform vec3 diffusecolor;       // group material
 uniform vec3 specularcolor;      // group material
 uniform vec3 emissivecolor;      // group material
 
+uniform sampler2D heightmap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
+uniform sampler2D aomap; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
+
 uniform sampler2D wang; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 uniform sampler2D grass; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 uniform sampler2D dirt; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
@@ -71,6 +61,17 @@ uniform sampler2D sand; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 
 void main(void) 
 { 
+  float tex = 1.0 / 102.0;
+  vec2 px = vec2(tex, 0);
+  vec2 py = vec2(0, tex);
+  float top    = texture2D(heightmap, vTextureCoord - py).x;
+  float bottom = texture2D(heightmap, vTextureCoord + py).x;
+  float left   = texture2D(heightmap, vTextureCoord - px).x;
+  float right  = texture2D(heightmap, vTextureCoord + px).x;
+  vec3 vNormal = normalize( cross( vec3(2, right-left, 0), vec3(0, top-bottom, -2) ) );
+
+  float vAOFactor = texture2D(aomap, vTextureCoord).x;
+
   float wangsize = 64.0;
   vec4 color = vec4(1.0,1.0,1.0,1.0);
 
@@ -98,11 +99,11 @@ void main(void)
 
   // below a certain height lerp with sand
   float wHeight = vPosition.y;
-  if (wHeight <= 1.0) {
+  if (wHeight <= -11.0) {
     color = texColorC;
   } else
-  if (wHeight < 3.0) {
-    f = (wHeight - 1.0)/2.0;
+  if (wHeight < -9.0) {
+    f = (wHeight + 11.0)/2.0;
     color = color * f + texColorC * (1.0-f);
   }
 

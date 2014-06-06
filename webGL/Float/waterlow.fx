@@ -3,7 +3,7 @@ water
 [END]
 
 [INCLUDE renderstates]
-[INCLUDE shadowrecieve]
+[INCLUDE shadowoff]
 
 [COMMON]
 uniform sampler2D watermap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
@@ -33,11 +33,11 @@ void main(void)
 {
   vTextureCoord = aTextureCoord;
 
-  vHeight = texture2D(heightmap, aTextureCoord).x;
-  float water = texture2D(watermap, aTextureCoord).x;
-  
   vPosition = vec4(aVertexPosition, 1.0);
-  vPosition.y = water;// + vHeight ;
+  vPosition.y = texture2D(watermap, aTextureCoord).x;
+
+  vHeight = texture2D(heightmap, aTextureCoord).x;
+
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
   float tex = 1.0 / 102.0;
