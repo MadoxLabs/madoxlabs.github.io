@@ -40,6 +40,7 @@ Game.init = function ()
   this.surface = document.getElementById("surface");
   this.output = document.getElementById("output");
   this.context = this.output.getContext('2d');
+  this.mouse = new Mouse(this.surface);
 
   this.lastTime = Game.time;
   this.time = Game.now();
@@ -392,6 +393,10 @@ Game.handleKeyUp = function (event)
   Game.appHandleKeyUp(event);
 }
 
+Game.handleMouseEvent = function(type, mouse)
+{
+  Game.appHandleMouseEvent(type, mouse);
+}
 
 
 

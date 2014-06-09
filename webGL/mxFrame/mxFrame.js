@@ -6,6 +6,7 @@ var baseSrc = ["glMatrix.js",
                "mxShaderManager.js",
                "mxAssetManager.js",
                "mxCamera.js",
+               "mxMouse.js",
                "mxGame.js"];
 var oculusSrc = ["oculus.lib.js"];
 var perlinSrc = ["NoiseLib/mxrandom.js",
