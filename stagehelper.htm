@@ -16,13 +16,15 @@ var fuelc = 0;
 var nomain = false;
 var obooster = false;
 var engines = [ 
+                { "name": "S3 KS-25x4", "mass": 9.75, "thrust": 3200, "type": 1 },
+                { "name": "Kerbodyne KR-2L", "mass": 6.5, "thrust": 2500, "type": 1 },
                 { "name": "Rockomax Mailsail", "mass": 6, "thrust": 1500, "type": 1 },
                 { "name": "Rockomax Skipper", "mass": 4, "thrust": 650, "type": 2 },
                 { "name": "Rockoax Poodle", "mass": 2.5, "thrust": 220, "type": 2 },
                 { "name": "LV-T30", "mass": 1.25, "thrust": 215, "type": 3 },
                 { "name": "LV-T45", "mass": 1.5, "thrust": 200, "type": 1 },
-//                { "name": "Toroidal Aerospike", "mass": 1.5, "thrust": 175, "type": 2 },
                 { "name": "Rockomax Mark 55 Radial", "mass": 0.9, "thrust": 120, "type": 2 },
+//                { "name": "Toroidal Aerospike", "mass": 1.5, "thrust": 175, "type": 2 },
 //                { "name": "LV-909", "mass": 0.5, "thrust": 50, "type": 3 },
 //                { "name": "Rockomax 48-7S", "mass": 0.1, "thrust": 30, "type": 1 },
 //                { "name": "Rockomax 24-77 Radial", "mass": 0.09, "thrust": 20, "type": 2 },
@@ -251,9 +253,9 @@ function set(name, value)
   document.getElementById("slider"+name).value = value;
 }
 
-function update(name)
+function update(name, value)
 {
-  document.getElementById(name).value = document.getElementById("slider"+name).value;
+  document.getElementById(name).value = value;
   setmass();
 }
 
@@ -279,9 +281,9 @@ function update(name)
   <br>
   Mass of payload: <input id=mass></input> tons   <button onclick="setmass();">Set Mass</button><br>
   Gravity: <input id=grav value=9.81></input> m/ss<br>
-  Desired TWR: 0<input type="range" id="slidertwr" min="0" max="5" step="0.1" value="1.7" onchange="update('twr');"></input>5 <input id=twr value=1.7 readonly></input><br>
-  Desired Center Engine Percent: 0<input type="range" id="slidercenterratio" min="0" max="100" step="1" value="22" onchange="update('centerratio');"></input>100 <input id=centerratio value=22 readonly></input><br>
-  Amount of Asparagus: 0<input type="range" id="sliderasp" min="0" max="20" step="2" value="4" onchange="update('asp');"></input>20 <input id=asp value=4 readonly></input><br>
+  Desired TWR: 0<input type="range" id="slidertwr" min="0" max="5" step="0.1" value="1.7" onchange="update('twr', value);"></input>5 <input id=twr value=1.7 readonly></input><br>
+  Desired Center Engine Percent: 0<input type="range" id="slidercenterratio" min="0" max="100" step="1" value="22" onchange="update('centerratio', value);"></input>100 <input id=centerratio value=22 readonly></input><br>
+  Amount of Asparagus: 0<input type="range" id="sliderasp" min="0" max="20" step="2" value="4" onchange="update('asp', value);"></input>20 <input id=asp value=4 readonly></input><br>
   <br>
   <b>Overall Design Configuration</b>
   <br>
