@@ -394,17 +394,6 @@ Game.handleKeyUp = function (event)
 
 
 
-function main()
-{
-  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
-
-  Game.init();
-//  Game.framerate = 34;
-  window.requestAnimationFrame(Game.run);
-//  window.setTimeout(Game.run, Game.framerate);
-}
-
-
 
 // Start Game specific stuff
 // Game.appInit = function ()

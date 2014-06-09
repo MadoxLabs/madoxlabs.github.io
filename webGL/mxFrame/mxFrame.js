@@ -69,7 +69,7 @@ function extend(obj, base)
 }
 
 // call this from the page's onload to launch your app
-function launchApp(appname, lib, type)
+function launchApp(appsrc, lib, type)
 {
   if (!type) { alert("Missing app type"); return; }
 
@@ -78,8 +78,17 @@ function launchApp(appname, lib, type)
   if (type & WITH_MXFRAME) src = src.concat(baseSrc);
   if (type & WITH_OCULUS) src = src.concat(oculusSrc);
   if (type & WITH_NOISE) src = src.concat(perlinSrc);
-  preload = src.length+1;
+  preload = src.length+appsrc.length;
   for (i in src) include(libdir + "/" + src[i]);
-  include(appname);
+  for (i in appsrc) include(appsrc[i]);
 }
 
+function main()
+{
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+
+  Game.init();
+  //  Game.framerate = 34;
+  window.requestAnimationFrame(Game.run);
+  //  window.setTimeout(Game.run, Game.framerate);
+}
