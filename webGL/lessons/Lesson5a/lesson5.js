@@ -134,9 +134,13 @@ function initMouse()
   document.addEventListener('mozpointerlockerror', pointerLockError, false);
   document.addEventListener('webkitpointerlockerror', pointerLockError, false);
 
-  document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
-
   var obj = document.getElementById('surface');
+
+  obj.requestPointerLock = obj.requestPointerLock || obj.mozRequestPointerLock || obj.webkitRequestPointerLock;
+  obj.requestPointerLock();
+  document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+  document.exitPointerLock();
+
   obj.addEventListener("mouseout", function (e)
   {
     console.log("mouse out");
@@ -158,7 +162,7 @@ function initMouse()
     if (!out && e.button == 2) {
       down = true;
       elem = document.getElementById("surface");
-      elem.requestPointerLock = elem.requestPointerLock || elem.mozRequestPointerLock || elem.webkitRequestPointerLock;
+//      elem.requestPointerLock = elem.requestPointerLock || elem.mozRequestPointerLock || elem.webkitRequestPointerLock;
       elem.requestPointerLock();
       toss = 1;
     }
