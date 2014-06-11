@@ -123,6 +123,7 @@ var elem;
 var down = false;
 var out = true;
 var toss = 0;
+var first = true;
 
 function initMouse()
 {
@@ -136,10 +137,9 @@ function initMouse()
 
   var obj = document.getElementById('surface');
 
+  document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
   obj.requestPointerLock = obj.requestPointerLock || obj.mozRequestPointerLock || obj.webkitRequestPointerLock;
   obj.requestPointerLock();
-  document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
-  document.exitPointerLock();
 
   obj.addEventListener("mouseout", function (e)
   {
@@ -191,6 +191,14 @@ function initMouse()
 
 function pointerLockChange()
 {
+  if (first)
+  {
+    document.exitPointerLock();
+    first = false;
+    console.log("mouse auth triggered");
+    return;
+  }
+
   if (document.mozPointerLockElement === elem || document.webkitPointerLockElement === elem) {
     console.log("Pointer Lock was successful.");
   } else {
