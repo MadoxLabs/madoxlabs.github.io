@@ -182,6 +182,12 @@ Game.appDraw = function (eye)
 //  effect.draw(helper.aoBuf);
 }
 
+Game.appHandleMouseEvent = function (type, mouse)
+{
+  console.log("mouse event: " + type);
+  console.log("  loc: " + mouse.X + ", " + mouse.Y);
+}
+
 Game.appHandleKeyDown = function (event)
 {
   currentlyPressedKeys[event.keyCode] = true;

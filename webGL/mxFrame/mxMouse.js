@@ -2,6 +2,7 @@ function Mouse(obj)
 {
   this.active = false;
   this.down = false;
+  this.pendingout = false;
   obj.onmouseover = this.mouseOver;
   obj.onmouseout = this.mouseOut;
   obj.onmousemove = this.mouseMove;
@@ -11,7 +12,7 @@ function Mouse(obj)
   obj.oncontextmenu = function (e) { e.preventDefault(); }
 }
 
-var MouseEvent = { 'LeftDown': 0, 'LeftUp': 1, 'Move': 2 };
+var MouseEvent = { 'LeftDown': 0, 'LeftUp': 1, 'Move': 2, 'In': 3, 'Out': 4 };
 
 Mouse.prototype.mouseDown = function(event)
 {
@@ -30,16 +31,28 @@ Mouse.prototype.mouseUp = function (event)
   if (!this.active) return;
   this.down = false;
   Game.handleMouseEvent(MouseEvent.LeftUp, this);
+  if (this.pendingout == true)
+  {
+    this.out = true;
+    Game.handleMouseEvent(MouseEvent.Out, this);
+  }
+  this.pendingout = false;
 }
 
 Mouse.prototype.mouseOver = function (event)
 {
   this.active = true;
+  Game.handleMouseEvent(MouseEvent.In, this);
 }
 
 Mouse.prototype.mouseOut = function (event)
 {
-  this.active = false;
+  if (this.down) this.pendingout = true;
+  else
+  {
+    this.active = false;
+    Game.handleMouseEvent(MouseEvent.Out, this);
+  }
 }
 
 Mouse.prototype.mouseMove = function(event)
