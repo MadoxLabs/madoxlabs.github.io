@@ -6,8 +6,19 @@ function Mouse(obj)
   this.pendingout = false;
 
   this.toss = 0;
+  this.hammer = null;
   this.surface = obj;
   var mouseObj = this;
+
+  console.log(typeof (Hammer));
+  if (typeof(Hammer) === "function")
+  {
+    this.hammer = Hammer(this.surface);
+    this.hammer.on('tap', function (event) { console.log("tap"); });
+    this.hammer.on('hold', function (event) { console.log("hold"); });
+    this.hammer.on('rotate', function (event) { console.log("rotate"); });
+    this.hammer.on('pinch', function (event) { console.log("pinch"); });
+  }
 
   document.addEventListener('pointerlockchange', function () { mouseObj.pointerLockChange(); }, false);
   document.addEventListener('mozpointerlockchange', function () { mouseObj.pointerLockChange(); }, false);

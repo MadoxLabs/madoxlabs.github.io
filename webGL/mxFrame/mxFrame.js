@@ -9,6 +9,7 @@ var baseSrc = ["glMatrix.js",
                "mxMouse.js",
                "mxGame.js"];
 var oculusSrc = ["oculus.lib.js"];
+var touchSrc = ["hammer.lib.js"];
 var perlinSrc = ["NoiseLib/mxrandom.js",
                  "NoiseLib/noise.js",
                  "NoiseLib/math.js",
@@ -43,6 +44,7 @@ var perlinSrc = ["NoiseLib/mxrandom.js",
 var WITH_MXFRAME = 1;
 var WITH_OCULUS = 2;
 var WITH_NOISE = 4;
+var WITH_TOUCH = 8;
 
 // internal helpers
 var preload = 0;
@@ -79,7 +81,8 @@ function launchApp(appsrc, lib, type)
   if (type & WITH_MXFRAME) src = src.concat(baseSrc);
   if (type & WITH_OCULUS) src = src.concat(oculusSrc);
   if (type & WITH_NOISE) src = src.concat(perlinSrc);
-  preload = src.length+appsrc.length;
+  if (type & WITH_TOUCH) src = src.concat(touchSrc);
+  preload = src.length + appsrc.length;
   for (i in src) include(libdir + "/" + src[i]);
   for (i in appsrc) include(appsrc[i]);
 }
