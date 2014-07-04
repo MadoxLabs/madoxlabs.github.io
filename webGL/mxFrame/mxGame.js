@@ -86,6 +86,8 @@ Game.init = function ()
 
   // let game specific stuff init
   Game.loadShaderFile(libdir + "/oculus.fx");
+  Game.loadShaderFile(libdir + "/sprite.fx");
+  Game.loadTextureFile("mouse", libdir + "/mouse.png", false);
   Game.appInit();
 
   Game.ready = true;
@@ -115,13 +117,23 @@ function bridgeDisconnected()
 
 Game.makeFSQ = function ()
 {
+  spritevertices = [
+    0.0, 0.0, 0.0, 0.0,
+    1.0, 0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0, 1.0,
+    1.0, 1.0, 1.0, 1.0
+  ];
+  var attr = { 'POS': 0, 'TEX0': 8 };
+  var sprite = new Mesh();
+  sprite.loadFromArrays(spritevertices, null, attr, gl.TRIANGLE_STRIP, 4);
+  Game.assetMan.assets['sprite'] = sprite;
+
   fsqvertices = [
    -1.0, -1.0, 0.0, 0.0,
     1.0, -1.0,  1.0, 0.0,
    -1.0, 1.0,   0.0, 1.0,
     1.0, 1.0,   1.0, 1.0
   ];
-  var attr = { 'POS': 0, 'TEX0': 8 };
   var fsq = new Mesh();
   fsq.loadFromArrays(fsqvertices, null, attr, gl.TRIANGLE_STRIP, 4);
   Game.assetMan.assets['fsq'] = fsq;
@@ -221,7 +233,7 @@ Game.draw = function ()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   Game.drawEachEye();
-
+  
   // post process here
   if (Game.isOculus)
   {
@@ -242,6 +254,21 @@ Game.drawEye = function(eye)
 {
   eye.engage();
   Game.appDraw(eye);
+
+  if (Game.loading > 0) return;
+
+  // MOUSE AREA
+  var uniforms = {};
+  uniforms.location = vec2.fromValues(Game.mouse.X, Game.mouse.Y);
+  uniforms.size = vec2.fromValues(64,64);
+  uniforms.screensize = vec2.fromValues(eye.viewport[2], eye.viewport[3]);
+
+  var effect = Game.shaderMan.shaders['sprite'];
+  effect.bind();
+  effect.setUniforms(uniforms);
+  effect.bindTexture("uSpriteTex", Game.assetMan.assets['mouse'].texture);
+  effect.draw(Game.assetMan.assets['sprite']);
+  // END MOUSE AREA
 }
 
 Game.drawEachEyeOculusEffect = function ()
