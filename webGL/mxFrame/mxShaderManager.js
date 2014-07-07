@@ -12,8 +12,8 @@ var RenderState = function(state)
   if (state.blend) this.blend = (state.blend[0].trim() === "true");
   if (state.blendop) this.blendop = gl[state.blendop[0].trim()];
   if (state.blendopalpha) this.blendopalpha = gl[state.blendopalpha[0].trim()];
-  if (state.blendfunc) this.blendfunc = { src: gl[state.blendfunc[0].trim()], dest: gl[state.blendfunc[0].trim()] };
-  if (state.blendfuncalpha) this.blendfuncalpha = { src: gl[state.blendfuncalpha[0].trim()], dest: gl[state.blendfuncalpha[0].trim()] };
+  if (state.blendfunc) this.blendfunc = { src: gl[state.blendfunc[0].trim()], dest: gl[state.blendfunc[1].trim()] };
+  if (state.blendfuncalpha) this.blendfuncalpha = { src: gl[state.blendfuncalpha[0].trim()], dest: gl[state.blendfuncalpha[1].trim()] };
   if (state.blendfactors) this.blendfactors = { r: state.blendfactors[0].trim(), g: state.blendfactors[1].trim(), b: state.blendfactors[2].trim(), a: state.blendfactors[3].trim() };
   if (state.blendmask) this.blendmask = { r: state.blendmask[0].trim(), g: state.blendmask[1].trim(), b: state.blendmask[2].trim(), a: state.blendmask[3].trim() };
   // depth states

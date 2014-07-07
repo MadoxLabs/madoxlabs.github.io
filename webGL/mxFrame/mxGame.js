@@ -260,7 +260,7 @@ Game.drawEye = function(eye)
   // MOUSE AREA
   var uniforms = {};
   uniforms.location = vec2.fromValues(Game.mouse.X, Game.mouse.Y);
-  uniforms.size = vec2.fromValues(64,64);
+  uniforms.size = vec2.fromValues(32,32);
   uniforms.screensize = vec2.fromValues(eye.viewport[2], eye.viewport[3]);
 
   var effect = Game.shaderMan.shaders['sprite'];

@@ -15,7 +15,7 @@ varying vec2 vTextureCoord;
 [RENDERSTATE]
 name sprite
 blend true
-blendfunc ONE ZERO
+blendfunc SRC_ALPHA ONE_MINUS_SRC_ALPHA
 depth false
 [END]
 
@@ -48,7 +48,7 @@ uniform sampler2D uSpriteTex; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wr
 
 void main(void) 
 {
-    gl_FragColor = texture2D(uSpriteTex, vTextureCoord);
+  gl_FragColor = texture2D(uSpriteTex, vTextureCoord);
 }
 
 [END]
