@@ -250,6 +250,8 @@ Game.drawEachEye = function()
   for (var eye in Game.camera.eyes) Game.drawEye(Game.camera.eyes[eye]);
 }
 
+var adjust = 0;
+
 Game.drawEye = function(eye)
 {
   eye.engage();
@@ -259,7 +261,7 @@ Game.drawEye = function(eye)
 
   // MOUSE AREA
   var uniforms = {};
-  uniforms.location = vec2.fromValues(Game.mouse.X, Game.mouse.Y);
+  uniforms.location = vec2.fromValues(Game.mouse.X + eye.ipd * 100 * adjust, Game.mouse.Y);
   uniforms.size = vec2.fromValues(32,32);
   uniforms.screensize = vec2.fromValues(eye.viewport[2], eye.viewport[3]);
 
@@ -412,6 +414,8 @@ Game.handleKeyDown = function (event)
 {
   // space and arrow keys dont scroll
   if ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) event.preventDefault();
+  if ([90].indexOf(event.keyCode) > -1) adjust += 5;
+  if ([88].indexOf(event.keyCode) > -1) adjust -= 5;
   Game.appHandleKeyDown(event);
 }
 
