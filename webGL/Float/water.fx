@@ -68,19 +68,18 @@ uniform vec3 emissivecolor;      // group material
 void main(void) 
 { 
   float depth = max(0.0, vPosition.y - vHeight);
-  vec4 color = vec4(0.0,0.0,depth*0.5,1.0);
+  vec3 color = vec3(0.0,0.0,1.0);
+  float alpha = min(0.8, max(0.2, depth * 0.35));
 
   // lighting
-  vec3 lightDir = vec3(0.5,1.0,0.2);
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
 
   // apply user options
-  if (options.x > 0.0) color = color * (nDotL + 0.1);
+  if (options.x > 0.0) color = color * (0.5 + 0.5 * nDotL);
   if (IsShadow(vPosition, vNormal, uWorldToLight))  color = color * 0.4;
-  color.a = depth*0.5 +0.3;
 
   // out
-  gl_FragColor = color;
+  gl_FragColor = vec4(color,alpha);
 }
 
 [END]
