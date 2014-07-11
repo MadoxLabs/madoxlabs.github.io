@@ -57,6 +57,8 @@ vec2 HmdWarp(vec2 in01)
 
 void main(void) 
 {
+//  gl_FragColor = texture2D(uFrontbuffer, vTextureCoord);
+
   vec2 tex = HmdWarp(vTextureCoord);
   vec2 tex2 = clamp(tex, ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25, 0.5));
   vec2 diff = tex - tex2;
@@ -64,6 +66,7 @@ void main(void)
     gl_FragColor = vec4(0,0,0,1);
   else 
     gl_FragColor = texture2D(uFrontbuffer, tex);
+
 }
 
 [END]
