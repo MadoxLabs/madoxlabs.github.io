@@ -22,8 +22,9 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Float", "http://localhost:5
 		SlnRelativePath = "..\Float\"
 	EndProjectSection
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "mxFrame", "..\mxFrame\", "{2F2201E9-BCEE-4E68-B78B-C50CEBF6C05B}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "mxFrame", "http://localhost:52106", "{2F2201E9-BCEE-4E68-B78B-C50CEBF6C05B}"
 	ProjectSection(WebsiteProperties) = preProject
+		UseIISExpress = "true"
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
 		Debug.AspNetCompiler.VirtualPath = "/mxFrame"
 		Debug.AspNetCompiler.PhysicalPath = "..\mxFrame\"
@@ -39,7 +40,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "mxFrame", "..\mxFrame\", "{
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "52106"
+		SlnRelativePath = "..\mxFrame\"
 	EndProjectSection
 EndProject
 Global

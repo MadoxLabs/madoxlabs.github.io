@@ -184,9 +184,9 @@ Game.appDraw = function (eye)
 
 Game.appHandleMouseEvent = function (type, mouse)
 {
-  console.log("mouse event: " + type);
-  console.log("  loc: " + mouse.X + ", " + mouse.Y);
-  if (type == 2) console.log("  off: " + mouse.moveOffsetX + ", " + mouse.moveOffsetY);
+//  console.log("mouse event: " + type);
+//  console.log("  loc: " + mouse.X + ", " + mouse.Y);
+//  if (type == 2) console.log("  off: " + mouse.moveOffsetX + ", " + mouse.moveOffsetY);
 
   if (mouse.button == 2 && type == MouseEvent.Down)
     mouse.grab();
