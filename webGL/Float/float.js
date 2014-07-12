@@ -93,14 +93,14 @@ Game.appUpdate = function ()
     //sunpos += 1;
 
   if (currentlyPressedKeys[37])  // Left cursor key
-    Game.camera.angles[1] += 0.01;
+    Game.camera.target[0] -= 0.1;
   if (currentlyPressedKeys[39])  // Right cursor key
-    Game.camera.angles[1] -= 0.01;
+    Game.camera.target[0] += 0.1;
 
   if (currentlyPressedKeys[38])  // Up cursor key
-    Game.camera.angles[0] += 0.01;
+    Game.camera.target[2] -= 0.1;
   if (currentlyPressedKeys[40])  // Down cursor key
-    Game.camera.angles[0] -= 0.01;
+    Game.camera.target[2] += 0.1;
 
   sunpos += 0.1;
   if (sunpos > 150.0) sunpos = -150.0;
@@ -184,20 +184,25 @@ Game.appDraw = function (eye)
 
 Game.appHandleMouseEvent = function (type, mouse)
 {
-//  console.log("mouse event: " + type);
-//  console.log("  loc: " + mouse.X + ", " + mouse.Y);
-//  if (type == 2) console.log("  off: " + mouse.moveOffsetX + ", " + mouse.moveOffsetY);
-
   if (mouse.button == 2 && type == MouseEvent.Down)
     mouse.grab();
   if (mouse.button == 2 && type == MouseEvent.Up)
     mouse.release();
+
+  if (type == 8)
+    Game.camera.offset[2] -= mouse.wheel*3;
+
+  if (mouse.grabbed)
+  {
+    Game.camera.angles[1] += -0.01 * mouse.moveOffsetX;
+    Game.camera.angles[0] += -0.01 * mouse.moveOffsetY;
+  }
 }
 
 Game.appHandleKeyDown = function (event)
 {
+  if ([33, 34].indexOf(event.keyCode) > -1) event.preventDefault();
   currentlyPressedKeys[event.keyCode] = true;
-
 }
 
 Game.appHandleKeyUp = function (event)

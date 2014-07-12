@@ -26,6 +26,7 @@ function Mouse(obj)
   document.addEventListener('pointerlockerror', function () { mouseObj.pointerLockError(); }, false);
   document.addEventListener('mozpointerlockerror', function () { mouseObj.pointerLockError(); }, false);
   document.addEventListener('webkitpointerlockerror', function () { mouseObj.pointerLockError(); }, false);
+  document.addEventListener("mousewheel", function (e) { mouseObj.mouseWheel(e); }, false);
 
   document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
   obj.requestPointerLock = obj.requestPointerLock || obj.mozRequestPointerLock || obj.webkitRequestPointerLock;
@@ -40,18 +41,16 @@ function Mouse(obj)
   obj.oncontextmenu = function (e) { e.preventDefault(); }
 }
 
-var MouseEvent = { 'Down': 0, 'Up': 1, 'Move': 2, 'In': 3, 'Out': 4, 'Grab': 5, 'Release': 6, 'NoGrab': 7 };
+var MouseEvent = { 'Down': 0, 'Up': 1, 'Move': 2, 'In': 3, 'Out': 4, 'Grab': 5, 'Release': 6, 'NoGrab': 7, 'Wheel': 8 };
 
 Mouse.prototype.grab = function()
 {
-  console.log("grab");
   if (!this.active) return;
   this.surface.requestPointerLock();
 }
 
 Mouse.prototype.release = function ()
 {
-  console.log("release");
   document.exitPointerLock();
 }
 
@@ -90,6 +89,14 @@ Mouse.prototype.pointerLockError = function()
 // grabbed mouse mode will only track:
 //   moveOffsetX,Y - the change in mouse position from last move event
 //   button - button most recently pressed
+
+Mouse.prototype.mouseWheel = function (e)
+{
+  e.preventDefault();
+  var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+  this.wheel = delta;
+  Game.handleMouseEvent(MouseEvent.Wheel, this);
+}
 
 Mouse.prototype.mouseDown = function(event)
 {
