@@ -52,11 +52,9 @@ fRegion.prototype.generate = function()
 
     for (var x = -1; x < this.VisibleMeshSize + 1; ++x)
     {
-      if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { val = -100.0; }
-      else {
-        val = noise.GetValue(xf, 0, zf) * NoiseScale;
-//        this.Water[i] = Math.max(0.0 - val, 0.0);
-      }
+      if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { this.Water[i] = 0.0; val = -100.0; }
+      else val = noise.GetValue(xf, 0, zf) * NoiseScale;
+      //this.Water[i] = Math.max(-12.0 - val, 0.0);
       this.Map[i++] = val
       if (val > max) max = val;
       xf += step;
@@ -207,7 +205,8 @@ fRegion.prototype.jiggleWater = function()
   var size = this.MeshSize * this.MeshSize;
   for (var i = 0; i < size; ++i)
   {
-//    this.Water[i] += Math.random() * 0.05 - 0.025;
+//    this.Water[i] = Math.max(-12.0 - this.Map[i], 0.0);
+    this.Water[i] = Math.random() * 0.05 - 0.025;
   }
   this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.LUMINANCE, gl.FLOAT);
 }
