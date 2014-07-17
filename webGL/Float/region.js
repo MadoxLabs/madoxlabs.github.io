@@ -206,7 +206,7 @@ fRegion.prototype.jiggleWater = function()
   for (var i = 0; i < size; ++i)
   {
 //    this.Water[i] = Math.max(-12.0 - this.Map[i], 0.0);
-    this.Water[i] += Math.random() * 0.01 - 0.005;
+    this.Water[i] = Math.random() * 0.05 - 0.025;
   }
   this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.LUMINANCE, gl.FLOAT);
 }

@@ -47,7 +47,7 @@ void main(void)
   float bottom = texture2D(watermap, vTextureCoord + py).x;
   float left   = texture2D(watermap, vTextureCoord - px).x;
   float right  = texture2D(watermap, vTextureCoord + px).x;
-  vNormal = normalize( cross( vec3(2, right-left, 0), vec3(0, top-bottom, -2) ) );
+  vNormal = normalize( cross( vec3(0.05, right-left, 0), vec3(0, top-bottom, -0.05) ) );
 }
 [END]
 

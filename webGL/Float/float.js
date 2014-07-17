@@ -113,7 +113,7 @@ Game.appUpdate = function ()
     mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
 
-//  Game.World.Regions[0].jiggleWater();
+  Game.World.Regions[0].jiggleWater();
 }
 
 Game.appDrawAux = function ()
