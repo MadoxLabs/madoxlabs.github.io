@@ -20,6 +20,7 @@ Game.appInit = function ()
   {
     Game.loadShaderFile("shadowrecieve.fx");
     Game.loadShaderFile("ground.fx");
+    Game.loadShaderFile("groundpicker.fx");
     Game.loadShaderFile("water.fx");
     Game.loadShaderFile("shadowcast.fx");
   }
@@ -30,6 +31,7 @@ Game.appInit = function ()
     Game.loadShaderFile("waterlow.fx");
   }
 
+  Game.loadMeshPNG("cone", "cone.model");
   Game.loadTextureFile("tile", "tile.jpg", true);
   Game.loadTextureFile("grass", "grass.jpg", true);
   Game.loadTextureFile("sand", "sand.jpg", true);
@@ -38,6 +40,7 @@ Game.appInit = function ()
 
 Game.deviceReady = function ()
 {
+  pickmap = new RenderSurface(Game.camera.width, Game.camera.height, gl.RGBA, gl.UNSIGNED_BYTE);
 }
 
 Game.loadingStart = function ()
@@ -63,6 +66,7 @@ Game.loadingStop = function ()
   mat4.identity(uPerObject.uWorld);
 
   if (highRez) shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
+
   lighteye = new Camera(2048, 2048);
   sunpos = 0.0;
   lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
@@ -87,10 +91,8 @@ Game.appUpdate = function ()
   if (!Game.camera) return;
   if (currentlyPressedKeys[33])  // Page Up
     Game.camera.offset[2] -= 1;
-    //sunpos -= 1;
   if (currentlyPressedKeys[34])  // Page Down
     Game.camera.offset[2] += 1;
-    //sunpos += 1;
 
   if (currentlyPressedKeys[37])  // Left cursor key
     Game.camera.target[0] -= 0.1;
@@ -102,7 +104,7 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[40])  // Down cursor key
     Game.camera.target[2] += 0.1;
 
-  sunpos += 0.1;
+  sunpos += 0.01;
   if (sunpos > 150.0) sunpos = -150.0;
   if (sunpos != lighteye.offset[0])
   {
@@ -111,6 +113,19 @@ Game.appUpdate = function ()
     lighteye.update();
     uPerObject.uLightPosition = lighteye.position;
     mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+  }
+
+  if (readback)
+  {
+    readback = false;
+    pickmap.engage();
+    var pixel = new Uint8Array(4);
+    gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+    var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
+    var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
+    j = 102 - j;
+    console.log("read from pixel: " + i + " " + j);
+    Game.World.Regions[0].Water[j*102+i] += 0.5;
   }
 
   Game.World.Regions[0].jiggleWater();
@@ -133,6 +148,22 @@ Game.appDrawAux = function ()
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.draw(Game.World.Regions[0].mesh);
+
+  if (clicked && !readback)
+  {
+    console.log("rendering pick map");
+    Game.camera.eyes[0].engage()
+    pickmap.engage();
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    var effect = Game.shaderMan.shaders["picker"];
+    effect.bind();
+    effect.bindCamera(Game.camera.eyes[0]);
+    effect.setUniforms(uPerObject);
+    effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
+    effect.draw(Game.World.Regions[0].mesh);
+    readback = true;
+  }
 
   // water
   // render pass 1 water: calculate incoming
@@ -182,8 +213,31 @@ Game.appDraw = function (eye)
 //  effect.draw(helper.aoBuf);
 }
 
+var mx = 0;
+var my = 0;
+var clicked = false;
+var readback = false;
+var pickmap;
+
 Game.appHandleMouseEvent = function (type, mouse)
 {
+  if (mouse.button == 0 && type == MouseEvent.Down)
+  {
+    console.log("clicked at " + mouse.X + " " + mouse.Y);
+    mx = mouse.X;
+    my = mouse.Y;
+    clicked = true;
+  }
+  if (mouse.button == 0 && type == MouseEvent.Up)
+  {
+    clicked = false;
+  }
+  if (clicked && type == MouseEvent.Move)
+  {
+    mx = mouse.X;
+    my = mouse.Y;
+  }
+
   if (mouse.button == 2 && type == MouseEvent.Down)
     mouse.grab();
   if (mouse.button == 2 && type == MouseEvent.Up)
