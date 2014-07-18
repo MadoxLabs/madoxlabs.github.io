@@ -123,7 +123,7 @@ Game.appUpdate = function ()
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
     var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
     var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
-    j = 102 - j;
+//    j = 102 - j;
     console.log("read from pixel: " + i + " " + j);
     Game.World.Regions[0].Water[j*102+i] += 0.5;
   }

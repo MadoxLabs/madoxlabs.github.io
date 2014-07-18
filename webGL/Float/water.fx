@@ -29,6 +29,15 @@ uniform mat4 view;               // group camera
 uniform mat4 uWorld;             // group perobject
 uniform mat4 localTransform;     // group perpart
 
+float getHeight(vec2 tex)
+{
+  float ret = 0.0;
+  float ground = texture2D(heightmap, tex).x;
+  float water = texture2D(watermap, tex).x;
+  if (water > 0.0) ret = ground + water;
+  return ret;
+}
+
 void main(void) 
 {
   vTextureCoord = aTextureCoord;
@@ -37,16 +46,17 @@ void main(void)
   float water = texture2D(watermap, vTextureCoord).x;
   
   vPosition = vec4(aVertexPosition, 1.0);
-  vPosition.y = water + vHeight ;
+  if (water == 0.0) vPosition.y = 0.0;
+  else vPosition.y = water + vHeight;
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
   float tex = 1.0 / 102.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
-  float top    = texture2D(watermap, vTextureCoord - py).x;
-  float bottom = texture2D(watermap, vTextureCoord + py).x;
-  float left   = texture2D(watermap, vTextureCoord - px).x;
-  float right  = texture2D(watermap, vTextureCoord + px).x;
+  float top    = getHeight(vTextureCoord - py);
+  float bottom = getHeight(vTextureCoord + py);
+  float left   = getHeight(vTextureCoord - px);
+  float right  = getHeight(vTextureCoord + px);
   vNormal = normalize( cross( vec3(0.05, right-left, 0), vec3(0, top-bottom, -0.05) ) );
 }
 [END]
@@ -69,7 +79,7 @@ void main(void)
 { 
   float depth = max(0.0, vPosition.y - vHeight);
   vec3 color = vec3(0.0,0.0,1.0);
-  float alpha = 0.8;//min(0.8, max(0.2, depth * 0.35));
+  float alpha = min (0.8, 0.5 + depth * 0.05);
 
   // lighting
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
