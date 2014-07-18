@@ -104,7 +104,7 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[40])  // Down cursor key
     Game.camera.target[2] += 0.1;
 
-  sunpos += 0.01;
+  sunpos += 0.01; 
   if (sunpos > 150.0) sunpos = -150.0;
   if (sunpos != lighteye.offset[0])
   {
@@ -123,8 +123,6 @@ Game.appUpdate = function ()
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
     var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
     var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
-//    j = 102 - j;
-    console.log("read from pixel: " + i + " " + j);
     Game.World.Regions[0].Water[j*102+i] += 0.5;
   }
 
@@ -224,7 +222,6 @@ Game.appHandleMouseEvent = function (type, mouse)
 {
   if (mouse.button == 0 && type == MouseEvent.Down)
   {
-    console.log("clicked at " + mouse.X + " " + mouse.Y);
     mx = mouse.X;
     my = mouse.Y;
     clicked = true;
@@ -277,7 +274,12 @@ Game.setparam = function(name, value)
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
-  else if (name == 'sun') sunpos = value;
+  else if (name == 'sun') {
+    if (value[0] == '-')
+      sunpos = parseInt(value.substr(1)) * -1.0;
+    else
+      sunpos = parseInt(value);
+  }
 }
 
 /*
