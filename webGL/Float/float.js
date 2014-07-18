@@ -161,6 +161,7 @@ Game.appDrawAux = function ()
     effect.bindCamera(Game.camera.eyes[0]);
     effect.setUniforms(uPerObject);
     effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
+    effect.bindTexture("watermap", Game.World.Regions[0].watermap.texture);
     effect.draw(Game.World.Regions[0].mesh);
     readback = true;
   }

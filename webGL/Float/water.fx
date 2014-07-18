@@ -33,8 +33,8 @@ void main(void)
 {
   vTextureCoord = aTextureCoord;
 
-  vHeight = texture2D(heightmap, aTextureCoord).x;
-  float water = texture2D(watermap, aTextureCoord).x;
+  vHeight = texture2D(heightmap, vTextureCoord).x;
+  float water = texture2D(watermap, vTextureCoord).x;
   
   vPosition = vec4(aVertexPosition, 1.0);
   vPosition.y = water + vHeight ;
@@ -69,7 +69,7 @@ void main(void)
 { 
   float depth = max(0.0, vPosition.y - vHeight);
   vec3 color = vec3(0.0,0.0,1.0);
-  float alpha = min(0.8, max(0.2, depth * 0.35));
+  float alpha = 0.8;//min(0.8, max(0.2, depth * 0.35));
 
   // lighting
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));

@@ -6,6 +6,7 @@ picker
 
 [COMMON]
 uniform sampler2D heightmap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
+uniform sampler2D watermap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 
 varying vec2 vTextureCoord;
 [END]
@@ -28,7 +29,7 @@ void main(void)
 {
   vTextureCoord = aTextureCoord;
   vec4 vPosition = vec4(aVertexPosition, 1.0);
-  vPosition.y = texture2D(heightmap, aTextureCoord).x;
+  vPosition.y = texture2D(heightmap, aTextureCoord).x + texture2D(watermap, aTextureCoord).x;
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 }
 [END]

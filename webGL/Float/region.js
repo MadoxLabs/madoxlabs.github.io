@@ -24,7 +24,7 @@ fRegion.prototype.create = function()
   var size = this.MeshSize * this.MeshSize;
   for (var i = 0; i < size; ++i)
   {
-    this.Map[i] = 0;
+    this.Map[i] = 0.0;
     this.Water[i] = 0.0;
   }
   this.generate();
@@ -55,10 +55,11 @@ fRegion.prototype.generate = function()
       if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { val = -100.0; }
       else {
         val = noise.GetValue(xf, 0, zf) * NoiseScale;
-//        this.Water[i] = Math.max(0.0 - val, 0.0);
+        this.Water[i] =  Math.max(0.0 - val, 0.0);
       }
-      this.Map[i++] = val
+      this.Map[i] = val;
       if (val > max) max = val;
+      i++;
       xf += step;
     }
     zf += step;
