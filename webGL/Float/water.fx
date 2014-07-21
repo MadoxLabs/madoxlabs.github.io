@@ -46,8 +46,9 @@ void main(void)
   float water = texture2D(watermap, vTextureCoord).x;
   
   vPosition = vec4(aVertexPosition, 1.0);
-  if (water == 0.0) vPosition.y = 0.0;
-  else vPosition.y = water + vHeight;
+  //if (water == 0.0) vPosition.y = -50.0;
+  //else 
+    vPosition.y = water + vHeight;
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
   float tex = 1.0 / 102.0;

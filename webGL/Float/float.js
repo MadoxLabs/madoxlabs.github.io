@@ -14,6 +14,8 @@ Game.appInit = function ()
   Game.World.createRegionContaining(0, 0);
 
   Game.loadShaderFile("renderstates.fx");
+  Game.loadShaderFile("waterFlowIn.fx");
+  Game.loadShaderFile("waterFLowOut.fx");
   //  Game.loadShaderFile("colorlines.fx");
 
   if (highRez)
@@ -31,7 +33,6 @@ Game.appInit = function ()
     Game.loadShaderFile("waterlow.fx");
   }
 
-  Game.loadMeshPNG("cone", "cone.model");
   Game.loadTextureFile("tile", "tile.jpg", true);
   Game.loadTextureFile("grass", "grass.jpg", true);
   Game.loadTextureFile("sand", "sand.jpg", true);
@@ -123,17 +124,20 @@ Game.appUpdate = function ()
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
     var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
     var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
-    Game.World.Regions[0].Water[j*102+i] += 0.5;
+    Game.World.Regions[0].Water[(j*102+i)*3] += 0.5;
   }
 
-  Game.World.Regions[0].jiggleWater();
+//  Game.World.Regions[0].jiggleWater();
 }
 
 Game.appDrawAux = function ()
 {
   if (Game.loading) return;
   if (!highRez) return;
-  
+
+  // water
+  Game.World.Regions[0].renderflows();
+
   // shadowing render
   lighteye.engage();
   shadowmap.engage();
@@ -163,11 +167,6 @@ Game.appDrawAux = function ()
     effect.draw(Game.World.Regions[0].mesh);
     readback = true;
   }
-
-  // water
-  // render pass 1 water: calculate incoming
-  // render pass 2 water: calculate output
-  // create texture?
 }
 
 Game.appDraw = function (eye)

@@ -7,12 +7,17 @@ function fRegion(area)
   this.MeshSize = RegionSize+2;
   this.VisibleMeshSize = RegionSize;
   this.Map = new Float32Array(this.MeshSize * this.MeshSize);
-  this.Water = new Float32Array(this.MeshSize * this.MeshSize);
+  this.Water = new Float32Array(this.MeshSize * this.MeshSize*3);
   this.mesh = null;
   this.heightmap = null;
   this.aomap = null;
   this.wangmap = null;
+
   this.watermap = null;
+  this.watermapA = null;
+  this.watermapB = null;
+  this.flowmapA = null;
+  this.flowmapB = null;
 
   this.create();
   this.createBuffers();
@@ -22,10 +27,14 @@ function fRegion(area)
 fRegion.prototype.create = function()
 {
   var size = this.MeshSize * this.MeshSize;
+  var j;
   for (var i = 0; i < size; ++i)
   {
     this.Map[i] = 0.0;
-    this.Water[i] = 0.0;
+    j = i * 3;
+    this.Water[j+0] = 0.0;
+    this.Water[j+1] = 0.0;
+    this.Water[j+2] = 0.0;
   }
   this.generate();
 }
@@ -55,7 +64,7 @@ fRegion.prototype.generate = function()
       if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { val = -100.0; }
       else {
         val = noise.GetValue(xf, 0, zf) * NoiseScale;
-        this.Water[i] =  Math.max(0.0 - val, 0.0);
+        this.Water[i*3] =  Math.max(0.0 - val, 0.0);
       }
       this.Map[i] = val;
       if (val > max) max = val;
@@ -188,8 +197,15 @@ fRegion.prototype.createBuffers = function()
 
   if (!this.watermap)
   {
-    this.watermap = new Texture('watermap');
-    this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.LUMINANCE, gl.FLOAT);
+    this.watermap = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
+    this.watermapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
+    this.watermapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
+
+    var size = this.MeshSize * this.MeshSize * 3;
+    var zeros = new Float32Array(size);
+    for (var i = 0; i < size; ++i) zeros[i] = 0.0;
+    this.flowmapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, zeros);
+    this.flowmapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, zeros);
   }
 
   if (!this.wangmap)
@@ -205,12 +221,12 @@ fRegion.prototype.createBuffers = function()
 
 fRegion.prototype.jiggleWater = function()
 {
-  var size = this.MeshSize * this.MeshSize;
-  for (var i = 0; i < size; ++i)
-  {
+//  var size = this.MeshSize * this.MeshSize;
+//  for (var i = 0; i < size; ++i)
+//  {
 //    this.Water[i] += Math.random() * 0.05 - 0.025;
-  }
-  this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.LUMINANCE, gl.FLOAT);
+//  }
+//  this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.RGB, gl.FLOAT);
 }
 
 fRegion.prototype.createAOMap = function ()
@@ -229,4 +245,59 @@ fRegion.prototype.createAOMap = function ()
   }
   this.aomap = new Texture('aomap');
   this.aomap.fromArray(this.MeshSize, this.MeshSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
+}
+
+fRegion.prototype.renderflows = function()
+{
+  // flip water and newwater
+  var tmp = this.watermap;
+  this.watermap = this.watermapA;
+  this.watermapA = tmp;
+  // flip flows A and B
+  var tmp = this.flowmapA;
+  this.flowmapA = this.flowmapB;
+  this.flowmapB = tmp;
+
+  // step 1
+  // needed: height, water, flowsA
+  // output to: flowsB
+  {
+    var uniforms = {};
+    uniforms.x = 0.8;
+
+    this.flowmapB.engage();
+    gl.viewport(0, 0, this.MeshSize, this.MeshSize);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    var effectin = Game.shaderMan.shaders["waterFlowOut"];
+    effectin.bind();
+    //effect.setUniforms(uniforms);
+    effectin.bindTexture("height", this.heightmap.texture);
+    effectin.bindTexture("water", this.watermapA.texture);
+    effectin.bindTexture("flows", this.flowmapA.texture);
+    effectin.draw(Game.assetMan.assets["fsq"]);
+  }
+  
+  // step 2
+  // needed: water, flowsB
+  // output to: newwater
+  {
+    var uniforms = {};
+    uniforms.x = 0.8;
+
+    this.watermap.engage();
+    gl.viewport(0, 0, this.MeshSize, this.MeshSize);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    var effectout = Game.shaderMan.shaders["waterFlowIn"];
+    effectout.bind();
+    //effect.setUniforms(uniforms);
+    effectout.bindTexture("water", this.watermapA.texture);
+    effectout.bindTexture("flows", this.flowmapB.texture);
+    effectout.draw(Game.assetMan.assets["fsq"]);
+  }
 }
