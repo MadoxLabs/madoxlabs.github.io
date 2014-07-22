@@ -15,7 +15,7 @@ Game.appInit = function ()
 
   Game.loadShaderFile("renderstates.fx");
   Game.loadShaderFile("waterFlowIn.fx");
-  Game.loadShaderFile("waterFLowOut.fx");
+  Game.loadShaderFile("waterFlowOut.fx");
   //  Game.loadShaderFile("colorlines.fx");
 
   if (highRez)
