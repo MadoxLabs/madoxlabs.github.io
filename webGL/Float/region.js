@@ -208,11 +208,11 @@ fRegion.prototype.createBuffers = function()
     this.watermapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
     this.watermapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
 
-    var size = this.MeshSize * this.MeshSize * 3;
+    var size = this.MeshSize * this.MeshSize * 4;
     var zeros = new Float32Array(size);
     for (var i = 0; i < size; ++i) zeros[i] = 0.0;
-    this.flowmapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, zeros);
-    this.flowmapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, zeros);
+    this.flowmapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGBA, gl.FLOAT, zeros);
+    this.flowmapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGBA, gl.FLOAT, zeros);
   }
 
   if (!this.wangmap)
