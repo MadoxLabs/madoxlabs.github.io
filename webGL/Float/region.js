@@ -7,17 +7,20 @@ function fRegion(area)
   this.MeshSize = RegionSize+2;
   this.VisibleMeshSize = RegionSize;
   this.Map = new Float32Array(this.MeshSize * this.MeshSize);
-  this.Water = new Float32Array(this.MeshSize * this.MeshSize*3);
+  this.WaterAdjust = new Float32Array(this.MeshSize * this.MeshSize);
+  this.Water = new Float32Array(this.MeshSize * this.MeshSize * 3);
   this.mesh = null;
   this.heightmap = null;
   this.aomap = null;
   this.wangmap = null;
 
+  this.addedWater = [];
+
   this.watermap = null;
   this.watermapA = null;
-  this.watermapB = null;
   this.flowmapA = null;
   this.flowmapB = null;
+  this.waterAdjustMap = null;
 
   this.create();
   this.createBuffers();
@@ -31,6 +34,7 @@ fRegion.prototype.create = function()
   for (var i = 0; i < size; ++i)
   {
     this.Map[i] = 0.0;
+    this.WaterAdjust[i] = 0.0;
     j = i * 3;
     this.Water[j+0] = 0.0;
     this.Water[j+1] = 0.0;
@@ -197,6 +201,9 @@ fRegion.prototype.createBuffers = function()
 
   if (!this.watermap)
   {
+    this.waterAdjustMap = new Texture('waterAdjustMap');
+    this.waterAdjustMap.fromArray(this.MeshSize, this.MeshSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
+
     this.watermap = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
     this.watermapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
     this.watermapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
@@ -219,14 +226,11 @@ fRegion.prototype.createBuffers = function()
   if (!this.aomap) this.createAOMap();
 }
 
-fRegion.prototype.jiggleWater = function()
+fRegion.prototype.addwater = function(i, j, amount)
 {
-//  var size = this.MeshSize * this.MeshSize;
-//  for (var i = 0; i < size; ++i)
-//  {
-//    this.Water[i] += Math.random() * 0.05 - 0.025;
-//  }
-//  this.watermap.fromArray(this.MeshSize, this.MeshSize, this.Water, gl.RGB, gl.FLOAT);
+  var x = j * 102 + i;
+  this.WaterAdjust[x] = amount;
+  this.addedWater.push(x);
 }
 
 fRegion.prototype.createAOMap = function ()
@@ -247,8 +251,22 @@ fRegion.prototype.createAOMap = function ()
   this.aomap.fromArray(this.MeshSize, this.MeshSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
 }
 
+var awtrigger = false;
+
 fRegion.prototype.renderflows = function()
 {
+  if (awtrigger) {
+    this.waterAdjustMap.fromArray(this.MeshSize, this.MeshSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
+    awtrigger = false;
+  }
+  if (this.addedWater.length > 0)
+  {
+    this.waterAdjustMap.fromArray(this.MeshSize, this.MeshSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
+    for (var x in this.addedWater) this.WaterAdjust[this.addedWater[x]] = 0;
+    this.addedWater = [];
+    awtrigger = true;
+  }
+
   // flip water and newwater
   var tmp = this.watermap;
   this.watermap = this.watermapA;
@@ -297,6 +315,7 @@ fRegion.prototype.renderflows = function()
     effectout.bind();
     //effect.setUniforms(uniforms);
     effectout.bindTexture("water", this.watermapA.texture);
+    effectout.bindTexture("adjust", this.waterAdjustMap.texture);
     effectout.bindTexture("flows", this.flowmapB.texture);
     effectout.draw(Game.assetMan.assets["fsq"]);
   }

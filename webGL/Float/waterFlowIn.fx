@@ -37,12 +37,14 @@ void main(void)
 [PIXEL]
 
 uniform sampler2D water; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
+uniform sampler2D adjust; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 uniform sampler2D flows; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 
 void main(void) 
 {
   float depth = texture2D(water, vTextureCoord).x;
-  gl_FragColor = vec4(max(0.0, depth - 0.01), 0.,0.,0.);
+  float added = texture2D(adjust, vTextureCoord).x;
+  gl_FragColor = vec4(max(0.0, depth + added - 0.01), 0.,0.,0.);
 }
 
 [END]
