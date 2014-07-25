@@ -4,11 +4,9 @@
 function fRegion(area)
 {
   this.Area = area;
-  this.MeshSize = RegionSize+2;
-  this.VisibleMeshSize = RegionSize;
-  this.Map = new Float32Array(this.MeshSize * this.MeshSize);
-  this.WaterAdjust = new Float32Array(this.MeshSize * this.MeshSize);
-  this.Water = new Float32Array(this.MeshSize * this.MeshSize * 3);
+  this.Map = new Float32Array(RegionSize * RegionSize);
+  this.WaterAdjust = new Float32Array(RegionSize * RegionSize);
+  this.Water = new Float32Array(RegionSize * RegionSize * 3);
   this.mesh = null;
   this.heightmap = null;
   this.aomap = null;
@@ -29,7 +27,7 @@ function fRegion(area)
 // Resets every point in the ground to 0 height then terraform it
 fRegion.prototype.create = function()
 {
-  var size = this.MeshSize * this.MeshSize;
+  var size = RegionSize * RegionSize;
   var j;
   for (var i = 0; i < size; ++i)
   {
@@ -50,26 +48,22 @@ fRegion.prototype.generate = function()
 {
   var locx = this.Area.X / this.Area.Width;   // every integer square number space of noise represents a region
   var locy = this.Area.Y / this.Area.Height; 
-  var step = 1.0 / (this.VisibleMeshSize - 1);  
-  var xf = locx - step;                // to account for the skirt around the edge, we start one step back
-  var zf = locy - step;
+  var step = 1.0 / (RegionSize-1);  
+  var xf = locx;
+  var zf = locy;
 
   var noise = Game.World.Generator;
   var i = 0;
 
   var max = 0;
   var val;
-  for (var y = -1; y < this.VisibleMeshSize + 1; ++y)
+  for (var y = 0; y < RegionSize; ++y)
   {
-    xf = locx - step;
-
-    for (var x = -1; x < this.VisibleMeshSize + 1; ++x)
+    xf = locx;
+    for (var x = 0; x < RegionSize; ++x)
     {
-      if (x < 1 || y < 1 || x >= this.VisibleMeshSize - 1 || y >= this.VisibleMeshSize - 1) { val = -100.0; }
-      else {
-        val = noise.GetValue(xf, 0, zf) * NoiseScale;
-        this.Water[i*3] =  Math.max(0.0 - val, 0.0);
-      }
+      val = noise.GetValue(xf, 0, zf) * NoiseScale;
+      this.Water[i*3] =  Math.max(0.0 - val, 0.0);
       this.Map[i] = val;
       if (val > max) max = val;
       i++;
@@ -83,7 +77,7 @@ fRegion.prototype.getUnknownPoint = function(x,y)
 {
   var locx = this.Area.X / this.Area.Width;
   var locy = this.Area.Y / this.Area.Height;
-  var step = 1.0 / (this.VisibleMeshSize - 1);
+  var step = 1.0 / (RegionSize-1);
   var xf = locx + (x * step);
   var zf = locy + (y * step);
   return Game.World.Generator.GetValue(xf, 0, zf) * NoiseScale;
@@ -93,10 +87,8 @@ fRegion.prototype.getUnknownPoint = function(x,y)
 // should only be used internally
 fRegion.prototype.getMapPoint = function (x, y)
 {
-  if (x >= this.VisibleMeshSize || y >= this.VisibleMeshSize || x < 0 || y < 0) return 0;//this.getUnknownPoint(x, y);
-
-  ++x; ++y; // account for skirt to convert to index
-  return this.Map[y * (this.MeshSize) + x];
+  if (x >= RegionSize || y >= RegionSize || x < 0 || y < 0) return 0;//this.getUnknownPoint(x, y);
+  return this.Map[y * RegionSize + x];
 }
 
 // this will map the world coords into the ground array and determine the height by lerping as needed
@@ -112,8 +104,8 @@ fRegion.prototype.getPoint = function( x,  y)
 {
   x -= this.Area.X;  // translate to the range 0 to RegionArea
   y -= this.Area.Y;
-  x = x * this.VisibleMeshSize / this.Area.Width;  // scale from RegionArea to RegionSize
-  y = y * this.VisibleMeshSize / this.Area.Height;
+  x = x * RegionSize / this.Area.Width;  // scale from RegionArea to RegionSize
+  y = y * RegionSize / this.Area.Height;
 
   var dx = (x - Math.floor(x));
   var dz = (y - Math.floor(y));
@@ -134,7 +126,7 @@ fRegion.prototype.getPoint = function( x,  y)
     p2[0] = x + 1; p2[1] = 0; p2[2] = y + 1;
   }
 
-  // fill in the 0 y values above
+  // fill in the y values above
   p0[1] = this.getMapPoint(p0[0], p0[2]);
   p1[1] = this.getMapPoint(p1[0], p1[2]);
   p2[1] = this.getMapPoint(p2[0], p2[2]);
@@ -158,35 +150,35 @@ fRegion.prototype.createBuffers = function()
     var index = 0;
     var vertexData = [];
 
-    var step = this.Area.Height / (this.VisibleMeshSize - 1);
-    for (var j = 0; j < this.VisibleMeshSize; ++j)
+    var step = this.Area.Height / RegionSize;
+    for (var j = 0; j < RegionSize; ++j)
     {
-      for (var i = 0; i < this.VisibleMeshSize; ++i)
+      for (var i = 0; i < RegionSize; ++i)
       {
         // position (3)
         vertexData[index++] = this.Area.X + (i * step);
         vertexData[index++] = 0;
         vertexData[index++] = this.Area.Y + (j * step);
         // texture (2)
-        vertexData[index++] = ((i + 1) / (this.VisibleMeshSize + 1));
-        vertexData[index++] = ((j + 1) / (this.VisibleMeshSize + 1));
+        vertexData[index++] = (i / (RegionSize-1));
+        vertexData[index++] = (j / (RegionSize-1));
       }
     }
 
     // index buffer
     index = 0;
     var indexData = [];
-    for (var j = 0; j < this.VisibleMeshSize - 1; ++j)
+    for (var j = 0; j < RegionSize - 1; ++j)
     {
-      for (var i = 0; i < this.VisibleMeshSize - 1; ++i)
+      for (var i = 0; i < RegionSize - 1; ++i)
       {
-        indexData[index++] = (j + 1) * this.VisibleMeshSize + i;
-        indexData[index++] =  j      * this.VisibleMeshSize + (i + 1);
-        indexData[index++] =  j      * this.VisibleMeshSize + i;
+        indexData[index++] = (j + 1) * RegionSize + i;
+        indexData[index++] = j * RegionSize + (i + 1);
+        indexData[index++] = j * RegionSize + i;
 
-        indexData[index++] = (j + 1) * this.VisibleMeshSize + (i + 1);
-        indexData[index++] =  j      * this.VisibleMeshSize + (i + 1);
-        indexData[index++] = (j + 1) * this.VisibleMeshSize + i;
+        indexData[index++] = (j + 1) * RegionSize + (i + 1);
+        indexData[index++] = j * RegionSize + (i + 1);
+        indexData[index++] = (j + 1) * RegionSize + i;
       }
     }
 
@@ -196,23 +188,23 @@ fRegion.prototype.createBuffers = function()
   if (!this.heightmap)
   {
     this.heightmap = new Texture('heightmap');
-    this.heightmap.fromArray(this.MeshSize, this.MeshSize, this.Map, gl.LUMINANCE, gl.FLOAT);
+    this.heightmap.fromArray(RegionSize, RegionSize, this.Map, gl.LUMINANCE, gl.FLOAT);
   }
 
   if (!this.watermap)
   {
     this.waterAdjustMap = new Texture('waterAdjustMap');
-    this.waterAdjustMap.fromArray(this.MeshSize, this.MeshSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
+    this.waterAdjustMap.fromArray(RegionSize, RegionSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
 
-    this.watermap = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
-    this.watermapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
-    this.watermapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGB, gl.FLOAT, this.Water);
+    this.watermap = new RenderSurface(RegionSize, RegionSize, gl.RGB, gl.FLOAT, this.Water);
+    this.watermapA = new RenderSurface(RegionSize, RegionSize, gl.RGB, gl.FLOAT, this.Water);
+    this.watermapB = new RenderSurface(RegionSize, RegionSize, gl.RGB, gl.FLOAT, this.Water);
 
-    var size = this.MeshSize * this.MeshSize * 4;
+    var size = RegionSize * RegionSize * 4;
     var zeros = new Float32Array(size);
     for (var i = 0; i < size; ++i) zeros[i] = 0.0;
-    this.flowmapA = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGBA, gl.FLOAT, zeros);
-    this.flowmapB = new RenderSurface(this.MeshSize, this.MeshSize, gl.RGBA, gl.FLOAT, zeros);
+    this.flowmapA = new RenderSurface(RegionSize, RegionSize, gl.RGBA, gl.FLOAT, zeros);
+    this.flowmapB = new RenderSurface(RegionSize, RegionSize, gl.RGBA, gl.FLOAT, zeros);
   }
 
   if (!this.wangmap)
@@ -228,7 +220,7 @@ fRegion.prototype.createBuffers = function()
 
 fRegion.prototype.addwater = function(i, j, amount)
 {
-  var x = j * 102 + i;
+  var x = j * RegionSize + i;
   this.WaterAdjust[x] = amount;
   this.addedWater.push(x);
 }
@@ -237,18 +229,18 @@ fRegion.prototype.createAOMap = function ()
 {
   // ao data
   var index = 0;
-  var savedFactors = new Float32Array(this.MeshSize * this.MeshSize);
+  var savedFactors = new Float32Array(RegionSize * RegionSize);
 
   var g = 0;
-  for (var j = -1; j < this.VisibleMeshSize + 1; ++j) {
-    for (var i = -1; i < this.VisibleMeshSize + 1; ++i) {
-      g = this.getMapPoint(i, j);
-      savedFactors[index] = Game.World.cast.calculate((this.Area.X + i), g, (this.Area.Y + j), this);
+  for (var j = 0; j < RegionSize; ++j) {
+    for (var i = 0; i < RegionSize; ++i) {
+      g = this.getPoint((this.Area.X + i) * this.Area.Width / RegionSize, (this.Area.Y + j) * this.Area.Width / RegionSize);
+      savedFactors[index] = Game.World.cast.calculate((this.Area.X + i) * this.Area.Width / RegionSize, g, (this.Area.Y + j) * this.Area.Width / RegionSize, this);
       ++index;
     }
   }
   this.aomap = new Texture('aomap');
-  this.aomap.fromArray(this.MeshSize, this.MeshSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
+  this.aomap.fromArray(RegionSize, RegionSize, savedFactors, gl.LUMINANCE, gl.FLOAT);
 }
 
 var awtrigger = false;
@@ -256,12 +248,12 @@ var awtrigger = false;
 fRegion.prototype.renderflows = function()
 {
   if (awtrigger) {
-    this.waterAdjustMap.fromArray(this.MeshSize, this.MeshSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
+    this.waterAdjustMap.fromArray(RegionSize, RegionSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
     awtrigger = false;
   }
   if (this.addedWater.length > 0)
   {
-    this.waterAdjustMap.fromArray(this.MeshSize, this.MeshSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
+    this.waterAdjustMap.fromArray(RegionSize, RegionSize, this.WaterAdjust, gl.LUMINANCE, gl.FLOAT);
     for (var x in this.addedWater) this.WaterAdjust[this.addedWater[x]] = 0;
     this.addedWater = [];
     awtrigger = true;
@@ -284,7 +276,7 @@ fRegion.prototype.renderflows = function()
     uniforms.x = 0.8;
 
     this.flowmapB.engage();
-    gl.viewport(0, 0, this.MeshSize, this.MeshSize);
+    gl.viewport(0, 0, RegionSize, RegionSize);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -306,7 +298,7 @@ fRegion.prototype.renderflows = function()
     uniforms.x = 0.8;
 
     this.watermap.engage();
-    gl.viewport(0, 0, this.MeshSize, this.MeshSize);
+    gl.viewport(0, 0, RegionSize, RegionSize);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

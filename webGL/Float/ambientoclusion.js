@@ -62,22 +62,26 @@ fRayCasting.prototype.calculate = function(x,y,z,ground)
   }
   // convert the influence value to a percent.
   // invert the percent so 1.0 is not occluded
+
+  if (escapes == 0) {
+    var oh = ground.getPoint(x, z);
+    console.log("wierd: " +x+","+z+"="+oh+" =?= " + y); //return 0.5;
+  }
+
   return escapes / this.rays.length;
 }
 
-fRayCasting.prototype.calculateRay = function(ray, x,y,z,ground)
+fRayCasting.prototype.calculateRay = function (ray, x, y, z, ground)
 {
   var ok = true;
-  for (var offset in ray.offsets)
-  {
+  for (var offset in ray.offsets) {
     var o = ray.offsets[offset];
-    var h = ground.getPoint(x - o[0], z - o[2]);
+    var h = ground.getPoint(x + o[0], z + o[2]);
     if (y + o[1] <= h) { ok = false; break; }
   }
-  // hit a cel, abort
   return ok;
 }
-  
+
 function aoHelper(r)
 {
   this.cast = r;

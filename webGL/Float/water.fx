@@ -46,12 +46,12 @@ void main(void)
   float water = texture2D(watermap, vTextureCoord).x;
   
   vPosition = vec4(aVertexPosition, 1.0);
-  //if (water == 0.0) vPosition.y = -50.0;
-  //else 
+  if (water == 0.0) vPosition.y = 0.0;
+  else 
     vPosition.y = water + vHeight;
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
-  float tex = 1.0 / 102.0;
+  float tex = 1.0 / 100.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
   float top    = getHeight(vTextureCoord - py);
@@ -87,7 +87,7 @@ void main(void)
 
   // apply user options
   if (options.x > 0.0) color = color * (0.5 + 0.5 * nDotL);
-  if (IsShadow(vPosition, vNormal, uWorldToLight))  color = color * 0.4;
+  if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
 
   // out
   gl_FragColor = vec4(color,alpha);

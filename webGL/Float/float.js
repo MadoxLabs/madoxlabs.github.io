@@ -6,8 +6,6 @@ var shadowmap;
 var lighteye;
 var sunpos = 0.0;
 
-var highRez = true;
-
 Game.appInit = function ()
 {
   Game.World = new fWorld();
@@ -16,22 +14,13 @@ Game.appInit = function ()
   Game.loadShaderFile("renderstates.fx");
   Game.loadShaderFile("waterFlowIn.fx");
   Game.loadShaderFile("waterFlowOut.fx");
-  //  Game.loadShaderFile("colorlines.fx");
+  Game.loadShaderFile("colorlines.fx");
 
-  if (highRez)
-  {
-    Game.loadShaderFile("shadowrecieve.fx");
-    Game.loadShaderFile("ground.fx");
-    Game.loadShaderFile("groundpicker.fx");
-    Game.loadShaderFile("water.fx");
-    Game.loadShaderFile("shadowcast.fx");
-  }
-  else
-  {
-    Game.loadShaderFile("shadowoff.fx");
-    Game.loadShaderFile("groundlow.fx");
-    Game.loadShaderFile("waterlow.fx");
-  }
+  Game.loadShaderFile("shadowrecieve.fx");
+  Game.loadShaderFile("ground.fx");
+  Game.loadShaderFile("groundpicker.fx");
+  Game.loadShaderFile("water.fx");
+  Game.loadShaderFile("shadowcast.fx");
 
   Game.loadTextureFile("tile", "tile.jpg", true);
   Game.loadTextureFile("grass", "grass.jpg", true);
@@ -66,7 +55,7 @@ Game.loadingStop = function ()
   uPerObject.options = vec2.fromValues(1.0, 1.0);
   mat4.identity(uPerObject.uWorld);
 
-  if (highRez) shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
+  shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
 
   lighteye = new Camera(2048, 2048);
   sunpos = 0.0;
@@ -131,10 +120,9 @@ Game.appUpdate = function ()
 Game.appDrawAux = function ()
 {
   if (Game.loading) return;
-  if (!highRez) return;
 
   // water
-  Game.World.Regions[0].renderflows();
+   Game.World.Regions[0].renderflows();
 
   // shadowing render
   lighteye.engage();
@@ -177,7 +165,7 @@ Game.appDraw = function (eye)
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
   effect.bindTexture("wang", Game.World.Regions[0].wangmap.texture);
-  if (highRez) effect.bindTexture("shadow", shadowmap.texture);
+   effect.bindTexture("shadow", shadowmap.texture);
 
   if (showWang)
   {
@@ -199,7 +187,7 @@ Game.appDraw = function (eye)
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.bindTexture("watermap", Game.World.Regions[0].watermap.texture);
-  if (highRez) effect.bindTexture("shadow", shadowmap.texture);
+  effect.bindTexture("shadow", shadowmap.texture);
   effect.draw(Game.World.Regions[0].mesh);
 
 //  effect = Game.shaderMan.shaders["colorlines"];

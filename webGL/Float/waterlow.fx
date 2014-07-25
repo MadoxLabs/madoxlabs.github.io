@@ -40,7 +40,7 @@ void main(void)
 
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
-  float tex = 1.0 / 102.0;
+  float tex = 1.0 / 100.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
   float top    = texture2D(watermap, vTextureCoord - py).x;

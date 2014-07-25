@@ -39,7 +39,7 @@ void main(void)
 
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
-  float tex = 1.0 / 102.0;
+  float tex = 1.0 / 100.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
   float top    = texture2D(heightmap, vTextureCoord - py).x;
@@ -54,7 +54,7 @@ void main(void)
 
 uniform vec2 options;            // group perobject
 uniform mat4 uWorldToLight;      // group perobject
-uniform vec3 uLightPosition    ;  // group perobject
+uniform vec3 uLightPosition;     // group perobject
 
 uniform vec3 camera;             // group camera
 
@@ -113,9 +113,8 @@ void main(void)
   // apply user options
   float a = color.a;
   if (options.x > 0.0) color = color * (nDotL + 0.1);
-  if (options.y > 0.0) color = color * min(1.0,vAOFactor+0.3);
-
-  if (IsShadow(vPosition, vNormal, uWorldToLight))  color = color * 0.4;
+  if (options.y > 0.0) color = color * min(1.0,vAOFactor+0.5);
+  if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
 
   color.a = a;
 

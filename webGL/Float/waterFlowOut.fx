@@ -46,7 +46,7 @@ void main(void)
   float heightC = texture2D(height, vTextureCoord).x;
   float totalHC = waterC + heightC;
 
-  float tex = 1.0 / 102.0;
+  float tex = 1.0 / 100.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
 

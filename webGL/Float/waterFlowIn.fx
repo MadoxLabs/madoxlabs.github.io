@@ -46,7 +46,7 @@ void main(void)
 //  float added = texture2D(adjust, vTextureCoord).x;
 //  gl_FragColor = vec4(max(0.0, depth + added - 0.01), 0.,0.,0.);
 
-  float tex = 1.0 / 102.0;
+  float tex = 1.0 / 100.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
 

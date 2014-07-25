@@ -15,7 +15,7 @@ function fRectangle(x, y, w, h)
 
 //----------------------------------------------------------------
 
-var RegionSize = 100;  // vertex dimension in mesh.  This covers a square integer range in the noise field
+var RegionSize = 101;  // vertex dimension in mesh.  This covers a square integer range in the noise field
 var RegionArea = 100;  // physical dimension in world. This covers the vertex mesh
 var NoiseScale = 20;
 

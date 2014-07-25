@@ -61,7 +61,7 @@ uniform sampler2D sand; // mag LINEAR, min LINEAR_MIPMAP_LINEAR
 
 void main(void) 
 { 
-  float tex = 1.0 / 102.0;
+  float tex = 1.0 / 100.0;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
   float top    = texture2D(heightmap, vTextureCoord - py).x;

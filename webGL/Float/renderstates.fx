@@ -4,7 +4,7 @@ renderstates
 
 [RENDERSTATE]
 name colorlines
-depth false
+depth true
 cull false
 [END]
 
