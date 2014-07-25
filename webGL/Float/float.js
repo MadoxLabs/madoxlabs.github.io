@@ -230,8 +230,11 @@ Game.appHandleMouseEvent = function (type, mouse)
 
   if (mouse.grabbed)
   {
-    Game.camera.angles[1] += -0.01 * mouse.moveOffsetX;
-    Game.camera.angles[0] += -0.01 * mouse.moveOffsetY;
+    if (mouse.moveOffsetX < 50 && mouse.moveOffsetX > -50) 
+    {
+      Game.camera.angles[1] += -0.01 * mouse.moveOffsetX;
+      Game.camera.angles[0] += -0.01 * mouse.moveOffsetY;
+    }
   }
 }
 
