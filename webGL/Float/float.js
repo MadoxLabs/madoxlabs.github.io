@@ -113,7 +113,7 @@ Game.appUpdate = function ()
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
     var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
     var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
-    Game.World.Regions[0].addwater(i, j, 0.25);
+    Game.World.Regions[0].addwater(i, j, water);
   }
 }
 
@@ -252,6 +252,7 @@ Game.appHandleKeyUp = function (event)
 }
 
 var showWang = false;
+var water = 0.25;
 
 Game.setparam = function(name, value)
 {
@@ -261,6 +262,7 @@ Game.setparam = function(name, value)
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
+  else if (name == 'water') water = parseInt(value) * 0.01;
   else if (name == 'sun') {
     if (value[0] == '-')
       sunpos = parseInt(value.substr(1)) * -1.0;
