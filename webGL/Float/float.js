@@ -53,6 +53,7 @@ Game.loadingStop = function ()
   uPerObject.uWorld = mat4.create();
   uPerObject.uWorldToLight = mat4.create();
   uPerObject.options = vec2.fromValues(1.0, 1.0);
+  uPerObject.regionsize = (RegionSize - 1);
   mat4.identity(uPerObject.uWorld);
 
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
@@ -111,8 +112,8 @@ Game.appUpdate = function ()
     pickmap.engage();
     var pixel = new Uint8Array(4);
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
-    var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
-    var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
+    var i = ((pixel[0] * (RegionSize-1) / 255.0) | 0) +1;
+    var j = ((pixel[1] * (RegionSize - 1) / 255.0) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, water);
   }
 }

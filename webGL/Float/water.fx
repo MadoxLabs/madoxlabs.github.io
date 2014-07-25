@@ -8,12 +8,14 @@ water
 [COMMON]
 uniform sampler2D watermap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 uniform sampler2D heightmap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
+uniform float regionsize; // group perobject
 
 varying vec2 vTextureCoord;
 varying vec4 vPosition;
 varying vec3 vNormal;
 varying float vHeight;
 [END]
+
 
 [APPLY]
 blend
@@ -51,7 +53,7 @@ void main(void)
     vPosition.y = water + vHeight;
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
-  float tex = 1.0 / 100.0;
+  float tex = 1.0 / regionsize;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
   float top    = getHeight(vTextureCoord - py);

@@ -10,6 +10,8 @@ precision mediump float;
 #endif
 
 varying vec2 vTextureCoord;
+uniform float regionsize; // group perobject
+
 [END]
 
 [RENDERSTATE]
@@ -46,7 +48,7 @@ void main(void)
 //  float added = texture2D(adjust, vTextureCoord).x;
 //  gl_FragColor = vec4(max(0.0, depth + added - 0.01), 0.,0.,0.);
 
-  float tex = 1.0 / 100.0;
+  float tex = 1.0 / regionsize;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
 
@@ -59,7 +61,7 @@ void main(void)
   float outflows = flowC.x + flowC.y + flowC.z + flowC.w;
   float oldwater =  texture2D(water, vTextureCoord).x + texture2D(adjust, vTextureCoord).x;
   // oldwater *= 0.01; //evaporate;
-  float outwater = oldwater + (0.1 * (inflows - outflows));
+  float outwater = oldwater + (0.2 * (inflows - outflows));
   if (outwater < 0.01) outwater = 0.;
   gl_FragColor = vec4(max(0.0, outwater),0.,0.,0.);
 }

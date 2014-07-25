@@ -273,7 +273,7 @@ fRegion.prototype.renderflows = function()
   // output to: flowsB
   {
     var uniforms = {};
-    uniforms.x = 0.8;
+    uniforms.regionsize = RegionSize-1;
 
     this.flowmapB.engage();
     gl.viewport(0, 0, RegionSize, RegionSize);
@@ -283,7 +283,7 @@ fRegion.prototype.renderflows = function()
 
     var effectin = Game.shaderMan.shaders["waterFlowOut"];
     effectin.bind();
-    //effect.setUniforms(uniforms);
+    effectin.setUniforms(uniforms);
     effectin.bindTexture("height", this.heightmap.texture);
     effectin.bindTexture("water", this.watermapA.texture);
     effectin.bindTexture("flows", this.flowmapA.texture);
@@ -295,7 +295,7 @@ fRegion.prototype.renderflows = function()
   // output to: newwater
   {
     var uniforms = {};
-    uniforms.x = 0.8;
+    uniforms.regionsize = RegionSize - 1;
 
     this.watermap.engage();
     gl.viewport(0, 0, RegionSize, RegionSize);
@@ -305,7 +305,7 @@ fRegion.prototype.renderflows = function()
 
     var effectout = Game.shaderMan.shaders["waterFlowIn"];
     effectout.bind();
-    //effect.setUniforms(uniforms);
+    effectout.setUniforms(uniforms);
     effectout.bindTexture("water", this.watermapA.texture);
     effectout.bindTexture("adjust", this.waterAdjustMap.texture);
     effectout.bindTexture("flows", this.flowmapB.texture);

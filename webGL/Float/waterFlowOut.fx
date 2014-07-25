@@ -10,6 +10,8 @@ precision mediump float;
 #endif
 
 varying vec2 vTextureCoord;
+uniform float regionsize; // group perobject
+
 [END]
 
 [RENDERSTATE]
@@ -46,7 +48,7 @@ void main(void)
   float heightC = texture2D(height, vTextureCoord).x;
   float totalHC = waterC + heightC;
 
-  float tex = 1.0 / 100.0;
+  float tex = 1.0 / regionsize;
   vec2 px = vec2(tex, 0);
   vec2 py = vec2(0, tex);
 
