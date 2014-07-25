@@ -62,10 +62,10 @@ void main(void)
   totalH.z = texture2D(water, vTextureCoord - py).x + heightN.z;
   totalH.w = texture2D(water, vTextureCoord + py).x + heightN.w;
 
-  vec4 heightDif = (totalHC - totalH);// * 10.;
+  vec4 heightDif = totalHC - totalH; 
 
   vec4 f = texture2D(flows, vTextureCoord); 
-  vec4 outflow = f * 0.97 + heightDif * 0.05;
+  vec4 outflow = f * 0.9 + heightDif * 0.1 ;
 
   if (outflow.x < 0.) outflow.x = 0.;
   if (outflow.y < 0.) outflow.y = 0.;
@@ -73,7 +73,7 @@ void main(void)
   if (outflow.w < 0.) outflow.w = 0.;
 
   float maxWater = waterC;
-  float waterOut = (outflow.x + outflow.y + outflow.z + outflow.w) * 0.005;
+  float waterOut = (outflow.x + outflow.y + outflow.z + outflow.w) * 0.001;
   if (maxWater == 0. || waterOut == 0. || vTextureCoord.x == 0. || vTextureCoord.x == 1.|| vTextureCoord.y == 0. || vTextureCoord.y == 1.) {
     gl_FragColor = vec4(0.,0.,0.,0.);
   }

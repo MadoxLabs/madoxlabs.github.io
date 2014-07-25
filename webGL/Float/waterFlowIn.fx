@@ -55,12 +55,13 @@ void main(void)
   vec4 flowR = texture2D(flows, vTextureCoord + px);
   vec4 flowT = texture2D(flows, vTextureCoord - py);
   vec4 flowB = texture2D(flows, vTextureCoord + py);
-  float inflows = flowR.x + flowL.y + flowT.z + flowB.w;
+  float inflows = flowR.x + flowL.y + flowB.z + flowT.w;
   float outflows = flowC.x + flowC.y + flowC.z + flowC.w;
   float oldwater =  texture2D(water, vTextureCoord).x + texture2D(adjust, vTextureCoord).x;
   // oldwater *= 0.01; //evaporate;
-  float outwater = oldwater + (0.05 * (inflows - outflows));
-  gl_FragColor = vec4(max(0.0, outwater),0.,0.,0.);;
+  float outwater = oldwater + (0.1 * (inflows - outflows));
+  if (outwater < 0.01) outwater = 0.;
+  gl_FragColor = vec4(max(0.0, outwater),0.,0.,0.);
 }
 
 [END]

@@ -113,7 +113,7 @@ Game.appUpdate = function ()
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
     var i = ((pixel[0] * 100.0 / 255.0) | 0) +1;
     var j = ((pixel[1] * 100.0 / 255.0) | 0) + 1;
-    Game.World.Regions[0].addwater(i, j, 0.5);
+    Game.World.Regions[0].addwater(i, j, 0.25);
   }
 }
 

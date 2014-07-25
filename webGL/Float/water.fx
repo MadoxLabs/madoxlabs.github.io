@@ -86,7 +86,7 @@ void main(void)
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
 
   // apply user options
-  if (options.x > 0.0) color = color * (0.5 + 0.5 * nDotL);
+  if (options.x > 0.0) color = color * (0.2 + 0.7 * nDotL);
   if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
 
   // out
