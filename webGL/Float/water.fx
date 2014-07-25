@@ -80,14 +80,17 @@ void main(void)
 { 
   float depth = max(0.0, vPosition.y - vHeight);
   vec3 color = vec3(0.0,0.0,1.0);
+  vec3 shade = vec3(1.0, 1.0, 0.0);
   float alpha = min (0.8, 0.5 + depth * 0.05);
 
   // lighting
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
 
   // apply user options
-  if (options.x > 0.0) color = color * (0.2 + 0.7 * nDotL);
-  if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
+  shade = shade * (0.2 + 0.7 * nDotL);
+//  if (options.x > 0.0) color = color * (0.2 + 0.7 * nDotL);
+  if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  shade = shade * 0.4;
+  color = color + (1.0 - shade);
 
   // out
   gl_FragColor = vec4(color,alpha);
