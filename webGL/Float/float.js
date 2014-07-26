@@ -80,19 +80,19 @@ Game.appUpdate = function ()
 {
   if (Game.loading) return;
   if (!Game.camera) return;
-  if (currentlyPressedKeys[33])  // Page Up
+  if (currentlyPressedKeys[33] && Game.camera.offset[2] > 4)  // Page Up
     Game.camera.offset[2] -= 1;
-  if (currentlyPressedKeys[34])  // Page Down
+  if (currentlyPressedKeys[34] && Game.camera.offset[2] < 100)  // Page Down
     Game.camera.offset[2] += 1;
 
-  if (currentlyPressedKeys[37])  // Left cursor key
+  if (currentlyPressedKeys[37] && Game.camera.target[0] > 0)  // Left cursor key
     Game.camera.target[0] -= 0.1;
-  if (currentlyPressedKeys[39])  // Right cursor key
+  if (currentlyPressedKeys[39] && Game.camera.target[0] < 100)  // Right cursor key
     Game.camera.target[0] += 0.1;
 
-  if (currentlyPressedKeys[38])  // Up cursor key
+  if (currentlyPressedKeys[38] && Game.camera.target[2] > 0)  // Up cursor key
     Game.camera.target[2] -= 0.1;
-  if (currentlyPressedKeys[40])  // Down cursor key
+  if (currentlyPressedKeys[40] && Game.camera.target[2] < 100)  // Down cursor key
     Game.camera.target[2] += 0.1;
 
   sunpos += 0.01; 
@@ -122,6 +122,24 @@ Game.appUpdate = function ()
     var j = ((pixel[1] * (RegionSize - 1) / 255.0) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, water);
   }
+  Game.camerafix();
+}
+
+Game.camerafix = function()
+{
+  Game.camera.target[1] = Game.World.getHeight(Game.camera.target[0], Game.camera.target[2]) + Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]);
+
+  // check for ground clip
+  var x = 0;
+  do {
+    x++;
+    if (x == 100) break; // sanity
+    var h = Game.World.getHeight(Game.camera.position[0], Game.camera.position[2]);
+    h += Game.World.getWaterHeight(Game.camera.position[0], Game.camera.position[2]);
+    if (Game.camera.position[1] - h > 1.0) break;
+    Game.camera.angles[0] -= 0.01;
+    Game.camera.update();
+  } while (true);
 }
 
 Game.appDrawAux = function ()
@@ -233,14 +251,20 @@ Game.appHandleMouseEvent = function (type, mouse)
     mouse.release();
 
   if (type == 8)
-    Game.camera.offset[2] -= mouse.wheel*3;
+  {
+    Game.camera.offset[2] -= mouse.wheel * 3;
+    if (Game.camera.offset[2] < 4) Game.camera.offset[2] = 4;
+    if (Game.camera.offset[2] > 100) Game.camera.offset[2] = 100;
+    Game.camerafix();
+  }
 
   if (mouse.grabbed)
   {
-    if (mouse.moveOffsetX < 50 && mouse.moveOffsetX > -50) 
+    if (mouse.moveOffsetX < 20 && mouse.moveOffsetX > -20) 
     {
       Game.camera.angles[1] += -0.01 * mouse.moveOffsetX;
       Game.camera.angles[0] += -0.01 * mouse.moveOffsetY;
+      Game.camerafix();
     }
   }
 }

@@ -91,6 +91,12 @@ fRegion.prototype.getMapPoint = function (x, y)
   return this.Map[y * RegionSize + x];
 }
 
+fRegion.prototype.getWaterPoint = function (x, y)
+{
+  if (x >= RegionSize || y >= RegionSize || x < 0 || y < 0) return 0;//this.getUnknownPoint(x, y);
+  return this.Water[3 * (y * RegionSize + x)];
+}
+
 // this will map the world coords into the ground array and determine the height by lerping as needed
 // anything passed into the ground will be de-scaled so we dont have to care what the world scale is
 //
@@ -100,7 +106,7 @@ var p0;
 var p1;
 var p2;
 var n ;
-fRegion.prototype.getPoint = function( x,  y)
+fRegion.prototype.getPoint = function( x,  y, water)
 {
   x -= this.Area.X;  // translate to the range 0 to RegionArea
   y -= this.Area.Y;
@@ -127,9 +133,18 @@ fRegion.prototype.getPoint = function( x,  y)
   }
 
   // fill in the y values above
-  p0[1] = this.getMapPoint(p0[0], p0[2]);
-  p1[1] = this.getMapPoint(p1[0], p1[2]);
-  p2[1] = this.getMapPoint(p2[0], p2[2]);
+  if (water)
+  {
+    p0[1] = this.getWaterPoint(p0[0], p0[2]);
+    p1[1] = this.getWaterPoint(p1[0], p1[2]);
+    p2[1] = this.getWaterPoint(p2[0], p2[2]);
+  }
+  else
+  {
+    p0[1] = this.getMapPoint(p0[0], p0[2]);
+    p1[1] = this.getMapPoint(p1[0], p1[2]);
+    p2[1] = this.getMapPoint(p2[0], p2[2]);
+  }
 
   // get the face normal
 //  var n = vec3.create();

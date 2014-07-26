@@ -101,7 +101,16 @@ fWorld.prototype.getHeight = function(x, y)
   return ret;
 }
 
-fWorld.prototype.getRegionContaining = function( x,  y)
+fWorld.prototype.getWaterHeight = function (x, y)
+{
+  var index = this.getIndexForRegionContaining(x, y);
+
+  var ret = 0;
+  if (this.Regions[index]) ret = this.Regions[index].getPoint(x, y, true);
+  return ret;
+}
+
+fWorld.prototype.getRegionContaining = function (x, y)
 {
   var index = this.getIndexForRegionContaining(x, y);
   return this.Regions[index];
