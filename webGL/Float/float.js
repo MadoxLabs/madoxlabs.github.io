@@ -105,6 +105,12 @@ Game.appUpdate = function ()
     uPerObject.uLightPosition = lighteye.position;
     mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
+  // UPDATE SUN UI
+  var v = document.getElementById("sunval");
+  v.innerHTML = sunpos.toString().substr(0,5);
+  var s = document.getElementById("sun");
+  s.value = sunpos;
+  // END UPDATE SUN UI
 
   if (readback)
   {
@@ -164,7 +170,7 @@ Game.appDraw = function (eye)
   effect.bindCamera(eye);
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
-  effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
+  if (Game.World.Regions[0].aomap) effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
   effect.bindTexture("wang", Game.World.Regions[0].wangmap.texture);
    effect.bindTexture("shadow", shadowmap.texture);
 
