@@ -53,7 +53,7 @@ void main(void)
 
 [PIXEL]
 
-uniform vec2 options;            // group perobject
+uniform vec3 options;            // group perobject
 uniform mat4 uWorldToLight;      // group perobject
 uniform vec3 uLightPosition;     // group perobject
 
@@ -115,7 +115,7 @@ void main(void)
   float a = color.a;
   if (options.x > 0.0) color = color * (nDotL + 0.1);
   if (options.y > 0.0) color = color * min(1.0,vAOFactor+0.5);
-  if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
+  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
 
   color.a = a;
 

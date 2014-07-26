@@ -26,6 +26,8 @@ Game.appInit = function ()
   Game.loadTextureFile("grass", "grass.jpg", true);
   Game.loadTextureFile("sand", "sand.jpg", true);
   Game.loadTextureFile("dirt", "dirtcliff.jpg", true);
+
+  Game.loadMeshPNG("ball", "ball.model");
 }
 
 Game.deviceReady = function ()
@@ -52,7 +54,7 @@ Game.loadingStop = function ()
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
   uPerObject.uWorldToLight = mat4.create();
-  uPerObject.options = vec2.fromValues(1.0, 1.0);
+  uPerObject.options = vec3.fromValues(1.0, 1.0, 1.0);
   uPerObject.regionsize = (RegionSize - 1);
   mat4.identity(uPerObject.uWorld);
 
@@ -64,6 +66,7 @@ Game.loadingStop = function ()
   lighteye.lookAt(50.0, 0.0, 50.0);
   lighteye.update();
   uPerObject.uLightPosition = lighteye.position;
+
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 
   Game.makeHelper();
@@ -158,9 +161,14 @@ Game.appDrawAux = function ()
   var effect = Game.shaderMan.shaders["shadowcast"];
   effect.bind();
   effect.bindCamera(lighteye);
+  mat4.identity(uPerObject.uWorld);
   effect.setUniforms(uPerObject);
   effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
   effect.draw(Game.World.Regions[0].mesh);
+
+  mat4.identity(uPerObject.uWorld);
+  effect.setUniforms(uPerObject);
+  effect.draw(Game.assetMan.assets["ball"]);
 
   if (clicked && !readback)
   {
@@ -204,7 +212,13 @@ Game.appDraw = function (eye)
     effect.bindTexture("dirt", Game.assetMan.assets['dirt'].texture);
     effect.bindTexture("sand", Game.assetMan.assets['sand'].texture);
   }
+  mat4.identity(uPerObject.uWorld);
+  effect.setUniforms(uPerObject);
   effect.draw(Game.World.Regions[0].mesh);
+
+  mat4.identity(uPerObject.uWorld);
+  effect.setUniforms(uPerObject);
+  effect.draw(Game.assetMan.assets["ball"]);
 
   effect = Game.shaderMan.shaders["water"];
   effect.bind();
@@ -290,6 +304,7 @@ Game.setparam = function(name, value)
   if (name == 'ao') uPerObject.options[1] = (value ? 1.0 : 0.0);
   else if (name == 'diffuse') uPerObject.options[0] = (value ? 1.0 : 0.0);
   else if (name == 'wang') showWang = !showWang;
+  else if (name == 'shadow') uPerObject.options[2] = (value ? 1.0 : 0.0);
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }

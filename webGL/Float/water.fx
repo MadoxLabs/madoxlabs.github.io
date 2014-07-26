@@ -66,7 +66,7 @@ void main(void)
 
 [PIXEL]
 
-uniform vec2 options;            // group perobject
+uniform vec3 options;            // group perobject
 uniform mat4 uWorldToLight;      // group perobject
 uniform vec3 uLightPosition    ;  // group perobject
 
@@ -91,7 +91,7 @@ void main(void)
   // apply user options
   shade = shade * (0.2 + 0.7 * nDotL);
 //  if (options.x > 0.0) color = color * (0.2 + 0.7 * nDotL);
-  if (IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  shade = shade * 0.4;
+  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  shade = shade * 0.4;
   color = color + (1.0 - shade);
 
   // out
