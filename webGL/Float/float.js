@@ -1,5 +1,8 @@
 
 var uPerObject;
+var uScene;
+var uBall;
+
 var currentlyPressedKeys = [];
 var helper;
 var shadowmap;
@@ -10,17 +13,26 @@ Game.appInit = function ()
 {
   Game.World = new fWorld();
   Game.World.createRegionContaining(0, 0);
+  Game.World.createRegionContaining(100, 0);
+  Game.World.createRegionContaining(-100, 0);
+  Game.World.createRegionContaining(0, 100);
+  Game.World.createRegionContaining(0, -100);
+  Game.World.createRegionContaining( 100, 100);
+  Game.World.createRegionContaining(-100, 100);
+  Game.World.createRegionContaining( 100, -100);
+  Game.World.createRegionContaining(-100, -100);
 
   Game.loadShaderFile("renderstates.fx");
   Game.loadShaderFile("waterFlowIn.fx");
   Game.loadShaderFile("waterFlowOut.fx");
+  Game.loadShaderFile("groundpicker.fx");
   Game.loadShaderFile("colorlines.fx");
-
+  Game.loadShaderFile("shadowcast.fx");
+  Game.loadShaderFile("shadowcastobject.fx");
   Game.loadShaderFile("shadowrecieve.fx");
   Game.loadShaderFile("ground.fx");
-  Game.loadShaderFile("groundpicker.fx");
   Game.loadShaderFile("water.fx");
-  Game.loadShaderFile("shadowcast.fx");
+  Game.loadShaderFile("plainobject.fx");
 
   Game.loadTextureFile("tile", "tile.jpg", true);
   Game.loadTextureFile("grass", "grass.jpg", true);
@@ -46,17 +58,9 @@ Game.loadingStop = function ()
 
   Game.camera.offset[0] = 0.0;
   Game.camera.offset[1] = 0.0;
-  Game.camera.offset[2] = 100.0;
+  Game.camera.offset[2] = 50.0;
   Game.camera.angles[0] = -0.55;
   Game.camera.lookAt(50.0, 0.0, 50.0);
-
-  var effect = Game.shaderMan.shaders["ground"];
-  uPerObject = effect.createUniform('perobject');
-  uPerObject.uWorld = mat4.create();
-  uPerObject.uWorldToLight = mat4.create();
-  uPerObject.options = vec3.fromValues(1.0, 1.0, 1.0);
-  uPerObject.regionsize = (RegionSize - 1);
-  mat4.identity(uPerObject.uWorld);
 
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
 
@@ -65,9 +69,18 @@ Game.loadingStop = function ()
   lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
   lighteye.lookAt(50.0, 0.0, 50.0);
   lighteye.update();
-  uPerObject.uLightPosition = lighteye.position;
 
-  mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+  var effect = Game.shaderMan.shaders["ground"];
+  uScene = effect.createUniform('scene');
+  uScene.options = vec3.fromValues(1.0, 1.0, 1.0);
+  uScene.regionsize = (RegionSize - 1);
+  uScene.uLightPosition = lighteye.position;
+  uScene.uWorldToLight = mat4.create();
+  mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+
+  uBall = {};
+  uBall.uWorld = mat4.create();
+  mat4.identity(uBall.uWorld);
 
   Game.makeHelper();
 }
@@ -83,21 +96,37 @@ Game.appUpdate = function ()
 {
   if (Game.loading) return;
   if (!Game.camera) return;
+
+  // CAMERA AND TARGET MOVEMENT
   if (currentlyPressedKeys[33] && Game.camera.offset[2] > 4)  // Page Up
     Game.camera.offset[2] -= 1;
   if (currentlyPressedKeys[34] && Game.camera.offset[2] < 100)  // Page Down
     Game.camera.offset[2] += 1;
 
+  var tmp = vec3.create();
   if (currentlyPressedKeys[37] && Game.camera.target[0] > 0)  // Left cursor key
-    Game.camera.target[0] -= 0.1;
+  {
+    vec3.scale(tmp, Game.camera.left, 0.1)
+    vec3.add(Game.camera.target, Game.camera.target, tmp);
+  }
   if (currentlyPressedKeys[39] && Game.camera.target[0] < 100)  // Right cursor key
-    Game.camera.target[0] += 0.1;
+  {
+    vec3.scale(tmp, Game.camera.left, -0.1)
+    vec3.add(Game.camera.target, Game.camera.target, tmp);
+  }
 
   if (currentlyPressedKeys[38] && Game.camera.target[2] > 0)  // Up cursor key
-    Game.camera.target[2] -= 0.1;
+  {
+    vec3.scale(tmp, Game.camera.forward, -0.1)
+    vec3.add(Game.camera.target, Game.camera.target, tmp);
+  }
   if (currentlyPressedKeys[40] && Game.camera.target[2] < 100)  // Down cursor key
-    Game.camera.target[2] += 0.1;
+  {
+    vec3.scale(tmp, Game.camera.forward, 0.1)
+    vec3.add(Game.camera.target, Game.camera.target, tmp);
+  }
 
+  // SUN MOVEMENT
   sunpos += 0.01; 
   if (sunpos > 150.0) sunpos = -150.0;
   if (sunpos != lighteye.offset[0])
@@ -105,16 +134,16 @@ Game.appUpdate = function ()
     lighteye.offset = vec3.fromValues(sunpos, (120.0 - Math.abs(sunpos)) * 2.0, 0.0);
     lighteye.lookAt(50.0, 0.0, 50.0);
     lighteye.update();
-    uPerObject.uLightPosition = lighteye.position;
-    mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+    uScene.uLightPosition = lighteye.position;
+    mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
   // UPDATE SUN UI
   var v = document.getElementById("sunval");
   v.innerHTML = sunpos.toString().substr(0,5);
   var s = document.getElementById("sun");
   s.value = sunpos;
-  // END UPDATE SUN UI
 
+  // IF MOUSE WAS CLICKED, GET SPOT CLICKED ON
   if (readback)
   {
     readback = false;
@@ -125,7 +154,13 @@ Game.appUpdate = function ()
     var j = ((pixel[1] * (RegionSize - 1) / 255.0) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, water);
   }
+
+  // ADJUST CAMERA TO NOT CLIP
   Game.camerafix();
+
+  // UPDATE UNIFORMS
+  mat4.identity(uBall.uWorld);
+  mat4.translate(uBall.uWorld, uBall.uWorld, Game.camera.target);
 }
 
 Game.camerafix = function()
@@ -161,15 +196,23 @@ Game.appDrawAux = function ()
   var effect = Game.shaderMan.shaders["shadowcast"];
   effect.bind();
   effect.bindCamera(lighteye);
-  mat4.identity(uPerObject.uWorld);
-  effect.setUniforms(uPerObject);
-  effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
-  effect.draw(Game.World.Regions[0].mesh);
+  effect.setUniforms(uScene);
+  for (var x in Game.World.Regions)
+  {
+    var region = Game.World.Regions[x];
+    effect.setUniforms(region.uPerObject);
+    effect.bindTexture("heightmap", region.heightmap.texture);
+    effect.draw(region.mesh);
+  }
 
-  mat4.identity(uPerObject.uWorld);
-  effect.setUniforms(uPerObject);
+  var effect = Game.shaderMan.shaders["shadowcastobject"];
+  effect.bind();
+  effect.bindCamera(lighteye);
+  effect.setUniforms(uScene);
+  effect.setUniforms(uBall);
   effect.draw(Game.assetMan.assets["ball"]);
 
+  // if the mouse is clicked, determine the spot clicked
   if (clicked && !readback)
   {
     Game.camera.eyes[0].engage()
@@ -179,7 +222,8 @@ Game.appDrawAux = function ()
     var effect = Game.shaderMan.shaders["picker"];
     effect.bind();
     effect.bindCamera(Game.camera.eyes[0]);
-    effect.setUniforms(uPerObject);
+    effect.setUniforms(uScene);
+    effect.setUniforms(Game.World.Regions[0].uPerObject);
     effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
     effect.bindTexture("watermap", Game.World.Regions[0].watermap.texture);
     effect.draw(Game.World.Regions[0].mesh);
@@ -191,43 +235,54 @@ Game.appDraw = function (eye)
 {
   if (!Game.ready || Game.loading) return;
 
+  // TERRAIN
   var effect = Game.shaderMan.shaders["ground"];
   effect.bind();
   effect.bindCamera(eye);
-  effect.setUniforms(uPerObject);
-  effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
-  if (Game.World.Regions[0].aomap) effect.bindTexture("aomap", Game.World.Regions[0].aomap.texture);
-  effect.bindTexture("wang", Game.World.Regions[0].wangmap.texture);
-   effect.bindTexture("shadow", shadowmap.texture);
-
-  if (showWang)
-  {
+  effect.setUniforms(uScene);
+  effect.bindTexture("shadow", shadowmap.texture);
+  if (showWang) {
     effect.bindTexture("grass", Game.assetMan.assets['tile'].texture);
     effect.bindTexture("dirt", Game.assetMan.assets['tile'].texture);
     effect.bindTexture("sand", Game.assetMan.assets['tile'].texture);
   }
-  else
-  {
+  else {
     effect.bindTexture("grass", Game.assetMan.assets['grass'].texture);
     effect.bindTexture("dirt", Game.assetMan.assets['dirt'].texture);
     effect.bindTexture("sand", Game.assetMan.assets['sand'].texture);
   }
-  mat4.identity(uPerObject.uWorld);
-  effect.setUniforms(uPerObject);
-  effect.draw(Game.World.Regions[0].mesh);
+  for (var x in Game.World.Regions)
+  {
+    var region = Game.World.Regions[x];
+    effect.bindTexture("heightmap", region.heightmap.texture);
+    if (region.aomap) effect.bindTexture("aomap", region.aomap.texture);
+    effect.bindTexture("wang", region.wangmap.texture);
+    effect.setUniforms(region.uPerObject);
+    effect.draw(region.mesh);
+  }
 
-  mat4.identity(uPerObject.uWorld);
-  effect.setUniforms(uPerObject);
+  // OBJECTS - BALL
+  effect = Game.shaderMan.shaders["plainobject"];
+  effect.bind();
+  effect.bindCamera(eye);
+  effect.setUniforms(uScene);
+  effect.setUniforms(uBall);
   effect.draw(Game.assetMan.assets["ball"]);
 
+  // WATER
   effect = Game.shaderMan.shaders["water"];
   effect.bind();
   effect.bindCamera(eye);
-  effect.setUniforms(uPerObject);
-  effect.bindTexture("heightmap", Game.World.Regions[0].heightmap.texture);
-  effect.bindTexture("watermap", Game.World.Regions[0].watermap.texture);
+  effect.setUniforms(uScene);
   effect.bindTexture("shadow", shadowmap.texture);
-  effect.draw(Game.World.Regions[0].mesh);
+  for (var x in Game.World.Regions)
+  {
+    var region = Game.World.Regions[x];
+    effect.setUniforms(region.uPerObject);
+    effect.bindTexture("heightmap", region.heightmap.texture);
+    effect.bindTexture("watermap", region.watermap.texture);
+    effect.draw(region.mesh);
+  }
 
 //  effect = Game.shaderMan.shaders["colorlines"];
 //  effect.bind();
@@ -301,10 +356,10 @@ var water = 0.25;
 
 Game.setparam = function(name, value)
 {
-  if (name == 'ao') uPerObject.options[1] = (value ? 1.0 : 0.0);
-  else if (name == 'diffuse') uPerObject.options[0] = (value ? 1.0 : 0.0);
+  if (name == 'ao') uScene.options[1] = (value ? 1.0 : 0.0);
+  else if (name == 'diffuse') uScene.options[0] = (value ? 1.0 : 0.0);
   else if (name == 'wang') showWang = !showWang;
-  else if (name == 'shadow') uPerObject.options[2] = (value ? 1.0 : 0.0);
+  else if (name == 'shadow') uScene.options[2] = (value ? 1.0 : 0.0);
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
@@ -316,37 +371,3 @@ Game.setparam = function(name, value)
       sunpos = parseInt(value);
   }
 }
-
-/*
-PHASE 1
-
-shader includes
-
-v create a sized grid with NxN divisions and a skirt for future
-v have a ground definition object that run noise lib
-v create a heightmap from ground
-v  create an AO map from raycasting
-v  render the ground provided height, ao maps
-v    vertex shader: set height from height map
-v                   get ao factor and interpolate it
- v   pixel shader: determine the light based on ao factor
-  sky colour
-v   moving light
-
-v  camera - fixed looking at center of ground
-v            rotate about Y
-v            rotate about X
-v            in and out
-
-PHASE 2
-
-v basic textures
-v basic shadow map
-dual shadow map
- 
-PHASE 3
-
-v wang tiles
-water, doesnt use shadows
-
-*/

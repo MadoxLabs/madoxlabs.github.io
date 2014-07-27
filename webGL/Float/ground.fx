@@ -8,7 +8,8 @@ ground
 [COMMON]
 uniform sampler2D heightmap; // mag NEAREST, min NEAREST, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 uniform sampler2D aomap; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
-uniform float regionsize; // group perobject
+
+uniform float regionsize; // group scene
 
 varying vec2 vTextureCoord;
 varying vec4 vPosition;
@@ -27,8 +28,10 @@ attribute vec2 aTextureCoord;    // TEX0
 
 uniform mat4 projection;         // group camera
 uniform mat4 view;               // group camera
-uniform mat4 uWorld;             // group perobject
+
 uniform mat4 localTransform;     // group perpart
+
+uniform mat4 uWorld;             // group perobject
 
 void main(void) 
 {
@@ -53,9 +56,9 @@ void main(void)
 
 [PIXEL]
 
-uniform vec3 options;            // group perobject
-uniform mat4 uWorldToLight;      // group perobject
-uniform vec3 uLightPosition;     // group perobject
+uniform vec3 options;            // group scene
+uniform mat4 uWorldToLight;      // group scene
+uniform vec3 uLightPosition;     // group scene
 
 uniform vec3 camera;             // group camera
 
@@ -108,7 +111,6 @@ void main(void)
   }
 
   // lighting
-  vec3 lightDir = vec3(0.5,1.0,0.2);
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
 
   // apply user options

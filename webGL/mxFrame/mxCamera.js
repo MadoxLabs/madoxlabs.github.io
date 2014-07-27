@@ -133,6 +133,10 @@ function Camera(w, h)
   this.position = vec3.create();
   this.orientation = mat4.create();
 
+  this.forward = vec3.create();
+  this.left = vec3.create();
+  this.up = vec3.create();
+
   this.splitscreen(false);
 }
 
@@ -178,6 +182,10 @@ Camera.prototype.update = function ()
 
   vec3.transformMat4(this.position, this.offset, this.orientation);
   vec3.add(this.position, this.position, this.target);
+
+  vec3.transformMat4(this.up, vec3.fromValues(0, 1, 0), this.orientation);
+  vec3.transformMat4(this.left, vec3.fromValues(-1, 0, 0), this.orientation);
+  vec3.transformMat4(this.forward, vec3.fromValues(0, 0, 1), this.orientation);
 
   //  var q = quat.create();
   //  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);

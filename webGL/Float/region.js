@@ -20,6 +20,12 @@ function fRegion(area)
   this.flowmapB = null;
   this.waterAdjustMap = null;
 
+  this.uPerObject = {};
+  this.uPerObject.uWorld = mat4.create();
+  mat4.identity(this.uPerObject.uWorld);
+//  var pos = vec3.fromValues(area.X, 0, area.Y);
+//  mat4.translate(this.uPerObject.uWorld, this.uPerObject.uWorld, pos);
+
   this.create();
   this.createBuffers();
 }
@@ -49,8 +55,8 @@ fRegion.prototype.generate = function()
   var locx = this.Area.X / this.Area.Width;   // every integer square number space of noise represents a region
   var locy = this.Area.Y / this.Area.Height; 
   var step = 1.0 / (RegionSize-1);  
-  var xf = locx;
-  var zf = locy;
+  var xf = locx + 10000;
+  var zf = locy + 10000;
 
   var noise = Game.World.Generator;
   var i = 0;
@@ -59,7 +65,7 @@ fRegion.prototype.generate = function()
   var val;
   for (var y = 0; y < RegionSize; ++y)
   {
-    xf = locx;
+    xf = locx + 10000;
     for (var x = 0; x < RegionSize; ++x)
     {
       val = noise.GetValue(xf, 0, zf) * NoiseScale;
@@ -78,8 +84,8 @@ fRegion.prototype.getUnknownPoint = function(x,y)
   var locx = this.Area.X / this.Area.Width;
   var locy = this.Area.Y / this.Area.Height;
   var step = 1.0 / (RegionSize-1);
-  var xf = locx + (x * step);
-  var zf = locy + (y * step);
+  var xf = locx + 10000 + (x * step);
+  var zf = locy + 10000 + (y * step);
   return Game.World.Generator.GetValue(xf, 0, zf) * NoiseScale;
 }
 
@@ -87,7 +93,7 @@ fRegion.prototype.getUnknownPoint = function(x,y)
 // should only be used internally
 fRegion.prototype.getMapPoint = function (x, y)
 {
-  if (x >= RegionSize || y >= RegionSize || x < 0 || y < 0) return 0;//this.getUnknownPoint(x, y);
+  if (x >= RegionSize || y >= RegionSize || x < 0 || y < 0) return this.getUnknownPoint(x, y);
   return this.Map[y * RegionSize + x];
 }
 
@@ -165,7 +171,7 @@ fRegion.prototype.createBuffers = function()
     var index = 0;
     var vertexData = [];
 
-    var step = this.Area.Height / RegionSize;
+    var step = this.Area.Height / (RegionSize-1);
     for (var j = 0; j < RegionSize; ++j)
     {
       for (var i = 0; i < RegionSize; ++i)
@@ -249,8 +255,8 @@ fRegion.prototype.createAOMap = function ()
   var g = 0;
   for (var j = 0; j < RegionSize; ++j) {
     for (var i = 0; i < RegionSize; ++i) {
-      g = this.getPoint((this.Area.X + i) * this.Area.Width / RegionSize, (this.Area.Y + j) * this.Area.Width / RegionSize);
-      savedFactors[index] = Game.World.cast.calculate((this.Area.X + i) * this.Area.Width / RegionSize, g, (this.Area.Y + j) * this.Area.Width / RegionSize, this);
+      // g = this.getPoint((this.Area.X + i) * this.Area.Width / RegionSize, (this.Area.Y + j) * this.Area.Width / RegionSize);
+      savedFactors[index] = 1; //Game.World.cast.calculate((this.Area.X + i) * this.Area.Width / RegionSize, g, (this.Area.Y + j) * this.Area.Width / RegionSize, this);
       ++index;
     }
   }
