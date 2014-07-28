@@ -179,7 +179,7 @@ Game.run = function ()
 {
   if (Game.ready == false) return;
 
-  var scope = WTF.trace.enterScope('Game.run');
+//  var scope = WTF.trace.enterScope('Game.run');
 
   Game.lastTime = Game.time;
   Game.time = Game.now();
@@ -202,7 +202,7 @@ Game.run = function ()
     framenum = 0;
   }
 
-  WTF.trace.leaveScope(scope);
+//  WTF.trace.leaveScope(scope);
 }
 
 Game.getFPS = function()
@@ -421,8 +421,8 @@ Game.handleKeyDown = function (event)
   if ([90].indexOf(event.keyCode) > -1) adjust += 1;
   if ([88].indexOf(event.keyCode) > -1) adjust -= 1;
   if ([80].indexOf(event.keyCode) > -1) console.log(Game.getFPS());
-  if ([189].indexOf(event.keyCode) > -1) { wtf.trace.reset(); wtf.trace.start(options); }
-  if ([187].indexOf(event.keyCode) > -1) { wtf.trace.snapshot(); wtf.trace.stop(); }
+  //if ([189].indexOf(event.keyCode) > -1) { wtf.trace.reset(); wtf.trace.start(options); }
+  //if ([187].indexOf(event.keyCode) > -1) { wtf.trace.snapshot(); wtf.trace.stop(); }
 
   Game.appHandleKeyDown(event);
 }
