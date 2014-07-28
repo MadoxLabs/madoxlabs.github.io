@@ -8,7 +8,22 @@
                  //url('cursor.png'), default;
                }
     </style>
+    <script src="http://google.github.io/tracing-framework/bin/wtf_trace_web_js_compiled.js"></script>
     <script src="../mxFrame/wtf.js"></script>
+    <script>
+      var options = {
+        'wtf.trace.provider.chromeDebug': true,
+        'wtf.trace.provider.chromeDebug.timeline': true,
+        'wtf.trace.provider.dom': true,
+        'wtf.trace.provider.webgl': true,
+        'wtf.trace.provider.webgl.recordAtStartup': false,
+        'wtf.trace.provider.webgl.replayable': true,
+        'wtf.trace.provider.webgl.embedRemoteImages': false,
+        'wtf.trace.provider.webworker': true,
+      };
+      wtf.trace.prepare(options);
+      wtf.hud.prepare(options);
+    </script>
     <script src="../mxFrame/mxFrame.js"></script>
     <script>
       var gamesources = ['world.js',
