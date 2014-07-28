@@ -177,9 +177,9 @@ var idleTime;
 
 Game.run = function ()
 {
-  //  window.setTimeout(Game.run, Game.framerate);
-
   if (Game.ready == false) return;
+
+  var scope = WTF.trace.enterScope('Game.run');
 
   Game.lastTime = Game.time;
   Game.time = Game.now();
@@ -201,6 +201,8 @@ Game.run = function ()
     frametotal = 0;
     framenum = 0;
   }
+
+  WTF.trace.leaveScope(scope);
 }
 
 Game.getFPS = function()
