@@ -185,7 +185,7 @@ Game.appDrawAux = function ()
   if (Game.loading) return;
 
   // water
-   Game.World.Regions[0].renderflows();
+  Game.World.Regions[0].renderflows();
 
   // shadowing render
   lighteye.engage();
