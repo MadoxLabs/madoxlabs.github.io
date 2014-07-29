@@ -103,27 +103,38 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[34] && Game.camera.offset[2] < 100)  // Page Down
     Game.camera.offset[2] += 1;
 
+  var moved = false;
   var tmp = vec3.create();
   if (currentlyPressedKeys[37] && Game.camera.target[0] > 0)  // Left cursor key
   {
     vec3.scale(tmp, Game.camera.left, 0.1)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
+    moved = true;
   }
   if (currentlyPressedKeys[39] && Game.camera.target[0] < 100)  // Right cursor key
   {
     vec3.scale(tmp, Game.camera.left, -0.1)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
+    moved = true;
   }
 
   if (currentlyPressedKeys[38] && Game.camera.target[2] > 0)  // Up cursor key
   {
     vec3.scale(tmp, Game.camera.forward, -0.1)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
+    moved = true;
   }
   if (currentlyPressedKeys[40] && Game.camera.target[2] < 100)  // Down cursor key
   {
     vec3.scale(tmp, Game.camera.forward, 0.1)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
+    moved = true;
+  }
+  if (moved && Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]))
+  {
+    var i = ((Game.camera.target[0] * (RegionSize - 1) / RegionArea) | 0) + 1;
+    var j = ((Game.camera.target[2] * (RegionSize - 1) / RegionArea) | 0) + 1;
+    Game.World.Regions[0].addwater(i, j, 0.1);
   }
 
   // SUN MOVEMENT
@@ -150,7 +161,7 @@ Game.appUpdate = function ()
     pickmap.engage();
     var pixel = new Uint8Array(4);
     gl.readPixels(mx, Game.camera.height - my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
-    var i = ((pixel[0] * (RegionSize-1) / 255.0) | 0) +1;
+    var i = ((pixel[0] * (RegionSize - 1) / 255.0) | 0) + 1;
     var j = ((pixel[1] * (RegionSize - 1) / 255.0) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, water);
   }
@@ -175,7 +186,7 @@ Game.camerafix = function()
     var h = Game.World.getHeight(Game.camera.position[0], Game.camera.position[2]);
     h += Game.World.getWaterHeight(Game.camera.position[0], Game.camera.position[2]);
     if (Game.camera.position[1] - h > 1.0) break;
-    Game.camera.angles[0] -= 0.01;
+    Game.camera.angles[0] -= 0.001;
     Game.camera.update();
   } while (true);
 }
