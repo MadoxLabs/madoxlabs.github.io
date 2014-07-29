@@ -10,6 +10,10 @@ function bind()
   }
 
   gl.useProgram(this);
+  var i = 0;
+  for (; i < this.attributes.length; ++i) gl.enableVertexAttribArray(i);
+  for (; i < 16; ++i) gl.disableVertexAttribArray(i);
+
   if (this.renderstate && this.renderstate != Game.shaderMan.currentRenderState)
   {
     if (Game.shaderMan.currentRenderState) Game.shaderMan.currentRenderState.unset();

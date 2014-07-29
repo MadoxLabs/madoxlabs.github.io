@@ -171,7 +171,7 @@ fRegion.prototype.createBuffers = function()
     var index = 0;
     var vertexData = [];
 
-    var step = this.Area.Height / (RegionSize-1);
+    var step = this.Area.Height / (RegionSize - 1);
     for (var j = 0; j < RegionSize; ++j)
     {
       for (var i = 0; i < RegionSize; ++i)
