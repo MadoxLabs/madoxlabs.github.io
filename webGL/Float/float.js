@@ -107,26 +107,26 @@ Game.appUpdate = function ()
   var tmp = vec3.create();
   if (currentlyPressedKeys[37] && Game.camera.target[0] > 0)  // Left cursor key
   {
-    vec3.scale(tmp, Game.camera.left, 0.1)
+    vec3.scale(tmp, Game.camera.left, 0.01 * Game.elapsed)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
     moved = true;
   }
   if (currentlyPressedKeys[39] && Game.camera.target[0] < 100)  // Right cursor key
   {
-    vec3.scale(tmp, Game.camera.left, -0.1)
+    vec3.scale(tmp, Game.camera.left, -0.01 * Game.elapsed)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
     moved = true;
   }
 
   if (currentlyPressedKeys[38] && Game.camera.target[2] > 0)  // Up cursor key
   {
-    vec3.scale(tmp, Game.camera.forward, -0.1)
+    vec3.scale(tmp, Game.camera.forward, -0.01 * Game.elapsed)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
     moved = true;
   }
   if (currentlyPressedKeys[40] && Game.camera.target[2] < 100)  // Down cursor key
   {
-    vec3.scale(tmp, Game.camera.forward, 0.1)
+    vec3.scale(tmp, Game.camera.forward, 0.01 * Game.elapsed)
     vec3.add(Game.camera.target, Game.camera.target, tmp);
     moved = true;
   }
