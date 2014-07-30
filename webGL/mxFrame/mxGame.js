@@ -170,10 +170,17 @@ var frametime = 0;
 var frametotal = 0;
 var framenum = 0;
 var lastfps = 0;
+var lastframetime = 0;
 
-var updateTime;
-var drawTime;
-var idleTime;
+var updateTime = 0;
+var drawTime = 0;
+var idleTime = 0;
+var myupdateTime;
+var mydrawTime;
+var myidleTime;
+var lastupdateTime = 0;
+var lastdrawTime = 0;
+var lastidleTime = 0;
 
 Game.run = function ()
 {
@@ -185,21 +192,29 @@ Game.run = function ()
   Game.time = Game.now();
   Game.elapsed = Game.time - Game.lastTime;
 
-  Game.update(); updateTime = Game.now() - Game.time;
-  Game.draw();   drawTime = Game.now() - Game.time - updateTime;
-                 idleTime = Game.elapsed - updateTime - drawTime;
+  Game.update(); myupdateTime = Game.now() - Game.time;
+  Game.draw();   mydrawTime = Game.now() - Game.time - myupdateTime;
+                 myidleTime = Game.elapsed - updateTime - mydrawTime;
   window.requestAnimationFrame(Game.run);
 
+  updateTime += myupdateTime;
+  drawTime   += mydrawTime;
+  idleTime += myidleTime;
   frametime += Game.elapsed;
-  frametotal += ((1000 / Game.elapsed) | 0);
   framenum += 1;
 
   if (frametime > 1000)
   {
-    lastfps = (frametotal / framenum) |0;
+    lastfps = framenum;
+    lastframetime = frametime;
+    lastupdateTime = updateTime;
+    lastdrawTime = drawTime;
+    lastidleTime = idleTime;
     frametime = 0;
-    frametotal = 0;
     framenum = 0;
+    updateTime = 0;
+    drawTime = 0;
+    idleTime = 0;
   }
 
 //  WTF.trace.leaveScope(scope);
@@ -208,26 +223,31 @@ Game.run = function ()
 Game.getFPS = function()
 {
   var out = "";
-  var perFrame = idleTime + drawTime + updateTime;
-  out += "FPS: " + lastfps + "  Each frame: " + Game.elapsed + " ms\n";
-  out += "Frame Time: Update: " + updateTime + "ms  Draw: " + drawTime + "ms  Idle: " + idleTime + "ms\n";
-  updateTime = (updateTime / perFrame * 100) | 0;
-  drawTime = (drawTime / perFrame * 100) | 0;
-  idleTime = (idleTime / perFrame * 100) | 0;
-  out += "Frame Time: Update: " + updateTime + "%  Draw: " + drawTime + "%  Idle: " + idleTime + "%";
+  var perFrame = lastidleTime + lastdrawTime + lastupdateTime;
+  out += "FPS: " + lastfps + "  Each frame: " + ((lastframetime/lastfps)|0) + " ms\n";
+  out += "Frame Time: Update: " + ((lastupdateTime / lastfps) | 0) + "ms  Draw: " + ((lastdrawTime / lastfps) | 0) + "ms  Idle: " + ((lastidleTime/lastfps) | 0) + "ms\n";
+  lastupdateTime = (lastupdateTime / perFrame * 100) | 0;
+  lastdrawTime = (lastdrawTime / perFrame * 100) | 0;
+  lastidleTime = (lastidleTime / perFrame * 100) | 0;
+  out += "Frame Time: Update: " + lastupdateTime + "%  Draw: " + lastdrawTime + "%  Idle: " + lastidleTime + "%";
   return out;
 }
 
 Game.update = function ()
 {
+  console.time("update");
   Game.appUpdate();
   Game.camera.update();
+  console.timeEnd("update");
 }
 
 Game.draw = function ()
 {
+  console.time("draw aux");
   Game.appDrawAux();
+  console.timeEnd("draw aux");
 
+  console.time("draw");
   if (Game.frontbuffer) Game.frontbuffer.engage();
   else gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -244,7 +264,8 @@ Game.draw = function ()
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     Game.drawEachEyeOculusEffect();
   }
-//  gl.flush();
+  console.timeEnd("draw");
+  //  gl.flush();
 //  gl.finish();
 }
 

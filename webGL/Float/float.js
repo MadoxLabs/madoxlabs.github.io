@@ -205,32 +205,35 @@ Game.appDrawAux = function ()
   if (Game.loading) return;
 
   // water
-  Game.World.Regions[0].renderflows();
+  if (showFlow) Game.World.Regions[0].renderflows();
 
   // shadowing render
-  lighteye.engage();
-  shadowmap.engage();
-  gl.clearColor(1.0, 1.0, 1.0, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  var effect = Game.shaderMan.shaders["shadowcast"];
-  effect.bind();
-  effect.bindCamera(lighteye);
-  effect.setUniforms(uScene);
-  for (var x in Game.World.Regions)
+  if (uScene.options[2]) 
   {
-    var region = Game.World.Regions[x];
-    effect.setUniforms(region.uPerObject);
-    effect.bindTexture("heightmap", region.heightmap.texture);
-    effect.draw(region.mesh);
-  }
+    lighteye.engage();
+    shadowmap.engage();
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  var effect = Game.shaderMan.shaders["shadowcastobject"];
-  effect.bind();
-  effect.bindCamera(lighteye);
-  effect.setUniforms(uScene);
-  effect.setUniforms(uBall);
-  effect.draw(Game.assetMan.assets["ball"]);
+    var effect = Game.shaderMan.shaders["shadowcast"];
+    effect.bind();
+    effect.bindCamera(lighteye);
+    effect.setUniforms(uScene);
+    for (var x in Game.World.Regions)
+    {
+      var region = Game.World.Regions[x];
+      effect.setUniforms(region.uPerObject);
+      effect.bindTexture("heightmap", region.heightmap.texture);
+      effect.draw(region.mesh);
+    }
+
+   var effect = Game.shaderMan.shaders["shadowcastobject"];
+   effect.bind();
+   effect.bindCamera(lighteye);
+   effect.setUniforms(uScene);
+   effect.setUniforms(uBall);
+   effect.draw(Game.assetMan.assets["ball"]);
+  }
 
   // if the mouse is clicked, determine the spot clicked
   if (clicked && !readback)
@@ -288,14 +291,6 @@ Game.appDraw = function (eye)
     effect.draw(region.mesh);
   }
 
-  // OBJECTS - BALL
-  effect = Game.shaderMan.shaders["plainobject"];
-  effect.bind();
-  effect.bindCamera(eye);
-  effect.setUniforms(uScene);
-  effect.setUniforms(uBall);
-  effect.draw(Game.assetMan.assets["ball"]);
-
   // WATER
   effect = Game.shaderMan.shaders["water"];
   effect.bind();
@@ -310,6 +305,14 @@ Game.appDraw = function (eye)
     effect.bindTexture("watermap", region.watermap.texture);
     effect.draw(region.mesh);
   }
+
+  // OBJECTS - BALL
+  effect = Game.shaderMan.shaders["plainobject"];
+  effect.bind();
+  effect.bindCamera(eye);
+  effect.setUniforms(uScene);
+  effect.setUniforms(uBall);
+  effect.draw(Game.assetMan.assets["ball"]);
 
 //  effect = Game.shaderMan.shaders["colorlines"];
 //  effect.bind();
@@ -379,6 +382,7 @@ Game.appHandleKeyUp = function (event)
 }
 
 var showWang = false;
+var showFlow = true;
 var water = 0.25;
 
 Game.setparam = function(name, value)
@@ -386,6 +390,7 @@ Game.setparam = function(name, value)
   if (name == 'ao') uScene.options[1] = (value ? 1.0 : 0.0);
   else if (name == 'diffuse') uScene.options[0] = (value ? 1.0 : 0.0);
   else if (name == 'wang') showWang = !showWang;
+  else if (name == 'flow') showFlow = !showFlow;
   else if (name == 'shadow') uScene.options[2] = (value ? 1.0 : 0.0);
   else if (name == 'count') { Game.World.cast.setRays(value, 0, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'size') { Game.World.cast.setRays(0, 0, value); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }

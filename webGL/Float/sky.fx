@@ -75,6 +75,11 @@ void main(void)
   vec4 skycolor = vec4(0., 0., 1., 1.);
   float factor = pow(nDotL, 8.);
   gl_FragColor = skycolor * (1. - factor) + suncolor * factor;
+
+
+  // RANDOM TEST
+//  float color = fract(sin(dot(vTextureCoord,vec2(12.9898, 78.233)))*43758.5453);
+//  gl_FragColor = vec4(0., color, 0., 1.);
 }
 
 [END]
