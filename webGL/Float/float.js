@@ -2,6 +2,7 @@
 var uPerObject;
 var uScene;
 var uBall;
+var uSky;
 
 var currentlyPressedKeys = [];
 var helper;
@@ -33,6 +34,7 @@ Game.appInit = function ()
   Game.loadShaderFile("ground.fx");
   Game.loadShaderFile("water.fx");
   Game.loadShaderFile("plainobject.fx");
+  Game.loadShaderFile("sky.fx");
 
   Game.loadTextureFile("tile", "tile.jpg", true);
   Game.loadTextureFile("grass", "grass.jpg", true);
@@ -81,6 +83,10 @@ Game.loadingStop = function ()
   uBall = {};
   uBall.uWorld = mat4.create();
   mat4.identity(uBall.uWorld);
+
+  uSky = {};
+  uSky.orient = mat3.create();
+  uSky.sunorient = mat3.create();
 
   Game.makeHelper();
 }
@@ -172,6 +178,9 @@ Game.appUpdate = function ()
   // UPDATE UNIFORMS
   mat4.identity(uBall.uWorld);
   mat4.translate(uBall.uWorld, uBall.uWorld, Game.camera.target);
+  mat3.fromMat4(uSky.orient, Game.camera.orientation);
+  mat3.identity(uSky.sunorient)
+  mat3.rotate(uSky.sunorient, uSky.sunorient, (sunpos * 0.7) * (2 * 3.14159) / 300.0);
 }
 
 Game.camerafix = function()
@@ -246,8 +255,15 @@ Game.appDraw = function (eye)
 {
   if (!Game.ready || Game.loading) return;
 
+  // SKY
+  var effect = Game.shaderMan.shaders["sky"];
+  effect.bind();
+  effect.bindCamera(eye);
+  effect.setUniforms(uSky);
+  effect.draw(Game.assetMan.assets[eye.fsq]);
+
   // TERRAIN
-  var effect = Game.shaderMan.shaders["ground"];
+  effect = Game.shaderMan.shaders["ground"];
   effect.bind();
   effect.bindCamera(eye);
   effect.setUniforms(uScene);
