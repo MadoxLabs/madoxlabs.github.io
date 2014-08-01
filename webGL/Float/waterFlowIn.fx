@@ -61,9 +61,9 @@ void main(void)
   float outflows = flowC.x + flowC.y + flowC.z + flowC.w;
   float oldwater =  texture2D(water, vTextureCoord).x + texture2D(adjust, vTextureCoord).x;
   // oldwater *= 0.01; //evaporate;
-  float outwater = oldwater + (0.2 * (inflows - outflows));
+  float outwater = oldwater + (0.9 * (inflows - outflows));
   if (outwater < 0.01) outwater = 0.;
-  gl_FragColor = vec4(max(0.0, outwater),0.,0.,0.);
+  gl_FragColor = vec4(max(0.0, outwater),(inflows - outflows),0.,0.);
 }
 
 [END]

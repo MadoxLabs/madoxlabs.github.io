@@ -14,6 +14,7 @@ varying vec2 vTextureCoord;
 varying vec4 vPosition;
 varying vec3 vNormal;
 varying float vHeight;
+varying float vFlow;
 [END]
 
 
@@ -33,10 +34,9 @@ uniform mat4 localTransform;     // group perpart
 
 float getHeight(vec2 tex)
 {
-  float ret = 0.0;
   float ground = texture2D(heightmap, tex).x;
-  float water = texture2D(watermap, tex).x;
-  if (water > 0.0) ret = ground + water;
+  float ret = texture2D(watermap, tex).x;
+  if (ret > 0.0) ret += ground;
   return ret;
 }
 
@@ -45,12 +45,13 @@ void main(void)
   vTextureCoord = aTextureCoord;
 
   vHeight = texture2D(heightmap, vTextureCoord).x;
-  float water = texture2D(watermap, vTextureCoord).x;
-  
+  vec2 water = texture2D(watermap, vTextureCoord).xy;
+  vFlow = water.y;
+
   vPosition = vec4(aVertexPosition, 1.0);
-  if (water == 0.0) vPosition.y = 0.0;
+  if (water.x == 0.0) vPosition.y = 0.0;
   else 
-    vPosition.y = water + vHeight;
+    vPosition.y = water.x + vHeight;
   gl_Position = projection * view * uWorld * localTransform * vPosition;
 
   float tex = 1.0 / regionsize;
@@ -82,17 +83,21 @@ void main(void)
 { 
   float depth = max(0.0, vPosition.y - vHeight);
   vec3 color = vec3(0.0,0.0,1.0);
-  vec3 shade = vec3(1.0, 1.0, 0.0);
+  vec3 shadow = vec3(1.0, 1.0, 0.0);
   float alpha = min (0.8, 0.5 + depth * 0.05);
 
   // lighting
   float nDotL = dot(normalize(vNormal), normalize(uLightPosition - vec3(vPosition)));
 
+  // visualization test
+//  if (vFlow > 0.0005) color = vec3(0.39, 0.58, 0.92);
+  float flow = min(0.1, max(0.0, vFlow)) * 10.0;
+  color = color * (1. - flow) + vec3(0.39, 0.58, 0.92) * flow*3.;
+
   // apply user options
-  shade = shade * (0.2 + 0.7 * nDotL);
-//  if (options.x > 0.0) color = color * (0.2 + 0.7 * nDotL);
-  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  shade = shade * 0.4;
-  color = color + (1.0 - shade);
+  float diffuse = (0.2 + 0.7 * nDotL);
+  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  diffuse = diffuse * 0.4;
+  color = color * diffuse;
 
   // out
   gl_FragColor = vec4(color,alpha);

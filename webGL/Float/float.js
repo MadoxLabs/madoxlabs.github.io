@@ -111,6 +111,8 @@ Game.appUpdate = function ()
 
   var moved = false;
   var tmp = vec3.create();
+  var lasttargetx = Game.camera.target[0];
+  var lasttargety = Game.camera.target[2];
   if (currentlyPressedKeys[37] && Game.camera.target[0] > 0)  // Left cursor key
   {
     vec3.scale(tmp, Game.camera.left, 0.01 * Game.elapsed)
@@ -138,9 +140,12 @@ Game.appUpdate = function ()
   }
   if (moved && Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]))
   {
+    var i = ((lasttargetx * (RegionSize - 1) / RegionArea) | 0) + 1;
+    var j = ((lasttargety * (RegionSize - 1) / RegionArea) | 0) + 1;
+    Game.World.Regions[0].addwater(i, j, -0.25);
     var i = ((Game.camera.target[0] * (RegionSize - 1) / RegionArea) | 0) + 1;
     var j = ((Game.camera.target[2] * (RegionSize - 1) / RegionArea) | 0) + 1;
-    Game.World.Regions[0].addwater(i, j, 0.1);
+    Game.World.Regions[0].addwater(i, j, 0.25);
   }
 
   // SUN MOVEMENT
