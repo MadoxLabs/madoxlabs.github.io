@@ -235,19 +235,14 @@ Game.getFPS = function()
 
 Game.update = function ()
 {
-  console.time("update");
   Game.appUpdate();
   Game.camera.update();
-  console.timeEnd("update");
 }
 
 Game.draw = function ()
 {
-  console.time("draw aux");
   Game.appDrawAux();
-  console.timeEnd("draw aux");
 
-  console.time("draw");
   if (Game.frontbuffer) Game.frontbuffer.engage();
   else gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -264,7 +259,6 @@ Game.draw = function ()
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     Game.drawEachEyeOculusEffect();
   }
-  console.timeEnd("draw");
   //  gl.flush();
 //  gl.finish();
 }
@@ -328,6 +322,7 @@ Game.oculusMode = function (state)
     Game.postprocess("oculus");
     Game.camera.splitscreen(true);
     Game.isOculus = true;
+    showhelp(false);
   }
   else if (!state && Game.isOculus)
   {
@@ -336,6 +331,7 @@ Game.oculusMode = function (state)
     Game.postprocess(null);
     Game.camera.splitscreen(false);
     Game.isOculus = false;
+    showhelp(true);
   }
 }
 
@@ -351,6 +347,7 @@ Game.fullscreenMode = function(state)
     Game.surface.style.width = "100%";
     Game.surface.style.height = "100%";
     Game.isFullscreen = true;
+    showhelp(false);
   }
   else if (!state && Game.isFullscreen)
   {
@@ -361,6 +358,7 @@ Game.fullscreenMode = function(state)
     Game.surface.style.width = "800px";
     Game.surface.style.height = "600px";
     Game.isFullscreen = false;
+    showhelp(true);
   }
 }
 
