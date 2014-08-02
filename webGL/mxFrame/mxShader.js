@@ -10,10 +10,7 @@ function bind()
   }
 
   gl.useProgram(this);
-  var i = 0;
-  for (; i < this.attributes.length; ++i) gl.enableVertexAttribArray(i);
-  for (; i < 16; ++i) gl.disableVertexAttribArray(i);
-
+  Game.shaderMan.enableAttibutes(this.attributes.length);
   if (this.renderstate && this.renderstate != Game.shaderMan.currentRenderState)
   {
     if (Game.shaderMan.currentRenderState) Game.shaderMan.currentRenderState.unset();
@@ -41,7 +38,7 @@ function bindMesh(mesh)
     if (attr == undefined) continue;                    // shader doesnt use this
     var size = this.attributes[attr].size;  // get the size and type for this attribute as set in the shader
     var type = this.attributes[attr].type;
-    gl.enableVertexAttribArray(attr);
+//    gl.enableVertexAttribArray(attr);
     gl.vertexAttribPointer(attr, size, type, false, this.stride, offset);
   }
 }
@@ -57,7 +54,7 @@ function bindInstanceData(mesh)
     var attr = this.attributes[code];       // look up what attribute number this is in the shader
     var size = this.attributes[attr].size;  // get the size and type for this attribute as set in the shader
     var type = this.attributes[attr].type;
-    gl.enableVertexAttribArray(attr);
+//    gl.enableVertexAttribArray(attr);
     gl.vertexAttribPointer(attr, size, type, false, mesh.instanceStride, offset);
     ext.angle.vertexAttribDivisorANGLE(attr, 1); // This makes it instanced!
   }

@@ -92,9 +92,20 @@ var ShaderManager = function()
   this.shaderParts = {};
   this.renderstates = {};
   this.currentRenderState = null;
+  this.enabledAttrs = 0;
 }
 
-ShaderManager.prototype.compileVertexShader = function (src) 
+ShaderManager.prototype.enableAttibutes = function(num)
+{
+  if (num == this.enabledAttrs) return;
+  if (num > this.enabledAttrs)
+    for (var i = this.enabledAttrs; i < num; ++i) gl.enableVertexAttribArray(i);
+  else 
+    for (var i = this.enabledAttrs-1; i >= num; --i) gl.disableVertexAttribArray(i);
+  this.enabledAttrs = num;
+}
+
+ShaderManager.prototype.compileVertexShader = function (src)
 {
   var shader = gl.createShader(gl.VERTEX_SHADER);
 
@@ -315,13 +326,17 @@ ShaderManager.prototype.processEffect = function(src)
   if (usestate) shaderProgram.renderstate = this.renderstates[usestate];
   shaderProgram.attributes = [];
   shaderProgram.stride = 0;
-  for (var i = 0; i < 16; ++i)
+
+  var numAttribs = gl.getProgramParameter(shaderProgram, gl.ACTIVE_ATTRIBUTES);
+  var numUniforms = gl.getProgramParameter(shaderProgram, gl.ACTIVE_UNIFORMS);
+
+  for (var i = 0; i < numAttribs; ++i)
   {
     var info = gl.getActiveAttrib(shaderProgram, i);
+    gl.getError();
     if (!info) break;
 
     shaderProgram[info.name] = gl.getAttribLocation(shaderProgram, info.name);
-//    gl.enableVertexAttribArray(shaderProgram[info.name]);
     shaderProgram.attributes[i] = {};
     shaderProgram.attributes[i].size = uniformSizes[info.type - 0x8b50];
     shaderProgram.attributes[i].type = uniformTypes[info.type - 0x8b50];   // convert uniform type to data type
@@ -340,7 +355,7 @@ ShaderManager.prototype.processEffect = function(src)
   shaderProgram.textures = [];
   var u = 0;
   var t = 0;
-  for (var i = 0; i < 254; ++i)
+  for (var i = 0; i < numUniforms; ++i)
   {
     var info = gl.getActiveUniform(shaderProgram, i);
     if (!info) break;

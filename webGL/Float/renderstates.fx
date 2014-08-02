@@ -24,7 +24,7 @@ depthfunc LESS
 
 [COMMON]
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
+precision lowp float;
 #else
 precision mediump float;
 #endif
