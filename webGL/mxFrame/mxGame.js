@@ -17,7 +17,6 @@ var xAxis;
 var yAxis;
 var zAxis;
 
-
 var Game = {};
 
 // game renders to texture for possible post processing
@@ -60,7 +59,6 @@ Game.init = function ()
   } catch (e) { }
 
   if (!gl) { alert("Could not initialise WebGL, sorry :-("); return; }
-//  if (!angle) alert("Could not find instanced draw calls");
   
   // GL is ready, graphics specific init now happens
   gl.clearColor(0.05, 0.05, 0.05, 1.0);
@@ -71,10 +69,6 @@ Game.init = function ()
   document.onkeydown = Game.handleKeyDown;
   document.onkeyup = Game.handleKeyUp;
   window.addEventListener('resize', handleSizeChange);
-
-//  addEventListener('fullscreenchange', function () { handlefullscreen(document.fullscreen); });
-//  addEventListener('mozfullscreenchange', function () { handlefullscreen(document.mozFullScreen); });
-//  addEventListener('webkitfullscreenchange', function () { handlefullscreen(document.webkitIsFullScreen); });
 
   this.oculus = oculusDefault;
   this.oculusReady = 0;
@@ -241,6 +235,7 @@ Game.update = function ()
 
 Game.draw = function ()
 {
+//  Game.shaderMan.enabledUniforms = {};
   Game.appDrawAux();
 
   if (Game.frontbuffer) Game.frontbuffer.engage();
@@ -260,7 +255,9 @@ Game.draw = function ()
     Game.drawEachEyeOculusEffect();
   }
   //  gl.flush();
-//  gl.finish();
+  //  gl.finish();
+
+  Game.shaderMan.log = false;
 }
 
 Game.drawEachEye = function()
@@ -439,7 +436,7 @@ Game.handleKeyDown = function (event)
   if ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) event.preventDefault();
   if ([90].indexOf(event.keyCode) > -1) adjust += 1;
   if ([88].indexOf(event.keyCode) > -1) adjust -= 1;
-  if ([80].indexOf(event.keyCode) > -1) console.log(Game.getFPS());
+  if ([80].indexOf(event.keyCode) > -1) { /*Game.shaderMan.log = true;*/ console.log(Game.getFPS()); }
   //if ([189].indexOf(event.keyCode) > -1) { wtf.trace.reset(); wtf.trace.start(options); }
   //if ([187].indexOf(event.keyCode) > -1) { wtf.trace.snapshot(); wtf.trace.stop(); }
 

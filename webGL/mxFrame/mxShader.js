@@ -10,6 +10,7 @@ function bind()
   }
 
   gl.useProgram(this);
+  Game.shaderMan.enabledUniforms = {};
   Game.shaderMan.enableAttibutes(this.attributes.length);
   if (this.renderstate && this.renderstate != Game.shaderMan.currentRenderState)
   {
@@ -89,56 +90,8 @@ function bindTexture(name, texture, mag, min, wraps, wrapt)
 function setUniforms(vals)
 {
   for (var name in vals)
-    _setUniforms(this, name, vals);
+    Game.shaderMan.enableUniform(name, this[name], vals[name]);
 }
-
-function _setUniforms(obj, name, vals)
-  {
-    var n = obj[name];
-
-    if (!n) return;
-    switch (n.type)
-    {
-      case gl.FLOAT:
-        gl.uniform1f(n, vals[name]);
-        break;
-      case gl.FLOAT_VEC2:
-        gl.uniform2fv(n, vals[name]);
-        break;
-      case gl.FLOAT_VEC3:
-        gl.uniform3fv(n, vals[name]);
-        break;
-      case gl.FLOAT_VEC4:
-        gl.uniform4fv(n, vals[name]);
-        break;
-      case gl.BOOL:
-      case gl.INT:
-        gl.uniform1i(n, vals[name]);
-        break;
-      case gl.BOOL_VEC2:
-      case gl.INT_VEC2:
-        gl.uniform2iv(n, vals[name]);
-        break;
-      case gl.BOOL_VEC3:
-      case gl.INT_VEC3:
-        gl.uniform3iv(n, vals[name]);
-        break;
-      case gl.BOOL_VEC4:
-      case gl.INT_VEC4:
-        gl.uniform4iv(n, vals[name]);
-        break;
-      case gl.FLOAT_MAT2:
-        gl.uniformMatrix2fv(n, false, vals[name]);
-        break;
-      case gl.FLOAT_MAT3:
-        gl.uniformMatrix3fv(n, false, vals[name]);
-        break;
-      case gl.FLOAT_MAT4:
-        gl.uniformMatrix4fv(n, false, vals[name]);
-        break;
-    }
-  }
-
 
 function createUniform(group)
 {

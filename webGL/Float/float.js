@@ -3,6 +3,7 @@ var uPerObject;
 var uScene;
 var uBall;
 var uSky;
+var uSun;
 
 var currentlyPressedKeys = [];
 var helper;
@@ -83,6 +84,10 @@ Game.loadingStop = function ()
   uBall = {};
   uBall.uWorld = mat4.create();
   mat4.identity(uBall.uWorld);
+
+  uSun = {};
+  uSun.uWorld = mat4.create();
+  mat4.identity(uSun.uWorld);
 
   uSky = {};
   uSky.orient = mat3.create();
@@ -183,6 +188,8 @@ Game.appUpdate = function ()
   // UPDATE UNIFORMS
   mat4.identity(uBall.uWorld);
   mat4.translate(uBall.uWorld, uBall.uWorld, Game.camera.target);
+  mat4.identity(uSun.uWorld);
+  mat4.translate(uSun.uWorld, uSun.uWorld, lighteye.offset);
   mat3.fromMat4(uSky.orient, Game.camera.orientation);
   mat3.identity(uSky.sunorient)
   mat3.rotate(uSky.sunorient, uSky.sunorient, (sunpos * 0.7) * (2 * 3.14159) / 300.0);
@@ -317,6 +324,8 @@ Game.appDraw = function (eye)
   effect.bindCamera(eye);
   effect.setUniforms(uScene);
   effect.setUniforms(uBall);
+  effect.draw(Game.assetMan.assets["ball"]);
+  effect.setUniforms(uSun);
   effect.draw(Game.assetMan.assets["ball"]);
 
 //  effect = Game.shaderMan.shaders["colorlines"];

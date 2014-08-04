@@ -3,7 +3,7 @@ shadowrecieve
 [END]
 
 [PIXEL]
-uniform sampler2D shadow; // mag LINEAR, min LINEAR
+uniform sampler2D shadow; // mag LINEAR, min LINEAR, wrapu CLAMP_TO_EDGE, wrapv CLAMP_TO_EDGE
 
 bool IsShadow(vec4 position, vec3 normal, mat4 WorldToLight, vec3 lightpos)
 {
