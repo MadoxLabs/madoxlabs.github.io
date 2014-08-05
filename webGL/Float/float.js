@@ -10,6 +10,7 @@ var helper;
 var shadowmap;
 var lighteye;
 var sunpos = 0.0;
+var cameraMode = false;
 
 Game.appInit = function ()
 {
@@ -66,12 +67,10 @@ Game.loadingStop = function ()
   Game.camera.lookAt(50.0, 0.0, 50.0);
 
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
-
   lighteye = new Camera(2048, 2048);
-  sunpos = 0.0;
-  lighteye.offset = vec3.fromValues(sunpos, 150.0 - Math.abs(sunpos), 0.0);
+  lighteye.offset = vec3.fromValues(0.0, 200.0, 0.0);
   lighteye.lookAt(50.0, 0.0, 50.0);
-  lighteye.update();
+  sunpos = 0.0;
 
   var effect = Game.shaderMan.shaders["ground"];
   uScene = effect.createUniform('scene');
@@ -154,21 +153,21 @@ Game.appUpdate = function ()
   }
 
   // SUN MOVEMENT
-  sunpos += 0.01; 
-  if (sunpos > 150.0) sunpos = -150.0;
-  if (sunpos != lighteye.offset[0])
+  sunpos += 0.00001; 
+  if (sunpos > (Math.PI * 2.0)) sunpos = 0.0;
+  lighteye.angles[0] = sunpos;
+  //if (sunpos != lighteye.offset[0])
   {
-    lighteye.offset = vec3.fromValues(sunpos, (120.0 - Math.abs(sunpos)) * 2.0, 0.0);
-    lighteye.lookAt(50.0, 0.0, 50.0);
     lighteye.update();
     uScene.uLightPosition = lighteye.position;
     mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   }
   // UPDATE SUN UI
   var v = document.getElementById("sunval");
-  v.innerHTML = sunpos.toString().substr(0,5);
+  var p = sunpos * 360.0 / (Math.PI * 2.0);
+  v.innerHTML = p.toString().substr(0,5);
   var s = document.getElementById("sun");
-  s.value = sunpos;
+  s.value = p;
 
   // IF MOUSE WAS CLICKED, GET SPOT CLICKED ON
   if (readback)
@@ -185,11 +184,19 @@ Game.appUpdate = function ()
   // ADJUST CAMERA TO NOT CLIP
   Game.camerafix();
 
+  // CAMERA MODE
+  if (cameraMode)
+  {
+    vec3.copy(Game.camera.target, lighteye.target);
+    vec3.copy(Game.camera.angles, lighteye.angles);
+    vec3.copy(Game.camera.offset, lighteye. );
+  }
+
   // UPDATE UNIFORMS
   mat4.identity(uBall.uWorld);
   mat4.translate(uBall.uWorld, uBall.uWorld, Game.camera.target);
   mat4.identity(uSun.uWorld);
-  mat4.translate(uSun.uWorld, uSun.uWorld, lighteye.offset);
+  mat4.translate(uSun.uWorld, uSun.uWorld, lighteye.position);
   mat3.fromMat4(uSky.orient, Game.camera.orientation);
   mat3.identity(uSky.sunorient)
   mat3.rotate(uSky.sunorient, uSky.sunorient, (sunpos * 0.7) * (2 * 3.14159) / 300.0);
@@ -385,6 +392,7 @@ Game.appHandleMouseEvent = function (type, mouse)
 Game.appHandleKeyDown = function (event)
 {
   if ([33, 34].indexOf(event.keyCode) > -1) event.preventDefault();
+  if (event.keyCode == 67) cameraMode = !cameraMode;
   currentlyPressedKeys[event.keyCode] = true;
 }
 
@@ -411,9 +419,6 @@ Game.setparam = function(name, value)
   else if (name == 'step') { Game.World.cast.setRays(0, value, 0); Game.World.Regions[0].createAOMap(); Game.makeHelper(); }
   else if (name == 'water') water = parseInt(value) * 0.01;
   else if (name == 'sun') {
-    if (value[0] == '-')
-      sunpos = parseInt(value.substr(1)) * -1.0;
-    else
-      sunpos = parseInt(value);
+    sunpos = parseFloat(value * Math.PI * 2.0 / 260.0);
   }
 }
