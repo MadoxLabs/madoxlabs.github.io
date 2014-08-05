@@ -189,7 +189,7 @@ Game.appUpdate = function ()
   {
     vec3.copy(Game.camera.target, lighteye.target);
     vec3.copy(Game.camera.angles, lighteye.angles);
-    vec3.copy(Game.camera.offset, lighteye. );
+    vec3.copy(Game.camera.offset, lighteye.offset );
   }
 
   // UPDATE UNIFORMS
