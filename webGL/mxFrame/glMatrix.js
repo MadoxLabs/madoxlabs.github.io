@@ -700,6 +700,11 @@ vec3.fromValues = function(x, y, z) {
     return out;
 };
 
+
+vec3.unitX = vec3.fromValues(1, 0, 0);
+vec3.unitY = vec3.fromValues(0, 1, 0);
+vec3.unitZ = vec3.fromValues(0, 0, 1);
+
 /**
  * Copy the values from one vec3 to another
  *
@@ -743,6 +748,15 @@ vec3.add = function(out, a, b) {
     out[1] = a[1] + b[1];
     out[2] = a[2] + b[2];
     return out;
+};
+
+vec3.addInline = function (a, b)
+{
+  var out = vec3.create();
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
+  return out;
 };
 
 /**
@@ -3332,6 +3346,42 @@ mat4.fromRotationTranslation = function (out, q, v) {
     return out;
 };
 
+mat4.createWorld = function(out, position, forward, up)
+{
+  var x = vec3.create();
+  var y = vec3.create();
+  var z = vec3.create();
+  vec3.normalize(z, forward);
+  vec3.cross(x, forward, up);
+  vec3.cross(y, x, forward);
+  vec3.normalize(x, x);
+  vec3.normalize(y, y);
+                       
+  out[0] = x[0];   // right
+  out[1] = x[1];
+  out[2] = x[2];
+  out[3] = 0;
+  out[4] = y[0];   // up
+  out[5] = y[1];
+  out[6] = y[2];
+  out[7] = 0;
+  out[8] = -z[0];
+  out[9] = -z[1];
+  out[10] = -z[2];
+  out[11] = 0;
+  out[12] = position[0];
+  out[13] = position[1];
+  out[14] = position[2];
+  out[15] = 1;
+}
+
+mat4.fromYawPitchRoll = function(out, yaw, pitch, roll)
+{
+  var q = quat.create();
+  quat.fromYawPitchRoll(q, yaw, pitch, roll);
+  mat4.fromQuat(out, q);
+}
+
 mat4.fromQuat = function (out, q) {
     var x = q[0], y = q[1], z = q[2], w = q[3],
         x2 = x + x,
@@ -4094,6 +4144,13 @@ quat.fromMat3 = function(out, m) {
     return out;
 };
 
+quat.fromYawPitchRoll = function(out, yaw, pitch, roll)
+{
+  out[0] = ((Math.cos((yaw * 0.5)) * Math.sin((pitch * 0.5))) * Math.cos((roll * 0.5))) + ((Math.sin((yaw * 0.5)) * Math.cos((pitch * 0.5))) * Math.sin((roll * 0.5)));
+  out[1] = ((Math.sin((yaw * 0.5)) * Math.cos((pitch * 0.5))) * Math.cos((roll * 0.5))) - ((Math.cos((yaw * 0.5)) * Math.sin((pitch * 0.5))) * Math.sin((roll * 0.5)));
+  out[2] = ((Math.cos((yaw * 0.5)) * Math.cos((pitch * 0.5))) * Math.sin((roll * 0.5))) - ((Math.sin((yaw * 0.5)) * Math.sin((pitch * 0.5))) * Math.cos((roll * 0.5)));
+  out[3] = ((Math.cos((yaw * 0.5)) * Math.cos((pitch * 0.5))) * Math.cos((roll * 0.5))) + ((Math.sin((yaw * 0.5)) * Math.sin((pitch * 0.5))) * Math.sin((roll * 0.5)));
+}
 /**
  * Returns a string representation of a quatenion
  *

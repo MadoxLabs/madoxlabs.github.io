@@ -1,3 +1,5 @@
+
+
 // camera can be in:
 //   free mode - camera has position and orientation
 //   offset target mode - camera only has offset, using a target object as reference. Has orientation

@@ -5,11 +5,13 @@ var uBall;
 var uSky;
 var uSun;
 
+var ball;
+
 var currentlyPressedKeys = [];
 var helper;
 var shadowmap;
 var lighteye;
-var sunpos = 0.0;
+var sunpos = 0.0; 
 var cameraMode = false;
 
 Game.appInit = function ()
@@ -80,6 +82,7 @@ Game.loadingStop = function ()
   uScene.uWorldToLight = mat4.create();
   mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 
+  ball = new GameObject(Game.assetMan.assets["ball"]);
   uBall = {};
   uBall.uWorld = mat4.create();
   mat4.identity(uBall.uWorld);
@@ -156,12 +159,10 @@ Game.appUpdate = function ()
   sunpos += 0.00001; 
   if (sunpos > (Math.PI * 2.0)) sunpos = 0.0;
   lighteye.angles[0] = sunpos;
-  //if (sunpos != lighteye.offset[0])
-  {
-    lighteye.update();
-    uScene.uLightPosition = lighteye.position;
-    mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
-  }
+  lighteye.update();
+  uScene.uLightPosition = lighteye.position;
+  mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+
   // UPDATE SUN UI
   var v = document.getElementById("sunval");
   var p = sunpos * 360.0 / (Math.PI * 2.0);
@@ -421,4 +422,39 @@ Game.setparam = function(name, value)
   else if (name == 'sun') {
     sunpos = parseFloat(value * Math.PI * 2.0 / 260.0);
   }
+}
+
+
+// Object represent an instance of a model in the world. It contains the object's position and velocity.
+// Velocity gets updated by other classes that control the object.
+// Object supports having a WorldOffset to handle models that do not have the origin set in the right place
+// Object supports having an orientation different than its direction of motion
+function GameObject(model)
+{
+  this.mModel = model;
+  this.WorldOffset = vec3.create();
+  this.Position = vec3.create();
+  this.Velocity = vec3.create();
+  this.Orient = mat4.create(); 
+  mat4.fromYawPitchRoll(this.Orient, 0, 0, 0);
+
+  this.World = mat4.create();
+  mat4.createWorld(this.World, vec3.addInline(this.WorldOffset, this.Position), vec3.unitZ, vec3.unitY);
+}
+
+GameObject.prototype.Place = function()
+{
+  mPosition[1] = Game.World.getHeight(this.Position[0], this.Position[2]) + Game.World.getWaterHeight(this.Position[0], this.Position[2]);
+}
+
+GameObject.prototype.Update = function(gametime)
+{
+  // update due to the player's motion
+  var vel = vec3.create();
+  vec3.transformMat4(vel, this.Velocity, this.Orient);
+  vec.add(this.Position, this.Position, vel);
+  this.Place();
+  mat4.createWorld(this.World, vec3.addInline(this.WorldOffset, this.Position), vec3.unitZ, vec3.unitY);
+
+  // TODO create new chunk?
 }
