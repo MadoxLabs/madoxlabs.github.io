@@ -88,25 +88,15 @@ CameraEye.prototype.update = function (q)
   }
   else   
     mat4.perspective(this.projection, this.camera.fov, this.viewport[2] / this.viewport[3], this.camera.near, this.camera.far);
-
-//  var at = vec3.fromValues(0,0,1);
-//  vec3.transformQuat(at, at, q);
-//  vec3.add(at, at, this.camera.position);
-//
-//  var up = vec3.fromValues(0, 1, 0);
-//  vec3.transformQuat(up, up, q);
-//
-//  mat4.lookAt(this.view, this.camera.position, at, up);
  
   var up = vec3.create();
   vec3.transformMat4(up, vec3.fromValues(0,1,0), this.camera.orientation);
-  mat4.lookAt(this.view, this.camera.position, this.camera.target, up)
+  mat4.lookAt(this.view, this.camera.position, this.camera.target.Position, up)
   this.camera.offset[0] -= this.ipd;
 
   this.uniforms.camera = this.camera.position;
   this.uniforms.view = this.view;
   this.uniforms.projection = this.projection;
-
 }
 
 CameraEye.prototype.engage = function ()
@@ -116,7 +106,7 @@ CameraEye.prototype.engage = function ()
 
 function Camera(w, h)
 {
-  this.targetOrient = mat4.create();     // optimize these creates out. its pointless to recretes them all the time
+  this.targetOrient = mat4.create();     // optimize these creates out. its pointless to recreates them all the time
   this.orientX = mat4.create();
   this.orientY = mat4.create();
 
@@ -129,8 +119,10 @@ function Camera(w, h)
   this.far = 10000.0;
 
   this.angles = vec3.create();
-  this.target = vec3.create();
-  this.offset = vec3.create();
+  this.target = null;
+  this.offset = vec3.fromValues(0, 5, -20);
+  this.movedir = 0;
+  this.speed = vec3.create();
 
   this.position = vec3.create();
   this.orientation = mat4.create();
@@ -165,40 +157,74 @@ Camera.prototype.splitscreen = function (s)
   this.update();
 }
 
-Camera.prototype.lookAt = function (x, y, z)
+Camera.prototype.lookAt = function (x,y,z)
 {
-  this.target = vec3.fromValues(x, y, z);
+  this.target = {};
+  this.target.Position = vec3.fromValues(x, y, z);
+  this.target.Orient = mat4.create();
+  this.target.Velocity = vec3.create();
+
+  this.position = this.target.Position;
+  var off = vec3.create();
+  vec3.transformMat4(off, this.offset, this.target.Orient);
+  vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
+}
+
+Camera.prototype.setTarget = function (obj)
+{
+  this.target = obj;
+  this.position = this.target.mPosition;
+  var off = vec3.create();
+  vec3.transformMat4(off, this.offset, this.target.Orient);
+  vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
+}
+
+Direction = { forward: 0, back: 1, left: 2, right: 3 };
+
+Camera.prototype.move = function(dir)
+{
+  this.movedir |= 1 << dir;
+
+  // Determine the speed in X and Z 
+  vec3.set(this.speed, 0,0,0); 
+  if ((this.moveDir & 1) > 0) this.speed[2] += 0.2;
+  if ((this.moveDir & 2) > 0) this.speed[2] += -0.2;
+  if ((this.moveDir & 4) > 0) this.speed[0] += -0.2;
+  if ((this.moveDir & 8) > 0) this.speed[0] += 0.2;
+}
+
+Camera.prototype.stop = function(dir)
+{
+  this.movedir &= ~(1 << dir);;
+
+  // Determine the speed in X and Z 
+  vec3.set(this.speed, 0,0,0); 
+  if ((this.moveDir & 1) > 0) this.speed[2] += 0.2;
+  if ((this.moveDir & 2) > 0) this.speed[2] += -0.2;
+  if ((this.moveDir & 4) > 0) this.speed[0] += -0.2;
+  if ((this.moveDir & 8) > 0) this.speed[0] += 0.2;
 }
 
 Camera.prototype.update = function ()
 {
-  // assume target orient is identity
-  // get our orient from angles
+  if (this.target == null) return;
 
   mat4.identity(this.targetOrient);
   mat4.identity(this.orientX);
   mat4.identity(this.orientY);
   mat4.rotate(this.orientX, this.orientX, this.angles[1], yAxis);
   mat4.rotate(this.orientY, this.orientY, this.angles[0], xAxis);
-  mat4.multiply(this.orientation, this.orientX, this.orientY);
+  mat4.multiply(this.orientation, this.target.Orient, this.orientX);
+  mat4.multiply(this.orientation, this.orientation, this.orientY);
+
+  vec3.transformMat4(this.target.Velocity, this.speed, this.orientY);
 
   vec3.transformMat4(this.position, this.offset, this.orientation);
-  vec3.add(this.position, this.position, this.target);
+  vec3.add(this.position, this.position, this.target.Position);
 
   vec3.transformMat4(this.up, vec3.fromValues(0, 1, 0), this.orientation);
   vec3.transformMat4(this.left, vec3.fromValues(-1, 0, 0), this.orientation);
   vec3.transformMat4(this.forward, vec3.fromValues(0, 0, 1), this.orientation);
-
-  //  var q = quat.create();
-  //  quat.rotateX(q, q, this.angles[0]); quat.rotateY(q, q, this.angles[1]); quat.rotateZ(q, q, this.angles[1]);
-  //  if (Game.isOculus && Game.oculusReady == 3)
-  //  {
-  //    var vals = Game.oculusBridge.getOrientation();
-  //    var oq = quat.fromValues(vals.x, vals.y, vals.z, vals.w);
-  //    quat.multiply(q, q, oq);
-  //  }
-  //  mat4.fromQuat(this.orientation, q);
-  //
 
   this.updateEyes();
 }

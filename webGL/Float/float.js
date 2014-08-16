@@ -120,29 +120,25 @@ Game.appUpdate = function ()
   var tmp = vec3.create();
   var lasttargetx = Game.camera.target[0];
   var lasttargety = Game.camera.target[2];
-  if (currentlyPressedKeys[37] && Game.camera.target[0] > 0)  // Left cursor key
+  if (currentlyPressedKeys[37] && Game.camera.target.Position[0] > 0)  // Left cursor key
   {
-    vec3.scale(tmp, Game.camera.left, 0.01 * Game.elapsed)
-    vec3.add(Game.camera.target, Game.camera.target, tmp);
+    Game.camera.move(Direction.left);
     moved = true;
   }
   if (currentlyPressedKeys[39] && Game.camera.target[0] < 100)  // Right cursor key
   {
-    vec3.scale(tmp, Game.camera.left, -0.01 * Game.elapsed)
-    vec3.add(Game.camera.target, Game.camera.target, tmp);
+    Game.camera.move(Direction.right);
     moved = true;
   }
 
   if (currentlyPressedKeys[38] && Game.camera.target[2] > 0)  // Up cursor key
   {
-    vec3.scale(tmp, Game.camera.forward, -0.01 * Game.elapsed)
-    vec3.add(Game.camera.target, Game.camera.target, tmp);
+    Game.camera.move(Direction.back);
     moved = true;
   }
   if (currentlyPressedKeys[40] && Game.camera.target[2] < 100)  // Down cursor key
   {
-    vec3.scale(tmp, Game.camera.forward, 0.01 * Game.elapsed)
-    vec3.add(Game.camera.target, Game.camera.target, tmp);
+    Game.camera.move(Direction.forward);
     moved = true;
   }
   if (moved && Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]))
@@ -150,8 +146,8 @@ Game.appUpdate = function ()
     var i = ((lasttargetx * (RegionSize - 1) / RegionArea) | 0) + 1;
     var j = ((lasttargety * (RegionSize - 1) / RegionArea) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, -0.25);
-    var i = ((Game.camera.target[0] * (RegionSize - 1) / RegionArea) | 0) + 1;
-    var j = ((Game.camera.target[2] * (RegionSize - 1) / RegionArea) | 0) + 1;
+    var i = ((Game.camera.target.Position[0] * (RegionSize - 1) / RegionArea) | 0) + 1;
+    var j = ((Game.camera.target.Position[2] * (RegionSize - 1) / RegionArea) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, 0.25);
   }
 
@@ -205,7 +201,7 @@ Game.appUpdate = function ()
 
 Game.camerafix = function()
 {
-  Game.camera.target[1] = Game.World.getHeight(Game.camera.target[0], Game.camera.target[2]) + Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]);
+  Game.camera.target.Position[1] = Game.World.getHeight(Game.camera.target.Position0], Game.camera.target.Position[2]) + Game.World.getWaterHeight(Game.camera.target.Position[0], Game.camera.target.Position[2]);
 
   // check for ground clip
   var x = 0;
@@ -458,3 +454,4 @@ GameObject.prototype.Update = function(gametime)
 
   // TODO create new chunk?
 }
+

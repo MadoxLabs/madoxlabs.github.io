@@ -54,7 +54,7 @@ Game.loadingStop = function ()
 
   normals = square.drawNormals();
   wire = square.drawWireframe();
-  explode = square.drawExploded();
+//  explode = square.drawExploded();
   bb = square.drawBB();
 
   var len = 0;
@@ -103,6 +103,7 @@ Game.loadingStop = function ()
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
   lighteye.offset = vec3.fromValues(39.0, 10.0, 9.0);
+  lighteye.lookAt(0.0,0.0,0.0);
   lighteye.update();
 
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
@@ -218,3 +219,7 @@ Game.appHandleKeyUp = function (event)
   currentlyPressedKeys[event.keyCode] = false;
 }
 
+Game.appHandleMouseEvent = function(type, mouse)
+{
+
+}
