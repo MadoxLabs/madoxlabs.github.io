@@ -116,7 +116,7 @@ void main(void)
   if (IsShadow(vPosition, vNormal))  
     light = vec3(0.0, 0.0, 0.0);
   else   
-    light = ambient + diffuse + specular + emissivecolor;
+    light = ambient + diffuse;// + specular + emissivecolor;
 
   // work out the texture color
 
