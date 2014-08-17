@@ -54,7 +54,7 @@ Game.loadingStop = function ()
 
   normals = square.drawNormals();
   wire = square.drawWireframe();
-//  explode = square.drawExploded();
+  //explode = square.drawExploded();
   bb = square.drawBB();
 
   var len = 0;
@@ -66,6 +66,8 @@ Game.loadingStop = function ()
   var max = square.boundingbox[0].max[2] - square.boundingbox[0].min[2]
   if (max < len) max = len;
 
+  Game.camera.offset[0] = 0.0;
+  Game.camera.offset[1] = 0.0;
   Game.camera.offset[2] = 1.3 * len / (Math.tan(Game.camera.fov));
   Game.camera.lookAt(square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0,
                      square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0,
@@ -79,7 +81,7 @@ Game.loadingStop = function ()
   uLight.uLightDiffuseRGB = [1,1,1];
   uLight.uLightSpecularRGB = [1,1,1];
   uLight.uLightAttenuation = [0, 1, 0];
-  uLight.uLightPosition = [13.0, 10.0, 3.0];
+  uLight.uLightPosition = [9.0, 9.0, 39.0];
 
   uPerObject = effect.createUniform('perobject');
   uPerObject.uWorld = mat4.create();
@@ -102,7 +104,7 @@ Game.loadingStop = function ()
   // shadowing support
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
-  lighteye.offset = vec3.fromValues(39.0, 10.0, 9.0);
+  lighteye.offset = vec3.fromValues(9.0, 9.0, 39.0);
   lighteye.lookAt(0.0,0.0,0.0);
   lighteye.update();
 
@@ -114,6 +116,7 @@ Game.appUpdate = function ()
 {
   if (Game.loading) return;
   if (!Game.camera) return;
+
   if (currentlyPressedKeys[33])  // Page Up
     Game.camera.offset[2] -= 0.1;
   if (currentlyPressedKeys[34])  // Page Down
@@ -130,12 +133,12 @@ Game.appUpdate = function ()
   }
   if (currentlyPressedKeys[38])  // Up cursor key
   {
-    if (currentlyPressedKeys[16]) { Game.camera.target[1] += 0.1; }
+    if (currentlyPressedKeys[16]) { Game.camera.target.Position[1] += 0.1; }
     else xSpeed -= 2;
   }
   if (currentlyPressedKeys[40])  // Down cursor key
   {
-    if (currentlyPressedKeys[16]) { Game.camera.target[1] -= 0.1; }
+    if (currentlyPressedKeys[16]) { Game.camera.target.Position[1] -= 0.1; }
     else xSpeed += 2;
   }
 
@@ -155,6 +158,8 @@ Game.appUpdate = function ()
   if (document.getElementById("uvs").checked) uPerObject.options[1] = 1;
   else if (document.getElementById("xseams").checked) uPerObject.options[1] = 2;
   else if (document.getElementById("yseams").checked) uPerObject.options[1] = 3;
+
+  lighteye.update();
 }
 
 Game.appDrawAux = function ()
