@@ -164,7 +164,7 @@ Camera.prototype.lookAt = function (x,y,z)
   this.target.Orient = mat4.create();
   this.target.Velocity = vec3.create();
 
-  this.position = this.target.Position;
+  vec3.copy(this.position, this.target.Position);
   var off = vec3.create();
   vec3.transformMat4(off, this.offset, this.target.Orient);
   vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
@@ -173,7 +173,7 @@ Camera.prototype.lookAt = function (x,y,z)
 Camera.prototype.setTarget = function (obj)
 {
   this.target = obj;
-  this.position = this.target.mPosition;
+  vec3.copy(this.position, this.target.Position);
   var off = vec3.create();
   vec3.transformMat4(off, this.offset, this.target.Orient);
   vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
