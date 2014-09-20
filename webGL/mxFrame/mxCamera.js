@@ -159,10 +159,8 @@ Camera.prototype.splitscreen = function (s)
 
 Camera.prototype.lookAt = function (x,y,z)
 {
-  this.target = {};
+  this.target = new GameObject(null);
   this.target.Position = vec3.fromValues(x, y, z);
-  this.target.Orient = mat4.create();
-  this.target.Velocity = vec3.create();
 
   vec3.copy(this.position, this.target.Position);
   var off = vec3.create();
@@ -184,13 +182,13 @@ Direction = { forward: 0, back: 1, left: 2, right: 3 };
 Camera.prototype.move = function(dir)
 {
   this.movedir |= 1 << dir;
-
   // Determine the speed in X and Z 
-  vec3.set(this.speed, 0,0,0); 
-  if ((this.moveDir & 1) > 0) this.speed[2] += 0.2;
-  if ((this.moveDir & 2) > 0) this.speed[2] += -0.2;
-  if ((this.moveDir & 4) > 0) this.speed[0] += -0.2;
-  if ((this.moveDir & 8) > 0) this.speed[0] += 0.2;
+  vec3.set(this.speed, 0, 0, 0);
+  if ((this.movedir & 1) > 0) this.speed[2] += 0.2;
+  if ((this.movedir & 2) > 0) this.speed[2] += -0.2;
+  if ((this.movedir & 4) > 0) this.speed[0] += -0.2;
+  if ((this.movedir & 8) > 0) this.speed[0] += 0.2;
+  console.log("Speed up: X: " + this.speed[0] + " Z: " + this.speed[2]);
 }
 
 Camera.prototype.stop = function(dir)
@@ -199,15 +197,18 @@ Camera.prototype.stop = function(dir)
 
   // Determine the speed in X and Z 
   vec3.set(this.speed, 0,0,0); 
-  if ((this.moveDir & 1) > 0) this.speed[2] += 0.2;
-  if ((this.moveDir & 2) > 0) this.speed[2] += -0.2;
-  if ((this.moveDir & 4) > 0) this.speed[0] += -0.2;
-  if ((this.moveDir & 8) > 0) this.speed[0] += 0.2;
+  if ((this.movedir & 1) > 0) this.speed[2] += 0.2;
+  if ((this.movedir & 2) > 0) this.speed[2] += -0.2;
+  if ((this.movedir & 4) > 0) this.speed[0] += -0.2;
+  if ((this.movedir & 8) > 0) this.speed[0] += 0.2;
+  console.log("Speed down: X: " + this.speed[0] + " Z: " + this.speed[2]);
 }
 
 Camera.prototype.update = function ()
 {
   if (this.target == null) return;
+
+  this.target.Update();
 
   mat4.identity(this.targetOrient);
   mat4.identity(this.orientX);
@@ -217,7 +218,7 @@ Camera.prototype.update = function ()
   mat4.multiply(this.orientation, this.target.Orient, this.orientX);
   mat4.multiply(this.orientation, this.orientation, this.orientY);
 
-  vec3.transformMat4(this.target.Velocity, this.speed, this.orientY);
+  vec3.transformMat4(this.target.Velocity, this.speed, this.orientX);
 
   vec3.transformMat4(this.position, this.offset, this.orientation);
   vec3.add(this.position, this.position, this.target.Position);

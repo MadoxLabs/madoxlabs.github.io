@@ -255,8 +255,9 @@ fRegion.prototype.createAOMap = function ()
   var g = 0;
   for (var j = 0; j < RegionSize; ++j) {
     for (var i = 0; i < RegionSize; ++i) {
-      // g = this.getPoint((this.Area.X + i) * this.Area.Width / RegionSize, (this.Area.Y + j) * this.Area.Width / RegionSize);
-      savedFactors[index] = 1; //Game.World.cast.calculate((this.Area.X + i) * this.Area.Width / RegionSize, g, (this.Area.Y + j) * this.Area.Width / RegionSize, this);
+//      g = this.getPoint((this.Area.X + i) * this.Area.Width / RegionSize, (this.Area.Y + j) * this.Area.Width / RegionSize);
+//      savedFactors[index] = Game.World.cast.calculate((this.Area.X + i) * this.Area.Width / RegionSize, g, (this.Area.Y + j) * this.Area.Width / RegionSize, this);
+      savedFactors[index] = 1;
       ++index;
     }
   }

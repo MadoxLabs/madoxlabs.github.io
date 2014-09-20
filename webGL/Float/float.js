@@ -105,6 +105,8 @@ Game.makeHelper = function()
   helper.Update(pos);
 }
 
+var moved = false;
+
 Game.appUpdate = function ()
 {
   if (Game.loading) return;
@@ -116,31 +118,10 @@ Game.appUpdate = function ()
   if (currentlyPressedKeys[34] && Game.camera.offset[2] < 100)  // Page Down
     Game.camera.offset[2] += 1;
 
-  var moved = false;
   var tmp = vec3.create();
   var lasttargetx = Game.camera.target[0];
   var lasttargety = Game.camera.target[2];
-  if (currentlyPressedKeys[37] && Game.camera.target.Position[0] > 0)  // Left cursor key
-  {
-    Game.camera.move(Direction.left);
-    moved = true;
-  }
-  if (currentlyPressedKeys[39] && Game.camera.target[0] < 100)  // Right cursor key
-  {
-    Game.camera.move(Direction.right);
-    moved = true;
-  }
 
-  if (currentlyPressedKeys[38] && Game.camera.target[2] > 0)  // Up cursor key
-  {
-    Game.camera.move(Direction.back);
-    moved = true;
-  }
-  if (currentlyPressedKeys[40] && Game.camera.target[2] < 100)  // Down cursor key
-  {
-    Game.camera.move(Direction.forward);
-    moved = true;
-  }
   if (moved && Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]))
   {
     var i = ((lasttargetx * (RegionSize - 1) / RegionArea) | 0) + 1;
@@ -149,6 +130,7 @@ Game.appUpdate = function ()
     var i = ((Game.camera.target.Position[0] * (RegionSize - 1) / RegionArea) | 0) + 1;
     var j = ((Game.camera.target.Position[2] * (RegionSize - 1) / RegionArea) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, 0.25);
+    moved = false;
   }
 
   // SUN MOVEMENT
@@ -388,9 +370,32 @@ Game.appHandleMouseEvent = function (type, mouse)
 
 Game.appHandleKeyDown = function (event)
 {
+  if (currentlyPressedKeys[event.keyCode]) return;
+
   if ([33, 34].indexOf(event.keyCode) > -1) event.preventDefault();
   if (event.keyCode == 67) cameraMode = !cameraMode;
   currentlyPressedKeys[event.keyCode] = true;
+
+  if (event.keyCode == 37 && Game.camera.target.Position[0] > 0)  // Left cursor key
+  {
+    Game.camera.move(Direction.left);
+    moved = true;
+  }
+  if (event.keyCode == 39 && Game.camera.target.Position[0] < 100)  // Right cursor key
+  {
+    Game.camera.move(Direction.right);
+    moved = true;
+  }
+  if (event.keyCode == 38 && Game.camera.target.Position[2] > 0)  // Up cursor key
+  {
+    Game.camera.move(Direction.back);
+    moved = true;
+  }
+  if (event.keyCode == 40 && Game.camera.target.Position[2] < 100)  // Down cursor key
+  {
+    Game.camera.move(Direction.forward);
+    moved = true;
+  }
 }
 
 Game.appHandleKeyUp = function (event)
@@ -398,6 +403,27 @@ Game.appHandleKeyUp = function (event)
   currentlyPressedKeys[event.keyCode] = false;
   if (event.keyCode == 70) Game.fullscreenMode(!Game.isFullscreen);
   if (event.keyCode == 79) Game.oculusMode(!Game.isOculus);
+
+  if (event.keyCode == 37)
+  {
+    Game.camera.stop(Direction.left);
+    moved = true;
+  }
+  if (event.keyCode == 39)
+  {
+    Game.camera.stop(Direction.right);
+    moved = true;
+  }
+  if (event.keyCode == 38)
+  {
+    Game.camera.stop(Direction.back);
+    moved = true;
+  }
+  if (event.keyCode == 40)
+  {
+    Game.camera.stop(Direction.forward);
+    moved = true;
+  }
 }
 
 var showWang = false;
@@ -440,7 +466,7 @@ function GameObject(model)
 
 GameObject.prototype.Place = function()
 {
-  mPosition[1] = Game.World.getHeight(this.Position[0], this.Position[2]) + Game.World.getWaterHeight(this.Position[0], this.Position[2]);
+  this.Position[1] = Game.World.getHeight(this.Position[0], this.Position[2]) + Game.World.getWaterHeight(this.Position[0], this.Position[2]);
 }
 
 GameObject.prototype.Update = function(gametime)
@@ -448,7 +474,7 @@ GameObject.prototype.Update = function(gametime)
   // update due to the player's motion
   var vel = vec3.create();
   vec3.transformMat4(vel, this.Velocity, this.Orient);
-  vec.add(this.Position, this.Position, vel);
+  vec3.add(this.Position, this.Position, vel);
   this.Place();
   mat4.createWorld(this.World, vec3.addInline(this.WorldOffset, this.Position), vec3.unitZ, vec3.unitY);
 
