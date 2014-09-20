@@ -201,7 +201,7 @@ Game.appUpdate = function ()
 
 Game.camerafix = function()
 {
-  Game.camera.target.Position[1] = Game.World.getHeight(Game.camera.target.Position0], Game.camera.target.Position[2]) + Game.World.getWaterHeight(Game.camera.target.Position[0], Game.camera.target.Position[2]);
+  Game.camera.target.Position[1] = Game.World.getHeight(Game.camera.target.Position[0], Game.camera.target.Position[2]) + Game.World.getWaterHeight(Game.camera.target.Position[0], Game.camera.target.Position[2]);
 
   // check for ground clip
   var x = 0;
