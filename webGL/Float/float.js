@@ -62,11 +62,14 @@ Game.loadingStop = function ()
 {
   Game.ready = true;
 
+  ball = new GameObject(Game.assetMan.assets["ball"]);
+  vec3.set(ball.Position, 50.0, 0.0, 50.0);
+
   Game.camera.offset[0] = 0.0;
   Game.camera.offset[1] = 0.0;
   Game.camera.offset[2] = 50.0;
   Game.camera.angles[0] = -0.55;
-  Game.camera.lookAt(50.0, 0.0, 50.0);
+  Game.camera.setTarget(ball); //(50.0, 0.0, 50.0);
 
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
@@ -82,7 +85,6 @@ Game.loadingStop = function ()
   uScene.uWorldToLight = mat4.create();
   mat4.multiply(uScene.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
 
-  ball = new GameObject(Game.assetMan.assets["ball"]);
   uBall = {};
   uBall.uWorld = mat4.create();
   mat4.identity(uBall.uWorld);
@@ -378,22 +380,22 @@ Game.appHandleKeyDown = function (event)
 
   if (event.keyCode == 37 && Game.camera.target.Position[0] > 0)  // Left cursor key
   {
-    Game.camera.move(Direction.left);
+    Game.camera.move(Direction.left, 1.0);
     moved = true;
   }
   if (event.keyCode == 39 && Game.camera.target.Position[0] < 100)  // Right cursor key
   {
-    Game.camera.move(Direction.right);
+    Game.camera.move(Direction.right, 1.0);
     moved = true;
   }
   if (event.keyCode == 38 && Game.camera.target.Position[2] > 0)  // Up cursor key
   {
-    Game.camera.move(Direction.back);
+    Game.camera.move(Direction.back, 1.0);
     moved = true;
   }
   if (event.keyCode == 40 && Game.camera.target.Position[2] < 100)  // Down cursor key
   {
-    Game.camera.move(Direction.forward);
+    Game.camera.move(Direction.forward, 1.0);
     moved = true;
   }
 }
