@@ -157,16 +157,16 @@ Camera.prototype.splitscreen = function (s)
   this.update();
 }
 
-Camera.prototype.lookAt = function (x,y,z)
-{
-  this.target = new GameObject(null);
-  this.target.Position = vec3.fromValues(x, y, z);
-
-  vec3.copy(this.position, this.target.Position);
-  var off = vec3.create();
-  vec3.transformMat4(off, this.offset, this.target.Orient);
-  vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
-}
+//Camera.prototype.lookAt = function (x,y,z)
+//{
+//  this.target = new GameObject(null);
+//  this.target.Position = vec3.fromValues(x, y, z);
+//
+//  vec3.copy(this.position, this.target.Position);
+//  var off = vec3.create();
+//  vec3.transformMat4(off, this.offset, this.target.Orient);
+//  vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
+//}
 
 Camera.prototype.setTarget = function (obj)
 {
@@ -177,11 +177,11 @@ Camera.prototype.setTarget = function (obj)
   vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
 }
 
-Direction = { forward: 0, back: 1, left: 2, right: 3 };
+Direction = { forward: 1, back: 2, left: 4, right: 8, all: 15 };
 
 Camera.prototype.move = function(dir, speed)
 {
-  this.movedir |= 1 << dir;
+  this.movedir = dir;
   // Determine the speed in X and Z 
   vec3.set(this.speed, 0, 0, 0);
   if ((this.movedir & 1) > 0) this.speed[2] +=  speed;
@@ -193,7 +193,7 @@ Camera.prototype.move = function(dir, speed)
 
 Camera.prototype.stop = function(dir)
 {
-  this.movedir &= ~(1 << dir);;
+  this.movedir &= ~(dir);
 
   // Determine the speed in X and Z 
   vec3.set(this.speed, 0,0,0); 
@@ -207,8 +207,6 @@ Camera.prototype.stop = function(dir)
 Camera.prototype.update = function ()
 {
   if (this.target == null) return;
-
-  this.target.Update();
 
   mat4.identity(this.targetOrient);
   mat4.identity(this.orientX);

@@ -74,7 +74,9 @@ Game.loadingStop = function ()
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
   lighteye.offset = vec3.fromValues(0.0, 200.0, 0.0);
-  lighteye.lookAt(50.0, 0.0, 50.0);
+  var lighttarget = new GameObject(null);
+  vec3.set(lighttarget.Position, 50.0, 0.0, 50.0);
+  lighteye.setTarget(lighttarget);
   sunpos = 0.0;
 
   var effect = Game.shaderMan.shaders["ground"];
@@ -124,7 +126,7 @@ Game.appUpdate = function ()
   var lasttargetx = Game.camera.target[0];
   var lasttargety = Game.camera.target[2];
 
-  if (moved && Game.World.getWaterHeight(Game.camera.target[0], Game.camera.target[2]))
+  if (Game.World.getWaterHeight(Game.camera.target.Position[0], Game.camera.target.Position[2]))
   {
     var i = ((lasttargetx * (RegionSize - 1) / RegionArea) | 0) + 1;
     var j = ((lasttargety * (RegionSize - 1) / RegionArea) | 0) + 1;
@@ -132,8 +134,13 @@ Game.appUpdate = function ()
     var i = ((Game.camera.target.Position[0] * (RegionSize - 1) / RegionArea) | 0) + 1;
     var j = ((Game.camera.target.Position[2] * (RegionSize - 1) / RegionArea) | 0) + 1;
     Game.World.Regions[0].addwater(i, j, 0.25);
-    moved = false;
   }
+
+  ball.Update();
+  if (ball.Position[0] <= 0.0) { ball.Position[0] = 0.01; Game.camera.stop(Direction.all); }
+  if (ball.Position[2] <= 0.0) { ball.Position[2] = 0.01; Game.camera.stop(Direction.all); }
+  if (ball.Position[0] >= 100.0) { ball.Position[0] = 99.99; Game.camera.stop(Direction.all); }
+  if (ball.Position[2] >= 100.0) { ball.Position[2] = 99.99; Game.camera.stop(Direction.all); }
 
   // SUN MOVEMENT
   sunpos += 0.00001; 
@@ -175,7 +182,7 @@ Game.appUpdate = function ()
 
   // UPDATE UNIFORMS
   mat4.identity(uBall.uWorld);
-  mat4.translate(uBall.uWorld, uBall.uWorld, Game.camera.target);
+  mat4.translate(uBall.uWorld, uBall.uWorld, Game.camera.target.Position);
   mat4.identity(uSun.uWorld);
   mat4.translate(uSun.uWorld, uSun.uWorld, lighteye.position);
   mat3.fromMat4(uSky.orient, Game.camera.orientation);
@@ -372,30 +379,29 @@ Game.appHandleMouseEvent = function (type, mouse)
 
 Game.appHandleKeyDown = function (event)
 {
-  if (currentlyPressedKeys[event.keyCode]) return;
-
-  if ([33, 34].indexOf(event.keyCode) > -1) event.preventDefault();
-  if (event.keyCode == 67) cameraMode = !cameraMode;
+  if (currentlyPressedKeys[event.keyCode]) { console.log("abort"); return; }
   currentlyPressedKeys[event.keyCode] = true;
 
-  if (event.keyCode == 37 && Game.camera.target.Position[0] > 0)  // Left cursor key
+  if ([33, 34].indexOf(event.keyCode) > -1) event.preventDefault();
+  else if (event.keyCode == 67) cameraMode = !cameraMode;
+  else if (event.keyCode == 37 && Game.camera.target.Position[0] > 0)  // Left cursor key
   {
-    Game.camera.move(Direction.left, 1.0);
+    Game.camera.move(Direction.left, 0.4);
     moved = true;
   }
-  if (event.keyCode == 39 && Game.camera.target.Position[0] < 100)  // Right cursor key
+  else if (event.keyCode == 39 && Game.camera.target.Position[0] < 100)  // Right cursor key
   {
-    Game.camera.move(Direction.right, 1.0);
+    Game.camera.move(Direction.right, 0.4);
     moved = true;
   }
-  if (event.keyCode == 38 && Game.camera.target.Position[2] > 0)  // Up cursor key
+  else if (event.keyCode == 38 && Game.camera.target.Position[2] > 0)  // Up cursor key
   {
-    Game.camera.move(Direction.back, 1.0);
+    Game.camera.move(Direction.back, 0.4);
     moved = true;
   }
-  if (event.keyCode == 40 && Game.camera.target.Position[2] < 100)  // Down cursor key
+  else if (event.keyCode == 40 && Game.camera.target.Position[2] < 100)  // Down cursor key
   {
-    Game.camera.move(Direction.forward, 1.0);
+    Game.camera.move(Direction.forward, 0.4);
     moved = true;
   }
 }
@@ -403,25 +409,25 @@ Game.appHandleKeyDown = function (event)
 Game.appHandleKeyUp = function (event)
 {
   currentlyPressedKeys[event.keyCode] = false;
-  if (event.keyCode == 70) Game.fullscreenMode(!Game.isFullscreen);
-  if (event.keyCode == 79) Game.oculusMode(!Game.isOculus);
 
-  if (event.keyCode == 37)
+  if (event.keyCode == 70) Game.fullscreenMode(!Game.isFullscreen);
+  else if (event.keyCode == 79) Game.oculusMode(!Game.isOculus);
+  else if (event.keyCode == 37)
   {
     Game.camera.stop(Direction.left);
     moved = true;
   }
-  if (event.keyCode == 39)
+  else if (event.keyCode == 39)
   {
     Game.camera.stop(Direction.right);
     moved = true;
   }
-  if (event.keyCode == 38)
+  else if (event.keyCode == 38)
   {
     Game.camera.stop(Direction.back);
     moved = true;
   }
-  if (event.keyCode == 40)
+  else if (event.keyCode == 40)
   {
     Game.camera.stop(Direction.forward);
     moved = true;
