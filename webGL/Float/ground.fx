@@ -117,7 +117,7 @@ void main(void)
   float a = color.a;
   if (options.x > 0.0) color = color * (nDotL + 0.1);
   if (options.y > 0.0) color = color * min(1.0,vAOFactor+0.5);
-  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
+  if (options.z > 0.0)  color = color * IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition);
 
   color.a = a;
 

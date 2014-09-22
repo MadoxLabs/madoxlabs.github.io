@@ -74,9 +74,7 @@ Game.loadingStop = function ()
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
   lighteye.offset = vec3.fromValues(0.0, 200.0, 0.0);
-  var lighttarget = new GameObject(null);
-  vec3.set(lighttarget.Position, 50.0, 0.0, 50.0);
-  lighteye.setTarget(lighttarget);
+  lighteye.setTarget(ball);
   sunpos = 0.0;
 
   var effect = Game.shaderMan.shaders["ground"];
@@ -145,6 +143,8 @@ Game.appUpdate = function ()
   // SUN MOVEMENT
   sunpos += 0.00001; 
   if (sunpos > (Math.PI * 2.0)) sunpos = 0.0;
+  lighteye.offset[0] = ball.Position[0];
+  lighteye.offset[2] = ball.Position[2];
   lighteye.angles[0] = sunpos;
   lighteye.update();
   uScene.uLightPosition = lighteye.position;

@@ -96,7 +96,7 @@ void main(void)
 
   // apply user options
   float diffuse = (0.2 + 0.7 * nDotL);
-  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  diffuse = diffuse * 0.4;
+  if (options.z > 0.0)  diffuse = diffuse *  IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition);
   color = color * diffuse;
 
   // out

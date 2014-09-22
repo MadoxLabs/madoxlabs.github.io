@@ -68,7 +68,7 @@ void main(void)
   // apply user options
   float a = color.a;
   if (options.x > 0.0) color = color * (nDotL + 0.1);
-  if ((options.z > 0.0) && IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition))  color = color * 0.4;
+  if (options.z > 0.0)  color = color *  IsShadow(vPosition, vNormal, uWorldToLight, uLightPosition);
   color.a = a;
 
 //  if (materialoptions.x > 0.0) // has a texture
