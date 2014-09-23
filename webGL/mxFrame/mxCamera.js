@@ -181,14 +181,13 @@ Direction = { forward: 1, back: 2, left: 4, right: 8, all: 15 };
 
 Camera.prototype.move = function(dir, speed)
 {
-  this.movedir = dir;
+  this.movedir |= dir;
   // Determine the speed in X and Z 
   vec3.set(this.speed, 0, 0, 0);
-  if ((this.movedir & 1) > 0) this.speed[2] +=  speed;
-  if ((this.movedir & 2) > 0) this.speed[2] += -1.0*speed;
-  if ((this.movedir & 4) > 0) this.speed[0] += -1.0*speed;
-  if ((this.movedir & 8) > 0) this.speed[0] +=  speed;
-  console.log("Speed up: X: " + this.speed[0] + " Z: " + this.speed[2]);
+  if ((this.movedir & 1) > 0) this.speed[2] += speed;
+  if ((this.movedir & 2) > 0) this.speed[2] += -1.0 * speed;
+  if ((this.movedir & 4) > 0) this.speed[0] += -1.0 * speed;
+  if ((this.movedir & 8) > 0) this.speed[0] += speed;
 }
 
 Camera.prototype.stop = function(dir)
@@ -196,12 +195,10 @@ Camera.prototype.stop = function(dir)
   this.movedir &= ~(dir);
 
   // Determine the speed in X and Z 
-  vec3.set(this.speed, 0,0,0); 
-  if ((this.movedir & 1) > 0) this.speed[2] = 0;
-  if ((this.movedir & 2) > 0) this.speed[2] = 0;
-  if ((this.movedir & 4) > 0) this.speed[0] = 0;
-  if ((this.movedir & 8) > 0) this.speed[0] = 0;
-  console.log("Speed down: X: " + this.speed[0] + " Z: " + this.speed[2]);
+  if ((dir & 1) > 0) this.speed[2] = 0;
+  if ((dir & 2) > 0) this.speed[2] = 0;
+  if ((dir & 4) > 0) this.speed[0] = 0;
+  if ((dir & 8) > 0) this.speed[0] = 0;
 }
 
 Camera.prototype.update = function ()

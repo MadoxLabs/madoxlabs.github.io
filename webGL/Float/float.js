@@ -358,7 +358,9 @@ Game.appHandleMouseEvent = function (type, mouse)
   if (mouse.button == 2 && type == MouseEvent.Up)
     mouse.release();
 
-  if (type == 8)
+  if (type == MouseEvent.Out) Game.camera.stop(Direction.all);
+
+  if (type == MouseEvent.Wheel)
   {
     Game.camera.offset[2] -= mouse.wheel * 3;
     if (Game.camera.offset[2] < 4) Game.camera.offset[2] = 4;
