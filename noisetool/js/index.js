@@ -61,6 +61,7 @@ document.getElementById("mySVG").onclick = function (e)
 document.onmousemove = function (e)
 {
   if (moving) { windowMove(e); return; }
+  if (sizing) { windowSize(e); return; }
   if (!point1) return;
 
   e = e || window.event;
@@ -108,16 +109,40 @@ function newWindow()
     <li><a href=\"#\">Another action</a></li>\
     <li><a href=\"#\">Something else here</a></li>\
   </ul></li>\
-\
-Module #" + i;
-  w.onmousedown = function (e) { windowPress(e, w); }
+  Module #" + i;
+  w.addEventListener('mousedown', function (e) { windowPress(e, w); }, false);
   document.getElementById("app").appendChild(w);
+
+  var t = document.createElement("div");
+  t.setAttribute("id", "thumb");
+  t.setAttribute("class", "glyphicon glyphicon-signal lightup");
+  t.style.position = "absolute";
+  t.style.top = "178px";
+  t.style.right = "0px";
+  t.addEventListener('mousedown', function (e) { windowStartSize(e, t, w); }, false);
+  w.appendChild(t);
+
   i += 1;
 }
 
 var moving = null;
+var sizing = null;
+var sizingthumb = null;
 var lastx = 0;
 var lasty = 0;
+function windowStartSize(e,t,w)
+{
+  e = e || window.event;
+  e.cancelBubble = true;
+  if (e.stopPropagation) e.stopPropagation();
+
+  w.style.border = "4px solid red";
+  sizing = w;
+  sizingthumb = t;
+  lastx = e.pageX;
+  lasty = e.pageY;
+}
+
 function windowPress(e, w)
 {
   w.style.border = "4px solid green";
@@ -133,6 +158,10 @@ document.onmouseup = function(e)
     moving.style.border = "4px solid black";
     moving = null;
   }
+  if (sizing) {
+    sizing.style.border = "4px solid black";
+    sizing = null;
+  }
 }
 
 function windowMove(e)
@@ -142,4 +171,15 @@ function windowMove(e)
   moving.style.top = moving.offsetTop + (e.pageY - lasty) + "px";
   lastx = e.pageX;
   lasty = e.pageY;
+}
+
+function windowSize(e)
+{
+  e = e || window.event;
+  sizing.style.width = sizing.offsetWidth + (e.pageX - lastx) + "px";
+  sizing.style.height = sizing.offsetHeight + (e.pageY - lasty) + "px";
+  lastx = e.pageX;
+  lasty = e.pageY;
+
+  sizingthumb.style.top = (sizing.offsetHeight + (e.pageY - lasty) - 20) + "px";
 }
