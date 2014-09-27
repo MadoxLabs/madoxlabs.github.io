@@ -8,10 +8,10 @@ body, html {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  background-color: #333333;
 }
 
 .app {
-  background-color: #333333;
 }
 
 .topmenu {
@@ -40,6 +40,13 @@ body, html {
   height: 200px;
   left: 100px;
   top: 100px;
+}
+
+.centered {
+  position: absolute;
+  left: 50%;
+  top: 100px;
+  margin-left: -202px;
 }
 
 .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus { background-color: #428BCA}

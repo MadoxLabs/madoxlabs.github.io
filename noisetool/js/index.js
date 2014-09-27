@@ -6,6 +6,11 @@ var line = null;
 
 document.getElementById("mySVG").onclick = function (e)
 {
+  cancelLine();
+}
+
+function cancelLine()
+{
   if (point1 && line)
   {
     document.getElementById("mySVG").removeChild(line);
@@ -42,6 +47,8 @@ function newWindow()
   // make it click draggable
   // make it zorder
   // make it resize
+
+  if (i == 1) document.getElementById("app").removeChild(document.getElementById("title"));
 
   var w = document.createElement("div");
   w.setAttribute("id", "window" + i);
@@ -112,11 +119,25 @@ var lastx = 0;
 var lasty = 0;
 function windowClose(e, w)
 {
+  // remove all w.ntOut, remove w.ntIn
+  if (w.ntIn.ntLine)
+  {
+    var i = w.ntIn.ntLine.ntPoint1.ntLine.indexOf(w.ntIn.ntLine);
+    if (i != -1) w.ntIn.ntLine.ntPoint1.ntLine.splice(i, 1);
+    document.getElementById("mySVG").removeChild(w.ntIn.ntLine);
+  }
+  for (var i in w.ntOut.ntLine)
+  {
+    w.ntOut.ntLine[i].ntPoint2.ntLine = null;
+    document.getElementById("mySVG").removeChild(w.ntOut.ntLine[i]);
+  }
+
   document.getElementById("app").removeChild(w);
 }
 
 function windowStartSize(e,w)
 {
+  cancelLine();
   e = e || window.event;
   e.cancelBubble = true;
   if (e.stopPropagation) e.stopPropagation();
@@ -129,6 +150,7 @@ function windowStartSize(e,w)
 
 function windowPress(e, w)
 {
+  cancelLine();
   w.style.zIndex = z++;
   w.style.border = "4px solid green";
   moving = w;
@@ -167,7 +189,6 @@ function windowMove(e)
   for (var i in moving.ntOut.ntLine)
   {
     var line = moving.ntOut.ntLine[i];
-//    if (moving.ntOut && moving.ntOut.ntLine) {
     line.setAttribute("x1", newX + moving.offsetWidth);
     line.setAttribute("y1", newY -22 + moving.offsetHeight * 0.5);
   }
@@ -200,14 +221,12 @@ function windowSize(e)
     line.setAttribute("x1", sizing.offsetLeft + newX);
     line.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
   }
-//  if (sizing.ntOut && sizing.ntOut.ntLine) {
-//    sizing.ntOut.ntLine.setAttribute("x1", sizing.offsetLeft + newX);
-//    sizing.ntOut.ntLine.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
-//  }
 }
 
 function windowStartLine(e, w)
 {
+  cancelLine();
+
   e.cancelBubble = true;
   if (e.stopPropagation) e.stopPropagation();
   point1 = w.ntOut;
@@ -216,7 +235,7 @@ function windowStartLine(e, w)
   var pos = getPos(point1);
   line = document.createElementNS(svgNS, "line");
   line.setAttributeNS(null, "id", "line" + id);
-  line.setAttributeNS(null, "x1", pos.x+20);
+  line.setAttributeNS(null, "x1", pos.x + 20);
   line.setAttributeNS(null, "y1", pos.y);
   line.setAttributeNS(null, "x2", pos.x + 20);
   line.setAttributeNS(null, "y2", pos.y);
