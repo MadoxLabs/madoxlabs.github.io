@@ -6,50 +6,29 @@ var line = null;
 
 document.getElementById("mySVG").onclick = function (e)
 {
-  e = e || window.event;
-
-  if (point1)
+  if (point1 && line)
   {
-    if (line)
-    {
-      document.getElementById("mySVG").removeChild(line);
-      point1 = null;
-      point2 = null;
-      line = null;
-    }
-    return;
+    document.getElementById("mySVG").removeChild(line);
+    point1 = null;
+    point2 = null;
+    line = null;
   }
 };
 
 function getPos(el)
 {
   for (var lx = 0, ly = 0; el != null; lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-  return { x: lx, y: ly-34+12 };
+  return { x: lx, y: ly-22 };
 }
 
 document.onmousemove = function (e)
 {
   if (moving) { windowMove(e); return; }
   if (sizing) { windowSize(e); return; }
-  if (!point1) return;
 
   e = e || window.event;
 
-  if (!line)
-  {
-    var myid = id++;
-    var pos = getPos(point1);
-    line = document.createElementNS(svgNS, "line");
-    line.setAttributeNS(null, "id", "line" + id);
-    line.setAttributeNS(null, "x1", pos.x+20);
-    line.setAttributeNS(null, "y1", pos.y);
-    line.setAttributeNS(null, "x2", pos.x + 20);
-    line.setAttributeNS(null, "y2", pos.y);
-    line.setAttributeNS(null, "stroke", "blue");
-    document.getElementById("mySVG").appendChild(line);
-  }
-  else
-  {
+  if (line) {
     line.setAttribute("x2", e.pageX - 1);
     line.setAttribute("y2", e.pageY - 34);
   }
@@ -173,10 +152,25 @@ document.onmouseup = function(e)
 function windowMove(e)
 {
   e = e || window.event;
-  moving.style.left = moving.offsetLeft + (e.pageX - lastx) + "px";
-  moving.style.top = moving.offsetTop + (e.pageY - lasty) + "px";
+  var newX = moving.offsetLeft + (e.pageX - lastx);
+  var newY = moving.offsetTop + (e.pageY - lasty);
+  moving.style.left = newX + "px";
+  moving.style.top = newY + "px";
   lastx = e.pageX;
   lasty = e.pageY;
+
+  if (moving.ntIn && moving.ntIn.ntLine)
+  {
+    moving.ntIn.ntLine.setAttribute("x2", newX);
+    moving.ntIn.ntLine.setAttribute("y2", newY -22 + moving.offsetHeight * 0.5);
+  }
+  for (var i in moving.ntOut.ntLine)
+  {
+    var line = moving.ntOut.ntLine[i];
+//    if (moving.ntOut && moving.ntOut.ntLine) {
+    line.setAttribute("x1", newX + moving.offsetWidth);
+    line.setAttribute("y1", newY -22 + moving.offsetHeight * 0.5);
+  }
 }
 
 function windowSize(e)
@@ -195,6 +189,21 @@ function windowSize(e)
   sizing.ntThumb.style.top = (newY - 20) + "px";
   sizing.ntIn.style.top  = (newY*0.5) + "px";
   sizing.ntOut.style.top = (newY*0.5) + "px";
+
+  if (sizing.ntIn && sizing.ntIn.ntLine) {
+    sizing.ntIn.ntLine.setAttribute("x2", sizing.offsetLeft);
+    sizing.ntIn.ntLine.setAttribute("y2", sizing.offsetTop - 22 + newY * 0.5);
+  }
+  for (var i in sizing.ntOut.ntLine)
+  {
+    var line = sizing.ntOut.ntLine[i];
+    line.setAttribute("x1", sizing.offsetLeft + newX);
+    line.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
+  }
+//  if (sizing.ntOut && sizing.ntOut.ntLine) {
+//    sizing.ntOut.ntLine.setAttribute("x1", sizing.offsetLeft + newX);
+//    sizing.ntOut.ntLine.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
+//  }
 }
 
 function windowStartLine(e, w)
@@ -202,6 +211,22 @@ function windowStartLine(e, w)
   e.cancelBubble = true;
   if (e.stopPropagation) e.stopPropagation();
   point1 = w.ntOut;
+
+  var myid = id++;
+  var pos = getPos(point1);
+  line = document.createElementNS(svgNS, "line");
+  line.setAttributeNS(null, "id", "line" + id);
+  line.setAttributeNS(null, "x1", pos.x+20);
+  line.setAttributeNS(null, "y1", pos.y);
+  line.setAttributeNS(null, "x2", pos.x + 20);
+  line.setAttributeNS(null, "y2", pos.y);
+  line.setAttributeNS(null, "stroke", "yellow");
+  line.setAttributeNS(null, "stroke-width", 4);
+  document.getElementById("mySVG").appendChild(line);
+
+  if (!point1.ntLine) point1.ntLine = [];
+  point1.ntLine.push(line);
+  line.ntPoint1 = point1;
 }
 
 function windowStopLine(e, w)
@@ -210,9 +235,20 @@ function windowStopLine(e, w)
   if (e.stopPropagation) e.stopPropagation();
   point2 = w.ntIn;
  
+  if (point2.ntLine) {
+    var i =  point2.ntLine.ntPoint1.ntLine.indexOf(point2.ntLine);
+    if (i != -1) point2.ntLine.ntPoint1.ntLine.splice(i, 1);
+//    point2.ntLine.ntPoint1.ntLine.delete(point2.ntLine);
+    document.getElementById("mySVG").removeChild(point2.ntLine);
+    point2.ntLine = null;
+  }
+
+  if (!line) return;
   var pos = getPos(point2);
   line.setAttribute("x2", pos.x);
   line.setAttribute("y2", pos.y);
+  point2.ntLine = line;
+  line.ntPoint2 = point2;
   point1 = null;
   point2 = null;
   line = null;
