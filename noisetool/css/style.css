@@ -50,3 +50,8 @@ body, html {
 }
 
 .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus { background-color: #428BCA}
+
+div.dropt span {position: absolute; left: -9999px;
+  margin: 20px 0 0 0px; padding: 3px 3px 3px 3px;
+  border-style:solid; border-color:black; border-width:1px; z-index: 6000;}
+div.dropt:hover span {left: 2%; background: #ffffff;} 

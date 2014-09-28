@@ -4,6 +4,9 @@ var point1 = null;
 var point2 = null;
 var line = null;
 
+var factory;
+
+
 document.getElementById("mySVG").onclick = function (e)
 {
   cancelLine();
@@ -41,7 +44,13 @@ document.onmousemove = function (e)
 
 var i = 1;
 var z = 20;
-function newWindow()
+var types = [];
+types[1] = ["Billow", "Checkerboard", "Constant", "Cylinders", "Gradient", "Perlin", "Ridged Multifractal", "Spheres", "Voronoi"];
+types[2] = ["Turbulence", "Displace", "Invert Input", "Rotate", "Scale", "Translate"];
+types[3] = ["Absolute", "Clamp", "Curve", "Exponent", "Invert", "ScaleBias", "Terrace", "Cache"];
+types[4] = ["Add", "Max", "Min", "Multiply", "Power", "Blend", "Select"];
+var points = [0.5, 0.2, 0.8, 0.65];
+function newWindow(type)
 {
   // create div with canvas and widgets in it
   // make it click draggable
@@ -54,19 +63,19 @@ function newWindow()
   w.setAttribute("id", "window" + i);
   w.setAttribute("class", "noisewindow");
   w.style.zIndex = z++;
-  w.innerHTML = "\
+  var buf = "\
   <li class=\"nav dropdown\">\
   <button type=\"button\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"> Type: <span class=\"caret\"></span></button>\
-  <ul class=\"dropdown-menu\" role=\"menu\">\
-    <li><a href=\"#\" onclick=\"document.getElementById('windowname" + i + "').innerText='Billow';\">Billow</a></li>\
-    <li><a href=\"#\" onclick=\"document.getElementById('windowname" + i + "').innerText='Checkerboard';\">Checkerboard</a></li>\
-    <li><a href=\"#\" onclick=\"document.getElementById('windowname" + i + "').innerText='Constant';\">Constant</a></li>\
-  </ul></li>";
+  <ul class=\"dropdown-menu\" role=\"menu\">";
+  for (var t in types[type])
+    buf += "<li><a href=\"#\" onclick=\"setWindowType('window"+i+"', '" + types[type][t] + "');\">" + types[type][t] + "</a></li>";
+  buf += "</ul></li>";
+  w.innerHTML = buf;
   w.addEventListener('mousedown', function (e) { windowPress(e, w); }, false);
   document.getElementById("app").appendChild(w);
 
   var n = document.createElement("div");
-  n.setAttribute("id", "windowname" + i);
+  n.setAttribute("id", "window" + i+"name");
   n.style.position = "absolute";
   n.style.top = "3px";
   n.style.left = "70px";
@@ -74,6 +83,7 @@ function newWindow()
   w.appendChild(n);
   w.ntName = n;
 
+  // drag thumb
   var t = document.createElement("div");
   t.setAttribute("class", "glyphicon glyphicon-signal lightup");
   t.style.position = "absolute";
@@ -83,6 +93,7 @@ function newWindow()
   w.appendChild(t);
   w.ntThumb = t;
 
+  // close
   var c = document.createElement("div");
   c.setAttribute("class", "glyphicon glyphicon-remove-circle lightup");
   c.style.position = "absolute";
@@ -92,25 +103,42 @@ function newWindow()
   w.appendChild(c);
   w.ntClose = c;
 
-  var input = document.createElement("div");
-  input.setAttribute("class", "glyphicon glyphicon-record lightup");
-  input.style.position = "absolute";
-  input.style.top = "100px";
-  input.style.left = "00px";
-  w.appendChild(input);
-  input.addEventListener('mousedown', function (e) { windowStopLine(e, w); }, false);
-  w.ntIn = input;
+  i += 1;
+}
 
+function setWindowType(name, type)
+{
+  var w = document.getElementById(name);
+  document.getElementById(w.id + "name").innerText = type;
+
+  w.ntModule = factory.getModule(type);
+  if (!w.ntModule) return;
+
+  // input - up to 4
+  w.ntIn = [];
+  for (var p = 0; p < w.ntModule.points; ++p)
+  {
+    var input = document.createElement("div");
+    input.setAttribute("class", "glyphicon glyphicon-record lightup dropt");
+    input.style.position = "absolute";
+    input.style.top = (w.offsetHeight*points[p]) + "px";
+    input.style.left = "0px";
+    input.ntNum = p;
+    input.innerHTML = "<span>" + w.ntModule.pointNames[p] + "</span>";
+    w.appendChild(input);
+    input.addEventListener('mousedown', function (e) { windowStopLine(e, w); }, false);
+    w.ntIn.push(input);
+  }
+
+  // output
   var output = document.createElement("div");
   output.setAttribute("class", "glyphicon glyphicon-record lightup");
   output.style.position = "absolute";
-  output.style.top = "100px";
+  output.style.top = (w.offsetHeight*0.5) + "px";
   output.style.right = "0px";
   output.addEventListener('mousedown', function (e) { windowStartLine(e, w); }, false);
   w.appendChild(output);
   w.ntOut = output;
-
-  i += 1;
 }
 
 var moving = null;
@@ -120,16 +148,19 @@ var lasty = 0;
 function windowClose(e, w)
 {
   // remove all w.ntOut, remove w.ntIn
-  if (w.ntIn.ntLine)
+  for (var p in w.ntIn)
+    if (w.ntIn[p].ntLine)
+    {
+      var i = w.ntIn[p].ntLine.ntPoint1.ntLine.indexOf(w.ntIn[p].ntLine);
+      if (i != -1) w.ntIn[p].ntLine.ntPoint1.ntLine.splice(i, 1);
+      document.getElementById("mySVG").removeChild(w.ntIn[p].ntLine);
+    }
+  if (w.ntOut)
   {
-    var i = w.ntIn.ntLine.ntPoint1.ntLine.indexOf(w.ntIn.ntLine);
-    if (i != -1) w.ntIn.ntLine.ntPoint1.ntLine.splice(i, 1);
-    document.getElementById("mySVG").removeChild(w.ntIn.ntLine);
-  }
-  for (var i in w.ntOut.ntLine)
-  {
-    w.ntOut.ntLine[i].ntPoint2.ntLine = null;
-    document.getElementById("mySVG").removeChild(w.ntOut.ntLine[i]);
+    for (var i in w.ntOut.ntLine) {
+      w.ntOut.ntLine[i].ntPoint2.ntLine = null;
+      document.getElementById("mySVG").removeChild(w.ntOut.ntLine[i]);
+    }
   }
 
   document.getElementById("app").removeChild(w);
@@ -181,16 +212,19 @@ function windowMove(e)
   lastx = e.pageX;
   lasty = e.pageY;
 
-  if (moving.ntIn && moving.ntIn.ntLine)
+  for (var i in moving.ntIn)
+    if (moving.ntIn[i].ntLine)
+    {
+      moving.ntIn[i].ntLine.setAttribute("x2", newX);
+      moving.ntIn[i].ntLine.setAttribute("y2", newY - 22 + moving.offsetHeight * points[i]);
+    }
+  if (moving.ntOut)
   {
-    moving.ntIn.ntLine.setAttribute("x2", newX);
-    moving.ntIn.ntLine.setAttribute("y2", newY -22 + moving.offsetHeight * 0.5);
-  }
-  for (var i in moving.ntOut.ntLine)
-  {
-    var line = moving.ntOut.ntLine[i];
-    line.setAttribute("x1", newX + moving.offsetWidth);
-    line.setAttribute("y1", newY -22 + moving.offsetHeight * 0.5);
+    for (var i in moving.ntOut.ntLine) {
+      var line = moving.ntOut.ntLine[i];
+      line.setAttribute("x1", newX + moving.offsetWidth);
+      line.setAttribute("y1", newY - 22 + moving.offsetHeight * 0.5);
+    }
   }
 }
 
@@ -208,19 +242,22 @@ function windowSize(e)
   lasty = e.pageY;
 
   sizing.ntThumb.style.top = (newY - 20) + "px";
-  sizing.ntIn.style.top  = (newY*0.5) + "px";
-  sizing.ntOut.style.top = (newY*0.5) + "px";
+  for (var i in sizing.ntIn)
+    sizing.ntIn[i].style.top = (newY * points[i]) + "px";
+  if (sizing.ntOut) sizing.ntOut.style.top = (newY*0.5) + "px";
 
-  if (sizing.ntIn && sizing.ntIn.ntLine) {
-    sizing.ntIn.ntLine.setAttribute("x2", sizing.offsetLeft);
-    sizing.ntIn.ntLine.setAttribute("y2", sizing.offsetTop - 22 + newY * 0.5);
-  }
-  for (var i in sizing.ntOut.ntLine)
-  {
-    var line = sizing.ntOut.ntLine[i];
-    line.setAttribute("x1", sizing.offsetLeft + newX);
-    line.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
-  }
+  for (var i in sizing.ntIn)
+    if (sizing.ntIn[i].ntLine) {
+      sizing.ntIn[i].ntLine.setAttribute("x2", sizing.offsetLeft);
+      sizing.ntIn[i].ntLine.setAttribute("y2", sizing.offsetTop - 22 + newY * points[i]);
+    }
+  if (sizing.ntOut)
+    for (var i in sizing.ntOut.ntLine)
+    {
+      var line = sizing.ntOut.ntLine[i];
+      line.setAttribute("x1", sizing.offsetLeft + newX);
+      line.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
+    }
 }
 
 function windowStartLine(e, w)
@@ -252,7 +289,7 @@ function windowStopLine(e, w)
 {
   e.cancelBubble = true;
   if (e.stopPropagation) e.stopPropagation();
-  point2 = w.ntIn;
+  point2 = e.currentTarget;
  
   if (point2.ntLine) {
     var i =  point2.ntLine.ntPoint1.ntLine.indexOf(point2.ntLine);
