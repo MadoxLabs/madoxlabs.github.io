@@ -5,6 +5,7 @@ var point2 = null;
 var line = null;
 
 var factory;
+var gradients;
 
 document.getElementById("mySVG").onclick = function (e)
 {
@@ -182,9 +183,10 @@ function draw(w)
       var val = w.ntModule.getValue(startx + x, starty + y);
       if (val < min) min = val;
       if (val > max) max = val;
-      map.data[j++] = (val + 1) * 0.5 * 256;
-      map.data[j++] = (val + 1) * 0.5 * 256
-      map.data[j++] = (val + 1) * 0.5 * 256
+      var c = gradients.current.getColor(val);
+      map.data[j++] = c.R * 255;
+      map.data[j++] = c.G * 255;
+      map.data[j++] = c.B * 255;
       map.data[j++] = 255;
     }
   }

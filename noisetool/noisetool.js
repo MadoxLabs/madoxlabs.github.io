@@ -1,5 +1,7 @@
 // source files to load, some optionally
-var baseSrc = ["window.js",
+var baseSrc = ["jscolor.js",
+               "window.js",
+               "gradients.js",
                "factory.js"];
 var perlinSrc = ["NoiseLib/mxrandom.js",
                  "NoiseLib/noise.js",
@@ -79,6 +81,8 @@ function launchApp()
 function main()
 {
   factory = new ntFactory();
+  gradients = new ntGradients();
+
 }
 
 launchApp();
