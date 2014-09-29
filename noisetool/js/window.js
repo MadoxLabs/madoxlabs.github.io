@@ -6,7 +6,6 @@ var line = null;
 
 var factory;
 
-
 document.getElementById("mySVG").onclick = function (e)
 {
   cancelLine();
@@ -26,7 +25,7 @@ function cancelLine()
 function getPos(el)
 {
   for (var lx = 0, ly = 0; el != null; lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-  return { x: lx, y: ly-22 };
+  return { x: lx, y: ly+10 };
 }
 
 document.onmousemove = function (e)
@@ -38,15 +37,15 @@ document.onmousemove = function (e)
 
   if (line) {
     line.setAttribute("x2", e.pageX - 1);
-    line.setAttribute("y2", e.pageY - 34);
+    line.setAttribute("y2", e.pageY -1);
   }
 };
 
 var i = 1;
 var z = 20;
 var types = [];
-types[1] = ["Billow", "Checkerboard", "Constant", "Cylinders", "Gradient", "Perlin", "Ridged Multifractal", "Spheres", "Voronoi"];
-types[2] = ["Turbulence", "Displace", "Invert Input", "Rotate", "Scale", "Translate"];
+types[1] = ["Billow", "FastBillow", "Checkerboard", "Constant", "Cylinders", "Gradient", "Perlin", "FastPerlin", "Ridged Multifractal", "Fast Ridged Multifractal", "Spheres", "Voronoi"];
+types[2] = ["Turbulence", "FastTurbulence", "Displace", "Invert Input", "Rotate", "Scale", "Translate"];
 types[3] = ["Absolute", "Clamp", "Curve", "Exponent", "Invert", "ScaleBias", "Terrace", "Cache"];
 types[4] = ["Add", "Max", "Min", "Multiply", "Power", "Blend", "Select"];
 var points = [0.5, 0.2, 0.8, 0.65];
@@ -73,6 +72,16 @@ function newWindow(type)
   w.innerHTML = buf;
   w.addEventListener('mousedown', function (e) { windowPress(e, w); }, false);
   document.getElementById("app").appendChild(w);
+
+  var cv = document.createElement("canvas");
+  cv.style.position = "absolute";
+  cv.style.top = "25px";
+  cv.style.left = "10px";
+  cv.width = w.clientWidth - 20;
+  cv.height = (w.clientHeight-25);
+  w.appendChild(cv);
+  w.ntCanvas = cv;
+  w.ntContext = cv.getContext('2d');
 
   var n = document.createElement("div");
   n.setAttribute("id", "window" + i+"name");
@@ -139,10 +148,55 @@ function setWindowType(name, type)
   output.addEventListener('mousedown', function (e) { windowStartLine(e, w); }, false);
   w.appendChild(output);
   w.ntOut = output;
+
+  draw(w);
+}
+
+function draw(w)
+{
+  if (!w.ntModule) return;
+
+  var newW = w.clientWidth - 20;
+  var newH = w.clientHeight - 25;
+
+  w.ntCanvas.width = newW;
+  w.ntCanvas.height = newH;
+
+  var map = w.ntContext.createImageData(newW, newH);
+  var startx = parseFloat(document.getElementById("xbound").value);
+  var starty = parseFloat(document.getElementById("ybound").value);
+  var sizex = parseFloat(document.getElementById("wbound").value);
+  var sizey = parseFloat(document.getElementById("hbound").value);
+  var stepx = sizex / newW;
+  var stepy = sizey / newH;
+  var x = 0;  // these loops are done like this because more optimised stopped working
+  var y = 0;
+  var j = 0;
+  var min = w.ntModule.getValue(startx, starty);
+  var max = min;
+  for (var yy = 0; yy < newH; yy++, y += stepy)
+  {
+    x = 0;
+    for (var xx = 0.0; xx < newW; xx++, x += stepx)
+    {
+      var val = w.ntModule.getValue(startx + x, starty + y);
+      if (val < min) min = val;
+      if (val > max) max = val;
+      map.data[j++] = (val + 1) * 0.5 * 256;
+      map.data[j++] = (val + 1) * 0.5 * 256
+      map.data[j++] = (val + 1) * 0.5 * 256
+      map.data[j++] = 255;
+    }
+  }
+  w.ntMin = min;
+  w.ntMax = max;
+  w.ntContext.putImageData(map, 0, 0);
+  windowSelect(w);
 }
 
 var moving = null;
 var sizing = null;
+var selected = null;
 var lastx = 0;
 var lasty = 0;
 function windowClose(e, w)
@@ -175,8 +229,20 @@ function windowStartSize(e,w)
   w.style.zIndex = z++;
   w.style.border = "4px solid red";
   sizing = w;
+  windowSelect(w);
   lastx = e.pageX;
   lasty = e.pageY;
+}
+
+function windowSelect(w)
+{
+  if (selected) selected.style.border = "4px solid black";
+  selected = w;
+  if (w.ntMin)
+  {
+    var buf = "Output Range: " + (Math.round(w.ntMin * 100) / 100) + " to " + (Math.round(w.ntMax * 100) / 100);
+    document.getElementById("range").innerText = buf;
+  }
 }
 
 function windowPress(e, w)
@@ -185,6 +251,7 @@ function windowPress(e, w)
   w.style.zIndex = z++;
   w.style.border = "4px solid green";
   moving = w;
+  windowSelect(w);
   e = e || window.event;
   lastx = e.pageX;
   lasty = e.pageY;
@@ -193,11 +260,12 @@ function windowPress(e, w)
 document.onmouseup = function(e)
 {
   if (moving) {
-    moving.style.border = "4px solid black";
+    moving.style.border = "4px solid yellow";
     moving = null;
   }
   if (sizing) {
-    sizing.style.border = "4px solid black";
+    draw(sizing);
+    sizing.style.border = "4px solid yellow";
     sizing = null;
   }
 }
@@ -216,14 +284,14 @@ function windowMove(e)
     if (moving.ntIn[i].ntLine)
     {
       moving.ntIn[i].ntLine.setAttribute("x2", newX);
-      moving.ntIn[i].ntLine.setAttribute("y2", newY - 22 + moving.offsetHeight * points[i]);
+      moving.ntIn[i].ntLine.setAttribute("y2", newY + 10+moving.offsetHeight * points[i]);
     }
   if (moving.ntOut)
   {
     for (var i in moving.ntOut.ntLine) {
       var line = moving.ntOut.ntLine[i];
       line.setAttribute("x1", newX + moving.offsetWidth);
-      line.setAttribute("y1", newY - 22 + moving.offsetHeight * 0.5);
+      line.setAttribute("y1", newY + 10+moving.offsetHeight * 0.5);
     }
   }
 }
