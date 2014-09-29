@@ -226,10 +226,10 @@ function windowStartSize(e,w)
   e = e || window.event;
   e.cancelBubble = true;
   if (e.stopPropagation) e.stopPropagation();
-  w.style.zIndex = z++;
-  w.style.border = "4px solid red";
   sizing = w;
   windowSelect(w);
+  w.style.zIndex = z++;
+  w.style.border = "4px solid red";
   lastx = e.pageX;
   lasty = e.pageY;
 }
@@ -248,10 +248,10 @@ function windowSelect(w)
 function windowPress(e, w)
 {
   cancelLine();
-  w.style.zIndex = z++;
-  w.style.border = "4px solid green";
   moving = w;
   windowSelect(w);
+  w.style.zIndex = z++;
+  w.style.border = "4px solid green";
   e = e || window.event;
   lastx = e.pageX;
   lasty = e.pageY;
