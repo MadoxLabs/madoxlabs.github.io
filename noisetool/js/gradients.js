@@ -99,7 +99,7 @@ ntGradients.prototype.showEditor = function()
   c.style.position = "absolute";
   c.style.top = "0px";
   c.style.right = "0px";
-  c.addEventListener('mousedown', function (e) { windowClose(e, w); }, false);
+  c.addEventListener('mousedown', function (e) { windowClose(e, w); redraw();}, false);
   w.appendChild(c);
   w.ntClose = c;
 

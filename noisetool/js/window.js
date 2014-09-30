@@ -6,6 +6,7 @@ var line = null;
 
 var factory;
 var gradients;
+var windows = [];
 
 document.getElementById("mySVG").onclick = function (e)
 {
@@ -73,6 +74,7 @@ function newWindow(type)
   w.innerHTML = buf;
   w.addEventListener('mousedown', function (e) { windowPress(e, w); }, false);
   document.getElementById("app").appendChild(w);
+  windows.push(w);
 
   var cv = document.createElement("canvas");
   cv.style.position = "absolute";
@@ -153,6 +155,11 @@ function setWindowType(name, type)
   draw(w);
 }
 
+function redraw()
+{
+  for (var i in windows) draw(windows[i]);
+}
+
 function draw(w)
 {
   if (!w.ntModule) return;
@@ -220,6 +227,8 @@ function windowClose(e, w)
   }
 
   document.getElementById("app").removeChild(w);
+  for (var i in windows)
+    if (windows[i] == w) { delete windows[i]; break; }
 }
 
 function windowStartSize(e,w)
