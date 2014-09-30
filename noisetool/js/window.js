@@ -95,7 +95,7 @@ function newWindow(type)
 
   // drag thumb
   var t = document.createElement("div");
-  t.setAttribute("class", "glyphicon glyphicon-signal lightup");
+  t.setAttribute("class", "glyphicon glyphicon-signal lightup dragthumb");
   t.style.position = "absolute";
   t.style.top = "178px";
   t.style.right = "0px";
