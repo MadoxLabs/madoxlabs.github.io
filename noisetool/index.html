@@ -17,7 +17,7 @@
   <hr />
   <div id="range">Output Range:</div><br />
 
-  Gradient: <select id="gradientlist"></select>
+  Gradient: <select onchange="gradients.setCurrent(this.options[this.selectedIndex].value);" id="gradientlist"></select>
   <center><button onclick="gradients.showEditor();">Edit Gradients</button></center>
   <hr />
   <center>

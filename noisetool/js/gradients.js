@@ -54,6 +54,8 @@ ntGradient.prototype.getHexFor = function(p)
   return toHex(this.Points[p].color.R) + toHex(this.Points[p].color.G) + toHex(this.Points[p].color.B);
 }
 
+
+
 function ntGradients()
 {
   this.gradients = {};
@@ -83,8 +85,8 @@ ntGradients.prototype.showEditor = function()
   w.style.top = (app.offsetHeight * 0.5 + 150) + "px";
   var buf = "<center>Gradient Manager</center>";
   buf += "<table border=1><tr><td colspan=2>"
-  buf += "<select class=\"editorlist\" id=\"editorlist\"></select><button onclick=\"gradients.gradientNew();\">New</button><br>";
-  buf += "Name: <input  id=\"editorname\" size=18><button onclick=\"gradients.pointNew();\">Add Point</button>";
+  buf += "<select class=\"editorlist\" id=\"editorlist\" onchange=\"gradients.showGradient();\"></select><button onclick=\"gradients.gradientNew();\">New</button><br>";
+  buf += "Name: <input id=\"editorname\" size=18 onchange=\"gradients.gradientRename(this.value);\"><button onclick=\"gradients.pointNew();\">Add Point</button>";
   buf += "</td></tr><tr><td>"
   buf += "<div id=\"editorpoints\" class=\"editorpoints\"></div>";
   buf += "</td><td> <div class=\"editorgrad\"><canvas id=\"editorgrad\" height=200 width=20></div> </td></tr></table>";
@@ -105,6 +107,9 @@ ntGradients.prototype.showEditor = function()
   for (g in this.gradients)
     list.options[list.options.length] = new Option(this.gradients[g].name, this.gradients[g].name);
   
+  this.context = document.getElementById("editorgrad").getContext('2d');
+  this.map = this.context.createImageData(20, 200);
+
   this.showGradient("Default");
 }
 
@@ -121,11 +126,38 @@ ntGradients.prototype.gradientNew = function (name)
   def.Points.push({ Point: 1.0, color: { R: 1, G: 1, B: 1 } });
   this.gradients[def.name] = def;
 
+  var glist = document.getElementById("gradientlist");
+  if (glist)
+  {
+    glist.options[glist.options.length] = new Option(def.name, def.name);
+    def.index = glist.options.length - 1;
+  }
+
   var list = document.getElementById("editorlist");
   if (list)
   {
     list.options[list.options.length] = new Option(def.name, def.name);
+    list.options[list.options.length - 1].selected = "selected";
     this.showGradient(def.name);
+  }
+}
+
+ntGradients.prototype.gradientRename = function (name)
+{
+  if (!this.showing) return;
+  delete this.gradients[this.showing.name];
+  this.showing.name = name;
+  this.gradients[name] = this.showing;
+
+  var glist = document.getElementById("gradientlist");
+  if (glist) {
+    glist.options[this.showing.index].value = name;
+    glist.options[this.showing.index].innerText = name;
+  }
+  var list = document.getElementById("editorlist");
+  if (list) {
+    list.options[this.showing.index].value = name;
+    list.options[this.showing.index].innerText = name;
   }
 }
 
@@ -136,20 +168,62 @@ ntGradients.prototype.pointNew = function (name)
   this.showGradient(this.showing.name);
 }
 
+ntGradients.prototype.pointDelete = function(p)
+{
+  if (!this.showing) return;
+  if (this.showing.Points.length <= 2) return;
+  this.showing.Points.splice(p, 1);
+  this.showGradient();
+}
+
 ntGradients.prototype.showGradient = function(name)
 {
+  if (!name)
+  {
+    var list = document.getElementById("editorlist");
+    name = this.gradients[list.options[list.selectedIndex].value].name;
+  }
+
   this.showing = this.gradients[name];
   document.getElementById("editorname").value = this.showing.name;
   var buf = "";
   for (var p in this.showing.Points)
-    buf += "<div class=\"glyphicon glyphicon-remove-circle lightup\"></div><input id=\"ev" + p + "\" size=1 value=\"" + this.showing.Points[p].Point + "\"><input id=\"ec" + p + "\" class=\"color {onImmediateChange:'updateInfo(this);'}\" value=\"" + this.showing.getHexFor(p) + "\"><br>";
+    buf += "<div onclick=\"gradients.pointDelete(" + p + ")\" class=\"glyphicon glyphicon-remove-circle lightup\"></div><input id=\"ev" + p + "\" size=1 onchange=\"gradients.update();\" value=\"" + this.showing.Points[p].Point + "\"><input id=\"ec" + p + "\" class=\"color {onImmediateChange:'gradients.update();'}\" value=\"" + this.showing.getHexFor(p) + "\"><br>";
   document.getElementById("editorpoints").innerHTML = buf;
   jscolor.init();
+  this.drawSample();
 }
 
-function updateInfo(color)
+ntGradients.prototype.drawSample = function()
 {
-  console.log(color.rgb[0]);
-  console.log(color.rgb[1]);
-  console.log(color.rgb[2]);
+  var j = 0;
+  var val = this.showing.Points[0].Point;
+  var vstep = (this.showing.Points[this.showing.Points.length - 1].Point - val) / 200.0;
+
+  for (var x = 0; x < 200; x++)
+  {
+    for (var y = 0; y < 20; y++)
+    {
+      var c = this.showing.getColor(val);
+      this.map.data[j++] = c.R * 255;
+      this.map.data[j++] = c.G * 255;
+      this.map.data[j++] = c.B * 255;
+      this.map.data[j++] = 255;
+    }
+    val += vstep;
+  }
+  this.context.putImageData(this.map, 0, 0);
+}
+
+ntGradients.prototype.update = function()
+{
+  if (!this.showing) return;
+  for (var p in this.showing.Points) {
+    this.showing.Points[p].Point = parseFloat(document.getElementById("ev" + p).value);
+    var c = document.getElementById("ec" + p).color;
+    this.showing.Points[p].color.R = c.rgb[0];
+    this.showing.Points[p].color.G = c.rgb[1];
+    this.showing.Points[p].color.B = c.rgb[2];
+  }
+  this.drawSample();
 }
