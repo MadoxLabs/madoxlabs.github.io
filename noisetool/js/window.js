@@ -210,6 +210,9 @@ var lastx = 0;
 var lasty = 0;
 function windowClose(e, w)
 {
+  e.cancelBubble = true;
+  if (e.stopPropagation) e.stopPropagation();
+
   // remove all w.ntOut, remove w.ntIn
   for (var p in w.ntIn)
     if (w.ntIn[p].ntLine)
@@ -221,14 +224,18 @@ function windowClose(e, w)
   if (w.ntOut)
   {
     for (var i in w.ntOut.ntLine) {
-      w.ntOut.ntLine[i].ntPoint2.ntLine = null;
-      document.getElementById("mySVG").removeChild(w.ntOut.ntLine[i]);
+      if (w.ntOut.ntLine[i].ntPoint2) {
+        w.ntOut.ntLine[i].ntPoint2.ntLine = null;
+        document.getElementById("mySVG").removeChild(w.ntOut.ntLine[i]);
+      }
     }
   }
 
   document.getElementById("app").removeChild(w);
   for (var i in windows)
     if (windows[i] == w) { delete windows[i]; break; }
+
+  document.getElementById("params").innerHTML = "";
 }
 
 function windowStartSize(e,w)
@@ -254,6 +261,17 @@ function windowSelect(w)
     var buf = "Output Range: " + (Math.round(w.ntMin * 100) / 100) + " to " + (Math.round(w.ntMax * 100) / 100);
     document.getElementById("range").innerText = buf;
   }
+
+  if (!w.ntModule) return;
+  // draw parameters for module
+  var buf = "<table>";
+  for (var p in w.ntModule.parameters)
+  {
+    var param = w.ntModule.parameters[p];
+    // create names and sliders
+    buf += "<tr><td>"+param.Name + "</td><td>" + param.Value + "</td><td><input style=\"width: 100px\" width=120 type='range' step='"+param.Incr+"' min='" + param.Min + "' max='" + param.Max + "' value='" + param.Value + "'></td></tr>";
+  }
+  document.getElementById("params").innerHTML = buf;
 }
 
 function windowPress(e, w)
