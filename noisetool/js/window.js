@@ -6,7 +6,7 @@ var line = null;
 
 var factory;
 var gradients;
-var windows = [];
+var windows = {};
 
 document.getElementById("mySVG").onclick = function (e)
 {
@@ -74,7 +74,8 @@ function newWindow(type)
   w.innerHTML = buf;
   w.addEventListener('mousedown', function (e) { windowPress(e, w); }, false);
   document.getElementById("app").appendChild(w);
-  windows.push(w);
+  w.windowid = i;
+  windows[i] = w;
 
   var cv = document.createElement("canvas");
   cv.style.position = "absolute";
@@ -114,6 +115,14 @@ function newWindow(type)
   c.addEventListener('mousedown', function (e) { windowClose(e, w); }, false);
   w.appendChild(c);
   w.ntClose = c;
+
+  var d = document.createElement("div");
+  d.setAttribute("class", "drawing");
+  d.style.width = "80px";
+  d.style.height = "75px";
+  d.style.display = 'none';
+  w.appendChild(d);
+  w.ntDrawing = d;
 
   i += 1;
 }
@@ -164,42 +173,39 @@ function draw(w)
 {
   if (!w.ntModule) return;
 
-  var newW = w.clientWidth - 20;
-  var newH = w.clientHeight - 25;
+  w.ntDrawing.style.display = 'block';
 
-  w.ntCanvas.width = newW;
-  w.ntCanvas.height = newH;
+  w.ntCanvas.width = w.clientWidth - 20;
+  w.ntCanvas.height = w.clientHeight - 25;
 
-  var map = w.ntContext.createImageData(newW, newH);
-  var startx = parseFloat(document.getElementById("xbound").value);
-  var starty = parseFloat(document.getElementById("ybound").value);
-  var sizex = parseFloat(document.getElementById("wbound").value);
-  var sizey = parseFloat(document.getElementById("hbound").value);
-  var stepx = sizex / newW;
-  var stepy = sizey / newH;
-  var x = 0;  // these loops are done like this because more optimised stopped working
-  var y = 0;
-  var j = 0;
-  var min = w.ntModule.getValue(startx, starty);
-  var max = min;
-  for (var yy = 0; yy < newH; yy++, y += stepy)
-  {
-    x = 0;
-    for (var xx = 0.0; xx < newW; xx++, x += stepx)
-    {
-      var val = w.ntModule.getValue(startx + x, starty + y);
-      if (val < min) min = val;
-      if (val > max) max = val;
-      var c = gradients.current.getColor(val);
-      map.data[j++] = c.R * 255;
-      map.data[j++] = c.G * 255;
-      map.data[j++] = c.B * 255;
-      map.data[j++] = 255;
-    }
-  }
-  w.ntMin = min;
-  w.ntMax = max;
-  w.ntContext.putImageData(map, 0, 0);
+  var params = {
+    id: w.windowid,
+    newW: w.clientWidth - 20,
+    newH: w.clientHeight - 25,
+    startx: parseFloat(document.getElementById("xbound").value),
+    starty: parseFloat(document.getElementById("ybound").value),
+    sizex: parseFloat(document.getElementById("wbound").value),
+    sizey: parseFloat(document.getElementById("hbound").value),
+    gradient: gradients.current,
+    imagedata: w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
+  };
+
+  var workerR = new Worker("js/drawthread.js");
+  workerR.onmessage = fromDrawThread;
+  workerR.postMessage(params);
+}
+
+function fromDrawThread(e)
+{
+  var w = windows[e.data.id];
+  if (!w) return;
+
+  w.ntContext.putImageData(e.data.imagedata,0,0);
+  w.ntMin = e.data.min;
+  w.ntMax = e.data.max;
+
+  w.ntDrawing.style.display = 'none';
+
   windowSelect(w);
 }
 
@@ -232,8 +238,8 @@ function windowClose(e, w)
   }
 
   document.getElementById("app").removeChild(w);
-  for (var i in windows)
-    if (windows[i] == w) { delete windows[i]; break; }
+  delete windows[w.windowid];
+//  for (var i in windows)    if (windows[i] == w) { delete windows[i]; break; }
 
   document.getElementById("params").innerHTML = "";
 }

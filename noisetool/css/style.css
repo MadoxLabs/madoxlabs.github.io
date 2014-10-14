@@ -68,6 +68,12 @@ input, button {
   color: #aaaaaa;
 }
 
+.drawing {
+  background-image: url(../drawing.png);
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .noisewindow {
   background-color: #aaaaaa;
   border:  4px solid black;
