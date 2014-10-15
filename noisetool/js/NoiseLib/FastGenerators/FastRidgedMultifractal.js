@@ -2,7 +2,7 @@
 {
   extend(this, new LibNoise.FastMath(seed));
   this.Frequency  = 1.0;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.MaxOctaves = 30;
   this.SpectralWeights = [];
 
@@ -36,7 +36,7 @@ LibNoise.FastRidgedMultifractal.prototype.GetValue = function (x, y, z)
   {
 
     var seed = (this.Seed + currentOctave) & 0x7fffffff;
-    signal = this.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = this.GradientCoherentNoise(x, y, z, seed, this.Quality);
 
     // Make the ridges.
     signal = Math.abs(signal);

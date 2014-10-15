@@ -74,6 +74,12 @@ input, button {
   margin-right: auto;
 }
 
+.notdrawing {
+  background-image: url(../nopic.png);
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .noisewindow {
   background-color: #aaaaaa;
   border:  4px solid black;

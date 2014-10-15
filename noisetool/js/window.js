@@ -46,8 +46,8 @@ document.onmousemove = function (e)
 var i = 1;
 var z = 20;
 var types = [];
-types[1] = ["Billow", "FastBillow", "Checkerboard", "Constant", "Cylinders", "Gradient", "Perlin", "FastPerlin", "Ridged Multifractal", "Fast Ridged Multifractal", "Spheres", "Voronoi"];
-types[2] = ["Turbulence", "FastTurbulence", "Displace", "Invert Input", "Rotate", "Scale", "Translate"];
+types[1] = ["Billow", "Checkerboard", "Constant", "Cylinders", "Gradient", "Perlin", "Ridged Multifractal", "Spheres", "Voronoi"];
+types[2] = ["Turbulence", "Displace", "Invert Input", "Rotate", "Scale", "Translate"];
 types[3] = ["Absolute", "Clamp", "Curve", "Exponent", "Invert", "ScaleBias", "Terrace", "Cache"];
 types[4] = ["Add", "Max", "Min", "Multiply", "Power", "Blend", "Select"];
 var points = [0.5, 0.2, 0.8, 0.65];
@@ -73,6 +73,7 @@ function newWindow(type)
   buf += "</ul></li>";
   w.innerHTML = buf;
   w.addEventListener('mousedown', function (e) { windowPress(e, w); }, false);
+  w.oncontextmenu=new Function ("return false")
   document.getElementById("app").appendChild(w);
   w.windowid = i;
   windows[i] = w;
@@ -82,7 +83,7 @@ function newWindow(type)
   cv.style.top = "25px";
   cv.style.left = "10px";
   cv.width = w.clientWidth - 20;
-  cv.height = (w.clientHeight-25);
+  cv.height = (w.clientHeight-35);
   w.appendChild(cv);
   w.ntCanvas = cv;
   w.ntContext = cv.getContext('2d');
@@ -123,6 +124,15 @@ function newWindow(type)
   d.style.display = 'none';
   w.appendChild(d);
   w.ntDrawing = d;
+
+  var nd = document.createElement("div");
+  nd.setAttribute("class", "notdrawing");
+  nd.style.width = "80px";
+  nd.style.height = "75px";
+  nd.style.display = 'none';
+  w.appendChild(nd);
+  w.ntNotDrawing = nd;
+  w.ntSkipDraw = false;
 
   i += 1;
 }
@@ -172,21 +182,24 @@ function redraw()
 function draw(w)
 {
   if (!w.ntModule) return;
+  if (w.ntSkipDraw) return;
 
   w.ntDrawing.style.display = 'block';
 
   w.ntCanvas.width = w.clientWidth - 20;
-  w.ntCanvas.height = w.clientHeight - 25;
+  w.ntCanvas.height = w.clientHeight - 35;
 
   var params = {
     id: w.windowid,
     newW: w.clientWidth - 20,
-    newH: w.clientHeight - 25,
+    newH: w.clientHeight - 35,
     startx: parseFloat(document.getElementById("xbound").value),
     starty: parseFloat(document.getElementById("ybound").value),
     sizex: parseFloat(document.getElementById("wbound").value),
     sizey: parseFloat(document.getElementById("hbound").value),
     gradient: gradients.current,
+    module: w.ntModule.module,
+    modulename: w.ntModule.name,
     imagedata: w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
 
@@ -260,8 +273,12 @@ function windowStartSize(e,w)
 
 function windowSelect(w)
 {
-  if (selected) selected.style.border = "4px solid black";
-  selected = w;
+  if (selected !== w)
+  {
+    if (selected) selected.style.border = "4px solid black";
+    selected = w;
+    selected.style.border = "4px solid yellow";
+  }
   if (w.ntMin)
   {
     var buf = "Output Range: " + (Math.round(w.ntMin * 100) / 100) + " to " + (Math.round(w.ntMax * 100) / 100);
@@ -275,21 +292,73 @@ function windowSelect(w)
   {
     var param = w.ntModule.parameters[p];
     // create names and sliders
-    buf += "<tr><td>"+param.Name + "</td><td>" + param.Value + "</td><td><input style=\"width: 100px\" width=120 type='range' step='"+param.Incr+"' min='" + param.Min + "' max='" + param.Max + "' value='" + param.Value + "'></td></tr>";
+    var val = w.ntModule.module[param.Name];
+    buf += "<tr>\
+              <td>" + param.Name + "</td>\
+              <td id='" + param.Name + "' onclick=\"paramSwap(this.id);\">" + val + "</td>\
+              <td>\
+                <input id='" + param.Name + "range' oninput='paramChange(\"" + param.Name + "\", this.value);' style=\"width: 100px\" width=120 type='range' step='" + param.Incr + "' min='" + param.Min + "' max='" + param.Max + "' value='" + val + "'>\
+                <input id='" + param.Name + "text' style='display: none' onchange='paramChange(\"" + param.Name + "\", this.value);' style=\"width: 80px\" width=80 value='" + val + "'>\
+              </td></tr>";
   }
   document.getElementById("params").innerHTML = buf;
+}
+
+function paramSwap(id)
+{
+  var view = document.getElementById(id);
+  var text = document.getElementById(id + "text");
+  var range = document.getElementById(id + "range");
+  // set value of none one to value of block one
+
+  // toggle display for text and range
+  if (text.style.display == 'none')
+  {
+    text.style.display = 'block';
+    range.style.display = 'none';
+    text.value = range.value;
+  }
+  else
+  {
+    range.value = text.value;
+    text.style.display = 'none';
+    range.style.display = 'block';
+  }
+}
+
+function paramChange(name, value)
+{
+  var p = document.getElementById(name);
+  if (!p) return;
+  p.innerText = value;
+
+  // set value on the selected window's module
+  if (!selected) return;
+  selected.ntModule.module[name] = parseFloat(value);
 }
 
 function windowPress(e, w)
 {
   cancelLine();
-  moving = w;
   windowSelect(w);
-  w.style.zIndex = z++;
-  w.style.border = "4px solid green";
+  
   e = e || window.event;
-  lastx = e.pageX;
-  lasty = e.pageY;
+  var rightclick = e.which ? (e.which == 3) : (e.button == 2);
+  if (rightclick) {
+    e.preventDefault();
+    w.ntSkipDraw = !w.ntSkipDraw;
+    w.ntNotDrawing.style.display = w.ntSkipDraw ? 'block' : 'none';
+    w.ntCanvas.style.display = w.ntSkipDraw ? 'none' : 'block';
+    if (!w.ntSkipDraw) draw(w);
+  }
+  else
+  {
+    w.style.zIndex = z++;
+    w.style.border = "4px solid green";
+    moving = w;
+    lastx = e.pageX;
+    lasty = e.pageY;
+  }
 }
 
 document.onmouseup = function(e)

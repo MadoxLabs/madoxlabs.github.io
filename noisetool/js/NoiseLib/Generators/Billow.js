@@ -3,7 +3,7 @@
   this.Seed = 0;
   this.Frequency  = 1.0;
   this.Persistence = 0.5;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
 
@@ -27,7 +27,7 @@ LibNoise.Billow.prototype.GetValue = function( x,  y,  z)
   {
 
     seed = (this.Seed + currentOctave) & 0xffffffff;
-    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.Quality);
     signal = 2.0 * Math.abs(signal) - 1.0;
     value += signal * curPersistence;
 

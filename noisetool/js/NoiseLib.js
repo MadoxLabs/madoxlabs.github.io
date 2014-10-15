@@ -644,7 +644,7 @@ LibNoise.FastBillow = function(seed)
   extend(this, new LibNoise.FastMath(seed));
   this.Frequency  = 1.0;
   this.Persistence = 0.5;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
 
@@ -668,7 +668,7 @@ LibNoise.FastBillow.prototype.GetValue = function( x,  y,  z)
     {
 
       seed = (this.Seed + currentOctave) & 0xffffffff;
-      signal = this.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+      signal = this.GradientCoherentNoise(x, y, z, seed, this.Quality);
       signal = 2.0 * Math.abs(signal) - 1.0;
       value += signal * curPersistence;
 
@@ -763,7 +763,7 @@ LibNoise.FastPerlin = function(seed)
   extend(this, new LibNoise.FastMath(seed));
   this.Frequency  = 1.0;
   this.Persistence = 0.5;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
 
@@ -786,7 +786,7 @@ LibNoise.FastPerlin.prototype.GetValue = function( x,  y,  z)
   for (var currentOctave = 0; currentOctave < this.Octaves; currentOctave++)
   {
     seed = (this.Seed + currentOctave) & 0xffffffff;
-    signal = this.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = this.GradientCoherentNoise(x, y, z, seed, this.Quality);
     value += signal * curPersistence;
 
     x *= this.Lacunarity;
@@ -802,7 +802,7 @@ LibNoise.FastRidgedMultifractal = function(seed)
 {
   extend(this, new LibNoise.FastMath(seed));
   this.Frequency  = 1.0;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.MaxOctaves = 30;
   this.SpectralWeights = [];
 
@@ -836,7 +836,7 @@ LibNoise.FastRidgedMultifractal.prototype.GetValue = function (x, y, z)
   {
 
     var seed = (this.Seed + currentOctave) & 0x7fffffff;
-    signal = this.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = this.GradientCoherentNoise(x, y, z, seed, this.Quality);
 
     // Make the ridges.
     signal = Math.abs(signal);
@@ -928,7 +928,7 @@ LibNoise.Billow = function()
   this.Seed = 0;
   this.Frequency  = 1.0;
   this.Persistence = 0.5;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
 
@@ -952,7 +952,7 @@ LibNoise.Billow.prototype.GetValue = function( x,  y,  z)
   {
 
     seed = (this.Seed + currentOctave) & 0xffffffff;
-    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.Quality);
     signal = 2.0 * Math.abs(signal) - 1.0;
     value += signal * curPersistence;
 
@@ -1033,7 +1033,7 @@ LibNoise.Perlin = function(seed)
 {
   this.Frequency  = 1.0;
   this.Persistence = 0.5;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
   this.Seed = 0;
@@ -1057,7 +1057,7 @@ LibNoise.Perlin.prototype.GetValue = function( x,  y,  z)
   for (var currentOctave = 0; currentOctave < this.Octaves; currentOctave++)
   {
     seed = (this.Seed + currentOctave) & 0xffffffff;
-    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.Quality);
     value += signal * curPersistence;
 
     x *= this.Lacunarity;
@@ -1071,7 +1071,7 @@ LibNoise.Perlin.prototype.GetValue = function( x,  y,  z)
 LibNoise.RidgedMultifractal = function(seed)
 {
   this.Frequency  = 1.0;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.MaxOctaves = 30;
   this.SpectralWeights = [];
   this.Seed = 0;
@@ -1106,7 +1106,7 @@ LibNoise.RidgedMultifractal.prototype.GetValue = function (x, y, z)
   {
 
     var seed = (this.Seed + currentOctave) & 0x7fffffff;
-    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.Quality);
 
     // Make the ridges.
     signal = Math.abs(signal);

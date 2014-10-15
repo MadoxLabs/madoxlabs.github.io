@@ -1,7 +1,7 @@
 ﻿LibNoise.RidgedMultifractal = function(seed)
 {
   this.Frequency  = 1.0;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.MaxOctaves = 30;
   this.SpectralWeights = [];
   this.Seed = 0;
@@ -36,7 +36,7 @@ LibNoise.RidgedMultifractal.prototype.GetValue = function (x, y, z)
   {
 
     var seed = (this.Seed + currentOctave) & 0x7fffffff;
-    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = LibNoise.NMath.GradientCoherentNoise(x, y, z, seed, this.Quality);
 
     // Make the ridges.
     signal = Math.abs(signal);

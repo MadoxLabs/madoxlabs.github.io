@@ -3,7 +3,7 @@
   extend(this, new LibNoise.FastMath(seed));
   this.Frequency  = 1.0;
   this.Persistence = 0.5;
-  this.NoiseQuality = LibNoise.NoiseQuality.Standard;
+  this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
 
@@ -26,7 +26,7 @@ LibNoise.FastPerlin.prototype.GetValue = function( x,  y,  z)
   for (var currentOctave = 0; currentOctave < this.Octaves; currentOctave++)
   {
     seed = (this.Seed + currentOctave) & 0xffffffff;
-    signal = this.GradientCoherentNoise(x, y, z, seed, this.NoiseQuality);
+    signal = this.GradientCoherentNoise(x, y, z, seed, this.Quality);
     value += signal * curPersistence;
 
     x *= this.Lacunarity;
