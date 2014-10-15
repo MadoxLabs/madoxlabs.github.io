@@ -5,10 +5,10 @@ LibNoise.NMath.Sqrt3 = 1.7320508075688772935;
 LibNoise.NMath.DEG_TO_RAD = LibNoise.NMath.PI / 180.0;
 LibNoise.NMath.RAD_TO_DEG = 1.0 / LibNoise.NMath.DEG_TO_RAD;
 
-LibNoise.NMath.XNoiseGen = 1619;
-LibNoise.NMath.YNoiseGen = 31337;
-LibNoise.NMath.ZNoiseGen = 6971;
-LibNoise.NMath.SeedNoiseGen = 1013;
+LibNoise.NMath.XNoiseGen = 1619.0;
+LibNoise.NMath.YNoiseGen = 31337.0;
+LibNoise.NMath.ZNoiseGen = 6971.0;
+LibNoise.NMath.SeedNoiseGen = 1013.0;
 LibNoise.NMath.ShiftNoiseGen = 8;
 
 LibNoise.NMath.RandomVectors = 
@@ -393,7 +393,7 @@ LibNoise.NMath.GradientNoise = function(fx, fy, fz, ix, iy, iz, seed)
                       + LibNoise.NMath.YNoiseGen * iy
                       + LibNoise.NMath.ZNoiseGen * iz
                       + LibNoise.NMath.SeedNoiseGen * seed)
-                      & 0xffffffff;
+  & 0xffffffff;
   vectorIndex ^= (vectorIndex >> LibNoise.NMath.ShiftNoiseGen);
   vectorIndex &= 0xff;
 
