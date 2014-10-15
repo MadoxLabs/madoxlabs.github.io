@@ -10,9 +10,9 @@
 
 LibNoise.FastMath.prototype.GradientCoherentNoise = function( x,  y,  z,  seed,  noiseQuality)
 {
-    var x0 = Math.floor(x > 0.0 ? x : x - 1);
-    var y0 = Math.floor(y > 0.0 ? y : y - 1);
-    var z0 = Math.floor(z > 0.0 ? z : z - 1);
+    var x0 = (x > 0.0 ? x : x - 1)|0;
+    var y0 = (y > 0.0 ? y : y - 1)|0;
+    var z0 = (z > 0.0 ? z : z - 1)|0;
     
     var X = x0 & 255;
     var Y = y0 & 255;
