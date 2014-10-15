@@ -488,7 +488,7 @@ LibNoise.NMath.ValueCoherentNoise = function( x,  y,  z,  seed,  noiseQuality)
 LibNoise.NMath.ValueNoise = function(x,  y,  z, seed)
 {
   if (seed === undefined) seed = 0;
-  return 1.0 - IntValueNoise(x, y, z, seed) / 1073741824.0;
+  return 1.0 - LibNoise.NMath.IntValueNoise(x, y, z, seed) / 1073741824.0;
 }
 
 // this is someone else's random number code, converted into an object, from globals
@@ -997,7 +997,7 @@ LibNoise.Cylinders = function()
   this.Frequency = 1.0;
 }
 
-LibNoise.Cylinders.prototype.GetValue = function (x, y, z)
+LibNoise.Cylinders.prototype.GetValue = function (x, z, y)
 {
   x *= this.Frequency;
   y *= this.Frequency;

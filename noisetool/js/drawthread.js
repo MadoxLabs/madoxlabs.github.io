@@ -15,7 +15,14 @@ function copyctor(obj, base)
 function getModule(name)
 {
   if (name == "LibNoise.Billow") return new LibNoise.Billow();
-  else if (name == "LibNoise.FastBillow") return new LibNoise.FastBillow();
+  else if (name == "LibNoise.Checkerboard") return new LibNoise.Checkerboard();
+  else if (name == "LibNoise.Constant") return new LibNoise.Constant();
+  else if (name == "LibNoise.Cylinders") return new LibNoise.Cylinders();
+  else if (name == "LibNoise.Gradient") return new LibNoise.Gradient();
+  else if (name == "LibNoise.Perlin") return new LibNoise.Perlin();
+  else if (name == "LibNoise.RidgedMultifractal") return new LibNoise.RidgedMultifractal();
+  else if (name == "LibNoise.Spheres") return new LibNoise.Spheres();
+  else if (name == "LibNoise.Voronoi") return new LibNoise.Voronoi();
 }
 
 onmessage = function (e)

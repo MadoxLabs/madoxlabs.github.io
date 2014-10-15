@@ -146,6 +146,8 @@ function setWindowType(name, type)
   if (!w.ntModule) return;
 
   // input - up to 4
+  // TODO - only add ones that are missing, leave the others alone
+  // TODO - remove ones that are too many - make sure lines break
   w.ntIn = [];
   for (var p = 0; p < w.ntModule.points; ++p)
   {
@@ -162,14 +164,17 @@ function setWindowType(name, type)
   }
 
   // output
-  var output = document.createElement("div");
-  output.setAttribute("class", "glyphicon glyphicon-record lightup");
-  output.style.position = "absolute";
-  output.style.top = (w.offsetHeight*0.5) + "px";
-  output.style.right = "0px";
-  output.addEventListener('mousedown', function (e) { windowStartLine(e, w); }, false);
-  w.appendChild(output);
-  w.ntOut = output;
+  if (!w.ntOut)
+  {
+    var output = document.createElement("div");
+    output.setAttribute("class", "glyphicon glyphicon-record lightup");
+    output.style.position = "absolute";
+    output.style.top = (w.offsetHeight * 0.5) + "px";
+    output.style.right = "0px";
+    output.addEventListener('mousedown', function (e) { windowStartLine(e, w); }, false);
+    w.appendChild(output);
+    w.ntOut = output;
+  }
 
   draw(w);
 }
@@ -203,9 +208,12 @@ function draw(w)
     imagedata: w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
 
-  var workerR = new Worker("js/drawthread.js");
-  workerR.onmessage = fromDrawThread;
-  workerR.postMessage(params);
+  if (!w.ntWorker)
+  {
+    w.ntWorker = new Worker("js/drawthread.js");
+    w.ntWorker.onmessage = fromDrawThread;
+  }
+  w.ntWorker.postMessage(params);
 }
 
 function fromDrawThread(e)
