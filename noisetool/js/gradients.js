@@ -4,7 +4,7 @@ function ntGradient()
   this.Points = [];
 }
 
-ntGradient.prototype.getColor = function(p)
+ntGradient.prototype.getColor = function(p, c)
 {
   var a = null;
   var b = null;
@@ -33,11 +33,11 @@ ntGradient.prototype.getColor = function(p)
 
   // lerp that shit
   var ratio = (p - a.Point) / (b.Point - a.Point);
-  var c = {R: 0, G: 0, B: 0 };
+//  var c = {R: 0, G: 0, B: 0 };
   c.R = (a.color.R * (1 - ratio) + b.color.R * ratio);
   c.G = (a.color.G * (1 - ratio) + b.color.G * ratio);
   c.B = (a.color.B * (1 - ratio) + b.color.B * ratio);
-  return c;
+//  return c;
 }
 
 function toHex(n)

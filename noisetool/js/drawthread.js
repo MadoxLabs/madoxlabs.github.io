@@ -40,6 +40,7 @@ onmessage = function (e)
   var j = 0;
   var min = module.GetValue(e.data.startx, e.data.starty, 0);
   var max = min;
+  var c = { R: 0, G: 0, B: 0 };
   for (var yy = 0; yy < e.data.newH; yy++, y += stepy)
   {
     x = 0;
@@ -48,7 +49,7 @@ onmessage = function (e)
       var val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
       if (val < min) min = val;
       if (val > max) max = val;
-      var c = e.data.gradient.getColor(val);
+      e.data.gradient.getColor(val, c);
       imagedata.data[j++] = c.R * 255;
       imagedata.data[j++] = c.G * 255;
       imagedata.data[j++] = c.B * 255;
