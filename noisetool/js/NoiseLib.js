@@ -331,11 +331,11 @@ LibNoise.NMath.GradientCoherentNoise = function( x,  y,  z,  seed,  noiseQuality
 {
   // Create a unit-length cube aligned along an integer boundary.  This cube
   // surrounds the input point.
-  var x0 = (x > 0.0 ? x : x - 1) | 0;
+  var x0 = (x > 0.0 ? x : x - 1)|0;
   var x1 = x0 + 1;
   var y0 = (y > 0.0 ? y : y - 1) | 0;
   var y1 = y0 + 1;
-  var z0 = (z > 0.0 ? z : z - 1)|0;
+  var z0 = (z > 0.0 ? z : z - 1) | 0;
   var z1 = z0 + 1;
   
   // Map the difference between the coordinates of the input value and the
@@ -434,9 +434,9 @@ LibNoise.NMath.ValueCoherentNoise = function( x,  y,  z,  seed,  noiseQuality)
   // surrounds the input point.
   var x0 = (x > 0.0 ? x : x - 1)|0;
   var x1 = x0 + 1;
-  var y0 = (y > 0.0 ? y : y - 1) | 0;
+  var y0 = (y > 0.0 ? y : y - 1)|0;
   var y1 = y0 + 1;
-  var z0 = (z > 0.0 ? z : z - 1) | 0;
+  var z0 = (z > 0.0 ? z : z - 1)|0;
   var z1 = z0 + 1;
 
   // Map the difference between the coordinates of the input value and the
@@ -997,7 +997,7 @@ LibNoise.Cylinders = function()
   this.Frequency = 1.0;
 }
 
-LibNoise.Cylinders.prototype.GetValue = function (x, z, y)
+LibNoise.Cylinders.prototype.GetValue = function (x, y, z)
 {
   x *= this.Frequency;
   y *= this.Frequency;
@@ -1014,8 +1014,8 @@ LibNoise.Cylinders.prototype.GetValue = function (x, z, y)
 LibNoise.Gradient = function(a)
 {
   this.Axis = a;
-  this.LowerBound = 0;
-  this.UpperBound = 0.99999999;
+  this.Lower = 0;
+  this.Upper = 0.99;
 }
 
 LibNoise.Gradient.prototype.GetValue = function (x, y, z)
@@ -1024,8 +1024,8 @@ LibNoise.Gradient.prototype.GetValue = function (x, y, z)
   if (this.Axis == LibNoise.Axis.Y) val = y;
   else if (this.Axis == LibNoise.Axis.Z) val = z;
 
-  if (val < this.LowerBound) val = this.LowerBound;
-  if (val > this.UpperBound) val = this.UpperBound;
+  if (val < this.Lower) val = this.Lower;
+  if (val > this.Upper) val = this.Upper;
   return (val - Math.floor(val)) * 2.0 - 1.0;
 }
 
@@ -1172,7 +1172,7 @@ LibNoise.Voronoi = function()
 {
   this.Frequency  = 1.0;
   this.Displacement = 1.0;
-  this.DistanceEnabled = false;
+  this.Distance = 0;
   this.Seed = 0;
 }
 
@@ -1224,7 +1224,7 @@ LibNoise.Voronoi.prototype.GetValue = function( x,  y,  z)
   }
 
   var value;
-  if (this.DistanceEnabled)
+  if (this.Distance)
   {
     // Determine the distance to the nearest seed point.
     var xDist = xCandidate - x;

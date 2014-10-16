@@ -1,3 +1,4 @@
+LibNoise = {};
 LibNoise.NMath = {};
 LibNoise.NMath.PI = 3.1415926535897932385;
 LibNoise.NMath.Sqrt2 = 1.4142135623730950488;
@@ -487,5 +488,5 @@ LibNoise.NMath.ValueCoherentNoise = function( x,  y,  z,  seed,  noiseQuality)
 LibNoise.NMath.ValueNoise = function(x,  y,  z, seed)
 {
   if (seed === undefined) seed = 0;
-  return 1.0 - IntValueNoise(x, y, z, seed) / 1073741824.0;
+  return 1.0 - LibNoise.NMath.IntValueNoise(x, y, z, seed) / 1073741824.0;
 }

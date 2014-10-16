@@ -2,7 +2,7 @@
 {
   this.Frequency  = 1.0;
   this.Displacement = 1.0;
-  this.DistanceEnabled = false;
+  this.Distance = 0;
   this.Seed = 0;
 }
 
@@ -54,7 +54,7 @@ LibNoise.Voronoi.prototype.GetValue = function( x,  y,  z)
   }
 
   var value;
-  if (this.DistanceEnabled)
+  if (this.Distance)
   {
     // Determine the distance to the nearest seed point.
     var xDist = xCandidate - x;

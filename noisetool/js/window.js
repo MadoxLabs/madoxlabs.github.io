@@ -142,14 +142,15 @@ function setWindowType(name, type)
   var w = document.getElementById(name);
   document.getElementById(w.id + "name").innerText = type;
 
+  var exists = 0;
+  if (w.ntModule) exists = w.ntModule.points;
+
   w.ntModule = factory.getModule(type);
   if (!w.ntModule) return;
 
   // input - up to 4
-  // TODO - only add ones that are missing, leave the others alone
-  // TODO - remove ones that are too many - make sure lines break
   w.ntIn = [];
-  for (var p = 0; p < w.ntModule.points; ++p)
+  for (var p = exists; p < w.ntModule.points; ++p)
   {
     var input = document.createElement("div");
     input.setAttribute("class", "glyphicon glyphicon-record lightup dropt");
@@ -161,6 +162,12 @@ function setWindowType(name, type)
     w.appendChild(input);
     input.addEventListener('mousedown', function (e) { windowStopLine(e, w); }, false);
     w.ntIn.push(input);
+  }
+
+  for (var p = exists-1; p >= w.ntModule.points; --p)
+  {
+    w.removeChild(w.ntIn[p]);
+    delete w.ntIn[p];
   }
 
   // output

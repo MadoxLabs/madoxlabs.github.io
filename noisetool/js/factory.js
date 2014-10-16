@@ -32,7 +32,7 @@ function ntConstant()
 {
   this.points = 0;
   this.pointNames = [];
-  this.module = new LibNoise.Constant();
+  this.module = new LibNoise.Constant(0.5);
   this.name = "LibNoise.Constant";
 
   this.parameters = [];
@@ -54,7 +54,7 @@ function ntNoiseGradient()
 {
   this.points = 0;
   this.pointNames = [];
-  this.module = new LibNoise.Gradient();
+  this.module = new LibNoise.Gradient(1);
   this.name = "LibNoise.Gradient";
 
   this.parameters = [];

@@ -200,11 +200,13 @@ ntGradients.prototype.drawSample = function()
   var val = this.showing.Points[0].Point;
   var vstep = (this.showing.Points[this.showing.Points.length - 1].Point - val) / 200.0;
 
+  var c = {};
+
   for (var x = 0; x < 200; x++)
   {
     for (var y = 0; y < 20; y++)
     {
-      var c = this.showing.getColor(val);
+      this.showing.getColor(val,c);
       this.map.data[j++] = c.R * 255;
       this.map.data[j++] = c.G * 255;
       this.map.data[j++] = c.B * 255;
