@@ -28,8 +28,20 @@ ntGradient.prototype.getColor = function(p, c)
   }
   // off the deep end?
   if (a == null && b == null) return {R: 0, G: 0, B: 0 };
-  if (a == null) return b.color;
-  if (b == null) return a.color;
+  if (a == null)
+  {
+    c.R = b.color.R;
+    c.G = b.color.G;
+    c.B = b.color.B;
+    return;
+  }
+  if (b == null)
+  {
+    c.R = a.color.R;
+    c.G = a.color.G;
+    c.B = a.color.B;
+    return;
+  }
 
   // lerp that shit
   var ratio = (p - a.Point) / (b.Point - a.Point);

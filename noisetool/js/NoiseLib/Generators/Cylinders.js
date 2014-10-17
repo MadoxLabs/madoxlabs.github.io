@@ -3,7 +3,7 @@
   this.Frequency = 1.0;
 }
 
-LibNoise.Cylinders.prototype.GetValue = function (x, y, z)
+LibNoise.Cylinders.prototype.GetValue = function (x, z,y)
 {
   x *= this.Frequency;
   y *= this.Frequency;

@@ -6,10 +6,10 @@ LibNoise.NMath.Sqrt3 = 1.7320508075688772935;
 LibNoise.NMath.DEG_TO_RAD = LibNoise.NMath.PI / 180.0;
 LibNoise.NMath.RAD_TO_DEG = 1.0 / LibNoise.NMath.DEG_TO_RAD;
 
-LibNoise.NMath.XNoiseGen = 1619.0;
-LibNoise.NMath.YNoiseGen = 31337.0;
-LibNoise.NMath.ZNoiseGen = 6971.0;
-LibNoise.NMath.SeedNoiseGen = 1013.0;
+LibNoise.NMath.XNoiseGen = 1619;
+LibNoise.NMath.YNoiseGen = 31337;
+LibNoise.NMath.ZNoiseGen = 6971;
+LibNoise.NMath.SeedNoiseGen = 1013;
 LibNoise.NMath.ShiftNoiseGen = 8;
 
 LibNoise.NMath.RandomVectors = 
@@ -331,11 +331,11 @@ LibNoise.NMath.GradientCoherentNoise = function( x,  y,  z,  seed,  noiseQuality
 {
   // Create a unit-length cube aligned along an integer boundary.  This cube
   // surrounds the input point.
-  var x0 = (x > 0.0 ? x : x - 1)|0;
-  var x1 = x0 + 1;
+  var x0 = (x > 0.0 ? x : x - 1) | 0;
   var y0 = (y > 0.0 ? y : y - 1) | 0;
-  var y1 = y0 + 1;
   var z0 = (z > 0.0 ? z : z - 1) | 0;
+  var x1 = x0 + 1;
+  var y1 = y0 + 1;
   var z1 = z0 + 1;
   
   // Map the difference between the coordinates of the input value and the
@@ -997,7 +997,7 @@ LibNoise.Cylinders = function()
   this.Frequency = 1.0;
 }
 
-LibNoise.Cylinders.prototype.GetValue = function (x, y, z)
+LibNoise.Cylinders.prototype.GetValue = function (x, z,y)
 {
   x *= this.Frequency;
   y *= this.Frequency;
