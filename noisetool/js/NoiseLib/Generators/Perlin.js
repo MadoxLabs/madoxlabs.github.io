@@ -6,11 +6,15 @@
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
   this.Seed = 0;
+  this.Name = "LibNoise.Perlin";
 
   var Octaves = 6;
   this.__defineGetter__("Octaves", function () { return Octaves; });
   this.__defineSetter__("Octaves", function (value) { Octaves = LibNoise.NMath.ClampValue(value, 1, this.MaxOctaves); });
 }
+
+LibNoise.Perlin.prototype.getInput = getNone;
+LibNoise.Perlin.prototype.setInput = setNone;
 
 LibNoise.Perlin.prototype.GetValue = function( x,  y,  z)
 {

@@ -1,6 +1,10 @@
 ﻿LibNoise.Checkerboard = function()
 {
+  this.Name = "LibNoise.Checkerboard";
 }
+
+LibNoise.Checkerboard.prototype.getInput = getNone;
+LibNoise.Checkerboard.prototype.setInput = setNone;
 
 LibNoise.Checkerboard.prototype.GetValue = function(x,y,z)
 {

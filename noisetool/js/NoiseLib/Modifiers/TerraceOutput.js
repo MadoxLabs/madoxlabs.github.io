@@ -1,12 +1,17 @@
 ﻿LibNoise.TerraceOutput = function(s1)
 {
   this.SourceModule = s1;
-  this.InvertTerraces = false;
+  this.Invert = 0;
   this.ControlPoints = [];
+  this.Name = "LibNoise.TerraceOutput";
 }
+
+LibNoise.TerraceOutput.prototype.getInput = getOne;
+LibNoise.TerraceOutput.prototype.setInput = setOne;
 
 LibNoise.TerraceOutput.prototype.GetValue = function(x, y, z)
 {
+  if (!this.SourceModule) return 0;
   // Get the output value from the source module.
   var sourceModuleValue = this.SourceModule.GetValue(x, y, z);
 
@@ -41,7 +46,7 @@ LibNoise.TerraceOutput.prototype.GetValue = function(x, y, z)
   var value0 = this.ControlPoints[index0];
   var value1 = this.ControlPoints[index1];
   var alpha = (sourceModuleValue - value0) / (value1 - value0);
-  if (this.InvertTerraces)
+  if (this.Invert)
   {
     alpha = 1.0 - alpha;
 

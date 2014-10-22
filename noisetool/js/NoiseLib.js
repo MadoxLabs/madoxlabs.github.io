@@ -639,6 +639,31 @@ mxRand.prototype.tostring = function (a)
 LibNoise.NoiseQuality = { Low: 1, Standard: 2, High: 3 };
 LibNoise.Axis = { X: 1, Y: 2, Z: 3 };
 
+function getNone(i) { return null; }
+function setNone(i, mod) { }
+
+function getOne(i)
+{
+  if (i == 0) return this.SourceModule;
+  return null;
+}
+function setOne(i, mod)
+{
+  if (i == 0) this.SourceModule = mod;
+}
+
+
+function getTwo(i)
+{
+  if (i == 0) return this.SourceModule1;
+  if (i == 1) return this.SourceModule2;
+  return null;
+}
+function setTwo(i, mod)
+{
+  if (i == 0) this.SourceModule1 = mod;
+  if (i == 1) this.SourceModule2 = mod;
+}
 LibNoise.FastBillow = function(seed)
 {
   extend(this, new LibNoise.FastMath(seed));
@@ -931,11 +956,15 @@ LibNoise.Billow = function()
   this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
+  this.Name = "LibNoise.Billow";
 
   var Octaves = 6;
   this.__defineGetter__("Octaves", function () { return Octaves; });
   this.__defineSetter__("Octaves", function (value) { Octaves = LibNoise.NMath.ClampValue(value, 1, this.MaxOctaves); });
 }
+
+LibNoise.Billow.prototype.getInput = getNone;
+LibNoise.Billow.prototype.setInput = setNone;
 
 LibNoise.Billow.prototype.GetValue = function( x,  y,  z)
 {
@@ -967,7 +996,11 @@ LibNoise.Billow.prototype.GetValue = function( x,  y,  z)
 
 LibNoise.Checkerboard = function()
 {
+  this.Name = "LibNoise.Checkerboard";
 }
+
+LibNoise.Checkerboard.prototype.getInput = getNone;
+LibNoise.Checkerboard.prototype.setInput = setNone;
 
 LibNoise.Checkerboard.prototype.GetValue = function(x,y,z)
 {
@@ -985,7 +1018,11 @@ LibNoise.Checkerboard.prototype.GetValue = function(x,y,z)
 LibNoise.Constant = function(value)
 {
   this.Value = value;
+  this.Name = "LibNoise.Constant";
 }
+
+LibNoise.Constant.prototype.getInput = getNone;
+LibNoise.Constant.prototype.setInput = setNone;
 
 LibNoise.Constant.prototype.GetValue = function (x, y, z)
 {
@@ -995,7 +1032,11 @@ LibNoise.Constant.prototype.GetValue = function (x, y, z)
 LibNoise.Cylinders = function()
 {
   this.Frequency = 1.0;
+  this.Name = "LibNoise.Cylinders";
 }
+
+LibNoise.Cylinders.prototype.getInput = getNone;
+LibNoise.Cylinders.prototype.setInput = setNone;
 
 LibNoise.Cylinders.prototype.GetValue = function (x, z,y)
 {
@@ -1016,7 +1057,12 @@ LibNoise.Gradient = function(a)
   this.Axis = a;
   this.Lower = 0;
   this.Upper = 0.99;
+  this.Name = "LibNoise.Gradient";
+
 }
+
+LibNoise.Gradient.prototype.getInput = getNone;
+LibNoise.Gradient.prototype.setInput = setNone;
 
 LibNoise.Gradient.prototype.GetValue = function (x, y, z)
 {
@@ -1037,11 +1083,15 @@ LibNoise.Perlin = function(seed)
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
   this.Seed = 0;
+  this.Name = "LibNoise.Perlin";
 
   var Octaves = 6;
   this.__defineGetter__("Octaves", function () { return Octaves; });
   this.__defineSetter__("Octaves", function (value) { Octaves = LibNoise.NMath.ClampValue(value, 1, this.MaxOctaves); });
 }
+
+LibNoise.Perlin.prototype.getInput = getNone;
+LibNoise.Perlin.prototype.setInput = setNone;
 
 LibNoise.Perlin.prototype.GetValue = function( x,  y,  z)
 {
@@ -1075,6 +1125,7 @@ LibNoise.RidgedMultifractal = function(seed)
   this.MaxOctaves = 30;
   this.SpectralWeights = [];
   this.Seed = 0;
+  this.Name = "LibNoise.RidgedMultifractal";
 
   var Lacunarity = 2.0;
   this.__defineGetter__("Lacunarity", function () { return Lacunarity; });
@@ -1086,6 +1137,9 @@ LibNoise.RidgedMultifractal = function(seed)
 
   this.CalculateSpectralWeights();
 }
+
+LibNoise.RidgedMultifractal.prototype.getInput = getNone;
+LibNoise.RidgedMultifractal.prototype.setInput = setNone;
 
 LibNoise.RidgedMultifractal.prototype.GetValue = function (x, y, z)
 {
@@ -1152,7 +1206,11 @@ LibNoise.RidgedMultifractal.prototype.CalculateSpectralWeights = function()
 LibNoise.Spheres = function()
 {
   this.Frequency = 1.0;
+  this.Name = "LibNoise.Spheres";
 }
+
+LibNoise.Spheres.prototype.getInput = getNone;
+LibNoise.Spheres.prototype.setInput = setNone;
 
 LibNoise.Spheres.prototype.GetValue = function (x, y, z)
 {
@@ -1174,7 +1232,11 @@ LibNoise.Voronoi = function()
   this.Displacement = 1.0;
   this.Distance = 0;
   this.Seed = 0;
+  this.Name = "LibNoise.Voronoi";
 }
+
+LibNoise.Voronoi.prototype.getInput = getNone;
+LibNoise.Voronoi.prototype.setInput = setNone;
 
 LibNoise.Voronoi.prototype.GetValue = function( x,  y,  z)
 {
@@ -1248,16 +1310,21 @@ LibNoise.Voronoi.prototype.GetValue = function( x,  y,  z)
 LibNoise.Cylinder = function(source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.Cylinder";
 }
 
 LibNoise.Cylinder.prototype.GetValue = function (angle, height)
 {
+  if (!this.SourceModule) return 0;
   var x, y, z;
   x = Math.cos(angle);
   y = height;
   z = Math.sin(angle);
   return this.SourceModule.GetValue(x, y, z);
 }
+
+LibNoise.Cylinder.prototype.getInput = getOne;
+LibNoise.Cylinder.prototype.setInput = setOne;
 
 LibNoise.Line = function(source)
 {
@@ -1269,10 +1336,12 @@ LibNoise.Line = function(source)
   this.m_y1 = 1.0;
   this.m_z0 = 0.0;
   this.m_z1 = 1.0;
+  this.Name = "LibNoise.Line";
 }
 
 LibNoise.Line.prototype.GetValue = function (p)
 {
+  if (!this.SourceModule) return 0;
   var x = (this.m_x1 - this.m_x0) * p + this.m_x0;
   var y = (this.m_y1 - this.m_y0) * p + this.m_y0;
   var z = (this.m_z1 - this.m_z0) * p + this.m_z0;
@@ -1296,40 +1365,56 @@ LibNoise.Line.prototype.SetEndPoint = function(x,y,z)
   this.m_z1 = z;
 }
 
+LibNoise.Line.prototype.getInput = getOne;
+LibNoise.Line.prototype.setInput = setOne;
 
 LibNoise.Plane = function(source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.Plane";
 }
 
 LibNoise.Plane.prototype.GetValue = function (x, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x, 0, z);
 }
+
+LibNoise.Plane.prototype.getInput = getOne;
+LibNoise.Plane.prototype.setInput = setOne;
 
 LibNoise.Sphere = function(source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.Sphere";
 }
 
 LibNoise.Sphere.prototype.GetValue = function (latitude, longitude)
 {
-  var x=0, y=0, z=0;
+  if (!this.SourceModule) return 0;
+  var x = 0, y = 0, z = 0;
   var coords = LibNoise.NMath.LatLonToXYZ(latitude, longitude);
   return this.SourceModule.GetValue(coords.x, coords.y, coords.z);
 }
+
+LibNoise.Sphere.prototype.getInput = getOne;
+LibNoise.Sphere.prototype.setInput = setOne;
 
 LibNoise.SmallerOutput = function (s1, s2)
 {
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
+  this.Name = "LibNoise.SmallerOutput";
 }
 
 LibNoise.SmallerOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2) return 0;
   return LibNoise.NMath.GetSmaller(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z));
 }
 
+LibNoise.SmallerOutput.prototype.getInput = getTwo;
+LibNoise.SmallerOutput.prototype.setInput = setTwo;
 
 
 LibNoise.CacheOutput = function (s1)
@@ -1340,10 +1425,12 @@ LibNoise.CacheOutput = function (s1)
   this.cacheZ = 0;
   this.cacheVal = 0;
   this.cached = false;
+  this.Name = "LibNoise.CacheOutput";
 }
 
 LibNoise.CacheOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   if (this.cached && this.cacheX == x && this.cacheY == y && this.cacheZ == z) return this.cacheVal;
 
   this.cacheVal = this.SourceModule.GetValue(x, y, z);
@@ -1353,6 +1440,8 @@ LibNoise.CacheOutput.prototype.GetValue = function (x, y, z)
   this.cached = true;
   return this.cacheVal;}
 
+LibNoise.CacheOutput.prototype.getInput = getOne;
+LibNoise.CacheOutput.prototype.setInput = setOne;
 
 
 
@@ -1360,13 +1449,17 @@ LibNoise.LargerOutput = function (s1, s2)
 {
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
+  this.Name = "LibNoise.LargerOutput";
 }
 
 LibNoise.LargerOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2) return 0;
   return LibNoise.NMath.GetLarger(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z));
 }
 
+LibNoise.LargerOutput.prototype.getInput = getTwo;
+LibNoise.LargerOutput.prototype.setInput = setTwo;
 
 
 
@@ -1377,6 +1470,7 @@ LibNoise.SelectOutput = function (s1, s2, c)
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
   this.ControlModule = c;
+  this.Name = "LibNoise.SelectOutput";
 
   var EdgeFalloff = 0.0;
   this.__defineGetter__("EdgeFalloff", function () { return EdgeFalloff; });
@@ -1392,8 +1486,24 @@ LibNoise.SelectOutput = function (s1, s2, c)
   this.__defineSetter__("UpperBound", function (value) { UpperBound = value; this.EdgeFalloff = EdgeFalloff; });
 }
 
+LibNoise.SelectOutput.prototype.getInput = function (i)
+{
+  if (i == 0) return this.SourceModule1;
+  if (i == 1) return this.SourceModule2;
+  if (i == 2) return this.ControlModule;
+  return null;
+}
+LibNoise.SelectOutput.prototype.setInput = function (i, mod)
+{
+  if (i == 0) this.SourceModule1 = mod;
+  if (i == 1) this.SourceModule2 = mod;
+  if (i == 2) this.ControlModule = mod;
+}
+
+
 LibNoise.SelectOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2 || !this.ControlModule) return 0;
   var controlValue = this.ControlModule.GetValue(x, y, z);
   var alpha;
 
@@ -1460,26 +1570,34 @@ LibNoise.AddOutput = function(s1, s2)
 {
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
+  this.Name = "LibNoise.AddOutput";
 }
 
 LibNoise.AddOutput.prototype.GetValue = function(x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2) return 0;
   return this.SourceModule1.GetValue(x, y, z) + this.SourceModule2.GetValue(x, y, z);
 }
 
+LibNoise.AddOutput.prototype.getInput = getTwo;
+LibNoise.AddOutput.prototype.setInput = setTwo;
 
 
 LibNoise.MultiplyOutput = function(s1, s2)
 {
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
+  this.Name = "LibNoise.MultiplyOutput";
 }
 
 LibNoise.MultiplyOutput.prototype.GetValue = function(x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2) return 0;
   return this.SourceModule1.GetValue(x, y, z) * this.SourceModule2.GetValue(x, y, z);
 }
 
+LibNoise.MultiplyOutput.prototype.getInput = getTwo;
+LibNoise.MultiplyOutput.prototype.setInput = setTwo;
 
 
 
@@ -1487,13 +1605,26 @@ LibNoise.PowerOutput = function (s1, s2)
 {
   this.BaseModule = s1;
   this.PowerModule = s2;
+  this.Name = "LibNoise.PowerOutput";
 }
 
 LibNoise.PowerOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.BaseModule || !this.PowerModule) return 0;
   return Math.pow(this.BaseModule.GetValue(x, y, z), this.PowerModule.GetValue(x, y, z));
 }
 
+LibNoise.PowerOutput.prototype.getInput = function (i)
+{
+  if (i == 0) return this.BaseModule;
+  if (i == 1) return this.PowerModule;
+  return null;
+}
+LibNoise.PowerOutput.prototype.setInput = function (i, mod)
+{
+  if (i == 0) this.BaseModule = mod;
+  if (i == 1) this.PowerModule = mod;
+}
 
 
 
@@ -1503,20 +1634,42 @@ LibNoise.BlendOutput = function (s1, s2, w)
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
   this.WeightModule = w;
+  this.Name = "LibNoise.BlendOutput";
 }
 
 LibNoise.BlendOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2 || !this.WeightModule) return 0;
   return LibNoise.NMath.LinearInterpolate(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z), (this.WeightModule.GetValue(x, y, z) + 1.0) / 2.0);
 }
+
+LibNoise.BlendOutput.prototype.getInput = function (i)
+{
+  if (i == 0) return this.SourceModule1;
+  if (i == 1) return this.SourceModule2;
+  if (i == 2) return this.WeightModule;
+  return null;
+}
+LibNoise.BlendOutput.prototype.setInput = function (i, mod)
+{
+  if (i == 0) this.SourceModule1 = mod;
+  if (i == 1) this.SourceModule2 = mod;
+  if (i == 2) this.WeightModule = mod;
+}
+
 LibNoise.CurveOutput = function(s1)
 {
   this.SourceModule = s1;
   this.ControlPoints = [];
+  this.Name = "LibNoise.CurveOutput";
 }
+
+LibNoise.CurveOutput.prototype.getInput = getOne;
+LibNoise.CurveOutput.prototype.setInput = setOne;
 
 LibNoise.CurveOutput.prototype.GetValue = function(x, y, z)
 {
+  if (!this.SourceModule) return 0;
   // Get the output value from the source module.
   var sourceModuleValue = this.SourceModule.GetValue(x, y, z);
 
@@ -1588,10 +1741,12 @@ LibNoise.DisplaceInput = function(source, xmod, ymod, zmod)
   this.XDisplaceModule = xmod;
   this.YDisplaceModule = ymod;
   this.ZDisplaceModule = zmod;
+  this.Name = "LibNoise.DisplaceInput";
 }
 
 LibNoise.DisplaceInput.prototype.GetValue = function(x,y,z)
 {
+  if (!this.SourceModule || !this.XDisplaceModule || !this.YDisplaceModule || !this.ZDisplaceModule) return 0;
   x += this.XDisplaceModule != null ? this.XDisplaceModule.GetValue(x, y, z) : 0;
   y += this.YDisplaceModule != null ? this.YDisplaceModule.GetValue(x, y, z) : 0;
   z += this.ZDisplaceModule != null ? this.ZDisplaceModule.GetValue(x, y, z) : 0;
@@ -1599,6 +1754,21 @@ LibNoise.DisplaceInput.prototype.GetValue = function(x,y,z)
   return this.SourceModule.GetValue(x, y, z);
 }
 
+LibNoise.DisplaceInput.prototype.getInput = function (i)
+{
+  if (i == 0) return this.SourceModule;
+  if (i == 1) return this.XDisplaceModule;
+  if (i == 2) return this.YDisplaceModule;
+  if (i == 3) return this.ZDisplaceModule;
+  return null;
+}
+LibNoise.DisplaceInput.prototype.setInput = function (i, mod)
+{
+  if (i == 0) this.SourceModule = mod;
+  if (i == 1) this.XDisplaceModule = mod;
+  if (i == 2) this.YDisplaceModule = mod;
+  if (i == 3) this.ZDisplaceModule = mod;
+}
 
 
 
@@ -1608,10 +1778,16 @@ LibNoise.TranslateInput = function (source, x, y, z)
   this.X = x;
   this.Y = y;
   this.Z = z;
+  this.Name = "LibNoise.TranslateInput";
 }
+
+LibNoise.TranslateInput.prototype.getInput = getOne;
+LibNoise.TranslateInput.prototype.setInput = setOne;
+
 
 LibNoise.TranslateInput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x + this.X, y + this.Y, z + this.Z);
 }
 
@@ -1622,10 +1798,15 @@ LibNoise.RotateInput = function (source, xangle, yangle, zangle)
 {
   this.SourceModule = source;
   this.SetAngles(xangle, yangle, zangle);
+  this.Name = "LibNoise.RotateInput";
 }
+
+LibNoise.RotateInput.prototype.getInput = getOne;
+LibNoise.RotateInput.prototype.setInput = setOne;
 
 LibNoise.RotateInput.prototype.SetAngles = function(xAngle, yAngle, zAngle)
 {
+  if (!this.SourceModule) return 0;
   this.XAngle = xAngle;
   this.YAngle = yAngle;
   this.ZAngle = zAngle;
@@ -1665,10 +1846,15 @@ LibNoise.BiasOutput = function (source, b)
 {
   this.SourceModule = source;
   this.Bias = b;
+  this.Name = "LibNoise.BiasOutput";
 }
+
+LibNoise.BiasOutput.prototype.getInput = getOne;
+LibNoise.BiasOutput.prototype.setInput = setOne;
 
 LibNoise.BiasOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x, y, z) + this.Bias;
 }
 
@@ -1679,15 +1865,20 @@ LibNoise.BiasOutput.prototype.GetValue = function (x, y, z)
 LibNoise.ClampOutput = function (source)
 {
   this.SourceModule = source;
-  this.LowerBound = -1;
-  this.UpperBound = 1;
+  this.Lower = -1;
+  this.Upper = 1;
+  this.Name = "LibNoise.ClampOutput";
 }
+
+LibNoise.ClampOutput.prototype.getInput = getOne;
+LibNoise.ClampOutput.prototype.setInput = setOne;
 
 LibNoise.ClampOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var value = this.SourceModule.GetValue(x, y, z);
-  if (value < this.LowerBound) return this.LowerBound;
-  else if (value > this.UpperBound) return this.UpperBound;
+  if (value < this.Lower) return this.Lower;
+  else if (value > this.Upper) return this.Upper;
   else    return value;
 }
 
@@ -1698,10 +1889,15 @@ LibNoise.ClampOutput.prototype.GetValue = function (x, y, z)
 LibNoise.AbsoluteOutput = function (source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.AbsoluteOutput";
 }
+
+LibNoise.AbsoluteOutput.prototype.getInput = getOne;
+LibNoise.AbsoluteOutput.prototype.setInput = setOne;
 
 LibNoise.AbsoluteOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return Math.abs(this.SourceModule.GetValue(x, y, z));
 }
 
@@ -1713,11 +1909,16 @@ LibNoise.AbsoluteOutput.prototype.GetValue = function (x, y, z)
 LibNoise.ExponentialOutput = function (source, exponent)
 {
   this.SourceModule = source;
-  this.Exponent = exponent;
+  this.Exponent = exponent ? exponent : 1;
+  this.Name = "LibNoise.ExponentialOutput";
 }
+
+LibNoise.ExponentialOutput.prototype.getInput = getOne;
+LibNoise.ExponentialOutput.prototype.setInput = setOne;
 
 LibNoise.ExponentialOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return (Math.pow(Math.abs((this.SourceModule.GetValue(x, y, z) + 1.0) / 2.0), this.Exponent) * 2.0 - 1.0);
 }
 
@@ -1728,32 +1929,49 @@ LibNoise.ExponentialOutput.prototype.GetValue = function (x, y, z)
 LibNoise.InvertInput = function(source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.InvertInput";
 }
 
 LibNoise.InvertInput.prototype.GetValue = function(x,y,z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(-x, -y, -z);
 }
+
+LibNoise.InvertInput.prototype.getInput = getOne;
+LibNoise.InvertInput.prototype.setInput = setOne;
+
+
 
 
 LibNoise.InvertOutput = function(source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.InvertOutput";
 }
 
 LibNoise.InvertOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return -this.SourceModule.GetValue(x, y, z);
 }
+
+LibNoise.InvertOutput.prototype.getInput = getOne;
+LibNoise.InvertOutput.prototype.setInput = setOne;
 
 LibNoise.ScaleOutput = function(source, scale)
 {
   this.SourceModule = source;
   this.Scale = scale;
+  this.Name = "LibNoise.ScaleOutput";
 }
+
+LibNoise.ScaleOutput.prototype.getInput = getOne;
+LibNoise.ScaleOutput.prototype.setInput = setOne;
 
 LibNoise.ScaleOutput.prototype.GetValue = function(x,y,z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x, y, z) * this.Scale;
 }
 
@@ -1766,10 +1984,15 @@ LibNoise.ScaleInput = function (source, x,y,z)
   this.X = x;
   this.Y = y;
   this.Z = z;
+  this.Name = "LibNoise.ScaleInput";
 }
+
+LibNoise.ScaleInput.prototype.getInput = getOne;
+LibNoise.ScaleInput.prototype.setInput = setOne;
 
 LibNoise.ScaleInput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x * this.X, y * this.Y, z * this.Z);
 }
 
@@ -1784,22 +2007,32 @@ LibNoise.ScaleBiasOutput = function (source)
   this.SourceModule = source;
   this.Scale = 1.0;
   this.Bias = 0.0;
+  this.Name = "LibNoise.ScaleBiasOutput";
 }
+
+LibNoise.ScaleBiasOutput.prototype.getInput = getOne;
+LibNoise.ScaleBiasOutput.prototype.setInput = setOne;
 
 LibNoise.ScaleBiasOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x, y, z) * this.Scale + this.Bias;
 }
 
 LibNoise.TerraceOutput = function(s1)
 {
   this.SourceModule = s1;
-  this.InvertTerraces = false;
+  this.Invert = 0;
   this.ControlPoints = [];
+  this.Name = "LibNoise.TerraceOutput";
 }
+
+LibNoise.TerraceOutput.prototype.getInput = getOne;
+LibNoise.TerraceOutput.prototype.setInput = setOne;
 
 LibNoise.TerraceOutput.prototype.GetValue = function(x, y, z)
 {
+  if (!this.SourceModule) return 0;
   // Get the output value from the source module.
   var sourceModuleValue = this.SourceModule.GetValue(x, y, z);
 
@@ -1834,7 +2067,7 @@ LibNoise.TerraceOutput.prototype.GetValue = function(x, y, z)
   var value0 = this.ControlPoints[index0];
   var value1 = this.ControlPoints[index1];
   var alpha = (sourceModuleValue - value0) / (value1 - value0);
-  if (this.InvertTerraces)
+  if (this.Invert)
   {
     alpha = 1.0 - alpha;
 
@@ -1858,6 +2091,7 @@ LibNoise.Turbulence = function (source)
   this.XDistort = new LibNoise.Perlin();
   this.YDistort = new LibNoise.Perlin();
   this.ZDistort = new LibNoise.Perlin();
+  this.Name = "LibNoise.Turbulence";
 
   this.__defineGetter__("Frequency", function () { return this.XDistort.Frequency; });
   this.__defineSetter__("Frequency", function (value) { this.XDistort.Frequency = value; this.YDistort.Frequency = value; this.ZDistort.Frequency = value; });
@@ -1874,6 +2108,7 @@ LibNoise.Turbulence = function (source)
 
 LibNoise.Turbulence.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var x0, y0, z0;
   var x1, y1, z1;
   var x2, y2, z2;
@@ -1893,7 +2128,8 @@ LibNoise.Turbulence.prototype.GetValue = function (x, y, z)
   return this.SourceModule.GetValue(xDistort, yDistort, zDistort);
 }
 
-
+LibNoise.Turbulence.prototype.getInput = getOne;
+LibNoise.Turbulence.prototype.setInput = setOne;
 
 
 
@@ -1904,10 +2140,13 @@ LibNoise.TurbulenceCustom = function (source)
   this.XDistort = new LibNoise.Constant(0);
   this.YDistort = this.XDistort;
   this.ZDistort = this.XDistort;
+  this.Name = "LibNoise.TurbulenceCustom";
+
 }
 
 LibNoise.TurbulenceCustom.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var x0, y0, z0;
   var x1, y1, z1;
   var x2, y2, z2;
@@ -1925,3 +2164,6 @@ LibNoise.TurbulenceCustom.prototype.GetValue = function (x, y, z)
   var zDistort = z + (this.ZDistort.GetValue(x2, y2, z2) * Power);
   return this.SourceModule.GetValue(xDistort, yDistort, zDistort);
 }
+
+LibNoise.TurbulenceCustom.prototype.getInput = getOne;
+LibNoise.TurbulenceCustom.prototype.setInput = setOne;

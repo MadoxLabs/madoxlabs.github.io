@@ -5,6 +5,7 @@
   this.XDistort = new LibNoise.Perlin();
   this.YDistort = new LibNoise.Perlin();
   this.ZDistort = new LibNoise.Perlin();
+  this.Name = "LibNoise.Turbulence";
 
   this.__defineGetter__("Frequency", function () { return this.XDistort.Frequency; });
   this.__defineSetter__("Frequency", function (value) { this.XDistort.Frequency = value; this.YDistort.Frequency = value; this.ZDistort.Frequency = value; });
@@ -21,6 +22,7 @@
 
 LibNoise.Turbulence.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var x0, y0, z0;
   var x1, y1, z1;
   var x2, y2, z2;
@@ -40,7 +42,8 @@ LibNoise.Turbulence.prototype.GetValue = function (x, y, z)
   return this.SourceModule.GetValue(xDistort, yDistort, zDistort);
 }
 
-
+LibNoise.Turbulence.prototype.getInput = getOne;
+LibNoise.Turbulence.prototype.setInput = setOne;
 
 
 
@@ -51,10 +54,13 @@ LibNoise.TurbulenceCustom = function (source)
   this.XDistort = new LibNoise.Constant(0);
   this.YDistort = this.XDistort;
   this.ZDistort = this.XDistort;
+  this.Name = "LibNoise.TurbulenceCustom";
+
 }
 
 LibNoise.TurbulenceCustom.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var x0, y0, z0;
   var x1, y1, z1;
   var x2, y2, z2;
@@ -72,3 +78,6 @@ LibNoise.TurbulenceCustom.prototype.GetValue = function (x, y, z)
   var zDistort = z + (this.ZDistort.GetValue(x2, y2, z2) * Power);
   return this.SourceModule.GetValue(xDistort, yDistort, zDistort);
 }
+
+LibNoise.TurbulenceCustom.prototype.getInput = getOne;
+LibNoise.TurbulenceCustom.prototype.setInput = setOne;

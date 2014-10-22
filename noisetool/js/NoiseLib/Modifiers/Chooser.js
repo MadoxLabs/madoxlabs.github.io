@@ -2,13 +2,17 @@ LibNoise.SmallerOutput = function (s1, s2)
 {
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
+  this.Name = "LibNoise.SmallerOutput";
 }
 
 LibNoise.SmallerOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2) return 0;
   return LibNoise.NMath.GetSmaller(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z));
 }
 
+LibNoise.SmallerOutput.prototype.getInput = getTwo;
+LibNoise.SmallerOutput.prototype.setInput = setTwo;
 
 
 LibNoise.CacheOutput = function (s1)
@@ -19,10 +23,12 @@ LibNoise.CacheOutput = function (s1)
   this.cacheZ = 0;
   this.cacheVal = 0;
   this.cached = false;
+  this.Name = "LibNoise.CacheOutput";
 }
 
 LibNoise.CacheOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   if (this.cached && this.cacheX == x && this.cacheY == y && this.cacheZ == z) return this.cacheVal;
 
   this.cacheVal = this.SourceModule.GetValue(x, y, z);
@@ -32,6 +38,8 @@ LibNoise.CacheOutput.prototype.GetValue = function (x, y, z)
   this.cached = true;
   return this.cacheVal;}
 
+LibNoise.CacheOutput.prototype.getInput = getOne;
+LibNoise.CacheOutput.prototype.setInput = setOne;
 
 
 
@@ -39,13 +47,17 @@ LibNoise.LargerOutput = function (s1, s2)
 {
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
+  this.Name = "LibNoise.LargerOutput";
 }
 
 LibNoise.LargerOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2) return 0;
   return LibNoise.NMath.GetLarger(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z));
 }
 
+LibNoise.LargerOutput.prototype.getInput = getTwo;
+LibNoise.LargerOutput.prototype.setInput = setTwo;
 
 
 
@@ -56,6 +68,7 @@ LibNoise.SelectOutput = function (s1, s2, c)
   this.SourceModule1 = s1;
   this.SourceModule2 = s2;
   this.ControlModule = c;
+  this.Name = "LibNoise.SelectOutput";
 
   var EdgeFalloff = 0.0;
   this.__defineGetter__("EdgeFalloff", function () { return EdgeFalloff; });
@@ -71,8 +84,24 @@ LibNoise.SelectOutput = function (s1, s2, c)
   this.__defineSetter__("UpperBound", function (value) { UpperBound = value; this.EdgeFalloff = EdgeFalloff; });
 }
 
+LibNoise.SelectOutput.prototype.getInput = function (i)
+{
+  if (i == 0) return this.SourceModule1;
+  if (i == 1) return this.SourceModule2;
+  if (i == 2) return this.ControlModule;
+  return null;
+}
+LibNoise.SelectOutput.prototype.setInput = function (i, mod)
+{
+  if (i == 0) this.SourceModule1 = mod;
+  if (i == 1) this.SourceModule2 = mod;
+  if (i == 2) this.ControlModule = mod;
+}
+
+
 LibNoise.SelectOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule1 || !this.SourceModule2 || !this.ControlModule) return 0;
   var controlValue = this.ControlModule.GetValue(x, y, z);
   var alpha;
 

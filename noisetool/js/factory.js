@@ -13,11 +13,6 @@ function ntBillow()
   this.parameters.push( { Name: "Lacunarity", Min: 1, Max: 4, Incr: 0.1, Rounding: 1 });
 }
 
-ntBillow.prototype.getValue = function(x, y)
-{
-  return this.module.GetValue(x, y, 0);
-}
-
 function ntCheckerboard()
 {
   this.points = 0;
@@ -116,11 +111,95 @@ function ntVoronoi()
   this.parameters.push({ Name: "Distance", Min: 0, Max: 1, Incr: 1, Rounding: 0 });
 }
 
+
+
 function ntAbsolute()
 {
   this.points = 1;
   this.pointNames = ['Source'];
+  this.module = new LibNoise.AbsoluteOutput();
+  this.name = "LibNoise.AbsoluteOutput";
+  this.parameters = [];
 }
+
+function ntClamp()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.ClampOutput();
+  this.name = "LibNoise.ClampOutput";
+  this.parameters = [];
+  this.parameters.push( { Name: "Lower", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "Upper", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+}
+
+function ntCurve()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.CurveOutput();
+  this.name = "LibNoise.CurveOutput";
+  this.parameters = [];
+  this.parameters.push( { Name: "PointX", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointY", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointX", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointY", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointX", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointY", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointX", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+  this.parameters.push( { Name: "PointY", Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+}
+
+function ntExponent()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.ExponentialOutput();
+  this.name = "LibNoise.ExponentialOutput";
+  this.parameters = [];
+  this.parameters.push({ Name: "Exponent", Min: 1, Max: 10, Incr: 0.1, Rounding: 1 });
+}
+
+function ntInvert()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.InvertOutput();
+  this.name = "LibNoise.InvertOutput";
+  this.parameters = [];
+}
+
+function ntScaleBias()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.ScaleBiasOutput();
+  this.name = "LibNoise.ScaleBiasOutput";
+  this.parameters = [];
+  this.parameters.push( { Name: "Scale", Min: 0, Max: 10, Incr: 0.1, Rounding: 1 });
+  this.parameters.push( { Name: "Bias", Min: -5, Max: 5, Incr: 0.1,  Rounding: 1 });
+}
+
+function ntTerrace()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.TerraceOutput();
+  this.name = "LibNoise.TerraceOutput";
+  this.parameters = [];
+  this.parameters.push({ Name: "Invert", Min: 0,  Max: 1, Incr: 1,    Rounding: 0, SlideOnly:true });
+  this.parameters.push({ Name: "Point",  Min: -5, Max: 5, Incr: 0.01, Rounding: 2 });
+}
+
+function ntCache()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.CacheOutput();
+  this.name = "LibNoise.CacheOutput";
+  this.parameters = [];
+}
+
 
 
 function ntTurbulence()
@@ -151,6 +230,13 @@ function ntFactory()
   this.types["Voronoi"] = ntVoronoi;
 
   this.types["Absolute"] = ntAbsolute;
+  this.types["Clamp"] = ntClamp;
+  this.types["Curve"] = ntCurve;
+  this.types["Exponent"] = ntExponent;
+  this.types["Invert"] = ntInvert;
+  this.types["ScaleBias"] = ntScaleBias;
+  this.types["Terrace"] = ntTerrace;
+  this.types["Cache"] = ntCache;
 
   this.types["Turbulence"] = ntTurbulence;
 

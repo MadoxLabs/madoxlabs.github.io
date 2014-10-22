@@ -78,6 +78,7 @@ function newWindow(type)
   w.windowid = i;
   windows[i] = w;
 
+  // the canvas
   var cv = document.createElement("canvas");
   cv.style.position = "absolute";
   cv.style.top = "25px";
@@ -88,6 +89,7 @@ function newWindow(type)
   w.ntCanvas = cv;
   w.ntContext = cv.getContext('2d');
 
+  // Module name label
   var n = document.createElement("div");
   n.setAttribute("id", "window" + i+"name");
   n.style.position = "absolute";
@@ -117,6 +119,7 @@ function newWindow(type)
   w.appendChild(c);
   w.ntClose = c;
 
+  // event icons - drawing and skip
   var d = document.createElement("div");
   d.setAttribute("class", "drawing");
   d.style.width = "80px";
@@ -183,6 +186,7 @@ function setWindowType(name, type)
     w.ntOut = output;
   }
 
+  windowSelect(w);
   draw(w);
 }
 
@@ -192,6 +196,20 @@ function redraw()
 }
 
 function draw(w)
+{
+  // draw this window
+  drawSingle(w);
+
+  // draw all its windows that its feeding
+  for (var c in w.ntOut.ntLine)
+  {
+    var line = w.ntOut.ntLine[c];
+    var child = line.ntPoint2.parentNode;
+    draw(child);
+  }
+}
+
+function drawSingle(w)
 {
   if (!w.ntModule) return;
   if (w.ntSkipDraw) return;
@@ -210,8 +228,7 @@ function draw(w)
     sizex: parseFloat(document.getElementById("wbound").value),
     sizey: parseFloat(document.getElementById("hbound").value),
     gradient: gradients.current,
-    module: w.ntModule.module,
-    modulename: w.ntModule.name,
+    modules: createModuleState(),
     imagedata: w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
 
@@ -235,6 +252,26 @@ function fromDrawThread(e)
   w.ntDrawing.style.display = 'none';
 
   windowSelect(w);
+}
+
+function createModuleState()
+{
+  var ret = {};
+
+  for (var i in windows)
+  {
+    if (!windows[i].ntModule) continue;
+    var mod = windows[i].ntModule;
+    var desc = {};
+    desc.id = windows[i].windowid;
+    desc.name = mod.module.Name;
+    for (var p = 0; p < mod.points; ++p)
+      if (windows[i].ntIn[p].ntLine) desc["in" + p] = windows[i].ntIn[p].ntLine.ntPoint1.parentNode.windowid;//inm.Name;
+    desc.params = {};
+    for (var p in mod.parameters) desc.params[mod.parameters[p].Name] = mod.module[mod.parameters[p].Name];
+    ret[i] = desc;
+  }
+  return ret;
 }
 
 var moving = null;
@@ -383,7 +420,7 @@ document.onmouseup = function(e)
     moving = null;
   }
   if (sizing) {
-    draw(sizing);
+    drawSingle(sizing);
     sizing.style.border = "4px solid yellow";
     sizing = null;
   }
@@ -481,17 +518,24 @@ function windowStopLine(e, w)
   if (point2.ntLine) {
     var i =  point2.ntLine.ntPoint1.ntLine.indexOf(point2.ntLine);
     if (i != -1) point2.ntLine.ntPoint1.ntLine.splice(i, 1);
-//    point2.ntLine.ntPoint1.ntLine.delete(point2.ntLine);
     document.getElementById("mySVG").removeChild(point2.ntLine);
     point2.ntLine = null;
   }
 
-  if (!line) return;
+  if (!line) { draw(point2.parentNode); return; }
+
   var pos = getPos(point2);
   line.setAttribute("x2", pos.x);
   line.setAttribute("y2", pos.y);
   point2.ntLine = line;
   line.ntPoint2 = point2;
+
+  var srcmod = point1.parentNode.ntModule.module;
+  var targetmod = point2.parentNode.ntModule.module;
+  targetmod.setInput(point2.ntNum, srcmod);
+
+  draw(point2.parentNode);
+
   point1 = null;
   point2 = null;
   line = null;

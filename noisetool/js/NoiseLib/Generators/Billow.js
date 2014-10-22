@@ -6,11 +6,15 @@
   this.Quality = LibNoise.NoiseQuality.Standard;
   this.Lacunarity = 2.0;
   this.MaxOctaves = 30;
+  this.Name = "LibNoise.Billow";
 
   var Octaves = 6;
   this.__defineGetter__("Octaves", function () { return Octaves; });
   this.__defineSetter__("Octaves", function (value) { Octaves = LibNoise.NMath.ClampValue(value, 1, this.MaxOctaves); });
 }
+
+LibNoise.Billow.prototype.getInput = getNone;
+LibNoise.Billow.prototype.setInput = setNone;
 
 LibNoise.Billow.prototype.GetValue = function( x,  y,  z)
 {

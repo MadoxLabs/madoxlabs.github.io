@@ -2,10 +2,15 @@
 {
   this.SourceModule = s1;
   this.ControlPoints = [];
+  this.Name = "LibNoise.CurveOutput";
 }
+
+LibNoise.CurveOutput.prototype.getInput = getOne;
+LibNoise.CurveOutput.prototype.setInput = setOne;
 
 LibNoise.CurveOutput.prototype.GetValue = function(x, y, z)
 {
+  if (!this.SourceModule) return 0;
   // Get the output value from the source module.
   var sourceModuleValue = this.SourceModule.GetValue(x, y, z);
 

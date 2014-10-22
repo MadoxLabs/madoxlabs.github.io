@@ -4,10 +4,12 @@
   this.XDisplaceModule = xmod;
   this.YDisplaceModule = ymod;
   this.ZDisplaceModule = zmod;
+  this.Name = "LibNoise.DisplaceInput";
 }
 
 LibNoise.DisplaceInput.prototype.GetValue = function(x,y,z)
 {
+  if (!this.SourceModule || !this.XDisplaceModule || !this.YDisplaceModule || !this.ZDisplaceModule) return 0;
   x += this.XDisplaceModule != null ? this.XDisplaceModule.GetValue(x, y, z) : 0;
   y += this.YDisplaceModule != null ? this.YDisplaceModule.GetValue(x, y, z) : 0;
   z += this.ZDisplaceModule != null ? this.ZDisplaceModule.GetValue(x, y, z) : 0;
@@ -15,6 +17,21 @@ LibNoise.DisplaceInput.prototype.GetValue = function(x,y,z)
   return this.SourceModule.GetValue(x, y, z);
 }
 
+LibNoise.DisplaceInput.prototype.getInput = function (i)
+{
+  if (i == 0) return this.SourceModule;
+  if (i == 1) return this.XDisplaceModule;
+  if (i == 2) return this.YDisplaceModule;
+  if (i == 3) return this.ZDisplaceModule;
+  return null;
+}
+LibNoise.DisplaceInput.prototype.setInput = function (i, mod)
+{
+  if (i == 0) this.SourceModule = mod;
+  if (i == 1) this.XDisplaceModule = mod;
+  if (i == 2) this.YDisplaceModule = mod;
+  if (i == 3) this.ZDisplaceModule = mod;
+}
 
 
 
@@ -24,10 +41,16 @@ LibNoise.TranslateInput = function (source, x, y, z)
   this.X = x;
   this.Y = y;
   this.Z = z;
+  this.Name = "LibNoise.TranslateInput";
 }
+
+LibNoise.TranslateInput.prototype.getInput = getOne;
+LibNoise.TranslateInput.prototype.setInput = setOne;
+
 
 LibNoise.TranslateInput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x + this.X, y + this.Y, z + this.Z);
 }
 
@@ -38,10 +61,15 @@ LibNoise.RotateInput = function (source, xangle, yangle, zangle)
 {
   this.SourceModule = source;
   this.SetAngles(xangle, yangle, zangle);
+  this.Name = "LibNoise.RotateInput";
 }
+
+LibNoise.RotateInput.prototype.getInput = getOne;
+LibNoise.RotateInput.prototype.setInput = setOne;
 
 LibNoise.RotateInput.prototype.SetAngles = function(xAngle, yAngle, zAngle)
 {
+  if (!this.SourceModule) return 0;
   this.XAngle = xAngle;
   this.YAngle = yAngle;
   this.ZAngle = zAngle;
@@ -81,10 +109,15 @@ LibNoise.BiasOutput = function (source, b)
 {
   this.SourceModule = source;
   this.Bias = b;
+  this.Name = "LibNoise.BiasOutput";
 }
+
+LibNoise.BiasOutput.prototype.getInput = getOne;
+LibNoise.BiasOutput.prototype.setInput = setOne;
 
 LibNoise.BiasOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return this.SourceModule.GetValue(x, y, z) + this.Bias;
 }
 
@@ -95,15 +128,20 @@ LibNoise.BiasOutput.prototype.GetValue = function (x, y, z)
 LibNoise.ClampOutput = function (source)
 {
   this.SourceModule = source;
-  this.LowerBound = -1;
-  this.UpperBound = 1;
+  this.Lower = -1;
+  this.Upper = 1;
+  this.Name = "LibNoise.ClampOutput";
 }
+
+LibNoise.ClampOutput.prototype.getInput = getOne;
+LibNoise.ClampOutput.prototype.setInput = setOne;
 
 LibNoise.ClampOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var value = this.SourceModule.GetValue(x, y, z);
-  if (value < this.LowerBound) return this.LowerBound;
-  else if (value > this.UpperBound) return this.UpperBound;
+  if (value < this.Lower) return this.Lower;
+  else if (value > this.Upper) return this.Upper;
   else    return value;
 }
 
@@ -114,10 +152,15 @@ LibNoise.ClampOutput.prototype.GetValue = function (x, y, z)
 LibNoise.AbsoluteOutput = function (source)
 {
   this.SourceModule = source;
+  this.Name = "LibNoise.AbsoluteOutput";
 }
+
+LibNoise.AbsoluteOutput.prototype.getInput = getOne;
+LibNoise.AbsoluteOutput.prototype.setInput = setOne;
 
 LibNoise.AbsoluteOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return Math.abs(this.SourceModule.GetValue(x, y, z));
 }
 
@@ -129,11 +172,16 @@ LibNoise.AbsoluteOutput.prototype.GetValue = function (x, y, z)
 LibNoise.ExponentialOutput = function (source, exponent)
 {
   this.SourceModule = source;
-  this.Exponent = exponent;
+  this.Exponent = exponent ? exponent : 1;
+  this.Name = "LibNoise.ExponentialOutput";
 }
+
+LibNoise.ExponentialOutput.prototype.getInput = getOne;
+LibNoise.ExponentialOutput.prototype.setInput = setOne;
 
 LibNoise.ExponentialOutput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   return (Math.pow(Math.abs((this.SourceModule.GetValue(x, y, z) + 1.0) / 2.0), this.Exponent) * 2.0 - 1.0);
 }
 

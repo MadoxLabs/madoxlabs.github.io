@@ -1,7 +1,11 @@
 ﻿LibNoise.Spheres = function()
 {
   this.Frequency = 1.0;
+  this.Name = "LibNoise.Spheres";
 }
+
+LibNoise.Spheres.prototype.getInput = getNone;
+LibNoise.Spheres.prototype.setInput = setNone;
 
 LibNoise.Spheres.prototype.GetValue = function (x, y, z)
 {

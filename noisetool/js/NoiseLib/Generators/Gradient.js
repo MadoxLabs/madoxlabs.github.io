@@ -3,7 +3,12 @@
   this.Axis = a;
   this.Lower = 0;
   this.Upper = 0.99;
+  this.Name = "LibNoise.Gradient";
+
 }
+
+LibNoise.Gradient.prototype.getInput = getNone;
+LibNoise.Gradient.prototype.setInput = setNone;
 
 LibNoise.Gradient.prototype.GetValue = function (x, y, z)
 {

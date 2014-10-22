@@ -1,7 +1,11 @@
 ﻿LibNoise.Cylinders = function()
 {
   this.Frequency = 1.0;
+  this.Name = "LibNoise.Cylinders";
 }
+
+LibNoise.Cylinders.prototype.getInput = getNone;
+LibNoise.Cylinders.prototype.setInput = setNone;
 
 LibNoise.Cylinders.prototype.GetValue = function (x, z,y)
 {

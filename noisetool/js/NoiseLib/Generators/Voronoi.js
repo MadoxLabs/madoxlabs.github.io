@@ -4,7 +4,11 @@
   this.Displacement = 1.0;
   this.Distance = 0;
   this.Seed = 0;
+  this.Name = "LibNoise.Voronoi";
 }
+
+LibNoise.Voronoi.prototype.getInput = getNone;
+LibNoise.Voronoi.prototype.setInput = setNone;
 
 LibNoise.Voronoi.prototype.GetValue = function( x,  y,  z)
 {

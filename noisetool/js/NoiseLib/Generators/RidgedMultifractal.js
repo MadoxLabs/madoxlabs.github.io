@@ -5,6 +5,7 @@
   this.MaxOctaves = 30;
   this.SpectralWeights = [];
   this.Seed = 0;
+  this.Name = "LibNoise.RidgedMultifractal";
 
   var Lacunarity = 2.0;
   this.__defineGetter__("Lacunarity", function () { return Lacunarity; });
@@ -16,6 +17,9 @@
 
   this.CalculateSpectralWeights();
 }
+
+LibNoise.RidgedMultifractal.prototype.getInput = getNone;
+LibNoise.RidgedMultifractal.prototype.setInput = setNone;
 
 LibNoise.RidgedMultifractal.prototype.GetValue = function (x, y, z)
 {

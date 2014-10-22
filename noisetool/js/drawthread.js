@@ -23,6 +23,26 @@ function getModule(name)
   else if (name == "LibNoise.RidgedMultifractal") return new LibNoise.RidgedMultifractal();
   else if (name == "LibNoise.Spheres") return new LibNoise.Spheres();
   else if (name == "LibNoise.Voronoi") return new LibNoise.Voronoi();
+
+  else if (name == "LibNoise.AbsoluteOutput") return new LibNoise.AbsoluteOutput();
+  else if (name == "LibNoise.ClampOutput") return new LibNoise.ClampOutput();
+  else if (name == "LibNoise.CurveOutput") return new LibNoise.CurveOutput();
+  else if (name == "LibNoise.ExponentialOutput") return new LibNoise.ExponentialOutput();
+  else if (name == "LibNoise.InvertOutput") return new LibNoise.InvertOutput();
+  else if (name == "LibNoise.ScaleBiasOutput") return new LibNoise.ScaleBiasOutput();
+  else if (name == "LibNoise.TerraceOutput") return new LibNoise.TerraceOutput();
+  else if (name == "LibNoise.CacheOutput") return new LibNoise.CacheOutput();
+}
+
+function createModule(startid, mods)
+{
+  var mod = mods[startid];
+  var m = getModule(mod.name);
+  copyctor(m, mod.params);
+  // set inputs
+  for (var i = 0; i < 4; ++i)
+    if (mod["in" + i]) m.setInput(i, createModule(mod["in" + i], mods));
+  return m;
 }
 
 onmessage = function (e)
@@ -32,8 +52,7 @@ onmessage = function (e)
   var stepx = e.data.sizex / e.data.newW;
   var stepy = e.data.sizey / e.data.newH;
   extend(e.data.gradient, new ntGradient());
-  var module = getModule(e.data.modulename);
-  copyctor(module, e.data.module);
+  var module = createModule(e.data.id, e.data.modules);
 
   var x = 0;  // these loops are done like this because more optimized stopped working
   var y = 0;
