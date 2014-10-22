@@ -298,13 +298,13 @@ function windowClose(e, w)
       if (w.ntOut.ntLine[i].ntPoint2) {
         w.ntOut.ntLine[i].ntPoint2.ntLine = null;
         document.getElementById("mySVG").removeChild(w.ntOut.ntLine[i]);
+        draw(w.ntOut.ntLine[i].ntPoint2.parentNode);
       }
     }
   }
 
   document.getElementById("app").removeChild(w);
   delete windows[w.windowid];
-//  for (var i in windows)    if (windows[i] == w) { delete windows[i]; break; }
 
   document.getElementById("params").innerHTML = "";
 }
