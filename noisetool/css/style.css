@@ -88,7 +88,7 @@ input, button {
   height: 200px;
   left: 100px;
   top: 100px;
-  overflow: hidden;
+  overflow: visible;
   cursor: move;
 }
 

@@ -14,7 +14,13 @@ ntGradient.prototype.getColor = function(p, c)
   {
     var g = this.Points[gg];
     // if exactly a point return it
-    if (p == g.Point) return g.color; 
+    if (p == g.Point)
+    {
+      c.R = g.color.R;
+      c.G = g.color.G;
+      c.B = g.color.B;
+      return;
+    }
     if (g.Point < p)
     {
       // candidate for point a
@@ -27,7 +33,13 @@ ntGradient.prototype.getColor = function(p, c)
     }
   }
   // off the deep end?
-  if (a == null && b == null) return {R: 0, G: 0, B: 0 };
+  if (a == null && b == null)
+  {
+    c.R = 0;
+    c.G = 0;
+    c.B = 0;
+    return;
+  }
   if (a == null)
   {
     c.R = b.color.R;

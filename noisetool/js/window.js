@@ -152,7 +152,7 @@ function setWindowType(name, type)
   if (!w.ntModule) return;
 
   // input - up to 4
-  w.ntIn = [];
+  if (!w.ntIn) w.ntIn = [];
   for (var p = exists; p < w.ntModule.points; ++p)
   {
     var input = document.createElement("div");
@@ -266,7 +266,7 @@ function createModuleState()
     desc.id = windows[i].windowid;
     desc.name = mod.module.Name;
     for (var p = 0; p < mod.points; ++p)
-      if (windows[i].ntIn[p].ntLine) desc["in" + p] = windows[i].ntIn[p].ntLine.ntPoint1.parentNode.windowid;//inm.Name;
+      if (windows[i].ntIn[p] && windows[i].ntIn[p].ntLine) desc["in" + p] = windows[i].ntIn[p].ntLine.ntPoint1.parentNode.windowid;//inm.Name;
     desc.params = {};
     for (var p in mod.parameters) desc.params[mod.parameters[p].Name] = mod.module[mod.parameters[p].Name];
     ret[i] = desc;
