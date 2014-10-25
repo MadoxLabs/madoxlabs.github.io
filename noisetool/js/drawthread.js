@@ -107,7 +107,9 @@ onmessage = function (e)
       }
     }
   }
-  var ret = { id: e.data.id, min: min, max: max, imagedata: imagedata };
+
+  var ret;
+  ret = { id: e.data.id, min: min, max: max, imagedata: imagedata };
   postMessage(ret);
 }
 

@@ -115,7 +115,7 @@ function newWindow(type)
   ed.style.left = "100px";
   ed.style.top = "200px";
   ed.style.display = 'none';
-  ed.innerHTML = "<input type='checkbox'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button>Save</button><input size=\"1\" value=\"512\"/>";
+  ed.innerHTML = "<input type='checkbox'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/>";
   w.ntExtra = ed;
   w.appendChild(ed);
 
@@ -253,20 +253,38 @@ function draw(w)
   }
 }
 
-function drawSingle(w)
+function save(id)
 {
+  var w = document.getElementById(id);
+  if (!w) return;
+  var size = document.getElementById(id + "size").value;
+  drawSingle(w, size);
+}
+
+var saveCanvas = null;
+
+function drawSingle(w, size)
+{
+  if (saveCanvas) return;
   if (!w.ntModule) return;
-  if (w.ntSkipDraw) return;
+
+  if (size)
+  {
+    saveCanvas = document.createElement('canvas');
+    saveCanvas.width = size;
+    saveCanvas.height = size;    
+  }
+  else
+    if (w.ntSkipDraw) return;
 
   w.ntDrawing.style.display = 'block';
-
   w.ntCanvas.width = w.clientWidth - 20;
   w.ntCanvas.height = w.clientHeight - 35;
 
   var params = {
     id: w.windowid,
-    newW: w.clientWidth - 20,
-    newH: w.clientHeight - 35,
+    newW: size ? size : w.clientWidth - 20,
+    newH: size ? size : w.clientHeight - 35,
     startx: parseFloat(document.getElementById("xbound").value),
     starty: parseFloat(document.getElementById("ybound").value),
     sizex: parseFloat(document.getElementById("wbound").value),
@@ -274,7 +292,7 @@ function drawSingle(w)
     normalize: { on: document.getElementById(w.id + "norm").checked, min: w.ntMin, max: w.ntMax },
     gradient: gradients.current,
     modules: createModuleState(),
-    imagedata: w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
+    imagedata: size ? saveCanvas.getContext('2d').getImageData(0, 0, size, size) : w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
 
   if (!w.ntWorker)
@@ -294,8 +312,6 @@ function fromDrawThread(e)
 
   if (e.data.percent)
   {
-    w.ntContext.font = "20px Georgia";
-    w.ntContext.clearRect(w.ntCanvas.offsetWidth / 2,40, 80, 80);
     w.ntContext.beginPath();
     w.ntContext.arc(w.ntCanvas.offsetWidth / 2, 40, 40, 0, 0.02 * e.data.percent * Math.PI);
     w.ntContext.lineWidth = 5;
@@ -304,9 +320,20 @@ function fromDrawThread(e)
     return;
   }
 
-  w.ntContext.putImageData(e.data.imagedata, 0, 0);
-  w.ntMin = e.data.min;
-  w.ntMax = e.data.max;
+  if (saveCanvas) {
+    saveCanvas.getContext('2d').putImageData(e.data.imagedata, 0, 0);
+    download("image.bmp", saveCanvas.toDataURL());
+    saveCanvas = null;
+    w.ntContext.putImageData(e.data.imagedata, 0, 0, 0, 0, w.clientWidth - 20, w.clientHeight - 35);
+    w.ntDrawing.style.display = 'none';
+    return;
+  }
+  else
+  {
+    w.ntContext.putImageData(e.data.imagedata, 0, 0);
+    w.ntMin = e.data.min;
+    w.ntMax = e.data.max;
+  }
 
   w.ntDrawing.style.display = 'none';
 
@@ -531,8 +558,8 @@ function windowSize(e)
   sizing.ntExraButton.style.left = (newX / 2 - 25) + "px";
   sizing.ntExraButton.style.top = (newY - 20) + "px";
 
-  sizing.ntExra.style.left = (newX / 2 - 50) + "px";
-  sizing.ntExra.style.top = (newY) + "px";
+  sizing.ntExtra.style.left = (newX / 2 - 50) + "px";
+  sizing.ntExtra.style.top = (newY) + "px";
 
   sizing.ntThumb.style.top = (newY - 20) + "px";
   for (var i in sizing.ntIn)
@@ -616,4 +643,12 @@ function extraPress(e, w)
     w.ntExtra.style.display = 'none';
   else
     w.ntExtra.style.display = 'block';
+}
+
+function download(filename, text)
+{
+  var pom = document.createElement('a');
+  pom.setAttribute('href', text); // 'data:application/octet-stream;charset=utf-8,' + text);
+  pom.setAttribute('download', filename);
+  pom.click();
 }
