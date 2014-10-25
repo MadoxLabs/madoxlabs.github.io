@@ -7,7 +7,9 @@ LibNoise.SmallerOutput = function (s1, s2)
 
 LibNoise.SmallerOutput.prototype.GetValue = function (x, y, z)
 {
-  if (!this.SourceModule1 || !this.SourceModule2) return 0;
+  if (!this.SourceModule1 && !this.SourceModule2) return 0;
+  if (!this.SourceModule1) return this.SourceModule2.GetValue(x, y, z);
+  if (!this.SourceModule2) return this.SourceModule1.GetValue(x, y, z);
   return LibNoise.NMath.GetSmaller(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z));
 }
 
@@ -52,7 +54,9 @@ LibNoise.LargerOutput = function (s1, s2)
 
 LibNoise.LargerOutput.prototype.GetValue = function (x, y, z)
 {
-  if (!this.SourceModule1 || !this.SourceModule2) return 0;
+  if (!this.SourceModule1 && !this.SourceModule2) return 0;
+  if (!this.SourceModule1) return this.SourceModule2.GetValue(x, y, z);
+  if (!this.SourceModule2) return this.SourceModule1.GetValue(x, y, z);
   return LibNoise.NMath.GetLarger(this.SourceModule1.GetValue(x, y, z), this.SourceModule2.GetValue(x, y, z));
 }
 

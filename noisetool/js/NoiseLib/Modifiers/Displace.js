@@ -9,7 +9,7 @@
 
 LibNoise.DisplaceInput.prototype.GetValue = function(x,y,z)
 {
-  if (!this.SourceModule || !this.XDisplaceModule || !this.YDisplaceModule || !this.ZDisplaceModule) return 0;
+  if (!this.SourceModule) return 0;
   x += this.XDisplaceModule != null ? this.XDisplaceModule.GetValue(x, y, z) : 0;
   y += this.YDisplaceModule != null ? this.YDisplaceModule.GetValue(x, y, z) : 0;
   z += this.ZDisplaceModule != null ? this.ZDisplaceModule.GetValue(x, y, z) : 0;
@@ -19,28 +19,28 @@ LibNoise.DisplaceInput.prototype.GetValue = function(x,y,z)
 
 LibNoise.DisplaceInput.prototype.getInput = function (i)
 {
-  if (i == 0) return this.SourceModule;
-  if (i == 1) return this.XDisplaceModule;
-  if (i == 2) return this.YDisplaceModule;
-  if (i == 3) return this.ZDisplaceModule;
+  if (i == 1) return this.SourceModule;
+  if (i == 0) return this.XDisplaceModule;
+  if (i == 3) return this.YDisplaceModule;
+  if (i == 2) return this.ZDisplaceModule;
   return null;
 }
 LibNoise.DisplaceInput.prototype.setInput = function (i, mod)
 {
-  if (i == 0) this.SourceModule = mod;
-  if (i == 1) this.XDisplaceModule = mod;
-  if (i == 2) this.YDisplaceModule = mod;
-  if (i == 3) this.ZDisplaceModule = mod;
+  if (i == 1) this.SourceModule = mod;
+  if (i == 0) this.XDisplaceModule = mod;
+  if (i == 3) this.YDisplaceModule = mod;
+  if (i == 2) this.ZDisplaceModule = mod;
 }
 
 
 
-LibNoise.TranslateInput = function (source, x, y, z)
+LibNoise.TranslateInput = function (source)
 {
   this.SourceModule = source;
-  this.X = x;
-  this.Y = y;
-  this.Z = z;
+  this.X = 0;
+  this.Y = 0;
+  this.Z = 0;
   this.Name = "LibNoise.TranslateInput";
 }
 
@@ -57,30 +57,28 @@ LibNoise.TranslateInput.prototype.GetValue = function (x, y, z)
 
 
 
-LibNoise.RotateInput = function (source, xangle, yangle, zangle)
+LibNoise.RotateInput = function (source)
 {
   this.SourceModule = source;
-  this.SetAngles(xangle, yangle, zangle);
+  this.XAngle = 0;
+  this.YAngle = 0;
+  this.ZAngle = 0;
+  this.SetAngles();
   this.Name = "LibNoise.RotateInput";
 }
 
 LibNoise.RotateInput.prototype.getInput = getOne;
 LibNoise.RotateInput.prototype.setInput = setOne;
 
-LibNoise.RotateInput.prototype.SetAngles = function(xAngle, yAngle, zAngle)
+LibNoise.RotateInput.prototype.SetAngles = function()
 {
-  if (!this.SourceModule) return 0;
-  this.XAngle = xAngle;
-  this.YAngle = yAngle;
-  this.ZAngle = zAngle;
-
   var xCos, yCos, zCos, xSin, ySin, zSin;
-  xCos = Math.cos(xAngle);
-  yCos = Math.cos(yAngle);
-  zCos = Math.cos(zAngle);
-  xSin = Math.sin(xAngle);
-  ySin = Math.sin(yAngle);
-  zSin = Math.sin(zAngle);
+  xCos = Math.cos(this.XAngle);
+  yCos = Math.cos(this.YAngle);
+  zCos = Math.cos(this.ZAngle);
+  xSin = Math.sin(this.XAngle);
+  ySin = Math.sin(this.YAngle);
+  zSin = Math.sin(this.ZAngle);
 
   this.m_x1Matrix = ySin * xSin * zSin + yCos * zCos;
   this.m_y1Matrix = xCos * zSin;

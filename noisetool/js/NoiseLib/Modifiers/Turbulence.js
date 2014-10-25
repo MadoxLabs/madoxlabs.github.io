@@ -35,9 +35,9 @@ LibNoise.Turbulence.prototype.GetValue = function (x, y, z)
   x2 = x + (53820.0 / 65536.0);
   y2 = y + (11213.0 / 65536.0);
   z2 = z + (44845.0 / 65536.0);
-  var xDistort = x + (this.XDistort.GetValue(x0, y0, z0) * Power);
-  var yDistort = y + (this.YDistort.GetValue(x1, y1, z1) * Power);
-  var zDistort = z + (this.ZDistort.GetValue(x2, y2, z2) * Power);
+  var xDistort = x + (this.XDistort.GetValue(x0, y0, z0) * this.Power);
+  var yDistort = y + (this.YDistort.GetValue(x1, y1, z1) * this.Power);
+  var zDistort = z + (this.ZDistort.GetValue(x2, y2, z2) * this.Power);
 
   return this.SourceModule.GetValue(xDistort, yDistort, zDistort);
 }

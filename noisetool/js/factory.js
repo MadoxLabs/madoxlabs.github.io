@@ -206,15 +206,133 @@ function ntTurbulence()
 {
   this.points = 1;
   this.pointNames = ['Source'];
+  this.module = new LibNoise.Turbulence();
+  this.name = "LibNoise.Turbulence";
+  this.parameters = [];
+  this.parameters.push({ Name: "Power",     Min: 0, Max: 8,  Incr: 0.1, Rounding: 1 });
+  this.parameters.push({ Name: "Roughness", Min: 1, Max: 30, Incr: 1, Rounding: 0, SlideOnly: true });
+  this.parameters.push({ Name: "Frequency", Min: 0, Max: 8,  Incr: 0.1, Rounding: 1 });
 }
 
+function ntDisplace()
+{
+  this.points = 4;
+  this.pointNames = ['X Displace', 'Source', 'Z Displace', 'Y Displace'];
+  this.module = new LibNoise.DisplaceInput();
+  this.name = "LibNoise.DisplaceInput";
+  this.parameters = [];
+}
+
+function ntInvertInput()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.InvertInput();
+  this.name = "LibNoise.InvertInput";
+  this.parameters = [];
+}
+
+function ntRotate()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.RotateInput();
+  this.name = "LibNoise.RotateInput";
+  this.parameters = [];
+  this.parameters.push({ Name: "XAngle", Min: 0, Max: 360, Incr: 1, Rounding: 0 });
+  this.parameters.push({ Name: "YAngle", Min: 0, Max: 360, Incr: 1, Rounding: 0 });
+  this.parameters.push({ Name: "ZAngle", Min: 0, Max: 360, Incr: 1, Rounding: 0 });
+}
+
+function ntScale()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.ScaleInput();
+  this.name = "LibNoise.ScaleInput";
+  this.parameters = [];
+  this.parameters.push({ Name: "X", Min: -10, Max: 10, Incr: 0.1, Rounding: 1 });
+  this.parameters.push({ Name: "Y", Min: -10, Max: 10, Incr: 0.1, Rounding: 1 });
+  this.parameters.push({ Name: "Z", Min: -10, Max: 10, Incr: 0.1, Rounding: 1 });
+}
+
+function ntTranslate()
+{
+  this.points = 1;
+  this.pointNames = ['Source'];
+  this.module = new LibNoise.TranslateInput();
+  this.name = "LibNoise.TranslateInput";
+  this.parameters = [];
+  this.parameters.push({ Name: "X", Min: -10, Max: 10, Incr: 0.1, Rounding: 1 });
+  this.parameters.push({ Name: "Y", Min: -10, Max: 10, Incr: 0.1, Rounding: 1 });
+  this.parameters.push({ Name: "Z", Min: -10, Max: 10, Incr: 0.1, Rounding: 1 });
+}
 
 function ntAdd()
 {
   this.points = 2;
-  this.pointNames = ['Source A', 'Source B'];
+  this.pointNames = ['Source B', 'Source A'];
+  this.module = new LibNoise.AddOutput();
+  this.name = "LibNoise.AddOutput";
+  this.parameters = [];
 }
 
+function ntMax()
+{
+  this.points = 2;
+  this.pointNames = ['Source B', 'Source A'];
+  this.module = new LibNoise.LargerOutput();
+  this.name = "LibNoise.LargerOutput";
+  this.parameters = [];
+}
+
+function ntMin()
+{
+  this.points = 2;
+  this.pointNames = ['Source B', 'Source A'];
+  this.module = new LibNoise.SmallerOutput();
+  this.name = "LibNoise.SmallerOutput";
+  this.parameters = [];
+}
+
+function ntMultiply()
+{
+  this.points = 2;
+  this.pointNames = ['Source B', 'Source A'];
+  this.module = new LibNoise.MultiplyOutput();
+  this.name = "LibNoise.MultiplyOutput";
+  this.parameters = [];
+}
+
+function ntPower()
+{
+  this.points = 2;
+  this.pointNames = ['Source B', 'Source A'];
+  this.module = new LibNoise.PowerOutput();
+  this.name = "LibNoise.PowerOutput";
+  this.parameters = [];
+}
+
+function ntBlend()
+{
+  this.points = 3;
+  this.pointNames = ['Source B', 'Source A', 'Weight Module'];
+  this.module = new LibNoise.BlendOutput();
+  this.name = "LibNoise.BlendOutput";
+  this.parameters = [];
+}
+
+function ntSelect()
+{
+  this.points = 3;
+  this.pointNames = ['Source B', 'Source A', 'Control'];
+  this.module = new LibNoise.SelectOutput();
+  this.name = "LibNoise.SelectOutput";
+  this.parameters = [];
+  this.parameters.push({ Name: "EdgeFalloff", Min: 0, Max: 1, Incr: 0.01, Rounding: 2 });
+  this.parameters.push({ Name: "UpperBound", Min: -5, Max: 5, Incr: 0.1, Rounding: 1 });
+  this.parameters.push({ Name: "LowerBound", Min: -5, Max: 5, Incr: 0.1, Rounding: 1 });
+}
 
 function ntFactory()
 {
@@ -239,8 +357,19 @@ function ntFactory()
   this.types["Cache"] = ntCache;
 
   this.types["Turbulence"] = ntTurbulence;
+  this.types["Displace"] = ntDisplace;
+  this.types["Invert Input"] = ntInvertInput;
+  this.types["Rotate"] = ntRotate;
+  this.types["Scale"] = ntScale;
+  this.types["Translate"] = ntTranslate;
 
   this.types["Add"] = ntAdd;
+  this.types["Max"] = ntMax;
+  this.types["Min"] = ntMin;
+  this.types["Multiply"] = ntMultiply;
+  this.types["Power"] = ntPower;
+  this.types["Blend"] = ntBlend;
+  this.types["Select"] = ntSelect;
 }
 
 ntFactory.prototype.getModule = function (name)

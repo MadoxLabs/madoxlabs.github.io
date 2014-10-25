@@ -17,12 +17,12 @@ LibNoise.ScaleOutput.prototype.GetValue = function(x,y,z)
 
 
 
-LibNoise.ScaleInput = function (source, x,y,z)
+LibNoise.ScaleInput = function (source)
 {
   this.SourceModule = source;
-  this.X = x;
-  this.Y = y;
-  this.Z = z;
+  this.X = 1;
+  this.Y = 1;
+  this.Z = 1;
   this.Name = "LibNoise.ScaleInput";
 }
 

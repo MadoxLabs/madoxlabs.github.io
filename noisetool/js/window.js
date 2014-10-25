@@ -48,9 +48,25 @@ var z = 20;
 var types = [];
 types[1] = ["Billow", "Checkerboard", "Constant", "Cylinders", "Gradient", "Perlin", "Ridged Multifractal", "Spheres", "Voronoi"];
 types[2] = ["Turbulence", "Displace", "Invert Input", "Rotate", "Scale", "Translate"];
-types[3] = ["Absolute", "Clamp", "Curve", "Exponent", "Invert", "ScaleBias", "Terrace", "Cache"];
+types[3] = ["Absolute", "Clamp", /*"Curve",*/ "Exponent", "Invert", "ScaleBias", /*"Terrace",*/ "Cache"];
 types[4] = ["Add", "Max", "Min", "Multiply", "Power", "Blend", "Select"];
 var points = [0.5, 0.2, 0.8, 0.65];
+
+function getCreateLoc()
+{
+  var ret = { X: 100, Y: 100 };
+  var app = document.getElementById("app");
+
+  for (var w in windows)
+  {
+    if (windows[w].offsetLeft == ret.X && windows[w].offsetTop == ret.Y) { ret.X += 30; ret.Y += 30; }
+    if (ret.X+300 > app.parentNode.clientWidth) ret.X = 115;
+    if (ret.Y+200 > app.parentNode.clientHeight) ret.Y = 115;
+  }
+
+  return ret;
+}
+
 function newWindow(type)
 {
   // create div with canvas and widgets in it
@@ -60,9 +76,12 @@ function newWindow(type)
 
   if (i == 1) document.getElementById("app").removeChild(document.getElementById("title"));
 
+  var loc = getCreateLoc();
   var w = document.createElement("div");
   w.setAttribute("id", "window" + i);
   w.setAttribute("class", "noisewindow");
+  w.style.left = loc.X + "px";
+  w.style.top  = loc.Y + "px";
   w.style.zIndex = z++;
   var buf = "\
   <li class=\"nav dropdown\">\
@@ -204,8 +223,11 @@ function draw(w)
   for (var c in w.ntOut.ntLine)
   {
     var line = w.ntOut.ntLine[c];
-    var child = line.ntPoint2.parentNode;
-    draw(child);
+    if (line.ntPoint2)
+    {
+      var child = line.ntPoint2.parentNode;
+      draw(child);
+    }
   }
 }
 
@@ -245,7 +267,21 @@ function fromDrawThread(e)
   var w = windows[e.data.id];
   if (!w) return;
 
-  w.ntContext.putImageData(e.data.imagedata,0,0);
+  if (w.ntDrawing.style.display == 'none') return;
+
+  if (e.data.percent)
+  {
+    w.ntContext.font = "20px Georgia";
+    w.ntContext.clearRect(w.ntCanvas.offsetWidth / 2,40, 80, 80);
+    w.ntContext.beginPath();
+    w.ntContext.arc(w.ntCanvas.offsetWidth / 2, 40, 40, 0, 0.02 * e.data.percent * Math.PI);
+    w.ntContext.lineWidth = 5;
+    w.ntContext.strokeStyle="green";
+    w.ntContext.stroke();
+    return;
+  }
+
+  w.ntContext.putImageData(e.data.imagedata, 0, 0);
   w.ntMin = e.data.min;
   w.ntMax = e.data.max;
 
@@ -420,6 +456,7 @@ document.onmouseup = function(e)
     moving = null;
   }
   if (sizing) {
+    sizing.ntCanvas.style.display = 'block';
     drawSingle(sizing);
     sizing.style.border = "4px solid yellow";
     sizing = null;
@@ -455,6 +492,8 @@ function windowMove(e)
 function windowSize(e)
 {
   e = e || window.event;
+
+  sizing.ntCanvas.style.display = 'none';
 
   var newX = sizing.offsetWidth + (e.pageX - lastx);
   var newY = sizing.offsetHeight + (e.pageY - lasty);

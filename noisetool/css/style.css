@@ -86,8 +86,6 @@ input, button {
   position: absolute;
   width: 300px;
   height: 200px;
-  left: 100px;
-  top: 100px;
   overflow: visible;
   cursor: move;
 }

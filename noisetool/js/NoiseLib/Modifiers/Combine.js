@@ -7,8 +7,8 @@ LibNoise.AddOutput = function(s1, s2)
 
 LibNoise.AddOutput.prototype.GetValue = function(x, y, z)
 {
-  if (!this.SourceModule1 || !this.SourceModule2) return 0;
-  return this.SourceModule1.GetValue(x, y, z) + this.SourceModule2.GetValue(x, y, z);
+  if (!this.SourceModule1 && !this.SourceModule2) return 0;
+  return (this.SourceModule1 ? this.SourceModule1.GetValue(x, y, z) : 0) + ( this.SourceModule2 ? this.SourceModule2.GetValue(x, y, z) : 0);
 }
 
 LibNoise.AddOutput.prototype.getInput = getTwo;
@@ -24,8 +24,8 @@ LibNoise.MultiplyOutput = function(s1, s2)
 
 LibNoise.MultiplyOutput.prototype.GetValue = function(x, y, z)
 {
-  if (!this.SourceModule1 || !this.SourceModule2) return 0;
-  return this.SourceModule1.GetValue(x, y, z) * this.SourceModule2.GetValue(x, y, z);
+  if (!this.SourceModule1 && !this.SourceModule2) return 0;
+  return (this.SourceModule1 ? this.SourceModule1.GetValue(x, y, z) : 1) * (this.SourceModule2 ? this.SourceModule2.GetValue(x, y, z) : 1);
 }
 
 LibNoise.MultiplyOutput.prototype.getInput = getTwo;

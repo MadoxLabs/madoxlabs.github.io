@@ -32,6 +32,21 @@ function getModule(name)
   else if (name == "LibNoise.ScaleBiasOutput") return new LibNoise.ScaleBiasOutput();
   else if (name == "LibNoise.TerraceOutput") return new LibNoise.TerraceOutput();
   else if (name == "LibNoise.CacheOutput") return new LibNoise.CacheOutput();
+
+  else if (name == "LibNoise.AddOutput") return new LibNoise.AddOutput();
+  else if (name == "LibNoise.LargerOutput") return new LibNoise.LargerOutput();
+  else if (name == "LibNoise.SmallerOutput") return new LibNoise.SmallerOutput();
+  else if (name == "LibNoise.MultiplyOutput") return new LibNoise.MultiplyOutput();
+  else if (name == "LibNoise.PowerOutput") return new LibNoise.PowerOutput();
+  else if (name == "LibNoise.BlendOutput") return new LibNoise.BlendOutput();
+  else if (name == "LibNoise.SelectOutput") return new LibNoise.SelectOutput();
+
+  else if (name == "LibNoise.Turbulence") return new LibNoise.Turbulence();
+  else if (name == "LibNoise.DisplaceInput") return new LibNoise.DisplaceInput();
+  else if (name == "LibNoise.InvertInput") return new LibNoise.InvertInput();
+  else if (name == "LibNoise.RotateInput") return new LibNoise.RotateInput();
+  else if (name == "LibNoise.ScaleInput") return new LibNoise.ScaleInput();
+  else if (name == "LibNoise.TranslateInput") return new LibNoise.TranslateInput();
 }
 
 function createModule(startid, mods)
@@ -60,6 +75,13 @@ onmessage = function (e)
   var min = module.GetValue(e.data.startx, e.data.starty, 0);
   var max = min;
   var c = { R: 0, G: 0, B: 0 };
+
+  var total = e.data.newH * e.data.newW;
+  var sofar = 0;
+  var last = 0;
+
+  if (module.Name == "LibNoise.RotateInput") module.SetAngles();
+
   for (var yy = 0; yy < e.data.newH; yy++, y += stepy)
   {
     x = 0;
@@ -73,6 +95,14 @@ onmessage = function (e)
       imagedata.data[j++] = c.G * 255;
       imagedata.data[j++] = c.B * 255;
       imagedata.data[j++] = 255;
+      sofar++;
+
+      var p = (sofar * 100 / total)|0;
+      if (p != last)
+      {
+        last = p;
+        postMessage( { id: e.data.id, percent: p});
+      }
     }
   }
   var ret = { id: e.data.id, min: min, max: max, imagedata: imagedata };
