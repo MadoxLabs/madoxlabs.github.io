@@ -53,6 +53,7 @@ function createModule(startid, mods)
 {
   var mod = mods[startid];
   var m = getModule(mod.name);
+  if (m.Seed !== undefined) m.Seed = mod.seed * 10000000000000000;
   copyctor(m, mod.params);
   // set inputs
   for (var i = 0; i < 4; ++i)
@@ -90,6 +91,7 @@ onmessage = function (e)
       var val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
       if (val < min) min = val;
       if (val > max) max = val;
+      if (e.data.normalize.on) val = (val - e.data.normalize.min) / (e.data.normalize.max - e.data.normalize.min);
       e.data.gradient.getColor(val, c);
       imagedata.data[j++] = c.R * 255;
       imagedata.data[j++] = c.G * 255;

@@ -90,6 +90,26 @@ input, button {
   cursor: move;
 }
 
+.extra {
+  background-color: #aaaaaa;
+  border:  4px solid blue;
+  position: absolute;
+  width: 100px;
+  height: 110px;
+  overflow: visible;
+  cursor: default;
+}
+
+.extrabutton {
+  background-color: #dddddd;
+  border:  2px solid blue;
+  position: absolute;
+  width: 50px;
+  height: 10px;
+  overflow: visible;
+  cursor: pointer ;
+}
+
 .editor {
   background-color: #aaaaaa;
   border:  4px solid black;

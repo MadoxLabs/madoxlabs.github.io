@@ -95,7 +95,29 @@ function newWindow(type)
   w.oncontextmenu=new Function ("return false")
   document.getElementById("app").appendChild(w);
   w.windowid = i;
+  w.ntSeed = Math.random();
   windows[i] = w;
+
+  // extra button
+  var eb = document.createElement("div");
+  eb.setAttribute("id", "window" + i + "extrabutton");
+  eb.setAttribute("class", "extrabutton");
+  eb.style.left = "125px";
+  eb.style.top = "180px";
+  eb.addEventListener('mousedown', function (e) { extraPress(e, w); }, false);
+  w.ntExraButton = eb;
+  w.appendChild(eb);
+
+  // extra div
+  var ed = document.createElement("div");
+  ed.setAttribute("id", "window" + i + "extra");
+  ed.setAttribute("class", "extra");
+  ed.style.left = "100px";
+  ed.style.top = "200px";
+  ed.style.display = 'none';
+  ed.innerHTML = "<input type='checkbox'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button>Save</button><input size=\"1\" value=\"512\"/>";
+  w.ntExtra = ed;
+  w.appendChild(ed);
 
   // the canvas
   var cv = document.createElement("canvas");
@@ -249,6 +271,7 @@ function drawSingle(w)
     starty: parseFloat(document.getElementById("ybound").value),
     sizex: parseFloat(document.getElementById("wbound").value),
     sizey: parseFloat(document.getElementById("hbound").value),
+    normalize: { on: document.getElementById(w.id + "norm").checked, min: w.ntMin, max: w.ntMax },
     gradient: gradients.current,
     modules: createModuleState(),
     imagedata: w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
@@ -301,6 +324,7 @@ function createModuleState()
     var desc = {};
     desc.id = windows[i].windowid;
     desc.name = mod.module.Name;
+    desc.seed = windows[i].ntSeed;
     for (var p = 0; p < mod.points; ++p)
       if (windows[i].ntIn[p] && windows[i].ntIn[p].ntLine) desc["in" + p] = windows[i].ntIn[p].ntLine.ntPoint1.parentNode.windowid;//inm.Name;
     desc.params = {};
@@ -503,6 +527,12 @@ function windowSize(e)
   sizing.style.height = newY + "px";
   lastx = e.pageX;
   lasty = e.pageY;
+   
+  sizing.ntExraButton.style.left = (newX / 2 - 25) + "px";
+  sizing.ntExraButton.style.top = (newY - 20) + "px";
+
+  sizing.ntExra.style.left = (newX / 2 - 50) + "px";
+  sizing.ntExra.style.top = (newY) + "px";
 
   sizing.ntThumb.style.top = (newY - 20) + "px";
   for (var i in sizing.ntIn)
@@ -578,4 +608,12 @@ function windowStopLine(e, w)
   point1 = null;
   point2 = null;
   line = null;
+}
+
+function extraPress(e, w)
+{
+  if (w.ntExtra.style.display == 'block')
+    w.ntExtra.style.display = 'none';
+  else
+    w.ntExtra.style.display = 'block';
 }
