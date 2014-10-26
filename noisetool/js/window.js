@@ -278,8 +278,8 @@ function drawSingle(w, size)
     if (w.ntSkipDraw) return;
 
   w.ntDrawing.style.display = 'block';
-  w.ntCanvas.width = w.clientWidth - 20;
-  w.ntCanvas.height = w.clientHeight - 35;
+  w.ntCanvas.width = w.clientWidth - 20;   // for some reason these lines blank the canvas and let
+  w.ntCanvas.height = w.clientHeight - 35; // the drawing icon show through
 
   var params = {
     id: w.windowid,
@@ -322,10 +322,21 @@ function fromDrawThread(e)
 
   if (saveCanvas) {
     saveCanvas.getContext('2d').putImageData(e.data.imagedata, 0, 0);
-    download("image.bmp", saveCanvas.toDataURL());
+    var data =  saveCanvas.toDataURL()
+    download("image.bmp",data);
     saveCanvas = null;
-    w.ntContext.putImageData(e.data.imagedata, 0, 0, 0, 0, w.clientWidth - 20, w.clientHeight - 35);
     w.ntDrawing.style.display = 'none';
+    // we now need to redraw the canvas, lets use the save image but we have to scale it using an image
+//    w.ntContext.putImageData(e.data.imagedata, 0, 0, 0, 0, w.clientWidth - 20, w.clientHeight - 35);
+    var imageObject = new Image();
+    imageObject.onload = function ()
+    {
+      var size = document.getElementById("window" + e.data.id + "size").value;
+      w.ntContext.clearRect(0, 0, w.ntCanvas.width, w.ntCanvas.height);
+      w.ntContext.scale(w.ntCanvas.width / size, w.ntCanvas.height / size);
+      w.ntContext.drawImage(imageObject, 0, 0);
+    }
+    imageObject.src = data;
     return;
   }
   else
@@ -508,6 +519,8 @@ document.onmouseup = function(e)
   }
   if (sizing) {
     sizing.ntCanvas.style.display = 'block';
+    sizing.ntCanvas.width = sizing.clientWidth - 20;
+    sizing.ntCanvas.height = sizing.clientHeight - 35;
     drawSingle(sizing);
     sizing.style.border = "4px solid yellow";
     sizing = null;
