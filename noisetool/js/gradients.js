@@ -214,6 +214,15 @@ ntGradients.prototype.showGradient = function(name)
   for (var p in this.showing.Points)
     buf += "<div onclick=\"gradients.pointDelete(" + p + ")\" class=\"glyphicon glyphicon-remove-circle lightup\"></div><input id=\"ev" + p + "\" size=1 onchange=\"gradients.update();\" value=\"" + this.showing.Points[p].Point + "\"><input id=\"ec" + p + "\" class=\"color {onImmediateChange:'gradients.update();'}\" value=\"" + this.showing.getHexFor(p) + "\"><br>";
   document.getElementById("editorpoints").innerHTML = buf;
+  this.drawPoints();
+}
+
+ntGradients.prototype.drawPoints = function ()
+{
+  var buf = "";
+  for (var p in this.showing.Points)
+    buf += "<div onclick=\"gradients.pointDelete(" + p + ")\" class=\"glyphicon glyphicon-remove-circle lightup\"></div><input id=\"ev" + p + "\" size=1 onchange=\"gradients.update();\" value=\"" + this.showing.Points[p].Point + "\"><input id=\"ec" + p + "\" class=\"color {onImmediateChange:'gradients.update();'}\" value=\"" + this.showing.getHexFor(p) + "\"><br>";
+  document.getElementById("editorpoints").innerHTML = buf;
   jscolor.init();
   this.drawSample();
 }
@@ -251,5 +260,5 @@ ntGradients.prototype.update = function()
     this.showing.Points[p].color.G = c.rgb[1];
     this.showing.Points[p].color.B = c.rgb[2];
   }
-  this.drawSample();
+  this.drawPoints();
 }
