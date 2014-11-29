@@ -188,6 +188,7 @@ ntGradients.prototype.gradientRename = function (name)
 ntGradients.prototype.pointNew = function (name)
 {
   if (!this.showing) return;
+  this.update();
   this.showing.Points.push({ Point: this.showing.Points.length, color: { R: Math.random(), G: Math.random(), B: Math.random() } });
   this.showGradient(this.showing.name);
 }
