@@ -361,7 +361,7 @@ function fromDrawThread(e)
   if (e.data.percent)
   {
     w.ntContext.beginPath();
-    w.ntContext.arc(w.ntCanvas.offsetWidth / 2, 40, 40, 0, 0.02 * e.data.percent * Math.PI);
+    w.ntContext.arc(w.ntCanvas.offsetWidth / 2, 40, 36, 0, 0.02 * e.data.percent * Math.PI);
     w.ntContext.lineWidth = 5;
     w.ntContext.strokeStyle="green";
     w.ntContext.stroke();
@@ -492,12 +492,12 @@ function windowSelect(w)
     // create names and sliders
     var val = w.ntModule.module[param.Name];
     buf += "<tr>\
-              <td>" + param.Name + "</td>\
-              <td id='" + param.Name + "' onclick=\"paramSwap(this.id);\">" + val + "</td>\
-              <td>\
-                <input id='" + param.Name + "range' oninput='paramChange(\"" + param.Name + "\", this.value);' style=\"width: 100px\" width=120 type='range' step='" + param.Incr + "' min='" + param.Min + "' max='" + param.Max + "' value='" + val + "'>\
-                <input id='" + param.Name + "text' style='display: none' onchange='paramChange(\"" + param.Name + "\", this.value);' style=\"width: 80px\" width=80 value='" + val + "'>\
-              </td></tr>";
+<td>" + param.Name + ": </td>\
+<td width=120 id='" + param.Name + "' onclick=\"paramSwap(this.id);\"> " + val + " </td>\
+<td>\
+<input id='" + param.Name + "range' oninput='paramChange(\"" + param.Name + "\", this.value);' style=\"width: 100px\" width=120 type='range' step='" + param.Incr + "' min='" + param.Min + "' max='" + param.Max + "' value='" + val + "'>\
+<input id='" + param.Name + "text' style='display: none; width=\"40px\";' onchange='paramChange(\"" + param.Name + "\", this.value);'  value='" + val + "'>\
+</td></tr>";
   }
   document.getElementById("params").innerHTML = buf;
 }
