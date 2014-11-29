@@ -624,14 +624,14 @@ function windowSize(e)
   for (var i in sizing.ntIn)
     if (sizing.ntIn[i].ntLine) {
       sizing.ntIn[i].ntLine.setAttribute("x2", sizing.offsetLeft);
-      sizing.ntIn[i].ntLine.setAttribute("y2", sizing.offsetTop - 22 + newY * points[i]);
+      sizing.ntIn[i].ntLine.setAttribute("y2", sizing.offsetTop + 10+newY * points[i]);
     }
   if (sizing.ntOut)
     for (var i in sizing.ntOut.ntLine)
     {
       var line = sizing.ntOut.ntLine[i];
       line.setAttribute("x1", sizing.offsetLeft + newX);
-      line.setAttribute("y1", sizing.offsetTop - 22 + newY * 0.5);
+      line.setAttribute("y1", sizing.offsetTop +10+newY * 0.5);
     }
 }
 
