@@ -76,6 +76,12 @@ function newWindow(type)
 
   if (i == 1) document.getElementById("app").removeChild(document.getElementById("title"));
 
+  var glyph = "";
+  if (type == 1) glyph = "<span class=\"glyphicon glyphicon-unchecked\"></span>";
+  if (type == 2) glyph = "<span class=\"glyphicon glyphicon-log-in\"></span>";
+  if (type == 3) glyph = "<span class=\"glyphicon glyphicon-log-out\"></span>";
+  if (type == 4) glyph = "<span class=\"glyphicon glyphicon-sound-stereo\"></span>";
+
   var loc = getCreateLoc();
   var w = document.createElement("div");
   w.setAttribute("id", "window" + i);
@@ -85,7 +91,7 @@ function newWindow(type)
   w.style.zIndex = z++;
   var buf = "\
   <li class=\"nav dropdown\">\
-  <button type=\"button\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"> Type: <span class=\"caret\"></span></button>\
+  <button type=\"button\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"> "+glyph+" Type: <span class=\"caret\"></span></button>\
   <ul class=\"dropdown-menu\" role=\"menu\">";
   for (var t in types[type])
     buf += "<li><a href=\"#\" onclick=\"setWindowType('window"+i+"', '" + types[type][t] + "');\">" + types[type][t] + "</a></li>";
@@ -135,7 +141,7 @@ function newWindow(type)
   n.setAttribute("id", "window" + i+"name");
   n.style.position = "absolute";
   n.style.top = "3px";
-  n.style.left = "70px";
+  n.style.left = "90px";
   n.innerText = "None";
   w.appendChild(n);
   w.ntName = n;
