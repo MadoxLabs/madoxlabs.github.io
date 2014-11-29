@@ -1834,6 +1834,7 @@ LibNoise.RotateInput.prototype.SetAngles = function()
 
 LibNoise.RotateInput.prototype.GetValue = function (x, y, z)
 {
+  if (!this.SourceModule) return 0;
   var nx = (this.m_x1Matrix * x) + (this.m_y1Matrix * y) + (this.m_z1Matrix * z);
   var ny = (this.m_x2Matrix * x) + (this.m_y2Matrix * y) + (this.m_z2Matrix * z);
   var nz = (this.m_x3Matrix * x) + (this.m_y3Matrix * y) + (this.m_z3Matrix * z);

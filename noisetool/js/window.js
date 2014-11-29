@@ -103,7 +103,7 @@ function newWindow(type)
   eb.setAttribute("id", "window" + i + "extrabutton");
   eb.setAttribute("class", "extrabutton");
   eb.style.left = "125px";
-  eb.style.top = "180px";
+  eb.style.top = "183px";
   eb.addEventListener('mousedown', function (e) { extraPress(e, w); }, false);
   w.ntExraButton = eb;
   w.appendChild(eb);
@@ -186,14 +186,26 @@ function setWindowType(name, type)
   var w = document.getElementById(name);
   document.getElementById(w.id + "name").innerText = type;
 
+  var oldmodule = "";
   var exists = 0;
-  if (w.ntModule) exists = w.ntModule.points;
+  if (w.ntModule) {
+    exists = w.ntModule.points;
+    oldmodule = w.ntModule.name;
+  }
 
   w.ntModule = factory.getModule(type);
   if (!w.ntModule) return;
 
   // input - up to 4
   if (!w.ntIn) w.ntIn = [];
+
+  // reset the tooltip on the dots that will remain
+  for (var p = 0; p < exists; ++p)
+  {
+    w.ntIn[p].innerHTML = "<span>" + w.ntModule.pointNames[p] + "</span>";
+  }
+
+  // if there is not enough dots, add some more
   for (var p = exists; p < w.ntModule.points; ++p)
   {
     var input = document.createElement("div");
@@ -208,10 +220,40 @@ function setWindowType(name, type)
     w.ntIn.push(input);
   }
 
+  // displace is particularly irksome. We need to rearrange some lines for this.
+  // point 1 becomes point 0 if no longer displace
+  if (type != "Displace" && oldmodule == "LibNoise.DisplaceInput") {
+    if (w.ntIn[1].ntLine) {
+      w.ntSkipDraw = true;
+      var source = w.ntIn[1].ntLine.ntPoint1;
+      windowStopLine({ currentTarget: w.ntIn[1] }, w); // erase line
+      windowStartLine({ currentTarget: source }, source.parentNode);      // click on the source out again
+      windowStopLine({ currentTarget: w.ntIn[0] }, w);      // click on our point 1
+      w.ntSkipDraw = false;
+    }
+  }
+
+  // if there is too many dots, remove some
   for (var p = exists-1; p >= w.ntModule.points; --p)
   {
+    windowStopLine({ currentTarget: w.ntIn[p] }, w);
     w.removeChild(w.ntIn[p]);
-    delete w.ntIn[p];
+    w.ntIn.splice(p);
+  }
+
+  // displace is particularly irksome. We need to rearrange some lines for this.
+  // point 0 becomes 1
+  if (type == "Displace" && oldmodule != "LibNoise.DisplaceInput")
+  {
+    if (w.ntIn[0].ntLine)
+    {
+      w.ntSkipDraw = true;
+      var source = w.ntIn[0].ntLine.ntPoint1;
+      windowStopLine({ currentTarget: w.ntIn[0] }, w); // erase line
+      windowStartLine({ currentTarget: source }, source.parentNode);      // click on the source out again
+      windowStopLine({ currentTarget: w.ntIn[1] }, w);      // click on our point 1
+      w.ntSkipDraw = false;
+    }
   }
 
   // output
@@ -569,7 +611,7 @@ function windowSize(e)
   lasty = e.pageY;
    
   sizing.ntExraButton.style.left = (newX / 2 - 25) + "px";
-  sizing.ntExraButton.style.top = (newY - 20) + "px";
+  sizing.ntExraButton.style.top = (newY - 17) + "px";
 
   sizing.ntExtra.style.left = (newX / 2 - 50) + "px";
   sizing.ntExtra.style.top = (newY) + "px";
