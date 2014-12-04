@@ -8,6 +8,8 @@ var factory;
 var gradients;
 var windows = {};
 
+window.onbeforeunload = function () { return "Exit NoiseTool?"; }
+
 document.getElementById("mySVG").onclick = function (e)
 {
   cancelLine();
@@ -121,7 +123,7 @@ function newWindow(type)
   ed.style.left = "100px";
   ed.style.top = "200px";
   ed.style.display = 'none';
-  ed.innerHTML = "<input type='checkbox'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/>";
+  ed.innerHTML = "<input type='checkbox'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
   w.ntExtra = ed;
   w.appendChild(ed);
 
@@ -311,6 +313,21 @@ function save(id)
 
 var saveCanvas = null;
 
+function setCustomGradient(check)
+{
+  if (!selected) return;
+  if (check)
+  {
+    // get the gradient from gradientlist
+    selected.ntCustomGradient = gradients.current.name;
+  }
+  else
+  {
+    selected.ntCustomGradient = null;
+    drawSingle(w);
+  }
+}
+
 function drawSingle(w, size)
 {
   if (saveCanvas) return;
@@ -338,7 +355,7 @@ function drawSingle(w, size)
     sizex: parseFloat(document.getElementById("wbound").value),
     sizey: parseFloat(document.getElementById("hbound").value),
     normalize: { on: document.getElementById(w.id + "norm").checked, min: w.ntMin, max: w.ntMax },
-    gradient: gradients.current,
+    gradient: w.ntCustomGradient ? gradients.getGradient(w.ntCustomGradient) : gradients.current,
     modules: createModuleState(),
     imagedata: size ? saveCanvas.getContext('2d').getImageData(0, 0, size, size) : w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
@@ -420,6 +437,27 @@ function createModuleState()
   return ret;
 }
 
+function renderToSourceCode(modid)
+{
+  console.log(toSourceCode(modid, createModuleState()));
+  alert("Code written to console");
+}
+
+function toSourceCode(modid, mods)
+{
+  var mod = mods[modid];
+  var name = "mod" + modid;
+  var buf = "var " + name + " = new " + mod.name + "();\n";
+  buf += name + ".Seed = "+ (mod.seed * 10000000000000000)+";\n";
+  for (var property in mod.params)
+    if (mod.params.hasOwnProperty(property)) buf += name + "." + property + " = " + mod.params[property] + ";\n";
+  for (var i = 0; i < 4; ++i)
+    if (mod["in" + i]) buf += name + ".setInput(" + i + ", mod" + mod["in" + i] + ");\n";
+  for (var i = 0; i < 4; ++i)
+    if (mod["in" + i]) buf = toSourceCode(mod["in" + i], mods) + "\n" + buf;
+  return buf;
+}
+
 var moving = null;
 var sizing = null;
 var selected = null;
@@ -483,6 +521,34 @@ function windowSelect(w)
     document.getElementById("range").innerText = buf;
   }
 
+  // set the grad
+  var e = document.getElementById("gradientlist");
+  var gradname = e.options[e.selectedIndex].text;
+  if (w.ntCustomGradient && gradname != w.ntCustomGradient)
+  {
+    // set the gradientlist to the custom one
+    for (var i = 0; i < e.options.length; i++)
+    {
+      if (e.options[i].text === w.ntCustomGradient)
+      {
+        e.selectedIndex = i;
+        break;
+      }
+    }
+  }
+  else if (gradients.current.name != gradname)
+  {
+    // set the gradient list to the global one
+    for (var i = 0; i < e.options.length; i++)
+    {
+      if (e.options[i].text === gradients.current.name)
+      {
+        e.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
   if (!w.ntModule) return;
   // draw parameters for module
   var buf = "<table>";
@@ -496,7 +562,7 @@ function windowSelect(w)
 <td width=120 id='" + param.Name + "' onclick=\"paramSwap(this.id);\"> " + val + " </td>\
 <td>\
 <input id='" + param.Name + "range' oninput='paramChange(\"" + param.Name + "\", this.value);' style=\"width: 100px\" width=120 type='range' step='" + param.Incr + "' min='" + param.Min + "' max='" + param.Max + "' value='" + val + "'>\
-<input id='" + param.Name + "text' style='display: none; width=\"40px\";' onchange='paramChange(\"" + param.Name + "\", this.value);'  value='" + val + "'>\
+<input id='" + param.Name + "text' style='display: none; width:80px;' onchange='paramChange(\"" + param.Name + "\", this.value);'  value='" + val + "'>\
 </td></tr>";
   }
   document.getElementById("params").innerHTML = buf;

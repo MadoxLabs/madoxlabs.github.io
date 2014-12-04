@@ -95,7 +95,10 @@ ntGradients.prototype.getGradient = function (name)
 
 ntGradients.prototype.setCurrent = function (name)
 {
-  this.current = this.gradients[name];
+  if (selected && selected.ntCustomGradient)
+    selected.ntCustomGradient = name;
+  else
+    this.current = this.gradients[name];
 }
 
 ntGradients.prototype.showEditor = function()
@@ -123,7 +126,7 @@ ntGradients.prototype.showEditor = function()
   c.style.position = "absolute";
   c.style.top = "0px";
   c.style.right = "0px";
-  c.addEventListener('mousedown', function (e) { windowClose(e, w); redraw();}, false);
+  c.addEventListener('mousedown', function (e) { gradients.update(); windowClose(e, w); redraw();}, false);
   w.appendChild(c);
   w.ntClose = c;
 
