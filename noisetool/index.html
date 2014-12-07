@@ -15,17 +15,22 @@
   <tr><td></td><td>W:</td><td><input id="wbound" size="1" value="1"/></td><td>H:</td><td><input id="hbound" size="1" value="1"/></td></tr>
   </table>
   <center><button onclick="redraw();">Update</button></center>
-  <hr />
+  <hr /><center>
   <div id="range">Output Range:</div><br />
 
   Gradient: <select onchange="gradients.setCurrent(this.options[this.selectedIndex].value); redraw();" id="gradientlist"></select>
-  <center><button onclick="gradients.showEditor();">Edit Gradients</button></center>
+  <button onclick="gradients.showEditor();">Edit Gradients</button></center>
   <hr />
   <center>
   <button onclick="draw(selected);">Update</button><br />
   Parameters<br />
   </center>
   <div id="params"></div>
+  <hr />
+  <center>
+  Layouts: <select id="layouts"></select><br /><button onclick="layoutLoad();">Load</button><button onclick="layoutDelete();">Delete</button><br /><br />
+  Current Layout: <input id="layoutname" width="5" /><button onclick="layoutSave();">Save</button>
+    </center>
 </div>
 
 
@@ -59,9 +64,11 @@
 
 <!-- TODO
   
-  Shadow filter
-  Save module definition to local storage
-    - need name
+  detect when to invalidate noise map
+  when doing shadow, redo noise map as needed - like resize, save size, new seed
+  when doing render, reue noise map if no change
+
+  Save module definition to local storage    - need name
   Load saved state from local storage
   Delete from local storage
 

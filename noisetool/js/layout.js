@@ -1,0 +1,146 @@
+function newLayout(name)
+{
+  for (var l = 1; l < 1000; ++l) {
+    if (!localStorage.getItem('ntLayout' + l)) {
+      if (!name) name = "Layout " + l;
+      layout = { name: name, key: "ntLayout" + l };
+      document.getElementById("layoutname").value = layout.name;
+      break;
+    }
+  }
+  makeLayoutList()
+}
+
+function makeLayoutList()
+{
+  var list = JSON.parse(localStorage.getItem('ntLayoutList')); if (!list) return;
+  var glist = document.getElementById("layouts"); if (!glist) return;
+
+  var keys = [];
+
+  for (var k in list) {
+    if (list.hasOwnProperty(k)) {
+      keys.push([k, list[k]]);
+    }
+  }
+  keys.sort(function (a, b) { return ((a[1] == b[1]) ? 0 : ((a[1] > b[1]) ? 1 : -1)); });
+
+  for (var i = glist.options.length - 1; i >= 0; --i) glist.options[i] = null;
+  for (var l = 0; l < keys.length; ++l) glist.options[glist.options.length] = new Option(list[keys[l][0]], keys[l][0]);
+}
+
+function layoutDelete()
+{
+  if (!localStorage.getItem('ntLayoutList')) return;
+
+  var glist = document.getElementById("layouts");
+  if (glist.selectedIndex == -1) return;
+  var name = glist.options[glist.selectedIndex].value;
+
+  var list = JSON.parse(localStorage.getItem('ntLayoutList'));
+  delete list[name];
+  localStorage.setItem('ntLayoutList', JSON.stringify(list));
+  localStorage.removeItem(name);
+  makeLayoutList();
+}
+
+function layoutLoad()
+{
+  if (!localStorage.getItem('ntLayoutList')) return;
+
+  var glist = document.getElementById("layouts");
+  var name = glist.options[glist.selectedIndex].value;
+  layout = JSON.parse(localStorage.getItem(name));
+  document.getElementById("layoutname").value = layout.name;
+
+  loadBounds();
+  loadWindows();
+}
+
+function layoutSave()
+{
+  if (document.getElementById("layoutname").value != layout.name)
+    newLayout(document.getElementById("layoutname").value);
+
+  saveBounds();
+  saveWindows();
+
+  localStorage.setItem(layout.key, JSON.stringify(layout));
+
+  var list = {};
+  if (!localStorage.getItem('ntLayoutList')) {
+    list[layout.key] = layout.name;
+  }
+  else {
+    list = JSON.parse(localStorage.getItem('ntLayoutList'));
+    list[layout.key] = layout.name;
+  }
+  localStorage.setItem('ntLayoutList', JSON.stringify(list));
+  makeLayoutList();
+}
+
+function saveBounds()
+{
+  var bounds = {
+    X: document.getElementById("xbound").value,
+    Y: document.getElementById("ybound").value,
+    W: document.getElementById("wbound").value,
+    H: document.getElementById("hbound").value
+  };
+  layout.bounds = bounds;
+}
+
+function loadBounds()
+{
+  document.getElementById("xbound").value = layout.bounds.X;
+  document.getElementById("ybound").value = layout.bounds.Y;
+  document.getElementById("wbound").value = layout.bounds.W;
+  document.getElementById("hbound").value = layout.bounds.H;
+}
+
+function saveWindows()
+{
+  var windowsgroup = {z: z};
+  for (var i in windows)
+  {
+    var w = windows[i];
+    var windowdata = {id: i};
+
+    windowdata.type = w.ntWindowType;
+    windowdata.noisetype = document.getElementById(w.id + "name").innerText;
+    windowdata.skip = w.ntSkipDraw;
+    windowdata.seed = w.ntSeed;
+    windowdata.left = w.offsetLeft;
+    windowdata.top = w.offsetTop;
+    windowdata.width = w.offsetWidth;
+    windowdata.height = w.offsetHeight;
+    windowdata.z = w.style.zIndex;
+    windowsgroup[i] = windowdata;
+  }
+  layout.windows = windowsgroup;
+}
+
+function loadWindows()
+{
+  for (var n in layout.windows)
+  {
+    if (n == "z") continue;
+    var data = layout.windows[n];
+    i = data.id | 0;
+    newWindow(data.type);
+    windows[data.id].ntSeed = data.seed;
+    windows[data.id].ntSkipDraw = data.skip;
+    windows[data.id].style.width = data.width + "px";
+    windows[data.id].style.height = data.height + "px";
+    windows[data.id].style.left = data.left + "px";
+    windows[data.id].style.top = data.top + "px";
+    windows[data.id].style.zIndex = data.z;
+    if (data.noisetype) setWindowType(windows[data.id].id, data.noisetype);
+
+    moveAdjust(windows[data.id], data.left, data.top);
+    sizeAdjust(windows[data.id], data.width, data.height);
+    windowSelect(windows[data.id]);
+  }
+
+  z = layout.windows.z;
+}

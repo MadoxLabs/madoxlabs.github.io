@@ -61,6 +61,8 @@ function createModule(startid, mods)
   return m;
 }
 
+var noisedata = [];
+
 onmessage = function (e)
 {
   var imagedata = e.data.imagedata;
@@ -73,30 +75,108 @@ onmessage = function (e)
   var x = 0;  // these loops are done like this because more optimized stopped working
   var y = 0;
   var j = 0;
-  var min = module.GetValue(e.data.startx, e.data.starty, 0);
-  var max = min;
+  var min = (e.data.normalize.on) ? 1.0 : module.GetValue(e.data.startx, e.data.starty, 0);
+  var max = (e.data.normalize.on) ? 0.0 : min;
   var c = { R: 0, G: 0, B: 0 };
 
   var total = e.data.newH * e.data.newW;
   var sofar = 0;
   var last = 0;
+  var nd = 0;
 
   if (module.Name == "LibNoise.RotateInput") module.SetAngles();
+
+  var cosAzimuth;
+  var sinAzimuth;
+  var cosElev;
+  var sinElev;
+  if (module.Azimuth)
+  {
+    cosAzimuth = Math.cos(module.Azimuth * 0.0174532925);
+    sinAzimuth = Math.sin(module.Azimuth * 0.0174532925);
+    cosElev = Math.cos(module.Elevation * 0.0174532925);
+    sinElev = Math.sin(module.Elevation * 0.0174532925);
+  }
 
   for (var yy = 0; yy < e.data.newH; yy++, y += stepy)
   {
     x = 0;
-    for (var xx = 0.0; xx < e.data.newW; xx++, x += stepx)
+    for (var xx = 0; xx < e.data.newW; xx++, x += stepx)
     {
-      var val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
-      if (val < min) min = val;
-      if (val > max) max = val;
-      if (e.data.normalize.on) val = (val - e.data.normalize.min) / (e.data.normalize.max - e.data.normalize.min);
-      e.data.gradient.getColor(val, c);
-      imagedata.data[j++] = c.R * 255;
-      imagedata.data[j++] = c.G * 255;
-      imagedata.data[j++] = c.B * 255;
-      imagedata.data[j++] = 255;
+      if (e.data.shadow)  // use noisedata values to compute shadow
+      {
+        var xLeftOffset, xRightOffset, yUpOffset, yDownOffset;
+        if (xx == 0)
+        {
+          xLeftOffset = 0;
+          xRightOffset = 1;
+        }
+        else if (xx == e.data.newW - 1)
+        {
+          xLeftOffset = -1;
+          xRightOffset = 0;
+        }
+        else
+        {
+          xLeftOffset = -1;
+          xRightOffset = 1;
+        }
+        if (yy == 0)
+        {
+          yDownOffset = 0;
+          yUpOffset = 1;
+        }
+        else if (yy == e.data.newH - 1)
+        {
+          yDownOffset = -1;
+          yUpOffset = 0;
+        }
+        else
+        {
+          yDownOffset = -1;
+          yUpOffset = 1;
+        }
+        yDownOffset *= e.data.newW;
+        yUpOffset *= e.data.newW;
+
+        // Get the noise value of the current point in the source noise map
+        // and the noise values of its four-neighbors.
+        var nc = noisedata[yy * e.data.newW + xx];
+        var nl = noisedata[yy * e.data.newW + xx + xLeftOffset];
+        var nr = noisedata[yy * e.data.newW + xx + xRightOffset];
+        var nd = noisedata[yy * e.data.newW + xx + yDownOffset];
+        var nu = noisedata[yy * e.data.newW + xx + yUpOffset];
+        // Now do the lighting calculations.
+        var lightIntensity;
+        {
+          var io = 1.0 * 1.41421356 * sinElev / 2.0;
+          var ix = (1.0 - io) * module.Contrast * 1.41421356 * cosElev * cosAzimuth;
+          var iy = (1.0 - io) * module.Contrast * 1.41421356 * cosElev * sinAzimuth;
+          lightIntensity = (ix * (nl - nr) + iy * (nd - nu) + io);
+          if (lightIntensity < 0.0) { lightIntensity = 0.0; }
+          lightIntensity *= module.Intensity;
+        }
+        e.data.gradient.getColor(nc, c);
+        imagedata.data[j++] = c.R * lightIntensity * 255;
+        imagedata.data[j++] = c.G * lightIntensity * 255;
+        imagedata.data[j++] = c.B * lightIntensity * 255;
+        imagedata.data[j++] = 255;
+      }
+      else  // just output a bitmap
+      {
+        var val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
+        if (e.data.normalize.on) val = (val - e.data.normalize.min) / (e.data.normalize.max - e.data.normalize.min);
+        if (val < min) min = val;
+        if (val > max) max = val;
+
+        noisedata[nd++] = val;  // save an arrya of raw nose values for processing later (like shadow)
+
+        e.data.gradient.getColor(val, c);
+        imagedata.data[j++] = c.R * 255;
+        imagedata.data[j++] = c.G * 255;
+        imagedata.data[j++] = c.B * 255;
+        imagedata.data[j++] = 255;
+      }
       sofar++;
 
       var p = (sofar * 100 / total)|0;
@@ -109,7 +189,8 @@ onmessage = function (e)
   }
 
   var ret;
-  ret = { id: e.data.id, min: min, max: max, imagedata: imagedata };
+  ret = { id: e.data.id, imagedata: imagedata };
+  if (!e.data.normalize.on) { ret.min = min; ret.max = max; }
   postMessage(ret);
 }
 

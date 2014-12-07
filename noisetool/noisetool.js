@@ -1,5 +1,6 @@
 // source files to load, some optionally
 var baseSrc = ["jscolor.js",
+               "layout.js",
                "window.js",
                "gradients.js",
                "factory.js"];

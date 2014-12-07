@@ -8,6 +8,13 @@ var factory;
 var gradients;
 var windows = {};
 
+var layout = { name: "You have a lot of layouts", key: "ntLayoutXXX" }
+
+// init this layout
+newLayout();
+
+//------------------------------------
+
 window.onbeforeunload = function () { return "Exit NoiseTool?"; }
 
 document.getElementById("mySVG").onclick = function (e)
@@ -76,7 +83,7 @@ function newWindow(type)
   // make it zorder
   // make it resize
 
-  if (i == 1) document.getElementById("app").removeChild(document.getElementById("title"));
+  if (i == 1 && document.getElementById("title")) document.getElementById("app").removeChild(document.getElementById("title"));
 
   var glyph = "";
   if (type == 1) glyph = "<span class=\"glyphicon glyphicon-unchecked\"></span>";
@@ -103,6 +110,7 @@ function newWindow(type)
   w.oncontextmenu=new Function ("return false")
   document.getElementById("app").appendChild(w);
   w.windowid = i;
+  w.ntWindowType = type;
   w.ntSeed = Math.random();
   windows[i] = w;
 
@@ -123,7 +131,7 @@ function newWindow(type)
   ed.style.left = "100px";
   ed.style.top = "200px";
   ed.style.display = 'none';
-  ed.innerHTML = "<input type='checkbox'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
+  ed.innerHTML = "<input type='checkbox' onClick='toggleShadow(selected);'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
   w.ntExtra = ed;
   w.appendChild(ed);
 
@@ -187,6 +195,27 @@ function newWindow(type)
   w.ntSkipDraw = false;
 
   i += 1;
+}
+
+function toggleShadow(w)
+{
+  if (w.ntModule.parameters[w.ntModule.parameters.length - 1].Name == "Elevation")
+  {
+    w.ntModule.parameters = w.ntModule.parameters.slice(0, -4);
+  }
+  else
+  {
+    w.ntModule.parameters.push({ Name: "Intensity", Min: 0, Max: 5, Incr: 0.1, Rounding: 1 });
+    w.ntModule.parameters.push({ Name: "Contrast", Min: 0, Max: 5, Incr: 0.1, Rounding: 1 });
+    w.ntModule.parameters.push({ Name: "Azimuth", Min: 0, Max: 360, Incr: 1, Rounding: 0 });
+    w.ntModule.parameters.push({ Name: "Elevation", Min: 0, Max: 90, Incr: 0, Rounding: 0 });
+
+    if (!w.ntModule.module.Intensity) w.ntModule.module.Intensity = 2;
+    if (!w.ntModule.module.Contrast) w.ntModule.module.Contrast = 3;
+    if (!w.ntModule.module.Azimuth) w.ntModule.module.Azimuth = 45;
+    if (!w.ntModule.module.Elevation) w.ntModule.module.Elevation = 45;
+  }
+  drawSingle(w);
 }
 
 function setWindowType(name, type)
@@ -360,6 +389,9 @@ function drawSingle(w, size)
     imagedata: size ? saveCanvas.getContext('2d').getImageData(0, 0, size, size) : w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
 
+  if (w.ntModule.parameters.length > 0)
+    params.shadow = (w.ntModule.parameters[w.ntModule.parameters.length - 1].Name == "Elevation" ? true : false);
+
   if (!w.ntWorker)
   {
     w.ntWorker = new Worker("js/drawthread.js");
@@ -407,8 +439,8 @@ function fromDrawThread(e)
   else
   {
     w.ntContext.putImageData(e.data.imagedata, 0, 0);
-    w.ntMin = e.data.min;
-    w.ntMax = e.data.max;
+    if (e.data.min) w.ntMin = e.data.min;
+    if (e.data.max) w.ntMax = e.data.max;
   }
 
   w.ntDrawing.style.display = 'none';
@@ -515,7 +547,13 @@ function windowSelect(w)
     selected = w;
     selected.style.border = "4px solid yellow";
   }
-  if (w.ntMin)
+
+  if (document.getElementById(w.id + "norm").checked)
+  {
+    var buf = "Output Range: 0.0 to 1.0";
+    document.getElementById("range").innerText = buf;
+  }
+  else if (w.ntMin || w.ntMax)
   {
     var buf = "Output Range: " + (Math.round(w.ntMin * 100) / 100) + " to " + (Math.round(w.ntMax * 100) / 100);
     document.getElementById("range").innerText = buf;
@@ -651,18 +689,23 @@ function windowMove(e)
   lastx = e.pageX;
   lasty = e.pageY;
 
-  for (var i in moving.ntIn)
-    if (moving.ntIn[i].ntLine)
+  moveAdjust(moving, newX, newY);
+}
+
+function moveAdjust(w, newX, newY)
+{
+  for (var i in w.ntIn)
+    if (w.ntIn[i].ntLine)
     {
-      moving.ntIn[i].ntLine.setAttribute("x2", newX);
-      moving.ntIn[i].ntLine.setAttribute("y2", newY + 10+moving.offsetHeight * points[i]);
+      w.ntIn[i].ntLine.setAttribute("x2", newX);
+      w.ntIn[i].ntLine.setAttribute("y2", newY + 10+w.offsetHeight * points[i]);
     }
-  if (moving.ntOut)
+  if (w.ntOut)
   {
-    for (var i in moving.ntOut.ntLine) {
-      var line = moving.ntOut.ntLine[i];
-      line.setAttribute("x1", newX + moving.offsetWidth);
-      line.setAttribute("y1", newY + 10+moving.offsetHeight * 0.5);
+    for (var i in w.ntOut.ntLine) {
+      var line = w.ntOut.ntLine[i];
+      line.setAttribute("x1", newX + w.offsetWidth);
+      line.setAttribute("y1", newY + 10+w.offsetHeight * 0.5);
     }
   }
 }
@@ -682,28 +725,33 @@ function windowSize(e)
   lastx = e.pageX;
   lasty = e.pageY;
    
-  sizing.ntExraButton.style.left = (newX / 2 - 25) + "px";
-  sizing.ntExraButton.style.top = (newY - 17) + "px";
+  sizeAdjust(sizing, newX, newY);
+}
 
-  sizing.ntExtra.style.left = (newX / 2 - 50) + "px";
-  sizing.ntExtra.style.top = (newY) + "px";
+function sizeAdjust(w, newX, newY)
+{
+  w.ntExraButton.style.left = (newX / 2 - 25) + "px";
+  w.ntExraButton.style.top = (newY - 17) + "px";
 
-  sizing.ntThumb.style.top = (newY - 20) + "px";
-  for (var i in sizing.ntIn)
-    sizing.ntIn[i].style.top = (newY * points[i]) + "px";
-  if (sizing.ntOut) sizing.ntOut.style.top = (newY*0.5) + "px";
+  w.ntExtra.style.left = (newX / 2 - 50) + "px";
+  w.ntExtra.style.top = (newY) + "px";
 
-  for (var i in sizing.ntIn)
-    if (sizing.ntIn[i].ntLine) {
-      sizing.ntIn[i].ntLine.setAttribute("x2", sizing.offsetLeft);
-      sizing.ntIn[i].ntLine.setAttribute("y2", sizing.offsetTop + 10+newY * points[i]);
+  w.ntThumb.style.top = (newY - 20) + "px";
+  for (var i in w.ntIn)
+    w.ntIn[i].style.top = (newY * points[i]) + "px";
+  if (w.ntOut) w.ntOut.style.top = (newY*0.5) + "px";
+
+  for (var i in w.ntIn)
+    if (w.ntIn[i].ntLine) {
+      w.ntIn[i].ntLine.setAttribute("x2", w.offsetLeft);
+      w.ntIn[i].ntLine.setAttribute("y2", w.offsetTop + 10+newY * points[i]);
     }
-  if (sizing.ntOut)
-    for (var i in sizing.ntOut.ntLine)
+  if (w.ntOut)
+    for (var i in w.ntOut.ntLine)
     {
-      var line = sizing.ntOut.ntLine[i];
-      line.setAttribute("x1", sizing.offsetLeft + newX);
-      line.setAttribute("y1", sizing.offsetTop +10+newY * 0.5);
+      var line = w.ntOut.ntLine[i];
+      line.setAttribute("x1", w.offsetLeft + newX);
+      line.setAttribute("y1", w.offsetTop +10+newY * 0.5);
     }
 }
 
