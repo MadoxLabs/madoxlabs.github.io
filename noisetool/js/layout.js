@@ -115,6 +115,14 @@ function saveWindows()
     windowdata.width = w.offsetWidth;
     windowdata.height = w.offsetHeight;
     windowdata.z = w.style.zIndex;
+
+    var params = {};
+    if (w.ntModule)
+    {
+      var mod = w.ntModule;
+      for (var p in mod.parameters) params[mod.parameters[p].Name] = mod.module[mod.parameters[p].Name];
+    }
+    windowdata.params = params;
     windowsgroup[i] = windowdata;
   }
   layout.windows = windowsgroup;
@@ -135,7 +143,14 @@ function loadWindows()
     windows[data.id].style.left = data.left + "px";
     windows[data.id].style.top = data.top + "px";
     windows[data.id].style.zIndex = data.z;
-    if (data.noisetype) setWindowType(windows[data.id].id, data.noisetype);
+    if (data.noisetype)
+    {
+      setWindowType(windows[data.id].id, data.noisetype);
+      for (var p in data.params)
+      {
+        windows[data.id].ntModule.module[p] = data.params[p];
+      }
+    }
 
     moveAdjust(windows[data.id], data.left, data.top);
     sizeAdjust(windows[data.id], data.width, data.height);
