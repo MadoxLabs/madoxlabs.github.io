@@ -246,6 +246,7 @@ function setWindowType(name, type)
   for (var p = exists; p < w.ntModule.points; ++p)
   {
     var input = document.createElement("div");
+    input.id = w.id + "in" + p;
     input.setAttribute("class", "glyphicon glyphicon-record lightup dropt");
     input.style.position = "absolute";
     input.style.top = (w.offsetHeight*points[p]) + "px";
@@ -297,6 +298,7 @@ function setWindowType(name, type)
   if (!w.ntOut)
   {
     var output = document.createElement("div");
+    output.id = w.id + "out";
     output.setAttribute("class", "glyphicon glyphicon-record lightup");
     output.style.position = "absolute";
     output.style.top = (w.offsetHeight * 0.5) + "px";
@@ -317,6 +319,8 @@ function redraw()
 
 function draw(w)
 {
+  if (drawLockout) return;
+
   // draw this window
   drawSingle(w);
 
@@ -359,6 +363,8 @@ function setCustomGradient(check)
 
 function drawSingle(w, size)
 {
+  if (drawLockout) return;
+
   if (saveCanvas) return;
   if (!w.ntModule) return;
 
@@ -497,8 +503,11 @@ var lastx = 0;
 var lasty = 0;
 function windowClose(e, w)
 {
-  e.cancelBubble = true;
-  if (e.stopPropagation) e.stopPropagation();
+  if (e)
+  {
+    e.cancelBubble = true;
+    if (e.stopPropagation) e.stopPropagation();
+  }
 
   // remove all w.ntOut, remove w.ntIn
   for (var p in w.ntIn)
@@ -647,7 +656,7 @@ function windowPress(e, w)
   e = e || window.event;
   var rightclick = e.which ? (e.which == 3) : (e.button == 2);
   if (rightclick) {
-    e.preventDefault();
+    if (e.preventDefault) e.preventDefault();
     w.ntSkipDraw = !w.ntSkipDraw;
     w.ntNotDrawing.style.display = w.ntSkipDraw ? 'block' : 'none';
     w.ntCanvas.style.display = w.ntSkipDraw ? 'none' : 'block';

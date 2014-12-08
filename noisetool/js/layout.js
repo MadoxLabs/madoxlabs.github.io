@@ -46,7 +46,11 @@ function layoutDelete()
 
 function layoutLoad()
 {
+  drawLockout = true;
+
   if (!localStorage.getItem('ntLayoutList')) return;
+
+  clearBoard();
 
   var glist = document.getElementById("layouts");
   var name = glist.options[glist.selectedIndex].value;
@@ -55,6 +59,9 @@ function layoutLoad()
 
   loadBounds();
   loadWindows();
+
+  drawLockout = false;
+  redraw();
 }
 
 function layoutSave()
@@ -100,7 +107,9 @@ function loadBounds()
 
 function saveWindows()
 {
-  var windowsgroup = {z: z};
+  var windowsgroup = { z: z };
+  var lines = [];
+
   for (var i in windows)
   {
     var w = windows[i];
@@ -124,8 +133,19 @@ function saveWindows()
     }
     windowdata.params = params;
     windowsgroup[i] = windowdata;
+
+    if (w.ntOut)
+    {
+      for (var n in w.ntOut.ntLine)
+      {
+        var line = { out: w.ntOut.ntLine[n].ntPoint1.id, in: w.ntOut.ntLine[n].ntPoint2.id }
+        lines.push(line);
+      }
+    }
   }
+
   layout.windows = windowsgroup;
+  layout.lines = lines;
 }
 
 function loadWindows()
@@ -137,7 +157,6 @@ function loadWindows()
     i = data.id | 0;
     newWindow(data.type);
     windows[data.id].ntSeed = data.seed;
-    windows[data.id].ntSkipDraw = data.skip;
     windows[data.id].style.width = data.width + "px";
     windows[data.id].style.height = data.height + "px";
     windows[data.id].style.left = data.left + "px";
@@ -155,7 +174,50 @@ function loadWindows()
     moveAdjust(windows[data.id], data.left, data.top);
     sizeAdjust(windows[data.id], data.width, data.height);
     windowSelect(windows[data.id]);
-  }
 
+    if (data.skip) windowPress({ button: 2 }, windows[data.id]);
+  }
   z = layout.windows.z;
+
+  for (var n in layout.lines)
+  {
+    var point1 = document.getElementById(layout.lines[n].out);
+    var point2 = document.getElementById(layout.lines[n].in);
+    if (!point1 || !point2) continue;
+
+    windowStartLine({}, point1.parentNode);
+    windowStopLine({currentTarget: point2}, point2.parentNode);
+  }
+}
+
+function clearBoard()
+{
+  // kill all web workers
+  for (n in windows) if (windows[n].ntWorker) windows[n].ntWorker.terminate();
+  // close all windows - clicking X kills all lines
+  for (n in windows) windowClose(null, windows[n]);
+
+  i = 1;
+  z = 20;
+  id = 1;
+  point1 = null;
+  point2 = null;
+  line = null;
+  saveCanvas = null;
+  moving = null;
+  sizing = null;
+  selected = null;
+  lastx = 0;
+  lasty = 0;
+  windows = {};
+
+  document.getElementById("xbound").value = 0;
+  document.getElementById("ybound").value = 0;
+  document.getElementById("wbound").value = 1;
+  document.getElementById("hbound").value = 1;
+
+  // reset gradients
+  var glist = document.getElementById("gradientlist");
+  for (var i = glist.options.length - 1; i >= 0; --i) glist.options[i] = null;
+  gradients = new ntGradients(); 
 }
