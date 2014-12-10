@@ -119,6 +119,8 @@ function saveWindows()
 
     windowdata.type = w.ntWindowType;
     windowdata.noisetype = document.getElementById(w.id + "name").innerText;
+//    windowdata.norm = document.getElementById(w.id + "norm").checked;
+//    windowdata.shadow = document.getElementById(w.id + "shadow").checked;
     windowdata.skip = w.ntSkipDraw;
     windowdata.seed = w.ntSeed;
     windowdata.left = w.offsetLeft;
@@ -165,6 +167,8 @@ function loadWindows()
     windows[data.id].style.left = data.left + "px";
     windows[data.id].style.top = data.top + "px";
     windows[data.id].style.zIndex = data.z;
+//    document.getElementById("window" + data.id + "norm").checked = data.norm;
+//    document.getElementById("window" + data.id + "shadow").checked = data.shadow;
     if (data.customGradient)
     {
       document.getElementById("window" + data.id + "grad").checked = true;

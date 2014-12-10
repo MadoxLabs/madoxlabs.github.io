@@ -131,7 +131,7 @@ function newWindow(type)
   ed.style.left = "100px";
   ed.style.top = "200px";
   ed.style.display = 'none';
-  ed.innerHTML = "<input type='checkbox' onClick='toggleShadow(selected);'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
+  ed.innerHTML = "<input type='checkbox' id='window" + i + "shadow' onClick='toggleShadow(selected);'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
   w.ntExtra = ed;
   w.appendChild(ed);
 
@@ -314,7 +314,7 @@ function setWindowType(name, type)
 
 function redraw()
 {
-  for (var i in windows) draw(windows[i]);
+  for (var i in windows) drawSingle(windows[i]);
 }
 
 function draw(w)
@@ -394,7 +394,6 @@ function drawSingle(w, size)
     modules: createModuleState(),
     imagedata: size ? saveCanvas.getContext('2d').getImageData(0, 0, size, size) : w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
-
   if (w.ntModule.parameters.length > 0)
     params.shadow = (w.ntModule.parameters[w.ntModule.parameters.length - 1].Name == "Elevation" ? true : false);
 
