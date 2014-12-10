@@ -96,9 +96,15 @@ ntGradients.prototype.getGradient = function (name)
 ntGradients.prototype.setCurrent = function (name)
 {
   if (selected && selected.ntCustomGradient)
+  {
     selected.ntCustomGradient = name;
+    drawSingle(selected);
+  }
   else
+  {
     this.current = this.gradients[name];
+    for (var i in windows) if (!selected.ntCustomGradient) drawSingle(windows[i]);
+  }
 }
 
 ntGradients.prototype.showEditor = function()

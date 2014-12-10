@@ -450,7 +450,7 @@ function fromDrawThread(e)
 
   w.ntDrawing.style.display = 'none';
 
-  windowSelect(w);
+//  windowSelect(w);
 }
 
 function createModuleState()
