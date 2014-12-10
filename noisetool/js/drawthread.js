@@ -98,6 +98,26 @@ onmessage = function (e)
     sinElev = Math.sin(module.Elevation * 0.0174532925);
   }
 
+  if (e.data.shadow && e.data.usecache == false) {
+    // need to recreate the cache
+    for (var yy = 0; yy < e.data.newH; yy++, y += stepy) {
+      x = 0;
+      for (var xx = 0; xx < e.data.newW; xx++, x += stepx) {
+        val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
+        noisedata[nd++] = val;  // save an array of raw nose values for processing later (like shadow)
+        sofar++;
+
+        var p = (sofar * 100 / total) | 0;
+        if (p != last) {
+          last = p;
+          postMessage({ id: e.data.id, percent: p });
+        }
+      }
+    }
+  }
+
+  y = 0;
+  last = 0;
   for (var yy = 0; yy < e.data.newH; yy++, y += stepy)
   {
     x = 0;
@@ -164,12 +184,18 @@ onmessage = function (e)
       }
       else  // just output a bitmap
       {
-        var val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
+        var val;
+        if (e.data.usecache && noisedata)
+          val = noisedata[(e.data.starty + yy) * e.data.newW + e.data.startx + xx];
+        else
+        {
+          val = module.GetValue(e.data.startx + x, e.data.starty + y, 0);
+          if (!e.data.nocachesave) noisedata[nd++] = val;  // save an array of raw nose values for processing later (like shadow)
+        }
         if (e.data.normalize.on) val = (val - e.data.normalize.min) / (e.data.normalize.max - e.data.normalize.min);
         if (val < min) min = val;
         if (val > max) max = val;
 
-        noisedata[nd++] = val;  // save an arrya of raw nose values for processing later (like shadow)
 
         e.data.gradient.getColor(val, c);
         imagedata.data[j++] = c.R * 255;

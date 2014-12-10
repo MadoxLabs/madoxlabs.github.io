@@ -3,6 +3,7 @@ var id = 1;
 var point1 = null;
 var point2 = null;
 var line = null;
+var drawLockout = false;
 
 var factory;
 var gradients;
@@ -131,7 +132,7 @@ function newWindow(type)
   ed.style.left = "100px";
   ed.style.top = "200px";
   ed.style.display = 'none';
-  ed.innerHTML = "<input type='checkbox' id='window" + i + "shadow' onClick='toggleShadow(selected);'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
+  ed.innerHTML = "<input type='checkbox' id='window" + i + "shadow' onClick='toggleShadow(selected);'>Shadow</input><br><input  id='window" + i + "norm' onClick='drawSingle(selected, true);' type='checkbox'>Normalize</input><br><input  id='window" + i + "grad' onClick='setCustomGradient(selected);' type='checkbox'>Own Color</input><br><button onClick='selected.ntSeed = Math.random(); draw(selected);'>New Seed</button><br><button onClick='save(\"window" + i + "\");'>Save</button><input id='window" + i + "size' size=\"1\" value=\"512\"/><br><button onClick='renderToSourceCode(" + i + ");'>Code</button>";
   w.ntExtra = ed;
   w.appendChild(ed);
 
@@ -215,7 +216,7 @@ function toggleShadow(w)
     if (!w.ntModule.module.Azimuth) w.ntModule.module.Azimuth = 45;
     if (!w.ntModule.module.Elevation) w.ntModule.module.Elevation = 45;
   }
-  drawSingle(w);
+  drawSingle(w, true);
 }
 
 function setWindowType(name, type)
@@ -317,12 +318,12 @@ function redraw()
   for (var i in windows) drawSingle(windows[i]);
 }
 
-function draw(w)
+function draw(w, cache)
 {
   if (drawLockout) return;
 
   // draw this window
-  drawSingle(w);
+  drawSingle(w, cache);
 
   // draw all its windows that its feeding
   for (var c in w.ntOut.ntLine)
@@ -331,7 +332,7 @@ function draw(w)
     if (line.ntPoint2)
     {
       var child = line.ntPoint2.parentNode;
-      draw(child);
+      draw(child, cache);
     }
   }
 }
@@ -341,7 +342,7 @@ function save(id)
   var w = document.getElementById(id);
   if (!w) return;
   var size = document.getElementById(id + "size").value;
-  drawSingle(w, size);
+  drawSingle(w, false, size);
 }
 
 var saveCanvas = null;
@@ -361,7 +362,7 @@ function setCustomGradient(check)
   }
 }
 
-function drawSingle(w, size)
+function drawSingle(w, cache, size)
 {
   if (drawLockout) return;
 
@@ -383,6 +384,7 @@ function drawSingle(w, size)
 
   var params = {
     id: w.windowid,
+    usecache: cache ? true : false,
     newW: size ? size : w.clientWidth - 20,
     newH: size ? size : w.clientHeight - 35,
     startx: parseFloat(document.getElementById("xbound").value),
@@ -394,6 +396,7 @@ function drawSingle(w, size)
     modules: createModuleState(),
     imagedata: size ? saveCanvas.getContext('2d').getImageData(0, 0, size, size) : w.ntContext.getImageData(0, 0, w.ntCanvas.width, w.ntCanvas.height)
   };
+  if (size) params.nocachesave = true;
   if (w.ntModule.parameters.length > 0)
     params.shadow = (w.ntModule.parameters[w.ntModule.parameters.length - 1].Name == "Elevation" ? true : false);
 
@@ -415,9 +418,9 @@ function fromDrawThread(e)
   if (e.data.percent)
   {
     w.ntContext.beginPath();
-    w.ntContext.arc(w.ntCanvas.offsetWidth / 2, 40, 36, 0, 0.02 * e.data.percent * Math.PI);
+    w.ntContext.arc(w.ntCanvas.offsetWidth / 2, 40, 36, 0, 0.02 * (e.data.percent > 100.0 ? e.data.percent - 100.0 : e.data.percent) * Math.PI);
     w.ntContext.lineWidth = 5;
-    w.ntContext.strokeStyle="green";
+    w.ntContext.strokeStyle= e.data.percent > 100.0 ? "red" : "green";
     w.ntContext.stroke();
     return;
   }
@@ -450,7 +453,7 @@ function fromDrawThread(e)
 
   w.ntDrawing.style.display = 'none';
 
-//  windowSelect(w);
+  windowSetRange(w);
 }
 
 function createModuleState()
@@ -547,6 +550,18 @@ function windowStartSize(e,w)
   lasty = e.pageY;
 }
 
+function windowSetRange(w)
+{
+  if (document.getElementById(w.id + "norm").checked) {
+    var buf = "Output Range: 0.0 to 1.0";
+    document.getElementById("range").innerText = buf;
+  }
+  else if (w.ntMin || w.ntMax) {
+    var buf = "Output Range: " + (Math.round(w.ntMin * 100) / 100) + " to " + (Math.round(w.ntMax * 100) / 100);
+    document.getElementById("range").innerText = buf;
+  }
+}
+
 function windowSelect(w)
 {
   if (selected !== w)
@@ -556,16 +571,7 @@ function windowSelect(w)
     selected.style.border = "4px solid yellow";
   }
 
-  if (document.getElementById(w.id + "norm").checked)
-  {
-    var buf = "Output Range: 0.0 to 1.0";
-    document.getElementById("range").innerText = buf;
-  }
-  else if (w.ntMin || w.ntMax)
-  {
-    var buf = "Output Range: " + (Math.round(w.ntMin * 100) / 100) + " to " + (Math.round(w.ntMax * 100) / 100);
-    document.getElementById("range").innerText = buf;
-  }
+  windowSetRange(w);
 
   // set the grad
   var e = document.getElementById("gradientlist");
