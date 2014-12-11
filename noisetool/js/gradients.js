@@ -96,9 +96,15 @@ ntGradients.prototype.getGradient = function (name)
 ntGradients.prototype.setCurrent = function (name)
 {
   if (selected && selected.ntCustomGradient)
+  {
     selected.ntCustomGradient = name;
+    drawSingle(selected, true);
+  }
   else
+  {
     this.current = this.gradients[name];
+    for (var i in windows) if (!selected.ntCustomGradient) drawSingle(windows[i], true);
+  }
 }
 
 ntGradients.prototype.showEditor = function()
@@ -126,7 +132,7 @@ ntGradients.prototype.showEditor = function()
   c.style.position = "absolute";
   c.style.top = "0px";
   c.style.right = "0px";
-  c.addEventListener('mousedown', function (e) { gradients.update(); windowClose(e, w); redraw();}, false);
+  c.addEventListener('mousedown', function (e) { gradients.update(); windowClose(e, w); redraw(true);}, false);
   w.appendChild(c);
   w.ntClose = c;
 

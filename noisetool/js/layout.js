@@ -59,6 +59,7 @@ function layoutLoad()
 
   loadBounds();
   loadWindows();
+  loadGradients();
 
   drawLockout = false;
   redraw();
@@ -71,6 +72,7 @@ function layoutSave()
 
   saveBounds();
   saveWindows();
+  saveGradients();
 
   localStorage.setItem(layout.key, JSON.stringify(layout));
 
@@ -117,12 +119,15 @@ function saveWindows()
 
     windowdata.type = w.ntWindowType;
     windowdata.noisetype = document.getElementById(w.id + "name").innerText;
+//    windowdata.norm = document.getElementById(w.id + "norm").checked;
+//    windowdata.shadow = document.getElementById(w.id + "shadow").checked;
     windowdata.skip = w.ntSkipDraw;
     windowdata.seed = w.ntSeed;
     windowdata.left = w.offsetLeft;
     windowdata.top = w.offsetTop;
     windowdata.width = w.offsetWidth;
     windowdata.height = w.offsetHeight;
+    if (w.ntCustomGradient) windowdata.customGradient = w.ntCustomGradient;
     windowdata.z = w.style.zIndex;
 
     var params = {};
@@ -162,6 +167,14 @@ function loadWindows()
     windows[data.id].style.left = data.left + "px";
     windows[data.id].style.top = data.top + "px";
     windows[data.id].style.zIndex = data.z;
+//    document.getElementById("window" + data.id + "norm").checked = data.norm;
+//    document.getElementById("window" + data.id + "shadow").checked = data.shadow;
+    if (data.customGradient)
+    {
+      document.getElementById("window" + data.id + "grad").checked = true;
+      windows[data.id].ntCustomGradient = data.customGradient;
+    }
+
     if (data.noisetype)
     {
       setWindowType(windows[data.id].id, data.noisetype);
@@ -188,6 +201,41 @@ function loadWindows()
     windowStartLine({}, point1.parentNode);
     windowStopLine({currentTarget: point2}, point2.parentNode);
   }
+}
+
+function saveGradients()
+{
+  var grads = [];
+
+  for (var g in gradients.gradients)
+  {
+    var data = { name: gradients.gradients[g].name, points: gradients.gradients[g].Points };
+    grads.push(data);
+  }
+  layout.gradients = grads;
+  layout.currentGradient = gradients.current;
+}
+
+function loadGradients()
+{
+  var glist = document.getElementById("gradientlist");
+  for (var i = glist.options.length - 1; i >= 0; --i) glist.options[i] = null;
+
+  for (var g in layout.gradients)
+  {
+    var newg = new ntGradient();
+    newg.name = layout.gradients[g].name;
+    newg.Points = layout.gradients[g].points;
+    gradients.gradients[newg.name] = newg;
+
+    glist.options[glist.options.length] = new Option(newg.name, newg.name);
+    newg.index = glist.options.length - 1;
+
+    if (layout.currentGradient == newg.name) glist.selectedIndex = newg.index;
+  }
+
+  if (layout.currentGradient) 
+    gradients.current = layout.currentGradient;
 }
 
 function clearBoard()
