@@ -63,7 +63,8 @@ function load()
   var file = document.getElementById("file").value;
   var client = new XMLHttpRequest();
   client.open('GET', file);
-  client.onload = function() { process(client.responseText); }
+  client.responseType = "arraybuffer";
+  client.onload = function() { process(client.response); }
   client.send();
 }
 
@@ -86,13 +87,18 @@ function fromWorker(oEvent)
 function error(msg)
 {
   var div = document.getElementById("error");
-  log += msg + "<br>";
+  log += msg + "\n";
   if (show) div.innerHTML = log;
+  console.log(msg);
 }
 
 function process(text)
 {
-  var myWorker = new Worker("fbxload.worker.js");
+  var myWorker;
+  if (text[0] == ';')
+    myWorker = new Worker("fbxload.worker.js");
+  else
+    myWorker = new Worker("fbxload.bin.worker.js");
   myWorker.onmessage = fromWorker;
   myWorker.postMessage(text);
 }
@@ -128,7 +134,7 @@ ASCII FBX Mesh file (2013 format): <input id="file"></input>
 <br />
 <div id="state"></div><br />
 Processing log: <input type=button onClick="toggle();" value="Toggle"></input>  <br>
-<div id="error"></div>  <br />
+<pre><div id="error"></div></pre>  <br />
 Result: <br />
 <div><image id='save'></div><br />
   <pre>
