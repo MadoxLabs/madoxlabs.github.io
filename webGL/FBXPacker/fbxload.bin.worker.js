@@ -19,7 +19,7 @@ function log(msg)
 }
 function debug(msg)
 {
-//  postMessage({ type: 2, result: indent + msg });
+  postMessage({ type: 2, result: indent + msg });
 }
 
 var indent = "";
@@ -367,11 +367,47 @@ function process(data)
     if (!parseObjectRecord(root, cursor)) break;
 
   log("Decoded");
-  root.Definitions = "";
+
+  // do connections
+
+  // create output
+  var file = {};
+  file.attributes = { 'POS': 0, 'TEX0': 12, 'NORM': 20 };
+  file.groups = [];
+
+  // materials
+  if (Array.isArray(root.Objects.Material))
+    for (var m in root.Objects.Material)
+      file.groups.push(outputMaterial(root.Objects.Material[m]));
+  else
+    file.groups.push(outputMaterial(root.Objects.Material));
+
+  // models
+
+  // bounding boxes
 
   var result = JSON.stringify(root)
   log("result is " + result.length);
 
   log("Done");
   postMessage({ type: 1, result: result });
+}
+
+function outputMaterial(mat)
+{
+  var obj = {};
+  obj.id = mat[0];
+  obj.type = "material";
+  obj.name = mat[1].split('\0')[0];
+  if (mat.texture) obj.texture = mat.texture;
+  log("Found material: " + obj.name);
+  for (var p in mat.Properties70.P)
+  {
+    var prop = mat.Properties70.P[p];
+    obj[prop[0]] = [];
+    if (4 in prop) obj[prop[0]].push(prop[4]);
+    if (5 in prop) obj[prop[0]].push(prop[5]);
+    if (6 in prop) obj[prop[0]].push(prop[6]);
+  }
+  return obj;
 }

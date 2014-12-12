@@ -94,9 +94,14 @@ function error(msg)
 
 function process(text)
 {
+  var str = new Uint8Array(text);
+
   var myWorker;
-  if (text[0] == ';')
+  if (str[0] == 59)
+  {
+    text = String.fromCharCode.apply(null, str);
     myWorker = new Worker("fbxload.worker.js");
+  }
   else
     myWorker = new Worker("fbxload.bin.worker.js");
   myWorker.onmessage = fromWorker;
