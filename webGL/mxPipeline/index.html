@@ -22,9 +22,17 @@
       document.getElementById("importer").className = "appwindow " + ["hidden", "", "hidden"][tab];
       document.getElementById("viewer").className = "appwindow " + ["hidden", "hidden", ""][tab];
     }
+
+    window.onresize = function()
+    {
+      document.getElementById("info").style.width = window.innerWidth - 200;
+      document.getElementById("importer").style.width = window.innerWidth - 200;
+      document.getElementById("viewer").style.width = window.innerWidth - 200;
+    }
   </script>
+  <script src="../mxFrame/mxFrame.js"></script>
 </head>
-<body>
+<body onload="window.onresize(); launchApp(['js/viewer.js'], '../mxFrame', WITH_MXFRAME|WITH_OCULUS);">
   <div id='header'><img onmouseover="this.src=animImage.src;" onmouseout="this.src=staticImage.src;" src="assets/logo.jpg"></div>
   <div id="btnInfo" class="mxButton active" onclick="changeTabs(0);">Information</div>
   <div id="btnImport" class="mxButton inactive" onclick="changeTabs(1);">Importer</div>
@@ -35,9 +43,9 @@
 
   <div id="info" class="appwindow">
     <div class="mxTitle">Pipeline Information</div>
-    <p>
-      This is block of text.
-    </p>
+    <p>MadoxLabs Pipeline is a tool for importing FBX files into the MadoxLabs WebGL Framework.</p>
+    <p>The Importer will read FBX files and turn them into a data blob that gets saved as a PNG image. Accepted FBX formats are <b>2013 ASCII</b> and <b>7.4 Binary</b> formats. Others may work if they are not too different.</p>
+    <p>The Viewer will show the imported model in a WebGL window, to make sure it imported ok. Any textures that are needed for rendering need to be uploaded to the tool.</p>
   </div>
 
   <div id="importer" class="appwindow hidden">
@@ -45,11 +53,11 @@
 
 ASCII FBX Mesh file (2013 format): <input id="file"></input>
 <input type=button onClick="load();" value="Load"></input><br>
-<input type="checkbox" id="uvs" checked />UVs
-<input type="checkbox" id="normals" checked />Normals
-<input type="checkbox" id="tangets"  />Tangents
-<input type="checkbox" id="binormals"  />Binormals<br />
-<input type="checkbox" id="animations"  />Animations<br />
+<input type="checkbox" id="_uvs" checked />UVs
+<input type="checkbox" id="_normals" checked />Normals
+<input type="checkbox" id="_tangets"  />Tangents
+<input type="checkbox" id="_binormals"  />Binormals<br />
+<input type="checkbox" id="_animations"  />Animations<br />
 <br />
 <div id="state"></div><br />
 Processing log: <input type=button onClick="toggle();" value="Toggle"></input>  <br>
@@ -60,6 +68,21 @@ Result: <br />
   </div>
   <div id="viewer" class="appwindow hidden">
     <div class="mxTitle">Pipeline Viewer</div>
+    <div><canvas id='surface'></div>
+    <div style="top:5px; left:5px; position:fixed;"><canvas id='output' width="400" height="50"></div>
+    <input type=checkbox id="model" checked>Show Model</input>
+    <input type=checkbox id="normals">Show Normals</input>
+    <input type=checkbox id="explode">Show Exploded</input>
+    <input type=checkbox id="wire">Show Wireframe</input>
+    <input type=checkbox id="bb">Show Bounding Boxes</input><br />
+    <input type=checkbox id="uvs">Visualize UVs</input>
+    <input type=checkbox id="xseams">Check for U seams</input>
+    <input type=checkbox id="yseams">Check for V seams</input>
+    <br />
+    Up/Down/Left/Right - rotate model<br />
+    Shift Up/Down - move camera<br />
+    Page UP/Down - move camera<br />
+
   </div>
 </body>
 </html>

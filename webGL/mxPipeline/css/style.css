@@ -104,3 +104,7 @@ p {
    line-height: 1.3em;
 }
 
+#surface { border: solid black 1px;
+           width: 800px;
+           height: 600px;
+         }

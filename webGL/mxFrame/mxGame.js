@@ -45,6 +45,8 @@ Game.init = function ()
   this.time = Game.now();
   this.elapsed = 0;
 
+  this.textureLocation = "./";
+
   try {
     gl = this.surface.getContext("experimental-webgl");
     ext.angle = gl.getExtension("ANGLE_instanced_arrays");
@@ -397,7 +399,7 @@ Game.loadTextureFile = function (name, file, mipmap)
 
   var tex = new Texture(name);
   if (arguments.length == 3) tex.mipmap = mipmap;
-  tex.load(file);
+  tex.load(Game.textureLocation + file);
 }
 
 Game.loadMeshPNG = function (name, file)

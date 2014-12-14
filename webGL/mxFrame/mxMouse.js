@@ -10,7 +10,7 @@ function Mouse(obj)
   this.surface = obj;
   var mouseObj = this;
 
-  console.log(typeof (Hammer));
+//  console.log(typeof (Hammer));
   if (typeof(Hammer) === "function")
   {
     this.hammer = Hammer(this.surface);
@@ -39,6 +39,21 @@ function Mouse(obj)
 
   obj.onclick = function (e) { e.preventDefault(); }
   obj.oncontextmenu = function (e) { e.preventDefault(); }
+
+  this.offsetLeft = getOffsetLeft(obj.parentNode);
+  this.offsetTop = getOffsetTop(obj.parentNode);
+}
+
+function getOffsetLeft(obj)
+{
+  if (!obj || obj.offsetLeft == undefined) return 0;
+  return obj.offsetLeft + getOffsetLeft(obj.parentNode);
+}
+
+function getOffsetTop(obj)
+{
+  if (!obj || obj.offsetTop == undefined) return 0;
+  return obj.offsetTop + getOffsetTop(obj.parentNode);
 }
 
 var MouseEvent = { 'Down': 0, 'Up': 1, 'Move': 2, 'In': 3, 'Out': 4, 'Grab': 5, 'Release': 6, 'NoGrab': 7, 'Wheel': 8 };
@@ -105,10 +120,10 @@ Mouse.prototype.mouseDown = function(event)
   this.down = true;
   if (!this.grabbed)
   {
-    this.lastDownX = event.pageX;
-    this.lastDownY = event.pageY;
-    this.X = event.pageX;
-    this.Y = event.pageY;
+    this.lastDownX = event.pageX - this.offsetLeft;
+    this.lastDownY = event.pageY - this.offsetTop;
+    this.X = event.pageX - this.offsetLeft;
+    this.Y = event.pageY - this.offsetTop;
   }
   Game.handleMouseEvent(MouseEvent.Down, this);
 }
@@ -119,8 +134,8 @@ Mouse.prototype.mouseUp = function (event)
   this.button = event.button;
   if (!this.grabbed)
   {
-    this.X = event.pageX;
-    this.Y = event.pageY;
+    this.X = event.pageX - this.offsetLeft;
+    this.Y = event.pageY - this.offsetTop;
   }
   this.down = false;
   Game.handleMouseEvent(MouseEvent.Up, this);
@@ -164,8 +179,8 @@ Mouse.prototype.mouseMove = function(event)
   {
     this.lastMoveX = this.X;
     this.lastMoveY = this.Y;
-    this.X = event.pageX;
-    this.Y = event.pageY;
+    this.X = event.pageX - this.offsetLeft;
+    this.Y = event.pageY - this.offsetTop;
     if (this.toss)
     {
       this.toss -= 1; return;
