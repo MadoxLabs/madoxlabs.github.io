@@ -1,5 +1,6 @@
 // source files to load, some optionally
 var baseSrc = ["glMatrix.js",
+               "pako.js",
                "mxMesh.js",
                "mxTexture.js",
                "mxShader.js",

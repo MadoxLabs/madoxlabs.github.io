@@ -44,6 +44,19 @@ Game.loadingStart = function ()
   Game.ready = false;
 }
 
+function GameObject(model)
+{
+  this.mModel = model;
+  this.WorldOffset = vec3.create();
+  this.Position = vec3.create();
+  this.Velocity = vec3.create();
+  this.Orient = mat4.create();
+  mat4.fromYawPitchRoll(this.Orient, 0, 0, 0);
+
+  this.World = mat4.create();
+  mat4.createWorld(this.World, vec3.addInline(this.WorldOffset, this.Position), vec3.unitZ, vec3.unitY);
+}
+
 Game.loadingStop = function ()
 {
   Game.ready = true;
@@ -54,11 +67,11 @@ Game.loadingStop = function ()
 
   normals = square.drawNormals();
   wire = square.drawWireframe();
-  //explode = square.drawExploded();
+  explode = square.drawExploded();
   bb = square.drawBB();
 
   var len = 0;
-  for (var i = 0; i < 2; ++i)
+  for (var i = 0; i < 3; ++i)
   {
     var l = square.boundingbox[0].max[i] - square.boundingbox[0].min[i];
     if (l > len) len = l;
@@ -66,12 +79,13 @@ Game.loadingStop = function ()
   var max = square.boundingbox[0].max[2] - square.boundingbox[0].min[2]
   if (max < len) max = len;
 
-  Game.camera.offset[0] = 0.0;
-  Game.camera.offset[1] = 0.0;
-  Game.camera.offset[2] = 1.3 * len / (Math.tan(Game.camera.fov));
-  Game.camera.lookAt(square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0,
-                     square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0,
-                     0.0);
+  Game.camera.offset[0] = 0.0; 
+  Game.camera.offset[1] = 0.0; 
+  Game.camera.offset[2] = len / (Math.tan(Game.camera.fov * 0.5));
+
+  Game.camera.setTarget(new GameObject(square));
+  Game.camera.target.Position[0] = square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0;
+  Game.camera.target.Position[1] = square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
 
@@ -105,7 +119,8 @@ Game.loadingStop = function ()
   shadowmap = new RenderSurface(2048, 2048, gl.RGBA, gl.FLOAT);
   lighteye = new Camera(2048, 2048);
   lighteye.offset = vec3.fromValues(9.0, 9.0, 39.0);
-  lighteye.lookAt(0.0,0.0,0.0);
+  lighteye.setTarget(new GameObject());
+  //  lighteye.lookAt(0.0,0.0,0.0);
   lighteye.update();
 
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);

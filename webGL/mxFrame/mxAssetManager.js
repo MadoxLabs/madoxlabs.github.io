@@ -36,18 +36,27 @@ AssetManager.prototype.processMeshPNG = function (tex)
   var txt = "";
   var j = 0;
   var i = 0;
-  for (i = 0; i < len; i++) {
+  var binary = false;
+  for (i = 0; i < len; i++)
+  {
+    // stop at the extra padding at the end
+    if (binary) { if (j == 0 && map.data[i + 3] === 0) break; }
+    else        { if (map.data[i] === 0) break; }
+    // skip alpha channel
     if (j == 3) { j = 0; continue; }
-    if (map.data[i] === 0) break;
+    // get char
+    if (!binary && map.data[i] > 128)
+      binary = true;
     txt += String.fromCharCode(map.data[i]);
     ++j;
   }
 
-  try { model.loadFromFBX(JSON.parse(txt)); } catch(err)
-  {
-    txt += "}";
-    model.loadFromFBX(JSON.parse(txt));
-  }
+  var data;
+
+  try { data = pako.inflate(txt, { to: "string" }); } catch (err) { data = txt; }
+
+  try { model.loadFromFBX(JSON.parse(data)); }
+  catch (err) { data += "}"; model.loadFromFBX(JSON.parse(data)); }
 
   this.assets[tex.name] = model;
   Game.loadingDecr();

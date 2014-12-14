@@ -1,3 +1,4 @@
+importScripts('pako.js');
 
 onmessage = function(oEvent)
 {
@@ -53,7 +54,9 @@ function done()
     }
   file.boundingbox = bb;
 
+  error("Creating data stream");
   var result = JSON.stringify(file);
+//  var result = pako.deflate(JSON.stringify(file), { to: "string" });
   error("Done. Resulting JSON size " + result.length);
   postMessage({ type: 1, result: result });
 }

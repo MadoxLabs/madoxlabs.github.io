@@ -87,11 +87,14 @@ CameraEye.prototype.update = function (q)
     mat4.multiply(this.projection, offset, this.projection);
   }
   else   
-    mat4.perspective(this.projection, this.camera.fov, this.viewport[2] / this.viewport[3], this.camera.near, this.camera.far);
- 
-  var up = vec3.create();
-  vec3.transformMat4(up, vec3.fromValues(0,1,0), this.camera.orientation);
-  mat4.lookAt(this.view, this.camera.position, this.camera.target.Position, up)
+  {
+    if (this.camera.type = CameraType.perspective)
+      mat4.perspective(this.projection, this.camera.fov, this.viewport[2] / this.viewport[3], this.camera.near, this.camera.far);
+    else
+      mat4.ortho(this.projection, -200, 200, -200, 200, this.camera.near, this.camera.far);
+  }
+
+  mat4.lookAt(this.view, this.camera.position, this.camera.target.Position, this.camera.up)
   this.camera.offset[0] -= this.ipd;
 
   this.uniforms.camera = this.camera.position;
@@ -104,11 +107,15 @@ CameraEye.prototype.engage = function ()
   gl.viewport(this.viewport[0], this.viewport[1], this.viewport[2], this.viewport[3]);
 }
 
+Direction = { forward: 1, back: 2, left: 4, right: 8, all: 15 };
+CameraType = { perspective: 1, ortho: 2 };
+
 function Camera(w, h)
 {
-  this.targetOrient = mat4.create();     // optimize these creates out. its pointless to recreates them all the time
+  this.type = CameraType.perspective;
+
   this.orientX = mat4.create();
-  this.orientY = mat4.create();
+  this.quat = quat.create();
 
   this.ipd = 0.0;
 
@@ -157,17 +164,6 @@ Camera.prototype.splitscreen = function (s)
   this.update();
 }
 
-//Camera.prototype.lookAt = function (x,y,z)
-//{
-//  this.target = new GameObject(null);
-//  this.target.Position = vec3.fromValues(x, y, z);
-//
-//  vec3.copy(this.position, this.target.Position);
-//  var off = vec3.create();
-//  vec3.transformMat4(off, this.offset, this.target.Orient);
-//  vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
-//}
-
 Camera.prototype.setTarget = function (obj)
 {
   this.target = obj;
@@ -176,8 +172,6 @@ Camera.prototype.setTarget = function (obj)
   vec3.transformMat4(off, this.offset, this.target.Orient);
   vec3.add(this.position, this.position, off);   // Initial position is the camera offset relative to the object's forward direction
 }
-
-Direction = { forward: 1, back: 2, left: 4, right: 8, all: 15 };
 
 Camera.prototype.move = function(dir, speed)
 {
@@ -205,15 +199,12 @@ Camera.prototype.update = function ()
 {
   if (this.target == null) return;
 
-  mat4.identity(this.targetOrient);
   mat4.identity(this.orientX);
-  mat4.identity(this.orientY);
   mat4.rotate(this.orientX, this.orientX, this.angles[1], yAxis);
-  mat4.rotate(this.orientY, this.orientY, this.angles[0], xAxis);
-  mat4.multiply(this.orientation, this.target.Orient, this.orientX);
-  mat4.multiply(this.orientation, this.orientation, this.orientY);
-
   vec3.transformMat4(this.target.Velocity, this.speed, this.orientX);
+
+  quat.fromYawPitchRoll(this.quat, this.angles[1], this.angles[0], 0.0);
+  mat4.fromQuat(this.orientation, this.quat);
 
   vec3.transformMat4(this.position, this.offset, this.orientation);
   vec3.add(this.position, this.position, this.target.Position);
