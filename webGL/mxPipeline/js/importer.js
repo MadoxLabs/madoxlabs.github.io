@@ -104,6 +104,7 @@ Importer.prototype.encode = function(txt)
   var save = document.getElementById('save');
   save.src = img.toDataURL("image/png");
 
+  this.changePage(2);
   this.stop();
 }
 

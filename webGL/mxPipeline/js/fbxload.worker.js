@@ -57,7 +57,7 @@ function done()
   log("Creating data stream");
 //  var result = JSON.stringify(file);
   var result = pako.deflate(JSON.stringify(file), { to: "string" });
-  log("Done. Resulting JSON size " + result.length);
+  log("Done. Resulting data size " + result.length);
   postMessage({ type: 1, result: result });
 }
 
