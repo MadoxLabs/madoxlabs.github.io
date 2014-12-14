@@ -170,3 +170,9 @@ table {
    box-shadow: 0 0 0 4px #333333, 2px 1px 6px 4px rgba(10, 10, 0, 0.5);
    font-weight: normal;
 }
+
+.sidebar {
+  position: relative;
+  left: 7px;
+  width: 160px;
+}

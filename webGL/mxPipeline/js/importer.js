@@ -7,6 +7,10 @@ function Importer()
   var dropZone = document.getElementById('drop_zone');
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
+
+  this.curFile = "";
+  this.models = {};
+  this.datalogdata = "";
 }
 
 Importer.prototype.changePage = function(src)
@@ -35,13 +39,13 @@ Importer.prototype.log = function (text)
 Importer.prototype.cleardatalog = function ()
 {
   document.getElementById('impDatalog').innerHTML = "";
+  this.datalogdata = "";
 }
 
-var datalogdata = "";
 Importer.prototype.datalog = function (text)
 {
   // document.getElementById('impDatalog').innerHTML += text + "<br>";
-  datalogdata += text + "<br>";
+  this.datalogdata += text + "<br>";
 }
 
 Importer.prototype.start = function ()
@@ -52,7 +56,7 @@ Importer.prototype.start = function ()
 Importer.prototype.stop = function ()
 {
   document.getElementById("drop_zone").style.visibility = "visible";
-  document.getElementById('impDatalog').innerHTML = datalogdata;
+  document.getElementById('impDatalog').innerHTML = this.datalogdata;
 }
 
 Importer.prototype.import = function (text)
@@ -104,8 +108,19 @@ Importer.prototype.encode = function(txt)
   var save = document.getElementById('save');
   save.src = img.toDataURL("image/png");
 
+  var model = { file: this.curFile, data: this.datalogdata, image: save.src };
+  if (!this.models[model.file]) document.getElementById("listModels").innerHTML += "<div onclick='importer.selectModel(\"" + model.file + "\");'><p style='cursor: pointer;'>" + model.file + "</p></div>"
+  this.models[model.file] = model;
   this.changePage(2);
   this.stop();
+}
+
+Importer.prototype.selectModel = function(name)
+{
+  if (!this.models[name]) return;
+  var save = document.getElementById('save');
+  save.src = this.models[name].image;
+  document.getElementById('impDatalog').innerHTML = this.models[name].data;
 }
 
 function fromWorker(oEvent)
@@ -126,7 +141,7 @@ function handleFileSelect(evt)
   importer.clearlog();
   importer.cleardatalog();
   importer.log('Importing: ' + escape(f.name) + " ( " + f.size + " bytes ) </li>");
-
+  importer.curFile = f.name;
   var reader = new FileReader();
   reader.onload = function (e) { importer.import(e.target.result); }
   reader.readAsArrayBuffer(f);

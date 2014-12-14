@@ -16,11 +16,11 @@ var curTexture = { type: "texture" };
 
 function log(msg)
 {
-  postMessage({ type: 2, result: indent + msg });
+  postMessage({ type: 2, result: msg });
 }
 function debug(msg)
 {
-  postMessage({ type: 2, result: indent + msg });
+  postMessage({ type: 3, result: indent + msg });
 }
 
 var indent = "";

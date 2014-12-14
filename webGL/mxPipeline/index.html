@@ -41,6 +41,8 @@
       document.getElementById("impLog").style.height = (window.innerHeight - 250) + "px";
       document.getElementById("impDatalog").style.width = (window.innerWidth - 250) + "px";
       document.getElementById("impDatalog").style.height = (window.innerHeight - 250) + "px";
+      document.getElementById("impImage").style.width = (window.innerWidth - 250) + "px";
+      document.getElementById("impImage").style.height = (window.innerHeight - 250) + "px";
     }
   </script>
   <script src="js/importer.js"></script>
@@ -51,7 +53,10 @@
   <div id="btnInfo" class="mxButton active" onclick="changeTabs(0);">Information</div>
   <div id="btnImport" class="mxButton inactive" onclick="changeTabs(1);">Importer</div>
   <div id="btnView" class="mxButton inactive" onclick="changeTabs(2);">Viewer</div>
-  <div id="textures"></div>
+  <br />
+  <div id="models" class="importControl sidebar"><center><p>Recent Models</p></center><div id="listModels"></div></div>
+  <br />
+  <div id="textures" class="importControl sidebar"><center><p>Textures</p></center><div id="listTextures"></div></div>
   <div id="edge"></div>
   <div class="top" id="mover"></div>
 
@@ -93,8 +98,10 @@
       </div>
     </div>
     <div id="impResult" class="importapp hidden">
-      <p>FBX Import Result.</P>
-      <div><image id='save'></div><br />
+      <p>FBX Import Result.</p>
+      <div class="importControl">
+      <div id="impImage"><image id='save'></div>
+      </div>
     </div>
 
   </div>
