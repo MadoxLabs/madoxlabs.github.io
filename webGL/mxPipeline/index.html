@@ -3,10 +3,18 @@
 <title>Madoxlabs Pipeline</title>
   <link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
   <script>
-    var animImage = new Image();
-    animImage.src = "assets/animatedlogo.gif";
-    var staticImage = new Image();
-    staticImage.src = "assets/logo.jpg";
+    var animImage;
+    var staticImage;
+    var importer;
+    function init()
+    {
+      window.onresize();
+      animImage = new Image();
+      animImage.src = "assets/animatedlogo.gif";
+      staticImage = new Image();
+      staticImage.src = "assets/logo.jpg";
+      importer = new Importer();
+    }
 
     var tab = 0;
     function changeTabs(src)
@@ -28,11 +36,17 @@
       document.getElementById("info").style.width = window.innerWidth - 200;
       document.getElementById("importer").style.width = window.innerWidth - 200;
       document.getElementById("viewer").style.width = window.innerWidth - 200;
+
+      document.getElementById("impLog").style.width = (window.innerWidth - 250) + "px";
+      document.getElementById("impLog").style.height = (window.innerHeight - 250) + "px";
+      document.getElementById("impDatalog").style.width = (window.innerWidth - 250) + "px";
+      document.getElementById("impDatalog").style.height = (window.innerHeight - 250) + "px";
     }
   </script>
+  <script src="js/importer.js"></script>
   <script src="../mxFrame/mxFrame.js"></script>
 </head>
-<body onload="window.onresize(); launchApp(['js/viewer.js'], '../mxFrame', WITH_MXFRAME|WITH_OCULUS);">
+<body onload="init(); launchApp(['js/viewer.js'], '../mxFrame', WITH_MXFRAME|WITH_OCULUS);">
   <div id='header'><img onmouseover="this.src=animImage.src;" onmouseout="this.src=staticImage.src;" src="assets/logo.jpg"></div>
   <div id="btnInfo" class="mxButton active" onclick="changeTabs(0);">Information</div>
   <div id="btnImport" class="mxButton inactive" onclick="changeTabs(1);">Importer</div>
@@ -44,28 +58,47 @@
   <div id="info" class="appwindow">
     <div class="mxTitle">Pipeline Information</div>
     <p>MadoxLabs Pipeline is a tool for importing FBX files into the MadoxLabs WebGL Framework.</p>
-    <p>The Importer will read FBX files and turn them into a data blob that gets saved as a PNG image. Accepted FBX formats are <b>2013 ASCII</b> and <b>7.4 Binary</b> formats. Others may work if they are not too different.</p>
+    <p>The Importer will read FBX files and turn them into a data blob that gets saved as a PNG image. Accepted FBX formats are <b>7.3 ASCII (2013 version)</b> and <b>7.4 Binary</b> formats. Others may work if they are not too different.</p>
     <p>The Viewer will show the imported model in a WebGL window, to make sure it imported ok. Any textures that are needed for rendering need to be uploaded to the tool.</p>
   </div>
 
   <div id="importer" class="appwindow hidden">
     <div class="mxTitle">Pipeline Importer</div>
+    <table><tr>
+      <td><div id="impBtnProcessing" class="mxTab active" onclick="importer.changePage(0);">Processing</div></td>
+      <td><div id="impBtnData" class="mxTab inactive" onclick="importer.changePage(1);">File Data</div></td>
+      <td><div id="impBtnResult" class="mxTab inactive" onclick="importer.changePage(2);">Result</div></td></tr>
+    </table>
+    <div id="impProcessing" class="importapp">
+      <p>FBX file importer.</P>
+      <P>Select what object components to process, then upload an FBX file for processing.</p>
+      <p>The status of the import will appear below. The resulting data image will appear in the Result tab. The FBX file data will appear in the File Data tab.</p>
 
-ASCII FBX Mesh file (2013 format): <input id="file"></input>
-<input type=button onClick="load();" value="Load"></input><br>
-<input type="checkbox" id="_uvs" checked />UVs
-<input type="checkbox" id="_normals" checked />Normals
-<input type="checkbox" id="_tangets"  />Tangents
-<input type="checkbox" id="_binormals"  />Binormals<br />
-<input type="checkbox" id="_animations"  />Animations<br />
-<br />
-<div id="state"></div><br />
-Processing log: <input type=button onClick="toggle();" value="Toggle"></input>  <br>
-<pre><div id="error"></div></pre>  <br />
-Result: <br />
-<div><image id='save'></div><br />
+      <div class="importControl">
+      <input type="checkbox" id="impUVs" checked />UVs
+      <input type="checkbox" id="impNormals" checked />Normals
+      <input type="checkbox" id="impTangets"  />Tangents
+      <input type="checkbox" id="impBinormals"  />Binormals
+      <input type="checkbox" id="impAnimations"  />Animations
+        <br />
+      <div id="drop_zone">Drop file here</div>
+      <pre><div class="log" id="impLog"></div></pre>
+      </div>
+    </div>
+    <div id="impData" class="importapp hidden">
+      <p>FBX File Data.</P>
+      <p>The contents of the most recently imported file will appear here.</p>
+      <div class="importControl">
+      <pre><div class="log" id="impDatalog"></div></pre>
+      </div>
+    </div>
+    <div id="impResult" class="importapp hidden">
+      <p>FBX Import Result.</P>
+      <div><image id='save'></div><br />
+    </div>
 
   </div>
+
   <div id="viewer" class="appwindow hidden">
     <div class="mxTitle">Pipeline Viewer</div>
     <div><canvas id='surface'></div>

@@ -39,7 +39,7 @@ body, html {
   position: absolute;
   left: 200px;
   top: 0px;
-  width: 5px;
+  width: 15px;
   height: 100%;
   background: #333333;
    color: #fff;
@@ -70,18 +70,18 @@ body, html {
 
 .appwindow {
   position: absolute;
-  left: 205px;
+  left: 210px;
   top: 0px;
   width: 100%;
   height: 100%;
   background: #333333;
 }
 
-.appwindow.hidden {
+.hidden {
   visibility: hidden;
 }
 
-.appwindow.visible {
+.visible {
   visibility: visible;
 }
 
@@ -108,3 +108,65 @@ p {
            width: 800px;
            height: 600px;
          }
+
+.mxTab {
+   width: 150px;
+   padding: 5px;
+   color: #fff;
+   font-size: 16px;
+   font-weight: bold;
+   line-height: 1.3em;
+   border: 2px solid black;
+   text-shadow: -1px -1px #aa3030;
+   font-weight: normal;
+}
+
+.mxTab.active {
+   background: black;
+}
+
+.mxTab.inactive {
+   background: #333;
+}
+
+.importapp {
+  background: black;
+  color: #fff;
+  width: 100%;
+  height: 100%;
+  border: 4px solid black;
+  position: absolute;
+  top: 91px;
+  left: 3px;
+}
+
+.importControl {
+  padding: 5px;
+  margin: 5px;
+   background: #333;
+   border: 2px solid black;
+   box-shadow: 0 0 0 4px #333333, 2px 1px 6px 4px rgba(10, 10, 0, 0.5);
+}
+
+.log {
+  overflow-y: scroll;
+}
+
+table {
+   padding: 0px;
+   margin: 0px;
+}
+
+#drop_zone {
+   width: 200px;
+   padding: 5px;
+   margin: 10px;
+   color: #fff;
+   font-size: 16px;
+   font-weight: bold;
+   line-height: 1.3em;
+   border: 2px dashed #fff;
+   border-radius: 10px;
+   box-shadow: 0 0 0 4px #333333, 2px 1px 6px 4px rgba(10, 10, 0, 0.5);
+   font-weight: normal;
+}
