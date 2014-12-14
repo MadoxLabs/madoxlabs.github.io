@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>Madoxlabs Pipeline</title>
+  <link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+  <script>
+    var animImage = new Image();
+    animImage.src = "assets/animatedlogo.gif";
+    var staticImage = new Image();
+    staticImage.src = "assets/logo.jpg";
+
+    var tab = 0;
+    function changeTabs(src)
+    {
+      if (src != tab) tab = src;
+      else return;
+
+      document.getElementById("mover").className = ["top", "middle", "bottom"][tab];
+      document.getElementById("btnInfo").className = "mxButton " + ["active", "inactive", "inactive"][tab];
+      document.getElementById("btnImport").className = "mxButton " + ["inactive", "active", "inactive"][tab];
+      document.getElementById("btnView").className = "mxButton " + ["inactive", "inactive", "active"][tab];
+      document.getElementById("info").className = "appwindow " + ["", "hidden", "hidden"][tab];
+      document.getElementById("importer").className = "appwindow " + ["hidden", "", "hidden"][tab];
+      document.getElementById("viewer").className = "appwindow " + ["hidden", "hidden", ""][tab];
+    }
+  </script>
+</head>
+<body>
+  <div id='header'><img onmouseover="this.src=animImage.src;" onmouseout="this.src=staticImage.src;" src="assets/logo.jpg"></div>
+  <div id="btnInfo" class="mxButton active" onclick="changeTabs(0);">Information</div>
+  <div id="btnImport" class="mxButton inactive" onclick="changeTabs(1);">Importer</div>
+  <div id="btnView" class="mxButton inactive" onclick="changeTabs(2);">Viewer</div>
+  <div id="textures"></div>
+  <div id="edge"></div>
+  <div class="top" id="mover"></div>
+
+  <div id="info" class="appwindow">
+    <div>Pipeline Information</div>
+  </div>
+
+  <div id="importer" class="appwindow hidden">
+    <div>Pipeline Importer</div>
+
+ASCII FBX Mesh file (2013 format): <input id="file"></input>
+<input type=button onClick="load();" value="Load"></input><br>
+<input type="checkbox" id="uvs" checked />UVs
+<input type="checkbox" id="normals" checked />Normals
+<input type="checkbox" id="tangets"  />Tangents
+<input type="checkbox" id="binormals"  />Binormals<br />
+<input type="checkbox" id="animations"  />Animations<br />
+<br />
+<div id="state"></div><br />
+Processing log: <input type=button onClick="toggle();" value="Toggle"></input>  <br>
+<pre><div id="error"></div></pre>  <br />
+Result: <br />
+<div><image id='save'></div><br />
+
+  </div>
+  <div id="viewer" class="appwindow hidden">
+    <div>Pipeline Viewer</div>
+  </div>
+</body>
+</html>
