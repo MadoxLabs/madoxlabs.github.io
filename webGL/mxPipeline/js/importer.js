@@ -121,6 +121,8 @@ Importer.prototype.selectModel = function(name)
   var save = document.getElementById('save');
   save.src = this.models[name].image;
   document.getElementById('impDatalog').innerHTML = this.models[name].data;
+
+  Game.loadMeshPNG("sample", this.models[name].image);
 }
 
 function fromWorker(oEvent)

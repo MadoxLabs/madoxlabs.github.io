@@ -1,5 +1,5 @@
 var effect;
-var square;
+var model;
 var grid;
 
 var normals;
@@ -17,6 +17,7 @@ var xSpeed = 0;
 var yRot = 0;
 var ySpeed = 0;
 var decay = 0.98;
+var inited = false;
 
 var currentlyPressedKeys = {};
 
@@ -43,7 +44,6 @@ Game.deviceReady = function ()
 
 Game.loadingStart = function ()
 {
-  Game.ready = false;
 }
 
 function GameObject(model)
@@ -61,33 +61,40 @@ function GameObject(model)
 
 Game.loadingStop = function ()
 {
-  Game.ready = true;
-
   // do setup work for the mesh
-  square = Game.assetMan.assets["sample"];
-  grid = Game.assetMan.assets["floor"];
-
-  normals = square.drawNormals();
-  wire = square.drawWireframe();
-  explode = square.drawExploded();
-  bb = square.drawBB();
+  model = Game.assetMan.assets["sample"];
+  normals = model.drawNormals();
+  wire = model.drawWireframe();
+  explode = model.drawExploded();
+  bb = model.drawBB();
 
   var len = 0;
   for (var i = 0; i < 3; ++i)
   {
-    var l = square.boundingbox[0].max[i] - square.boundingbox[0].min[i];
+    var l = model.boundingbox[0].max[i] - model.boundingbox[0].min[i];
     if (l > len) len = l;
   }
-  var max = square.boundingbox[0].max[2] - square.boundingbox[0].min[2]
+  var max = model.boundingbox[0].max[2] - model.boundingbox[0].min[2]
   if (max < len) max = len;
+
+  xRot = 0;
+  xSpeed = 0;
+  yRot = 0;
+  ySpeed = 0;
+  decay = 0.98;
 
   Game.camera.offset[0] = 0.0; 
   Game.camera.offset[1] = 0.0; 
   Game.camera.offset[2] = len / (Math.tan(Game.camera.fov * 0.5));
 
-  Game.camera.setTarget(new GameObject(square));
-  Game.camera.target.Position[0] = square.boundingbox[0].min[0] + (square.boundingbox[0].max[0] - square.boundingbox[0].min[0]) / 2.0;
-  Game.camera.target.Position[1] = square.boundingbox[0].min[1] + (square.boundingbox[0].max[1] - square.boundingbox[0].min[1]) / 2.0;
+  Game.camera.setTarget(new GameObject(model));
+  Game.camera.target.Position[0] = model.boundingbox[0].min[0] + (model.boundingbox[0].max[0] - model.boundingbox[0].min[0]) / 2.0;
+  Game.camera.target.Position[1] = model.boundingbox[0].min[1] + (model.boundingbox[0].max[1] - model.boundingbox[0].min[1]) / 2.0;
+
+  if (inited) return;
+
+  grid = Game.assetMan.assets["floor"];
+
   // do setup work for the plain object shader
   var effect = Game.shaderMan.shaders["meshViewer"];
 
@@ -127,6 +134,13 @@ Game.loadingStop = function ()
 
   mat4.multiply(uPerObject.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
   mat4.multiply(uGrid.uWorldToLight, lighteye.eyes[0].projection, lighteye.eyes[0].view);
+
+  inited = true;
+}
+
+Game.setModel = function()
+{
+
 }
 
 Game.appUpdate = function ()
@@ -183,15 +197,18 @@ Game.appDrawAux = function ()
 {
   if (Game.loading) return;
   // shadowing render
-  lighteye.engage();
-  shadowmap.engage();
-  gl.clearColor(1.0, 1.0, 1.0, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  var effect = Game.shaderMan.shaders["shadowcast"];
-  effect.bind();
-  effect.bindCamera(lighteye);
-  effect.setUniforms(uPerObject);
-  effect.draw(square);
+  if (model)
+  {
+    lighteye.engage();
+    shadowmap.engage();
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    var effect = Game.shaderMan.shaders["shadowcast"];
+    effect.bind();
+    effect.bindCamera(lighteye);
+    effect.setUniforms(uPerObject);
+    effect.draw(model);
+  }
 }
 
 Game.appDraw = function (eye)
@@ -208,10 +225,13 @@ Game.appDraw = function (eye)
     effect.setUniforms(uPerObject);
     effect.setUniforms(uLight);
     effect.bindTexture("shadow", shadowmap.texture);
-    if (document.getElementById("explode").checked)
-      effect.draw(explode);
-    else
-      effect.draw(square);
+    if (model)
+    {
+      if (document.getElementById("explode").checked)
+        effect.draw(explode);
+      else
+        effect.draw(model);
+    }
 
     effect.setUniforms(uGrid);
     effect.draw(grid);
@@ -224,9 +244,9 @@ Game.appDraw = function (eye)
     effect.bindCamera(eye);
     uPerObjectN.uWorld = uPerObject.uWorld;
     effect.setUniforms(uPerObjectN);
-    if (document.getElementById("normals").checked) effect.draw(normals);
-    if (document.getElementById("wire").checked) effect.draw(wire);
-    if (document.getElementById("bb").checked) effect.draw(bb);
+    if (document.getElementById("normals").checked && normals) effect.draw(normals);
+    if (document.getElementById("wire").checked && wire) effect.draw(wire);
+    if (document.getElementById("bb").checked && bb) effect.draw(bb);
   }
 }
 
