@@ -363,7 +363,7 @@ function process(data)
 
   // first step, just parse and output what we find
   var cursor = { data: bytes, offset: 23 };
-  debug("File version:" + getInteger(cursor));
+  log("File version:" + getInteger(cursor));
   while (cursor.offset != bytes.length)
     if (!parseObjectRecord(root, cursor)) break;
 
