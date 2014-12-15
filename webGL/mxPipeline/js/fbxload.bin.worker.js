@@ -413,13 +413,13 @@ function process(data)
 
     if (obj1.type == "texture")
     {
-      if (obj2.type != "material") { log("ERROR: Texture "+obj1.name+" linked to non-material"); continue; }
-      if (con[3] != "DiffuseColor") { log("ERROR: Texture " + obj1.name + " linked to " + con[3]); continue; }
+      if (obj2.type != "material") { log("ERROR: Texture " + obj1.name + " linked to non-material"); continue; }
+      if (con[3] != "DiffuseColor") { log("WARNING: Texture " + obj1.name + " linked to parameter " + con[3] +" not supported"); continue; }
       if (obj2.texture) { log("ERROR: Material " + obj2.name + " linked to extra texture " + obj1.name); continue; }
       obj2.texture = obj1.file;
       log(obj2.name + " has texture " + obj1.name);
     }
-    if (obj1.type == "material" && obj2.type == "model")
+    else if (obj1.type == "material" && obj2.type == "model")
     {
       if (modeldone[obj2.id]) { log("ERROR: Model " + obj2.name + " linked to extra material " + obj1.name); continue; }
       if (!obj1.models) obj1.models = [];
@@ -427,13 +427,14 @@ function process(data)
       log(obj2.name + " has material " + obj1.name);
       modeldone[obj2.id] = 1;
     }
-    if (obj1.type == "mesh" && obj2.type == "model")
+    else if (obj1.type == "mesh" && obj2.type == "model")
     {
       if (obj2.mesh) { log("ERROR: Model " + obj1.name + " linked to multiple meshes"); continue; }
       obj2.mesh = bake(obj1);
       obj2.boundingbox = getBB(obj2)
       log(obj2.name + " has mesh " + obj1.name);
     }
+    else log("WARNING: Linking " + obj1.type + " " + obj1.name + " to " + obj1.type + " " + obj1.name + " not supported");
   }
 
   // create output
@@ -534,28 +535,28 @@ function outputGeometry(mesh)
   curmesh.name = mesh[1].split('\0')[0];
   log("Found mesh: " + curmesh.name);
 
-  if (curmesh.vertexs) { log("Error: multiple vertex buffers"); return; }
+  if (curmesh.vertexs) { log("ERROR: multiple vertex buffers"); return; }
   curmesh.vertexs = mesh.Vertices[0];
 
-  if (curmesh.indexs) { log("Error: multiple indexe buffers"); return; }
+  if (curmesh.indexs) { log("ERROR: multiple indexe buffers"); return; }
   // check that its trilist and flip the negative ones
   for (var j = 2; j < mesh.PolygonVertexIndex[0].length; j += 3)
   {
-    if (mesh.PolygonVertexIndex[0][j] >= 0) { log("Error: mesh is not a triangle list"); return; }
+    if (mesh.PolygonVertexIndex[0][j] >= 0) { log("ERROR: mesh is not a triangle list"); return; }
     mesh.PolygonVertexIndex[0][j] = (mesh.PolygonVertexIndex[0][j] * -1) - 1;
   }
   curmesh.indexes = mesh.PolygonVertexIndex[0];
 
-  if (curmesh.normals) { log("Error: multiple normals buffers"); return; }
+  if (curmesh.normals) { log("ERROR: multiple normals buffers"); return; }
   curmesh.normals = mesh.LayerElementNormal.Normals[0];
   curmesh.mapping = mesh.LayerElementNormal.MappingInformationType[0] == "ByVertice" ? 1 : 0;
 
   // UVs
-  if (curmesh.uv) { log("Error: multiple uv buffers"); return; }
+  if (curmesh.uv) { log("ERROR: multiple uv buffers"); return; }
   if (mesh.LayerElementUV) curmesh.uv = mesh.LayerElementUV.UV[0];
 
   // UV Index
-  if (curmesh.uvvalues) { log("Error: multiple uv buffers"); return; }
+  if (curmesh.uvvalues) { log("ERROR: multiple uv buffers"); return; }
   if (mesh.LayerElementUV) curmesh.uvindex = mesh.LayerElementUV.UVIndex[0];
 
   return curmesh;
