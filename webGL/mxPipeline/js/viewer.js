@@ -160,9 +160,9 @@ Game.appUpdate = function ()
   if (!Game.camera) return;
 
   if (currentlyPressedKeys[33])  // Page Up
-    Game.camera.offset[2] -= 0.5;
+    Game.camera.offset[2] -= 0.15;
   if (currentlyPressedKeys[34])  // Page Down
-    Game.camera.offset[2] += 0.5;
+    Game.camera.offset[2] += 0.15;
   if (currentlyPressedKeys[37])  // Left cursor key
   {
     if (currentlyPressedKeys[16]) { Game.camera.angles[1] += 0.1; }
