@@ -84,6 +84,7 @@ Game.init = function ()
   Game.loadShaderFile(libdir + "/oculus.fx");
   Game.loadShaderFile(libdir + "/sprite.fx");
   Game.loadTextureFile("mouse", libdir + "/mouse.png", false);
+  Game.loadTextureFile("missing", libdir + "/missing.png", true);
   Game.appInit();
 
   Game.ready = true;
@@ -395,11 +396,22 @@ Game.loadShaderFile = function (name)
 
 Game.loadTextureFile = function (name, file, mipmap)
 {
+  if (this.assetMan.assets[name]) return;
+
   Game.loadingIncr();
 
   var tex = new Texture(name);
   if (arguments.length == 3) tex.mipmap = mipmap;
   tex.load(Game.textureLocation + file);
+}
+
+Game.loadTextureData = function (name, file, mipmap)
+{
+  Game.loadingIncr();
+
+  var tex = new Texture(name);
+  if (arguments.length == 3) tex.mipmap = mipmap;
+  tex.load(file);
 }
 
 Game.loadMeshPNG = function (name, file)
@@ -418,6 +430,12 @@ Game.loadMesh = function (name, file)
   client.open('GET', file);
   client.onload = function () { Game.assetMan.processMesh(name, client.responseText); }
   client.send();
+}
+
+Game.loadingError = function (name)
+{
+  Game.appLoadingError(name);
+  Game.loadingDecr();
 }
 
 Game.loadingIncr = function() 

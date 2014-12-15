@@ -113,7 +113,11 @@ function draw(mesh)
     this.setUniforms(group.material);
     if (this.textures.length)
     {
-      if (group.texture) this.bindTexture('uTexture', Game.assetMan.assets[group.texture].texture);
+      if (group.texture)
+      {
+        if (Game.assetMan.assets[group.texture]) this.bindTexture('uTexture', Game.assetMan.assets[group.texture].texture);
+        else this.bindTexture('uTexture', Game.assetMan.assets["missing"].texture);
+      }
       else this.bindTexture('uTexture', null);
     }
 

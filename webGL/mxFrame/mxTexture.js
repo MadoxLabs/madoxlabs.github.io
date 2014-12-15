@@ -10,6 +10,7 @@ Texture.prototype.load = function(file)
   var tex = this;  // cant use 'this' in the onload line below.
   this.image = new Image();
   this.image.onload = function () { Game.assetMan.processTexture(tex); }
+  this.image.onerror = function () { Game.loadingError(tex.name); }
   this.image.src = file;
 }
 
@@ -32,6 +33,7 @@ MeshPNG.prototype.load = function (file)
   var tex = this;  // cant use 'this' in the onload line below.
   this.image = new Image();
   this.image.onload = function () { Game.assetMan.processMeshPNG(tex); }
+  this.image.onerror = function () { Game.loadingError(tex.name); }
   this.image.src = file;
 }
 

@@ -373,6 +373,8 @@ function process(data)
   var objects = {};
 
   // materials
+  if (!root.Objects.Material) log("ERROR: model is missing material");
+
   if (Array.isArray(root.Objects.Material))
     for (var m in root.Objects.Material)
       save(objects, outputMaterial(root.Objects.Material[m]));
@@ -478,7 +480,8 @@ function outputMaterial(mat)
   var obj = {};
   obj.id = mat[0];
   obj.type = "material";
-  obj.name = mat[1].split('\0')[0];
+  var parts = mat[1].split('\0');
+  if (parts) obj.name = parts[0];
   log("Found material: " + obj.name);
   for (var p in mat.Properties70.P)
   {
@@ -538,7 +541,7 @@ function outputGeometry(mesh)
   // check that its trilist and flip the negative ones
   for (var j = 2; j < mesh.PolygonVertexIndex[0].length; j += 3)
   {
-    if (mesh.PolygonVertexIndex[0][j] >= 0) { error("Error: mesh is not a triangle list"); return; }
+    if (mesh.PolygonVertexIndex[0][j] >= 0) { log("Error: mesh is not a triangle list"); return; }
     mesh.PolygonVertexIndex[0][j] = (mesh.PolygonVertexIndex[0][j] * -1) - 1;
   }
   curmesh.indexes = mesh.PolygonVertexIndex[0];
@@ -558,11 +561,11 @@ function outputGeometry(mesh)
   return curmesh;
 }
 
-Array.prototype.unique = function ()
+function unique(a)
 {
   var unique = [];
-  for (var i = 0; i < this.length; i++) {
-    if (unique.indexOf(this[i]) == -1) unique.push(this[i]);
+  for (var i = 0; i < a.length; i++) {
+    if (unique.indexOf(a[i]) == -1) unique.push(a[i]);
   }
   return unique;
 };
@@ -604,7 +607,7 @@ function bake(mesh)
   } while (index != mesh.indexes.length);
 
   // how many are the same?
-  var uniq = vertexstring.unique();
+  var uniq = unique(vertexstring);
   log("Processing " + mesh.name + ". Creating index for " + vertexstring.length + " verts. Result is " + uniq.length + " unique verts");
   // convert this to an actual vertex list
   var vertexobj = [];
@@ -657,11 +660,6 @@ function getBB(model)
     vec3.transformMat4(bb.min, bb.min, trans);
     vec3.transformMat4(bb.max, bb.max, trans);
   }
-  // bb.min[0] = bb.min[0] * model.scale[0] + model.translation[0];
-  // bb.min[1] = bb.min[1] * model.scale[1] + model.translation[1];
-  // bb.min[2] = bb.min[2] * model.scale[2] + model.translation[2];
-  // bb.max[0] = bb.max[0] * model.scale[0] + model.translation[0];
-  // bb.max[1] = bb.max[1] * model.scale[1] + model.translation[1];
-  // bb.max[2] = bb.max[2] * model.scale[2] + model.translation[2];
+
   return bb;
 }

@@ -18,12 +18,22 @@ var yRot = 0;
 var ySpeed = 0;
 var decay = 0.98;
 var inited = false;
+var loadingTextures = false;
 
 var currentlyPressedKeys = {};
 
 function degToRad(degrees)
 {
   return degrees * Math.PI / 180;
+}
+
+Game.appLoadingError = function (name)
+{
+  impTextures[name] = { color: "red" };
+
+  var buf = "";
+  for (var n in impTextures) buf += "<p style='color: " + impTextures[n].color + "'>" + n + "</p>"
+  document.getElementById("listTextures").innerHTML = buf;
 }
 
 Game.appInit = function ()
@@ -34,7 +44,7 @@ Game.appInit = function ()
   Game.loadShaderFile("assets/normalShader.fx");
   Game.loadShaderFile("assets/shadowcast.fx");
 
-  Game.loadMeshPNG("sample", "assets/joan.model");
+  Game.loadMeshPNG("sample", "assets/sample.model");
   Game.loadMeshPNG("floor", "assets/grid.model");
 }
 
@@ -61,6 +71,8 @@ function GameObject(model)
 
 Game.loadingStop = function ()
 {
+  if (loadingTextures) {  loadingTextures = false; return; }
+
   // do setup work for the mesh
   model = Game.assetMan.assets["sample"];
   normals = model.drawNormals();
@@ -69,8 +81,7 @@ Game.loadingStop = function ()
   bb = model.drawBB();
 
   var len = 0;
-  for (var i = 0; i < 3; ++i)
-  {
+  for (var i = 0; i < 3; ++i) {
     var l = model.boundingbox[0].max[i] - model.boundingbox[0].min[i];
     if (l > len) len = l;
   }
@@ -83,8 +94,8 @@ Game.loadingStop = function ()
   ySpeed = 0;
   decay = 0.98;
 
-  Game.camera.offset[0] = 0.0; 
-  Game.camera.offset[1] = 0.0; 
+  Game.camera.offset[0] = 0.0;
+  Game.camera.offset[1] = 0.0;
   Game.camera.offset[2] = len / (Math.tan(Game.camera.fov * 0.5));
 
   Game.camera.setTarget(new GameObject(model));
@@ -149,9 +160,9 @@ Game.appUpdate = function ()
   if (!Game.camera) return;
 
   if (currentlyPressedKeys[33])  // Page Up
-    Game.camera.offset[2] -= 0.1;
+    Game.camera.offset[2] -= 0.5;
   if (currentlyPressedKeys[34])  // Page Down
-    Game.camera.offset[2] += 0.1;
+    Game.camera.offset[2] += 0.5;
   if (currentlyPressedKeys[37])  // Left cursor key
   {
     if (currentlyPressedKeys[16]) { Game.camera.angles[1] += 0.1; }

@@ -4,9 +4,14 @@ function Importer()
   if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
     document.getElementById('list').innerHTML = 'The File APIs are not fully supported in this browser.\nYou will not be able to import files.';
   }
+
   var dropZone = document.getElementById('drop_zone');
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
+
+  var texDrop = document.getElementById('texDrop');
+  texDrop.addEventListener('dragover', handleDragOver, false);
+  texDrop.addEventListener('drop', handleTexDrop, false);
 
   this.curFile = "";
   this.models = {};
@@ -154,4 +159,32 @@ function handleDragOver(evt)
   evt.stopPropagation();
   evt.preventDefault();
   evt.dataTransfer.dropEffect = 'copy';
+}
+
+var impTextures = {};
+
+function handleTexDrop(evt)
+{
+  evt.stopPropagation();
+  evt.preventDefault();
+
+  var files = evt.dataTransfer.files;
+  for (var i = 0, f; f = files[i]; ++i)
+  {
+    var name = f.name.split("."); name = name[name.length - 2];
+    impTextures[name] = { color: "white" };
+    var buf = "";
+    for (var n in impTextures) buf += "<p style='color: "+impTextures[n].color+"'>" + n + "</p>"
+    document.getElementById("listTextures").innerHTML = buf;
+
+    var reader = new FileReader();
+    reader.onload = function (name) { return function (e) { importer.loadTexture(name, e.target.result); } }(name);
+    reader.readAsDataURL(f);
+  }
+}
+
+Importer.prototype.loadTexture = function(name, data)
+{
+  loadingTextures = true;
+  Game.loadTextureData(name, data, true);
 }
