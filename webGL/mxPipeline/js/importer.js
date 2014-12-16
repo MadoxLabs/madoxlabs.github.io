@@ -50,7 +50,7 @@ Importer.prototype.cleardatalog = function ()
 Importer.prototype.datalog = function (text)
 {
   // document.getElementById('impDatalog').innerHTML += text + "<br>";
-  this.datalogdata += text + "<br>";
+  this.datalogdata += text + "\n";
 }
 
 Importer.prototype.start = function ()

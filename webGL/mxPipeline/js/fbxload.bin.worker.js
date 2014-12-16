@@ -434,7 +434,7 @@ function process(data)
       obj2.boundingbox = getBB(obj2)
       log(obj2.name + " has mesh " + obj1.name);
     }
-    else log("WARNING: Linking " + obj1.type + " " + obj1.name + " to " + obj1.type + " " + obj1.name + " not supported");
+    else log("WARNING: Linking " + obj1.type + " " + obj1.name + " to " + obj2.type + " " + obj2.name + " not supported");
   }
 
   // create output

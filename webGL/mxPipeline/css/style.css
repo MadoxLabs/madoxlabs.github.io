@@ -152,6 +152,12 @@ p {
   overflow-y: scroll;
 }
 
+#impDatalog {
+    background: #333;
+    border: hidden;
+    color: #fff;
+}
+
 table {
    padding: 0px;
    margin: 0px;
