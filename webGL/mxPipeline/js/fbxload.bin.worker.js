@@ -417,14 +417,14 @@ function process(data)
       if (con[3] != "DiffuseColor") { log("WARNING: Texture " + obj1.name + " linked to parameter " + con[3] +" not supported"); continue; }
       if (obj2.texture) { log("ERROR: Material " + obj2.name + " linked to extra texture " + obj1.name); continue; }
       obj2.texture = obj1.file;
-      log(obj2.name + " has texture " + obj1.name);
+      log("material " + obj2.name + " has texture " + obj1.name + ".");
     }
     else if (obj1.type == "material" && obj2.type == "model")
     {
       if (modeldone[obj2.id]) { log("ERROR: Model " + obj2.name + " linked to extra material " + obj1.name); continue; }
       if (!obj1.models) obj1.models = [];
       obj1.models.push(obj2);
-      log(obj2.name + " has material " + obj1.name);
+      log("model "+obj2.name + " has material " + obj1.name + ".");
       modeldone[obj2.id] = 1;
     }
     else if (obj1.type == "mesh" && obj2.type == "model")
@@ -432,7 +432,7 @@ function process(data)
       if (obj2.mesh) { log("ERROR: Model " + obj1.name + " linked to multiple meshes"); continue; }
       obj2.mesh = bake(obj1);
       obj2.boundingbox = getBB(obj2)
-      log(obj2.name + " has mesh " + obj1.name);
+      log("model " + obj2.name + " has mesh " + obj1.name +".");
     }
     else log("WARNING: Linking " + obj1.type + " " + obj1.name + " to " + obj2.type + " " + obj2.name + " not supported");
   }
@@ -535,29 +535,65 @@ function outputGeometry(mesh)
   curmesh.name = mesh[1].split('\0')[0];
   log("Found mesh: " + curmesh.name);
 
-  if (curmesh.vertexs) { log("ERROR: multiple vertex buffers"); return; }
+  if (curmesh.vertexs) { log("WARNING: multiple vertex buffers"); return; }
+  if (curmesh.indexs) { log("WARNING: multiple index buffers"); return; }
+  if (curmesh.normals) { log("WARNING: multiple normals buffers"); return; }
+  if (curmesh.uv) { log("WARNING: multiple uv buffers"); return; }
+  if (curmesh.uvindex) { log("WARNING: multiple uv buffers"); return; }
+
   curmesh.vertexs = mesh.Vertices[0];
-
-  if (curmesh.indexs) { log("ERROR: multiple indexe buffers"); return; }
-  // check that its trilist and flip the negative ones
-  for (var j = 2; j < mesh.PolygonVertexIndex[0].length; j += 3)
-  {
-    if (mesh.PolygonVertexIndex[0][j] >= 0) { log("ERROR: mesh is not a triangle list"); return; }
-    mesh.PolygonVertexIndex[0][j] = (mesh.PolygonVertexIndex[0][j] * -1) - 1;
-  }
-  curmesh.indexes = mesh.PolygonVertexIndex[0];
-
-  if (curmesh.normals) { log("ERROR: multiple normals buffers"); return; }
-  curmesh.normals = mesh.LayerElementNormal.Normals[0];
-  curmesh.mapping = mesh.LayerElementNormal.MappingInformationType[0] == "ByVertice" ? 1 : 0;
-
-  // UVs
-  if (curmesh.uv) { log("ERROR: multiple uv buffers"); return; }
   if (mesh.LayerElementUV) curmesh.uv = mesh.LayerElementUV.UV[0];
 
-  // UV Index
-  if (curmesh.uvvalues) { log("ERROR: multiple uv buffers"); return; }
-  if (mesh.LayerElementUV) curmesh.uvindex = mesh.LayerElementUV.UVIndex[0];
+  curmesh.normalmapping = mesh.LayerElementNormal.ReferenceInformationType[0] == "Direct" ? 1 : 0;
+  curmesh.indexmapping = mesh.LayerElementUV.ReferenceInformationType[0] == "Direct" ? 1 : 0;
+
+  // new way: get all indexes until the negative one, reverse the negative one
+  // push triangles from this group: 1,2,3 1,3,4 1,4,5 etc until done
+  // this auto triangulates any size face
+  //
+  // to deal wioth normals, we assume normals are always 'Direct'
+  // copy the three normals matching the 3 indexed verts.  3 componant each - 9 floats
+    var faceindexes = [];
+    curmesh.indexes = [];
+    curmesh.normals = [];
+    curmesh.uvindex = [];
+
+    for (var j = 0; j < mesh.PolygonVertexIndex[0].length; ++j) {
+      if (mesh.PolygonVertexIndex[0][j] < 0) {
+        // end of list
+        faceindexes.push((mesh.PolygonVertexIndex[0][j] * -1) - 1);
+        var start = j - faceindexes.length+1;
+        for (var v = 1; v < faceindexes.length - 1; ++v) {
+          curmesh.indexes.push(faceindexes[0]);
+          curmesh.indexes.push(faceindexes[v]);
+          curmesh.indexes.push(faceindexes[v + 1]);
+
+          if (mesh.LayerElementNormal)
+          {
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start)]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start) + 1]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start) + 2]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start + v)]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start + v) + 1]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start + v) + 2]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start + v + 1)]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start + v + 1) + 1]);
+            curmesh.normals.push(mesh.LayerElementNormal.Normals[0][3 * (start + v + 1) + 2]);
+          }
+          if (mesh.LayerElementUV)
+          {
+            // 2 uv indexes per
+            curmesh.uvindex.push(mesh.LayerElementUV.UVIndex[0][(start)]);
+            curmesh.uvindex.push(mesh.LayerElementUV.UVIndex[0][(start + v)]);
+            curmesh.uvindex.push(mesh.LayerElementUV.UVIndex[0][(start + v + 1)]);
+          }
+        }
+        faceindexes = [];
+      }
+      else
+        faceindexes.push(mesh.PolygonVertexIndex[0][j]);
+    }
+
 
   return curmesh;
 }
@@ -585,23 +621,22 @@ function bake(mesh)
     vert.push(mesh.vertexs[v]);
     vert.push(mesh.vertexs[v + 1]);
     vert.push(mesh.vertexs[v + 2]);
+
     if (!mesh.uvindex || !mesh.uv) { vert.push(0); vert.push(0); }
     else
     {
+      //    if (mesh.uvmapping == 1)  diect version??
+
       var v2 = mesh.uvindex[index] * 2;
       vert.push(mesh.uv[v2]);
       vert.push(mesh.uv[v2 + 1]);
     }
-    if (mesh.mapping == 0) {
+
+//    if (mesh.normalmapping == 1) {
       vert.push(mesh.normals[normal]);
       vert.push(mesh.normals[normal + 1]);
       vert.push(mesh.normals[normal + 2]);
-    }
-    else {
-      vert.push(mesh.normals[v]);
-      vert.push(mesh.normals[v + 1]);
-      vert.push(mesh.normals[v + 2]);
-    }
+//    } else indexed version??
     index += 1;
     normal += 3;
     vertexstring.push(JSON.stringify(vert));
