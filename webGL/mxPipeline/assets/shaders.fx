@@ -45,9 +45,10 @@ uniform mat4 localTransform;     // group perpart
 void main(void) 
 {
   vec3 pos = aVertexPosition;
-  if (options.x > 0.0) pos += aVertexNormal * 0.5;
 
   vPosition = uWorld * localTransform * vec4(pos, 1.0);
+  if (options.x > 0.0) vPosition += vec4( mat3(localTransform) * aVertexNormal * 0.25, 0.0);
+
   gl_Position = projection * view * vPosition;
 
   vTextureCoord = aTextureCoord;
@@ -147,7 +148,9 @@ void main(void)
     tex = texture2D(uTexture, vec2(vTextureCoord.x, vTextureCoord.y));
   }
 
-  gl_FragColor = tex * vec4(light, 1.0);
+  if (options.x > 0.0)  gl_FragColor = vec4(0.8, 0.8, 0.8, 1.0);
+  else
+    gl_FragColor = tex * vec4(light, 1.0);
 }
 
 [END]

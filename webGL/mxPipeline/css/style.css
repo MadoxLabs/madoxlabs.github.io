@@ -147,6 +147,15 @@ p {
    box-shadow: 0 0 0 4px #333333, 2px 1px 6px 4px rgba(10, 10, 0, 0.5);
 }
 
+
+.overlay {
+  padding: 5px;
+  margin: 5px;
+   background: rgba(0,0,0,0);
+   border: 2px solid black;
+   box-shadow: 0 0 0 4px #333333, 2px 1px 6px 4px rgba(10, 10, 0, 0.5);
+}
+
 .log {
   overflow-y: scroll;
 }

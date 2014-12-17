@@ -109,20 +109,21 @@
   <div id="viewer" class="appwindow hidden">
     <div class="mxTitle">Pipeline Viewer</div>
     <div><canvas id='surface'></div>
-    <div style="top:5px; left:5px; position:fixed;"><canvas id='output' width="400" height="50"></div>
+    <div style="top:55px; left:5px; position:absolute;"><canvas id='output' width="400" height="50"></div>
+    <div style="top:55px; left:5px;  position:absolute;" class="overlay">
+      <p>
+    <input type=checkbox id="model" checked>Show Model</input><br />
+    <input type=checkbox id="normals">Show Normals</input><br />
+    <input type=checkbox id="explode">Show Exploded</input><br />
+    <input type=checkbox id="wire">Show Wireframe</input><br />
+    <input type=checkbox id="bb">Show Bounding Boxes</input><br />
+    <input type=checkbox id="uvs">Visualize UVs</input><br />
+    <input type=checkbox id="xseams">Check for U seams</input><br />
+    <input type=checkbox id="yseams">Check for V seams</input><br />
+      </p>
+     </div>
     <div class="importControl">
       <div id="scaleinfo"></div>
-      <p>
-    <input type=checkbox id="model" checked>Show Model</input>
-    <input type=checkbox id="normals">Show Normals</input>
-    <input type=checkbox id="explode">Show Exploded</input>
-    <input type=checkbox id="wire">Show Wireframe</input>
-    <input type=checkbox id="bb">Show Bounding Boxes</input><br />
-    <input type=checkbox id="uvs">Visualize UVs</input>
-    <input type=checkbox id="xseams">Check for U seams</input>
-    <input type=checkbox id="yseams">Check for V seams</input>
-      </p>
-    <br />
     <p>Up/Down/Left/Right - rotate model</p>
     <p>Shift Up/Down - move camera</p>
     <p>Shift Left/Right - rotate camera</p>

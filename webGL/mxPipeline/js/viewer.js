@@ -82,10 +82,6 @@ Game.loadingStop = function ()
 
   // do setup work for the mesh
   model = Game.assetMan.assets["sample"];
-  normals = model.drawNormals();
-  wire = model.drawWireframe();
-  explode = model.drawExploded();
-  bb = model.drawBB();
 
   scale = 3.0;
   for (var i = 0; i < 2; ++i) {
@@ -93,7 +89,13 @@ Game.loadingStop = function ()
     if (s > scale) scale = s;
   }
   scale = 3.0 / scale;
+  model.scale = scale;
   document.getElementById("scaleinfo").innerHTML="<p>Model is being scaled by a factor of: " + scale +"</p>";
+
+  normals = model.drawNormals();
+  wire = model.drawWireframe();
+  explode = model.drawExploded();
+  bb = model.drawBB();
 
   var len = 0;
   for (var i = 0; i < 3; ++i) {
@@ -204,6 +206,10 @@ Game.appUpdate = function ()
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(xRot), [1, 0, 0]);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(yRot), [0, 1, 0]);
 
+//  mat4.identity(uPerObjectN.uWorld);
+//  mat4.rotate(uPerObjectN.uWorld, uPerObjectN.uWorld, degToRad(xRot), [1, 0, 0]);
+//  mat4.rotate(uPerObjectN.uWorld, uPerObjectN.uWorld, degToRad(yRot), [0, 1, 0]);
+
   if (document.getElementById("explode").checked) uPerObject.options[0] = 1;
   else uPerObject.options[0] = 0;
   uPerObject.options[1] = 0;
@@ -263,8 +269,7 @@ Game.appDraw = function (eye)
     effect = Game.shaderMan.shaders["normalViewer"];
     effect.bind();
     effect.bindCamera(eye);
-    uPerObjectN.uWorld = uPerObject.uWorld;
-    effect.setUniforms(uPerObjectN);
+    effect.setUniforms(uPerObject);
     if (document.getElementById("normals").checked && normals) effect.draw(normals);
     if (document.getElementById("wire").checked && wire) effect.draw(wire);
     if (document.getElementById("bb").checked && bb) effect.draw(bb);

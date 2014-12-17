@@ -24,6 +24,7 @@ Material.prototype.loadFromFBX = function(data)
 var Mesh = function ()
 {
   this.groups = [];
+  this.scale = 1.0; // this is only to scale normals up to visible size
 }
 
 Mesh.prototype.loadFromArrays = function(verts, indexs, attr, type, prims, group, trans)
@@ -134,9 +135,9 @@ Mesh.prototype.drawNormals = function()
         verts.push(part.verts[v]);
         verts.push(part.verts[v + 1]);
         verts.push(part.verts[v + 2]);
-        verts.push(part.verts[v]     + part.verts[v + 5] * 0.1);
-        verts.push(part.verts[v + 1] + part.verts[v + 6] * 0.1);
-        verts.push(part.verts[v + 2] + part.verts[v + 7] * 0.1);
+        verts.push(part.verts[v]     + part.verts[v + 5] *0.1 / this.scale);
+        verts.push(part.verts[v + 1] + part.verts[v + 6] *0.1 / this.scale);
+        verts.push(part.verts[v + 2] + part.verts[v + 7] *0.1 / this.scale);
       }
 
       ret.loadFromArrays(verts, null, { 'POS': 0 }, gl.LINES, verts.length / 3.0, 0, part.uniforms.localTransform);
