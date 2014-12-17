@@ -171,20 +171,41 @@ function handleTexDrop(evt)
   var files = evt.dataTransfer.files;
   for (var i = 0, f; f = files[i]; ++i)
   {
-    var name = f.name.split("."); name = name[name.length - 2];
+    var parts = f.name.split("."); 
+    var name = parts[parts.length - 2];
     impTextures[name] = { color: "white" };
     var buf = "";
     for (var n in impTextures) buf += "<p style='color: "+impTextures[n].color+"'>" + n + "</p>"
     document.getElementById("listTextures").innerHTML = buf;
 
-    var reader = new FileReader();
-    reader.onload = function (name) { return function (e) { importer.loadTexture(name, e.target.result); } }(name);
-    reader.readAsDataURL(f);
+    if (parts[parts.length - 1] == "tga")
+    {
+      var reader = new FileReader();
+      reader.onload = function (name) { return function (e) { importer.loadTGATexture(name, e.target.result); } }(name);
+      reader.readAsArrayBuffer(f);
+    }
+    else
+    {
+      var reader = new FileReader();
+      reader.onload = function (name) { return function (e) { importer.loadTexture(name, e.target.result); } }(name);
+      reader.readAsDataURL(f);
+    }
   }
 }
 
 Importer.prototype.loadTexture = function(name, data)
 {
+  loadingTextures = true;
+  Game.loadTextureData(name, data, true);
+}
+
+Importer.prototype.loadTGATexture = function(name, data)
+{
+  var tga_data = new Uint8Array(data); 
+  var tga = new TGA();
+  tga.load(tga_data);
+  data = tga.getDataURL('image/png');
+
   loadingTextures = true;
   Game.loadTextureData(name, data, true);
 }
