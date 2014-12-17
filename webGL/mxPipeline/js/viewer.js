@@ -11,6 +11,7 @@ var uPerObject;
 var uPerObjectN;
 var uLight;
 var uGrid;
+var scale;
 
 var xRot = 0;
 var xSpeed = 0;
@@ -73,6 +74,12 @@ Game.loadingStop = function ()
 {
   if (loadingTextures) {  loadingTextures = false; return; }
 
+  xRot = 0;
+  xSpeed = 0;
+  yRot = 0;
+  ySpeed = 0;
+  decay = 0.98;
+
   // do setup work for the mesh
   model = Game.assetMan.assets["sample"];
   normals = model.drawNormals();
@@ -80,27 +87,29 @@ Game.loadingStop = function ()
   explode = model.drawExploded();
   bb = model.drawBB();
 
+  scale = 3.0;
+  for (var i = 0; i < 2; ++i) {
+    var s = model.boundingbox[0].max[i] - model.boundingbox[0].min[i];
+    if (s > scale) scale = s;
+  }
+  scale = 3.0 / scale;
+  document.getElementById("scaleinfo").innerHTML="<p>Model is being scaled by a factor of: " + scale +"</p>";
+
   var len = 0;
   for (var i = 0; i < 3; ++i) {
-    var l = model.boundingbox[0].max[i] - model.boundingbox[0].min[i];
+    var l = (model.boundingbox[0].max[i] - model.boundingbox[0].min[i]) * scale;
     if (l > len) len = l;
   }
-  var max = model.boundingbox[0].max[2] - model.boundingbox[0].min[2]
+  var max = (model.boundingbox[0].max[2] - model.boundingbox[0].min[2]) * scale;
   if (max < len) max = len;
-
-  xRot = 0;
-  xSpeed = 0;
-  yRot = 0;
-  ySpeed = 0;
-  decay = 0.98;
 
   Game.camera.offset[0] = 0.0;
   Game.camera.offset[1] = 0.0;
   Game.camera.offset[2] = len / (Math.tan(Game.camera.fov * 0.5));
 
   Game.camera.setTarget(new GameObject(model));
-  Game.camera.target.Position[0] = model.boundingbox[0].min[0] + (model.boundingbox[0].max[0] - model.boundingbox[0].min[0]) / 2.0;
-  Game.camera.target.Position[1] = model.boundingbox[0].min[1] + (model.boundingbox[0].max[1] - model.boundingbox[0].min[1]) / 2.0;
+  Game.camera.target.Position[0] = (model.boundingbox[0].min[0] + (model.boundingbox[0].max[0] - model.boundingbox[0].min[0]) / 2.0) * scale;
+  Game.camera.target.Position[1] = (model.boundingbox[0].min[1] + (model.boundingbox[0].max[1] - model.boundingbox[0].min[1]) / 2.0) * scale;
 
   if (inited) return;
 
@@ -191,6 +200,7 @@ Game.appUpdate = function ()
   yRot += (ySpeed * Game.elapsed) / 1000.0;
 
   mat4.identity(uPerObject.uWorld);
+  mat4.scaleUniform(uPerObject.uWorld, uPerObject.uWorld, scale);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(xRot), [1, 0, 0]);
   mat4.rotate(uPerObject.uWorld, uPerObject.uWorld, degToRad(yRot), [0, 1, 0]);
 

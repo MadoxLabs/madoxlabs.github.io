@@ -110,6 +110,9 @@
     <div class="mxTitle">Pipeline Viewer</div>
     <div><canvas id='surface'></div>
     <div style="top:5px; left:5px; position:fixed;"><canvas id='output' width="400" height="50"></div>
+    <div class="importControl">
+      <div id="scaleinfo"></div>
+      <p>
     <input type=checkbox id="model" checked>Show Model</input>
     <input type=checkbox id="normals">Show Normals</input>
     <input type=checkbox id="explode">Show Exploded</input>
@@ -118,10 +121,13 @@
     <input type=checkbox id="uvs">Visualize UVs</input>
     <input type=checkbox id="xseams">Check for U seams</input>
     <input type=checkbox id="yseams">Check for V seams</input>
+      </p>
     <br />
-    Up/Down/Left/Right - rotate model<br />
-    Shift Up/Down - move camera<br />
-    Page UP/Down - move camera<br />
+    <p>Up/Down/Left/Right - rotate model</p>
+    <p>Shift Up/Down - move camera</p>
+    <p>Shift Left/Right - rotate camera</p>
+    <p>Page Up/Down - zoom camera</p>
+      </div>
 
   </div>
 </body>

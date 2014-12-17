@@ -3102,6 +3102,28 @@ mat4.scale = function(out, a, v) {
     return out;
 };
 
+mat4.scaleUniform = function (out, a, v)
+{
+
+  out[0] = a[0] * v;
+  out[1] = a[1] * v;
+  out[2] = a[2] * v;
+  out[3] = a[3] * v;
+  out[4] = a[4] * v;
+  out[5] = a[5] * v;
+  out[6] = a[6] * v;
+  out[7] = a[7] * v;
+  out[8] = a[8] * v;
+  out[9] = a[9] * v;
+  out[10] = a[10] * v;
+  out[11] = a[11] * v;
+  out[12] = a[12];
+  out[13] = a[13];
+  out[14] = a[14];
+  out[15] = a[15];
+  return out;
+};
+
 /**
  * Rotates a mat4 by the given angle
  *
