@@ -1,0 +1,318 @@
+
+<html>
+<head>
+  <title>Kerbal DeltaV Helper</title>
+
+  <script>
+function round(x)
+{
+  return (x+0.5)|0;
+}
+
+var pinned = false;
+var lastpercent = 0;
+var lastasp = 0;
+var nomain = false;
+var nobooster = false;
+var engines = [ 
+                { "name": "S3 KS-25x4", "mass": 9.75, "thrust": 3200 },
+                { "name": "Kerbodyne KR-2L", "mass": 6.5, "thrust": 2500 },
+                { "name": "LFB KR-1x2", "mass": 10, "thrust": 2000 },
+                { "name": "Rockomax Mainsail", "mass": 6, "thrust": 1500},
+                { "name": "Rockomax Skipper", "mass": 3, "thrust": 650 },
+                { "name": "Rockoax Poodle", "mass": 2, "thrust": 220},
+                { "name": "LV-T30", "mass": 1.25, "thrust": 215 },
+                { "name": "LV-T45", "mass": 1.5, "thrust": 200 },
+                { "name": "R.A.P.I.E.R.", "mass": 1.75, "thrust": 175 },
+                { "name": "Rockomax Mark 55 Radial", "mass": 0.9, "thrust": 120 },
+//                { "name": "Toroidal Aerospike", "mass": 1.5, "thrust": 175, "type": 2 },
+//                { "name": "LV-909", "mass": 0.5, "thrust": 50, "type": 3 },
+//                { "name": "Rockomax 48-7S", "mass": 0.1, "thrust": 30, "type": 1 },
+//                { "name": "Rockomax 24-77 Radial", "mass": 0.09, "thrust": 20, "type": 2 },
+//                { "name": "LV-1", "mass": 0.03, "thrust": 1.5, "type": 2 },
+//                { "name": "LV-1R Radial", "mass": 0.03, "thrust": 1.5, "type": 3 }
+              ];
+
+var results = {};
+
+function init()
+{
+  select = document.getElementById('engine');
+
+  for (var i = 0; i < engines.length; i++)
+  {
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.innerHTML =  engines[i].thrust +" dV - " + engines[i].name;
+    select.appendChild(opt);
+  }
+}
+
+function setmass()
+{
+  var mass = document.getElementById("mass").value;
+  var g = document.getElementById("grav").value;
+  var twr  = document.getElementById("slidertwr").value;
+  var centerratio  = document.getElementById("slidercenterratio").value;
+  var asp  = document.getElementById("sliderasp").value;
+  var total = mass * 100.0 / 15.0;
+  var lifter = total - mass;
+  var thrust = total * g * twr;
+
+  // fixup illegal values
+  if (!pinned)
+  {
+    if (centerratio == 100) 
+    {
+      pinned = true;
+      asp = 0;
+      set('asp', asp);
+    }
+    else if (asp == 0) 
+    {
+      pinned = true;
+      centerratio = 100;
+      set("centerratio", centerratio);
+    } 
+    else
+    {
+      lastpercent = centerratio;
+      lastasp = asp;
+    }
+  }
+  else if (pinned)
+  {
+    if (centerratio != 100) 
+    {
+      pinned = false;
+      asp = lastasp;
+      set('asp', asp);
+    }
+    else if (asp != 0) 
+    {
+      pinned = false;
+      centerratio = lastpercent;
+      set("centerratio", centerratio);
+    } 
+  }
+
+  // compute
+  centerratio = centerratio / 100.0;
+  document.getElementById("massTotal").value = round(total);
+  document.getElementById("massLift").value = round(lifter);
+  document.getElementById("thrust").value = round(thrust);
+  document.getElementById("thrustCenter").value = round(thrust * centerratio);
+  document.getElementById("thrustBooster").value = round(thrust * (1.0 - centerratio));
+  document.getElementById("thrustPerBooster").value = round(thrust * (1.0 - centerratio) / asp);
+
+  nobooster = (asp == 0);
+  nomain = !centerratio;
+
+  setfuel();
+}
+
+var mains = [];
+var mainMass = 0;
+var mainThrust = 0;
+var boosts = [];
+var boostsMass = 0;
+var boostsThrust = 0;
+
+function addMainEngine()
+{
+  if (mains.length > 6) return;
+  var output = document.getElementById("mainOutput-content");
+  var e = document.getElementById("engine");
+  var engineindex = e.options[e.selectedIndex].value;
+
+  mains.push(engineindex);
+  mainMass = 0;
+  mainThrust = 0;
+
+  var buf = "";
+  for (var i = 0; i < mains.length; ++i)
+  {
+    mainMass += engines[mains[i]].mass;
+    mainThrust += engines[mains[i]].thrust;
+    buf += engines[mains[i]].thrust + "dV - " + engines[mains[i]].name + "<br>";
+  }
+
+  output.innerHTML = buf + "<br>Current dV: " + mainThrust + " kN";
+  setfuel();
+}
+
+function addBoosterEngine()
+{
+  if (mains.length > 6) return;
+  var output = document.getElementById("boosterOutput-content");
+  var e = document.getElementById("engine");
+  var engineindex = e.options[e.selectedIndex].value;
+
+  boosts.push(engineindex);
+  boostsMass = 0;
+  boostsThrust = 0;
+
+  var buf = "";
+  for (var i = 0; i < boosts.length; ++i)
+  {
+    boostsMass += engines[boosts[i]].mass;
+    boostsThrust += engines[boosts[i]].thrust;
+    buf += engines[boosts[i]].thrust + "dV - " + engines[boosts[i]].name + "<br>";
+  }
+
+  output.innerHTML = buf + "<br>Current dV: " + boostsThrust + " kN";
+  setfuel();
+}
+
+function setfuel()
+{
+  if ((boostsMass > 0 || nobooster) && (mainMass > 0 || nomain))
+  {    
+    var asp = document.getElementById("sliderasp").value;
+    var lifter = document.getElementById("massLift").value;
+    var fuel = lifter - (mainMass + boostsMass * asp);
+    if (nobooster) asp = 0;
+    if (!nomain) asp = 1.0 + 1*asp;
+    var fuelper = fuel / asp;
+    document.getElementById("fuel").value = round(fuel);
+    document.getElementById("fuelPerBooster").value = nobooster ? 0 : round(fuelper);
+    document.getElementById("fuelCenter").value = nomain ? 0 : round(fuelper);
+  }
+}
+
+function set(name, value)
+{
+  document.getElementById(name).value = value;
+  document.getElementById("slider"+name).value = value;
+}
+
+function update(name, value)
+{
+  document.getElementById(name).value = value;
+  setmass();
+}
+  </script>
+  <style>
+#payload 
+    {
+      position: relative;
+      top: -562px;
+      left: 510px;
+    }
+#params 
+    {
+      position: relative;
+      top: -562px;
+      left: 0px;
+    }
+#fueldiv 
+    {
+      position: relative;
+      top: -795px;
+      left: 510px;
+    }
+#booster 
+    {
+      position: relative;
+      top: -462px;
+      left: 540px;
+    }
+#main 
+    {
+      position: relative;
+      top: -730px;
+      left: 150px;
+    }
+#mainOutput {
+    position: relative;
+    min-height: 140px;
+    top: -600px;
+    left: 50px;
+  }
+#mainOutput-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+#boosterOutput {
+    position: relative;
+    min-height: 140px;
+    top: -780px;
+    left: 560px;
+  }
+#boosterOutput-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+#adder 
+    {
+      position: relative;
+      top: -730px;
+      left: 300px;
+    }
+#help {
+  display: none;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+
+}
+  </style>
+</head>
+<body onload="init();">
+  <h1>Kerbal DeltaV Helper</h1>
+  <br>
+  This tool implements the rocket thrust calculations as described in the KSP wiki. It will help you figure out what type and how many engines you need on your rocket to get it into orbit<br />
+  <br />
+  <image id="rocket" height=600 src="rocket.png">
+    <div id="payload">
+      Payload: <input size="2" id=mass></input> tons <button onclick="setmass();">Set Mass</button>
+    </div> 
+    <div id="params">
+      <b>Rocket Parameters</b><br />
+      Gravity: <input size="2" id=grav value=9.81></input> m/ss<br>
+      <table>
+        <tr><td>TWR:</td><td>0<input type="range" id="slidertwr" min="0" max="5" step="0.1" value="1.7" oninput="update('twr', value);"></input>5</td><td><input size="1" id=twr value=1.7 readonly></input></td></tr>
+        <tr><td>Boosters:</td><td>0<input type="range" id="sliderasp" min="0" max="20" step="2" value="4" oninput="update('asp', value);"></input>20</td><td><input size="1" id=asp value=4 readonly></input></td></tr>
+        <tr><td>Main Engine %:</td><td>0<input type="range" id="slidercenterratio" min="0" max="100" step="1" value="22" oninput="update('centerratio', value);"></input>100</td><td><input size="1" id=centerratio value=22 readonly></input></td></tr>
+      </table><br />
+      <b>Rocket Design</b><br />
+      <table>
+        <tr><td>Total mass:</td><td><input size="2" id=massTotal readonly></input> tons</td></tr>
+        <tr><td>Lifting mass:</td><td><input size="2" id=massLift readonly></input> tons</td></tr>
+        <tr><td>&nbsp</td></tr>
+        <tr><td>Total thrust:</td><td><input size="2" id=thrust readonly></input> kN</td></tr>
+        <tr><td>Booster thrust:</td><td><input size="2" id=thrustBooster readonly></input> kN</td></tr>
+        <tr><td>&nbsp</td></tr>
+        <tr><td>Total fuel:</td><td><input  size="2" id=fuel readonly></input> tons</td></tr>
+      </table>
+    </div>
+    <div id="fueldiv">
+        Center fuel: <input  size="2" id=fuelCenter readonly></input> tons<br>
+        Per booster fuel: <input  size="2" id=fuelPerBooster readonly></input> tons<br>
+    </div>
+    <div id="booster">
+        Per booster thrust: <input size="2" id=thrustPerBooster readonly></input> kN
+    </div>
+    <div id="mainOutput">
+      <div id="mainOutput-content">
+      </div>
+    </div>
+    <div id="boosterOutput">
+      <div id="boosterOutput-content">
+      </div>
+    </div>
+    <div id="main">
+        Main thrust: <input size="2" id=thrustCenter readonly></input> kN
+    </div>
+    <div id="adder">
+      <select id="engine">
+      </select> 
+      <button id="addmain" onclick="addMainEngine();">+ Main</button> <button id="addbooster" onclick="addBoosterEngine();">+ Booster</button>
+    </div>
+  </image><br />  
+  <div id="help">
+  </div>
+</body>
+</html>
