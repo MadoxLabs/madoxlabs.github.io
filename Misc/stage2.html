@@ -15,22 +15,23 @@ var lastasp = 0;
 var nomain = false;
 var nobooster = false;
 var engines = [ 
-                { "name": "S3 KS-25x4", "mass": 9.75, "thrust": 3200 },
-                { "name": "Kerbodyne KR-2L", "mass": 6.5, "thrust": 2500 },
-                { "name": "LFB KR-1x2", "mass": 10, "thrust": 2000 },
-                { "name": "Rockomax Mainsail", "mass": 6, "thrust": 1500},
-                { "name": "Rockomax Skipper", "mass": 3, "thrust": 650 },
-                { "name": "Rockoax Poodle", "mass": 2, "thrust": 220},
-                { "name": "LV-T30", "mass": 1.25, "thrust": 215 },
-                { "name": "LV-T45", "mass": 1.5, "thrust": 200 },
-                { "name": "R.A.P.I.E.R.", "mass": 1.75, "thrust": 175 },
-                { "name": "Rockomax Mark 55 Radial", "mass": 0.9, "thrust": 120 },
-//                { "name": "Toroidal Aerospike", "mass": 1.5, "thrust": 175, "type": 2 },
-//                { "name": "LV-909", "mass": 0.5, "thrust": 50, "type": 3 },
-//                { "name": "Rockomax 48-7S", "mass": 0.1, "thrust": 30, "type": 1 },
-//                { "name": "Rockomax 24-77 Radial", "mass": 0.09, "thrust": 20, "type": 2 },
-//                { "name": "LV-1", "mass": 0.03, "thrust": 1.5, "type": 2 },
-//                { "name": "LV-1R Radial", "mass": 0.03, "thrust": 1.5, "type": 3 }
+                { "name": "Mammoth", "mass": 15.0, "thrust": 4000 },
+                { "name": "Rhino", "mass": 8.5, "thrust": 2000 },
+                { "name": "Twin-Boar", "mass": 10, "thrust": 2000 },
+                { "name": "Mainsail", "mass": 6, "thrust": 1500},
+                { "name": "Skipper", "mass": 3, "thrust": 650 },
+                { "name": "Poodle", "mass": 1.75, "thrust": 250},
+                { "name": "LV-T30 Reliant", "mass": 1.25, "thrust": 215 },
+                { "name": "LV-T45 Swivel", "mass": 1.5, "thrust": 200 },
+                { "name": "R.A.P.I.E.R.", "mass": 1.5, "thrust": 180 },
+                { "name": "Aerospike", "mass": 1.5, "thrust": 180 },
+                { "name": "Thud Radial", "mass": 0.9, "thrust": 120 },
+                { "name": "Nerv", "mass": 3.0, "thrust": 60 },
+                { "name": "LV-909 Terrier", "mass": 0.5, "thrust": 60 },
+                { "name": "Spark", "mass": 0.1, "thrust": 18 },
+                { "name": "Twtch", "mass": 0.09, "thrust": 16 },
+                { "name": "Ant", "mass": 0.02, "thrust": 2.0 },
+                { "name": "Spider", "mass": 0.02, "thrust": 2.0 }
               ];
 
 var results = {};
@@ -108,6 +109,8 @@ function setmass()
   nobooster = (asp == 0);
   nomain = !centerratio;
 
+  computeMain();
+  computeBooster();
   setfuel();
 }
 
@@ -117,55 +120,102 @@ var mainThrust = 0;
 var boosts = [];
 var boostsMass = 0;
 var boostsThrust = 0;
+var mainok = false;
+var boostok = false;
+var mainLessFuel = 0;
+var boostLessFuel = 0;
 
 function addMainEngine()
 {
   if (mains.length > 6) return;
-  var output = document.getElementById("mainOutput-content");
   var e = document.getElementById("engine");
   var engineindex = e.options[e.selectedIndex].value;
 
   mains.push(engineindex);
+  computeMain();
+  setfuel();
+}
+
+function computeMain()
+{
+  var output = document.getElementById("mainOutput-content");
   mainMass = 0;
   mainThrust = 0;
+  mainLessFuel = 0;
 
   var buf = "";
   for (var i = 0; i < mains.length; ++i)
   {
+    if (mains[i] == 2) mainLessFuel += 32;
     mainMass += engines[mains[i]].mass;
     mainThrust += engines[mains[i]].thrust;
-    buf += engines[mains[i]].thrust + "dV - " + engines[mains[i]].name + "<br>";
+    buf += engines[mains[i]].thrust + "dV - " + engines[mains[i]].name + "<button onclick=\"removeMain("+i+")\">X</button><br>";
   }
 
-  output.innerHTML = buf + "<br>Current dV: " + mainThrust + " kN";
-  setfuel();
+  var color = "#f00";
+  var need = document.getElementById("thrustCenter").value | 0;
+  mainok = false;
+  if (mainThrust >= need * 0.9 && mainThrust <= need * 1.1) { mainok = true; color = "#0f0"; }
+  output.innerHTML = buf + "<br>Current dV: <font color=" + color + "> " + mainThrust + " kN </font>";
 }
 
 function addBoosterEngine()
 {
-  if (mains.length > 6) return;
-  var output = document.getElementById("boosterOutput-content");
+  if (boosts.length > 6) return;
   var e = document.getElementById("engine");
   var engineindex = e.options[e.selectedIndex].value;
 
   boosts.push(engineindex);
+  computeBooster();
+  setfuel();
+}
+
+function removeBooster(index)
+{
+  boosts.splice(index, 1);
+  computeBooster();
+  setfuel();
+}
+
+function removeMain(index)
+{
+  mains.splice(index, 1);
+  computeMain();
+  setfuel();
+}
+
+function computeBooster()
+{
+  var output = document.getElementById("boosterOutput-content");
   boostsMass = 0;
   boostsThrust = 0;
+  boostLessFuel = 0;
 
   var buf = "";
   for (var i = 0; i < boosts.length; ++i)
   {
+    if (boosts[i] == 2) boostLessFuel += 32;
     boostsMass += engines[boosts[i]].mass;
     boostsThrust += engines[boosts[i]].thrust;
-    buf += engines[boosts[i]].thrust + "dV - " + engines[boosts[i]].name + "<br>";
+    buf += engines[boosts[i]].thrust + "dV - " + engines[boosts[i]].name + "<button onclick=\"removeBooster(" + i + ")\">X</button><br>";
   }
 
-  output.innerHTML = buf + "<br>Current dV: " + boostsThrust + " kN";
-  setfuel();
+  var color = "#f00";
+  var need = document.getElementById("thrustPerBooster").value | 0;
+  boostok = false;
+  if (boostsThrust >= need * 0.9 && boostsThrust <= need * 1.1) { boostok = true; color = "#0f0"; }
+  output.innerHTML = buf + "<br>Current dV: <font color=" + color + "> " + boostsThrust + " kN </font>";
 }
 
 function setfuel()
 {
+  if (!boostok || !mainok)
+  {
+    document.getElementById("fuelPerBooster").value = "";
+    document.getElementById("fuelCenter").value = ""; 
+    document.getElementById("fuel").value = "";
+    return;
+  }
   if ((boostsMass > 0 || nobooster) && (mainMass > 0 || nomain))
   {    
     var asp = document.getElementById("sliderasp").value;
@@ -174,9 +224,9 @@ function setfuel()
     if (nobooster) asp = 0;
     if (!nomain) asp = 1.0 + 1*asp;
     var fuelper = fuel / asp;
-    document.getElementById("fuel").value = round(fuel);
-    document.getElementById("fuelPerBooster").value = nobooster ? 0 : round(fuelper);
-    document.getElementById("fuelCenter").value = nomain ? 0 : round(fuelper);
+    document.getElementById("fuelPerBooster").value = nobooster ? 0 : round(fuelper-boostLessFuel);
+    document.getElementById("fuelCenter").value = nomain ? 0 : round(fuelper-mainLessFuel);
+    document.getElementById("fuel").value = fuel;
   }
 }
 
@@ -208,7 +258,7 @@ function update(name, value)
 #fueldiv 
     {
       position: relative;
-      top: -795px;
+      top: -845px;
       left: 510px;
     }
 #booster 
