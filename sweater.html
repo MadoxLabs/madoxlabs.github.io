@@ -1,0 +1,238 @@
+<html>
+<head>
+  <script>
+
+    var State = {};
+    var Rooms = {};
+    var Objects = {};
+
+    function Room(id, name, text)
+    {
+      this.id = id;
+      this.name = name;
+      this.dir = {};
+      this.text = text;
+      this.object = [];
+
+      Rooms[id] = this;
+    }
+
+    Room.prototype.addDirection = function (dir, id)
+    {
+      this.dir[dir] = id;
+    };
+
+    Room.prototype.addObject = function (obj)
+    {
+      Objects[obj.id] = obj;
+      this.object.push(obj.id);
+    };
+
+    function Thing(id, req, text)
+    {
+      this.id = id;
+      this.require = req;
+      this.text = text;
+      this.choice = [];
+      this.action = {};
+      this.curaction = 0;
+    }
+
+    Thing.prototype.addChoice = function (text, id)
+    {
+      this.choice.push({ id: id, text: text });
+    };
+
+    Thing.prototype.addAction = function (obj)
+    {
+      this.action[obj.id] = obj;
+    };
+
+    function Action(id, req, set, text)
+    {
+      this.id = id;
+      this.require = req;
+      this.text = text;
+      this.setState = set;
+      this.choice = [];
+    }
+
+    Action.prototype.addChoice = function (text, id)
+    {
+      this.choice.push({ id: id, text: text });
+    };
+
+    var room;
+    var obj;
+    room = new Room(1, "Entrance", "The entrance is devoid of features. Halls lead east and west.");
+    room.addDirection("West", 2);
+    room.addDirection("East", 3);
+
+    //*********** ROOM 2
+    room = new Room(2, "West Wing", "The remnants of a wild party are strewn all over the west wing.");
+    room.addDirection("East", 1);
+
+    obj = new Thing(102, "", "A hungover stoner");
+    obj.addChoice("Talk to stoner", 500);
+    obj.addChoice("Talk to stoner", 506);
+    obj.addChoice("Talk to stoner", 511);
+    room.addObject(obj);
+
+    var a500 = new Action(500, "!win !angry", "", "What do you say?");
+    a500.addChoice("Dude!", 501);
+    a500.addChoice("Shibby!", 509);
+    a500.addChoice("Shibby!", 510);
+    a500.addChoice("What the hell...?", 503);
+    a500.addChoice("I say, my good man, are you quite alright?", 502);
+    a500.addChoice("Nevermind", 505);
+    obj.addAction(a500);
+
+    var a501 = new Action(501, "", "", "The stoner says, \"Sweet!\"");
+    a501.addChoice("DUDE!!", 507);
+    a501.addChoice("Hells yeah!", 508);
+    a501.addChoice("Totally....", 508);
+    obj.addAction(a501);
+
+    obj.addAction(new Action(507, "", "shibby", "The stoner says, \"SWEET!!\""));
+    obj.addAction(new Action(503, "", "angry", "The stoner says, \"Bite me.\""));
+    obj.addAction(new Action(508, "", "", "The stoner says, \"Right on.\""));
+    obj.addAction(new Action(504, "", "angry", "The stoner says, \"Beat it!\""));
+    obj.addAction(new Action(505, "", "", ""));
+    obj.addAction(new Action(506, "angry", "", "The stoner won't talk to you."));
+    obj.addAction(new Action(509, "take shibby", "win", "The stoner says, \"Like, is that my ball, man? You WIN!\""));
+    obj.addAction(new Action(510, "!take shibby", "", "The stoner says, \"No shibby. I lost my damn ball.\""));
+    obj.addAction(new Action(511, "win", "", "The stoner says, \"It's over man! Go home!\""));
+
+    var a502 = new Action(502, "", "", "The stoner says, \"Get lost, govnah!\"");
+    a502.addChoice("Well I never!", 504);
+    a502.addChoice("I take my leave of you, sirrah!", 504);
+    obj.addAction(a502);
+
+    //********* ROOM 3
+    room = new Room(3, "East Wing", "The east wing is musty and in great disrepair.");
+    room.addDirection("West", 1);
+
+    obj = new Thing(100, "", "A button");
+    obj.addChoice("Press button", 500);
+    obj.addChoice("Press button", 501);
+    obj.addAction(new Action(500, "!press", "press", "You press the button. A ball falls from the ceiling."));
+    obj.addAction(new Action(501, "press", "", "You press the button. Nothing happens."));
+    room.addObject(obj);
+
+    obj = new Thing(101, "press !take", "A ball");
+    obj.addChoice("Look at ball", 502);
+    obj.addChoice("Take ball", 503);
+    obj.addAction(new Action(502, "", "", "Its a normal ball."));
+    obj.addAction(new Action(503, "", "take", "You take the ball."));
+    room.addObject(obj);
+
+    function move(i)
+    {
+      State.room = i;
+      for (var i in Objects) Objects[i].curaction = 0;
+      process();
+    }
+
+    function checkReqs(obj)
+    {
+      if (obj.require == "") return true;
+
+      var checks = obj.require.split(" ");
+      for (var i in checks)
+      {
+        var member = checks[i];
+        if (member[0] == '!')
+        {
+          member = member.substr(1);
+          if ((member in State) == true) return false;
+        }
+        else
+        {
+          if ((member in State) == false) return false;
+        }
+      }
+      return true;
+    }
+
+    function perform(room, objectid, actionid)
+    {
+      var obj = Objects[objectid];
+      var action = obj.action[actionid];
+
+      if (action.setState.length > 0) State[action.setState] = true;
+      if (Object.keys(action.choice).length > 0) obj.curaction = actionid;
+      else obj.curaction = 0;
+      process();
+      document.getElementById("text").innerHTML += "<br>" + action.text;
+    }
+
+    function process()
+    {
+      var room = Rooms[State.room];
+      document.getElementById("title").innerText = room.name;
+      document.getElementById("text").innerText = room.text;
+
+      var objs = "";
+      var choices = "";
+
+      for (var i in room.object)
+      {
+        var obj = Objects[room.object[i]];
+        if (checkReqs(obj) == false) continue;
+        if (objs.length > 0) objs += ", ";
+        objs += obj.text;
+
+        var choice = obj.choice;
+        if (obj.curaction) choice = obj.action[obj.curaction].choice;
+        for (var i in choice)
+        {
+          var action = obj.action[choice[i].id];
+          if (checkReqs(action) == false) continue;
+          choices += "<button onclick='perform(" + room.id + "," + obj.id + "," + action.id + ");'>" + choice[i].text + "</button>";
+        }
+
+      }
+      document.getElementById("objects").innerText = objs;
+      document.getElementById("actions").innerHTML = choices;
+
+      var dir = "";
+      for (var i in room.dir)
+        dir += "<button onclick='move(" + room.dir[i] + ");'>"+i+"</button>";
+      document.getElementById("directions").innerHTML = dir;
+    }
+
+  </script>
+</head>
+<body onload="move(1);">
+  Location: <span id="title"></span><br />
+  <br />
+  <span id="text"></span><br />
+  <br />
+  Directions: <span id="directions"></span><br />
+  <br />
+  Things: <span id="objects"></span><br />
+  <br />
+  Actions: <span id="actions"></span><br />
+</body>
+</html>
+
+<!--
+state
+
+room
+  place name
+  directions
+  description
+  [object]
+
+  object by id
+    req
+    desc
+    [action, id]
+    [id
+      set state
+      req
+      desc
+      [req, action, id]
+    ]
+-->
