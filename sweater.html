@@ -5,6 +5,7 @@
     var State = {};
     var Rooms = {};
     var Objects = {};
+    var Self = {};
 
     function Room(id, name, text)
     {
@@ -74,6 +75,9 @@
     {
       this.choice.push({ id: id, text: text });
     };
+
+    Self["take blue"] = "You have a blue painted ball.";
+    Self["take !blue"] = "You have a red ball.";
 
     var room;
     var obj;
@@ -208,11 +212,22 @@
       return desc;
     }
 
+    function getSelfText()
+    {
+      var desc = "";
+      for (var i in Self)
+      {
+        if (checkReqs(i) == false) continue;
+        desc += " " + Self[i];
+      }
+      return desc;
+    }
+
     function process()
     {
       var room = Rooms[State.room];
       document.getElementById("title").innerText = room.name;
-      document.getElementById("text").innerText = getText(room);
+      document.getElementById("text").innerText = getText(room) + " " + getSelfText();
 
       var objs = "";
       var choices = "";
