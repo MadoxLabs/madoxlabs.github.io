@@ -10,12 +10,18 @@
     {
       this.id = id;
       this.name = name;
+      this.alttext = {};
       this.dir = {};
       this.text = text;
       this.object = [];
 
       Rooms[id] = this;
     }
+
+    Room.prototype.addAlt = function (text, key)
+    {
+      this.alttext[key] = text;
+    };
 
     Room.prototype.addDirection = function (dir, id)
     {
@@ -33,10 +39,16 @@
       this.id = id;
       this.require = req;
       this.text = text;
+      this.alttext = {};
       this.choice = [];
       this.action = {};
       this.curaction = 0;
     }
+
+    Thing.prototype.addAlt = function (text, key)
+    {
+      this.alttext[key] = text;
+    };
 
     Thing.prototype.addChoice = function (text, id)
     {
@@ -83,6 +95,7 @@
     a500.addChoice("Dude!", 501);
     a500.addChoice("Shibby!", 509);
     a500.addChoice("Shibby!", 510);
+    a500.addChoice("Shibby!", 512);
     a500.addChoice("What the hell...?", 503);
     a500.addChoice("I say, my good man, are you quite alright?", 502);
     a500.addChoice("Nevermind", 505);
@@ -102,7 +115,8 @@
     obj.addAction(new Action(504, "", "angry", "The stoner says, \"Beat it!\""));
     obj.addAction(new Action(505, "", "", ""));
     obj.addAction(new Action(506, "angry", "", "The stoner won't talk to you."));
-    obj.addAction(new Action(509, "take shibby", "win", "The stoner says, \"Like, is that my ball, man? You WIN!\""));
+    obj.addAction(new Action(509, "take blue shibby", "win", "The stoner says, \"Like, is that my ball, man? You WIN!\""));
+    obj.addAction(new Action(512, "take !blue shibby", "", "The stoner says, \"No shibby. I totes miss my old blue ball.\""));
     obj.addAction(new Action(510, "!take shibby", "", "The stoner says, \"No shibby. I lost my damn ball.\""));
     obj.addAction(new Action(511, "win", "", "The stoner says, \"It's over man! Go home!\""));
 
@@ -113,6 +127,7 @@
 
     //********* ROOM 3
     room = new Room(3, "East Wing", "The east wing is musty and in great disrepair.");
+    room.addAlt("Blue paint is spilled everywhere.", "kick");
     room.addDirection("West", 1);
 
     obj = new Thing(100, "", "A button");
@@ -125,8 +140,19 @@
     obj = new Thing(101, "press !take", "A ball");
     obj.addChoice("Look at ball", 502);
     obj.addChoice("Take ball", 503);
-    obj.addAction(new Action(502, "", "", "Its a normal ball."));
+    obj.addAction(new Action(502, "", "", "Its a normal red ball."));
     obj.addAction(new Action(503, "", "take", "You take the ball."));
+    room.addObject(obj);
+
+    obj = new Thing(103, "", "A can of paint.");
+    obj.addAlt("It's blue paint.", "look");
+    obj.addAlt("The can is kicked over", "kick");
+    obj.addChoice("Look at can", 501);
+    obj.addChoice("Kick the can", 502);
+    obj.addChoice("Paint the ball", 503);
+    obj.addAction(new Action(501, "!look", "look", "You lift the lid off of the can and look in."));
+    obj.addAction(new Action(502, "look !kick", "kick", "The can flies into the far wall throwing paint everywhere."));
+    obj.addAction(new Action(503, "take look !kick", "blue", "The ball is a lovely shade of blue now."));
     room.addObject(obj);
 
     function move(i)
@@ -140,7 +166,7 @@
     {
       if (obj.require == "") return true;
 
-      var checks = obj.require.split(" ");
+      var checks = obj.require ? obj.require.split(" ") : obj.split(" ");
       for (var i in checks)
       {
         var member = checks[i];
@@ -171,11 +197,22 @@
       document.getElementById("text").innerHTML += "<br>" + action.text;
     }
 
+    function getText(obj)
+    {
+      var desc = obj.text;
+      for (var i in obj.alttext)
+      {
+        if (checkReqs(i) == false) continue;
+        desc += " " + obj.alttext[i];
+      }
+      return desc;
+    }
+
     function process()
     {
       var room = Rooms[State.room];
       document.getElementById("title").innerText = room.name;
-      document.getElementById("text").innerText = room.text;
+      document.getElementById("text").innerText = getText(room);
 
       var objs = "";
       var choices = "";
@@ -185,7 +222,7 @@
         var obj = Objects[room.object[i]];
         if (checkReqs(obj) == false) continue;
         if (objs.length > 0) objs += ", ";
-        objs += obj.text;
+        objs += getText(obj);
 
         var choice = obj;
         if (obj.curaction) choice = obj.action[obj.curaction];
