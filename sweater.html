@@ -1,5 +1,64 @@
 <html>
 <head>
+  <style>
+    body {
+      background: #000;
+    }
+
+    table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 600px;
+      border: 2px solid #006699; 
+      -webkit-border-radius: 3px; 
+      -moz-border-radius: 3px; 
+      border-radius: 3px;
+    }
+    th {
+      background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #118FCF), color-stop(1, #00486B) );
+      background:-moz-linear-gradient( center top, #118FCF 5%, #00486B 100% );
+      filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#118FCF', endColorstr='#00486B');
+      background-color:#118FCF; 
+      color:#19FF30; 
+      font-size: 20px; 
+      font-weight: bold; 
+      text-align:left;
+    }
+    td {
+      width: 300px;
+      vertical-align:top;
+      color: #C4D61C;
+      border-left: 3px solid #00486B;
+      background: #000;
+    }
+    button {
+      -moz-border-radius: 23px;
+      -moz-box-shadow: #6E7849 0px 0px 10px;
+      -moz-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      -webkit-border-radius: 23px;
+      -webkit-box-shadow: #6E7849 0 0 10px;
+      -webkit-transition: all 0.5s ease;
+      background-color: Transparent;
+      border-radius: 23px;
+      border: 4px solid #29a81f;
+      box-shadow: #6E7849 0px 0px 10px;
+      color: #10db0a;
+      display: inline-block;
+      margin: auto;
+      padding-top: 4px;
+      padding-right: 9px;
+      padding-bottom: 4px;
+      padding-left: 9px;
+      text-decoration: none;
+      text-shadow: #6E7849 5px 5px 15px;
+      transition: all 0.5s ease;
+    }
+    button:hover {
+      border: 4px solid #ebec13;
+    }
+  </style>
   <script>
 
     var State = {};
@@ -163,6 +222,7 @@
     {
       State.room = i;
       for (var i in Objects) Objects[i].curaction = 0;
+      document.getElementById("actiontext").innerHTML = "";
       process();
     }
 
@@ -198,7 +258,7 @@
 
       if (action.goto) obj.curaction = action.goto;
       process();
-      document.getElementById("text").innerHTML += "<br>" + action.text;
+      document.getElementById("actiontext").innerHTML = action.text;
     }
 
     function getText(obj)
@@ -227,7 +287,7 @@
     {
       var room = Rooms[State.room];
       document.getElementById("title").innerText = room.name;
-      document.getElementById("text").innerText = getText(room) + " " + getSelfText();
+      document.getElementById("text").innerHTML = getText(room) + "<br>" + getSelfText();
 
       var objs = "";
       var choices = "";
@@ -236,7 +296,7 @@
       {
         var obj = Objects[room.object[i]];
         if (checkReqs(obj) == false) continue;
-        if (objs.length > 0) objs += ", ";
+        if (objs.length > 0) objs += "<br>";
         objs += getText(obj);
 
         var choice = obj;
@@ -246,11 +306,11 @@
         {
           var action = obj.action[choice[i].id];
           if (checkReqs(action) == false) continue;
-          choices += "<button onclick='perform(" + room.id + "," + obj.id + "," + action.id + ");'>" + choice[i].text + "</button>";
+          choices += "<button onclick='perform(" + room.id + "," + obj.id + "," + action.id + ");'>" + choice[i].text + "</button><br>";
         }
 
       }
-      document.getElementById("objects").innerText = objs;
+      document.getElementById("objects").innerHTML = objs;
       document.getElementById("actions").innerHTML = choices;
 
       var dir = "";
@@ -262,35 +322,23 @@
   </script>
 </head>
 <body onload="move(1);">
-  Location: <span id="title"></span><br />
-  <br />
-  <span id="text"></span><br />
-  <br />
-  Directions: <span id="directions"></span><br />
-  <br />
-  Things: <span id="objects"></span><br />
-  <br />
-  Actions: <span id="actions"></span><br />
+  <table>
+    <tr>
+      <th colspan="2"><span id="title"></span> - <span id="directions"></span></th>
+    </tr>
+    <tr>
+      <td><span id="text"></span></td>
+      <td><span id="actiontext"></span></td>
+    </tr>
+    <tr>
+      <th>What's Here</th>
+      <th>Actions</th>
+    </tr>
+    <tr>
+      <td><span id="objects"></span></td>
+      <td><span id="actions"></span></td>
+    </tr>
+  </table>
+
 </body>
 </html>
-
-<!--
-state
-
-room
-  place name
-  directions
-  description
-  [object]
-
-  object by id
-    req
-    desc
-    [action, id]
-    [id
-      set state
-      req
-      desc
-      [req, action, id]
-    ]
--->
