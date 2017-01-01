@@ -60,7 +60,6 @@
     }
   </style>
   <script>
-
     var State = {};
     var Rooms = {};
     var Objects = {};
@@ -135,94 +134,13 @@
       this.choice.push({ id: id, text: text });
     };
 
-    Self["take blue"] = "You have a blue painted ball.";
-    Self["take !blue"] = "You have a red ball.";
-
-    var room;
-    var obj;
-    room = new Room(1, "Entrance", "The entrance is devoid of features. Halls lead east and west.");
-    room.addDirection("West", 2);
-    room.addDirection("East", 3);
-
-    //*********** ROOM 2
-    room = new Room(2, "West Wing", "The remnants of a wild party are strewn all over the west wing.");
-    room.addDirection("East", 1);
-
-    obj = new Thing(102, "", "A hungover stoner");
-    obj.addChoice("Talk to stoner", 500);
-    obj.addChoice("Talk to stoner", 506);
-    obj.addChoice("Talk to stoner", 511);
-    room.addObject(obj);
-
-    var a500 = new Action(500, "!win !angry", "", "What do you say?");
-    a500.addChoice("Dude!", 501);
-    a500.addChoice("Shibby!", 509);
-    a500.addChoice("Shibby!", 510);
-    a500.addChoice("Shibby!", 512);
-    a500.addChoice("What the hell...?", 503);
-    a500.addChoice("I say, my good man, are you quite alright?", 502);
-    a500.addChoice("Nevermind", 505);
-    obj.addAction(a500);
-
-    var a501 = new Action(501, "", "talked", "The stoner says, \"Sweet!\"");
-    a501.addChoice("DUDE!!", 507);
-    a501.addChoice("Hells yeah!", 508);
-    a501.addChoice("Totally....", 508);
-    obj.addAction(a501);
-
-    var a507 = new Action(507, "", "shibby", "The stoner says, \"SWEET!!\"");
-    a507.goto = 500;
-    obj.addAction(a507);
-    obj.addAction(new Action(503, "!talked", "angry", "The stoner says, \"Bite me.\""));
-    obj.addAction(new Action(508, "", "", "The stoner says, \"Right on.\""));
-    obj.addAction(new Action(504, "", "angry", "The stoner says, \"Beat it!\""));
-    obj.addAction(new Action(505, "", "", ""));
-    obj.addAction(new Action(506, "angry", "", "The stoner won't talk to you."));
-    obj.addAction(new Action(509, "take blue shibby", "win", "The stoner says, \"Like, is that my ball, man? You WIN!\""));
-    obj.addAction(new Action(512, "take !blue shibby", "", "The stoner says, \"No shibby. I totes miss my old blue ball.\""));
-    obj.addAction(new Action(510, "!take shibby", "", "The stoner says, \"No shibby. I lost my damn ball.\""));
-    obj.addAction(new Action(511, "win", "", "The stoner says, \"It's over man! Go home!\""));
-
-    var a502 = new Action(502, "!talked", "", "The stoner says, \"Get lost, govnah!\"");
-    a502.addChoice("Well I never!", 504);
-    a502.addChoice("I take my leave of you, sirrah!", 504);
-    obj.addAction(a502);
-
-    //********* ROOM 3
-    room = new Room(3, "East Wing", "The east wing is musty and in great disrepair.");
-    room.addAlt("Blue paint is spilled everywhere.", "kick");
-    room.addDirection("West", 1);
-
-    obj = new Thing(100, "", "A button");
-    obj.addChoice("Press button", 500);
-    obj.addChoice("Press button", 501);
-    obj.addAction(new Action(500, "!press", "press", "You press the button. A ball falls from the ceiling."));
-    obj.addAction(new Action(501, "press", "", "You press the button. Nothing happens."));
-    room.addObject(obj);
-
-    obj = new Thing(101, "press !take", "A ball");
-    obj.addChoice("Look at ball", 502);
-    obj.addChoice("Take ball", 503);
-    obj.addAction(new Action(502, "", "", "Its a normal red ball."));
-    obj.addAction(new Action(503, "", "take", "You take the ball."));
-    room.addObject(obj);
-
-    obj = new Thing(103, "", "A can of paint.");
-    obj.addAlt("It's blue paint.", "look");
-    obj.addAlt("The can is kicked over", "kick");
-    obj.addChoice("Look at can", 501);
-    obj.addChoice("Kick the can", 502);
-    obj.addChoice("Paint the ball", 503);
-    obj.addAction(new Action(501, "!look", "look", "You lift the lid off of the can and look in."));
-    obj.addAction(new Action(502, "look !kick", "kick", "The can flies into the far wall throwing paint everywhere."));
-    obj.addAction(new Action(503, "take look !kick", "blue", "The ball is a lovely shade of blue now."));
-    room.addObject(obj);
-
     function move(i)
     {
       State.room = i;
       for (var i in Objects) Objects[i].curaction = 0;
       document.getElementById("actiontext").innerHTML = "";
+      document.getElementById("objects").innerHTML = "Nothing";
+      document.getElementById("actions").innerHTML = "None";
       process();
     }
 
@@ -252,7 +170,11 @@
       var obj = Objects[objectid];
       var action = obj.action[actionid];
 
-      if (action.setState.length > 0) State[action.setState] = true;
+      if (action.setState.length > 0)
+      {
+        var add = action.setState.split(" ");
+        for (var i in add) if (add[i][0] == '!') delete State[add[i].substr(1)]; else State[add[i]] = true;
+      }
       if (Object.keys(action.choice).length > 0) obj.curaction = actionid;
       else obj.curaction = 0;
 
@@ -310,8 +232,8 @@
         }
 
       }
-      document.getElementById("objects").innerHTML = objs;
-      document.getElementById("actions").innerHTML = choices;
+      if (objs.length) document.getElementById("objects").innerHTML = objs;
+      if (choices.length) document.getElementById("actions").innerHTML = choices;
 
       var dir = "";
       for (var i in room.dir)
@@ -320,6 +242,162 @@
     }
 
   </script>
+  <script>
+    var room;
+    room = new Room(1, "Santa's Sweater! Introduction", "Welcome to Santa's Sweater, a text adventure game.<br>You are one of Santa's little helpers living in Santa's Village. Santa has called you to the Workshop because he has a very important mission for you! Click Start to begin!");
+    room.addDirection("Start", 2);
+
+    room = new Room(2, "Santa's Workshop", "Santa's helpers are busy running here and there, assembling toys for boys and girls. Noisy machines and conveyor belts are everywhere.")
+    room.addDirection("Leave Workshop", 3);
+
+    room = new Room(3, "Main St West", "This end of Main St is awash in green and red holiday lights. The street is a lovely boulevard for strolling along. Santa's Workshop is here at the end of the street, and a souviner shop is on the north side.");
+    room.addDirection("Enter Workshop", 2);
+    room.addDirection("Enter Store", 18);
+    room.addDirection("East", 4);
+
+    room = new Room(4, "Main Intersection", "This moderately busy intersection is where Main and Dasher streets meet. A lot of Santa's helpers live in the well-to-do north end of Dasher St, but south Dasher also has a few nice neighbourhoods.");
+    room.addDirection("North", 9);
+    room.addDirection("South", 7);
+    room.addDirection("East", 5);
+    room.addDirection("West", 3);
+
+    room = new Room(5, "Main St East", "Main St is a continuous line of shops and restarants, all bustling with holiday activity. Various side streets connect the residential areas to Main St along the way.");
+    room.addDirection("North", 17);
+    room.addDirection("East", 6);
+    room.addDirection("West", 4);
+
+    room = new Room(6, "End of Main St ", "Far past the shops and merrymakers, the end of Main St is gloomy and desolated. A fenced in vacant lot here looks long abandoned and has becoming a dumping ground.");
+    room.addDirection("West", 5);
+
+    room = new Room(7, "Dasher Ave N", "Holly's house is here. Describe house. An alleyway between houses is to the east. Dancer St is to the west.");
+    room.addDirection("North", 4);
+    room.addDirection("South", 8);
+    room.addDirection("East", 11);
+    room.addDirection("West", 13);
+
+    room = new Room(8, "Dasher Ave S", "Merry's house is here. Describe house.");
+    room.addDirection("North", 7);
+
+    room = new Room(9, "Donner Ave S", "Jolly's house is here. Describe house. Blitzen St crosses Donner St here.");
+    room.addDirection("North", 10);
+    room.addDirection("South", 4);
+    room.addDirection("East", 17);
+    room.addDirection("West", 16);
+
+    room = new Room(10, "Donner Ave N", "Bob's house is here. Describe house. Comet St crosses Donner St here.");
+    room.addDirection("South", 9);
+    room.addDirection("East", 15);
+    room.addDirection("West", 14);
+
+    room = new Room(11, "Alley", "The alleyway is dimly lit, but clean enough. A couple Ladys of the Night leaning up against one wall watching you eagery. The east end of the alley ends at a brick wall with a door set in it.");
+    room.addDirection("East", 12);
+    room.addDirection("West", 7);
+
+    room = new Room(12, "Brick Wall", "You are standing in front of a plain brick wall with a steel door set into it.")
+    room.addDirection("West", 11);
+
+    room = new Room(13, "Dancer Lane", "Jingle's house is here. Describe house.")
+    room.addDirection("East", 7);
+
+    room = new Room(14, "W Comet St", "Snowbell's house is here. Describe house. The end of Comet St heads south to Blitzen St.")
+    room.addDirection("South", 16);
+    room.addDirection("East", 10);
+
+    room = new Room(15, "E Comet St", "John's house is here. Describe house. The end of Comet St heads south to Blitzen St.");
+    room.addDirection("South", 17);
+    room.addDirection("West", 10);
+
+    room = new Room(16, "W Blitzen St", "Chime's house is here. Describe house. The end of Blitzen St heads north to Comet St.");
+    room.addDirection("North", 14);
+    room.addDirection("East", 9);
+
+    room = new Room(17, "E Blitzen St", "Flitter's house is here. Describe house. The end of Blitzen St heads north to Comet St and also back to Main St.");
+    room.addDirection("North", 15);
+    room.addDirection("South", 5);
+    room.addDirection("West", 9);
+
+    room = new Room(18, "Store", "This store is packed to the rafters with shelves of all sorts of knickknacks and other useless tourist junk. THe proprieter behind the counter is busy reading the newspaper.")
+    room.addDirection("Leave", 3);
+
+    //--------------------------- SANTA
+    obj = new Thing(100, "", "Santa Claus");
+    obj.addChoice("Talk to Santa", 500);
+
+    var a500 = new Action(500, "", "", "What do you say?");
+    a500.addChoice("Hi Santa!", 501);
+    a500.addChoice("You wanted to see me?", 502);
+    a500.addChoice("Yo, big man!", 504);
+    a500.addChoice("Hi Santa!", 505);
+    a500.addChoice("You wanted to see me?", 506);
+    a500.addChoice("Hi Santa!", 507);
+    a500.addChoice("You wanted to see me?", 508);
+    a500.addChoice("How may I be of assistance, Mr. Claus?", 509);
+    a500.addChoice("Lovely weather we're having.", 510);
+    a500.addChoice("How are you doing today?", 511);
+    a500.addChoice("Aren't you looking marvelous!", 512);
+    a500.addChoice("Nevermind", 503);
+    obj.addAction(a500);
+
+    obj.addAction(new Action(503, "", "", ""));
+
+    var a501 = new Action(501, "!santa-annoy !santa-mad", "santa-ok", "Well, hello there little fella! Have you been a good helper this year?");
+    a501.addChoice("Of course!", 513);
+    a501.addChoice("Not really.", 514);
+    a501.addChoice("I don't know.", 515);
+    obj.addAction(a501);
+    var a513 = new Action(513, "santa-ok", "", "Really? Remember I know all about you.");
+    a513.addChoice("Well, I shaved my neighbour's cat once.", 515);
+    a513.addChoice("Well, I put laxatives in the eggnog once", 515);
+    a513.addChoice("Well, I made rude snowmen in front of the school", 515);
+    obj.addAction(a513);
+    var a514 = new Action(514, "santa-ok", "", "I thought so. How bad were you?");
+    a514.goto = 513;
+    obj.addAction(a514);
+    var a515 = new Action(515, "santa-ok", "", "Well that's an honest answer. I have a job for you.");
+    a515.addChoice("Of course!", 600);
+    obj.addAction(a515);
+
+    var a502 = new Action(502, "!santa-annoy !santa-mad", "santa-annoy", "All business then, eh? Can't even exchange pleasentries?");
+    a502.goto = 500;
+    obj.addAction(a502);
+    var a510 = new Action(510, "!santa-mad santa-annoy", "", "I wouldn't know. I've been cooped up in here all day.");
+    a510.goto = 500;
+    obj.addAction(a510);
+    var a511 = new Action(511, "!santa-mad santa-annoy", "", "Lousy. I've been cooped up in here all day.");
+    a511.goto = 500;
+    obj.addAction(a511);
+    var a512 = new Action(512, "!santa-mad santa-annoy", "!santa-annoy", "Do you really think so?");
+    a512.addChoice("Of course!", 600);
+    a512.addChoice("Not really.", 504);
+    obj.addAction(a512);
+
+    var a504 = new Action(504, "!santa-annoy !santa-mad", "santa-mad santa-mad1", "You impertenant rapscallion! I will not be addressed in this manner. Try again.");
+    a504.goto = 500;
+    obj.addAction(a504);
+    var a505 = new Action(505, "santa-mad1", "!santa-mad1 santa-mad2a", "Not good enough, sonny.");
+    a505.goto = 500;
+    obj.addAction(a505);
+    var a506 = new Action(506, "santa-mad1", "!santa-mad1 santa-mad2b", "Not good enough, sonny.");
+    a506.goto = 500;
+    obj.addAction(a506);
+    var a507 = new Action(507, "santa-mad2b", "!santa-mad2b santa-mad3", "I said not good enough!");
+    a507.goto = 500;
+    obj.addAction(a507);
+    var a508 = new Action(508, "santa-mad2a", "!santa-mad2a santa-mad3", "I said not good enough!");
+    a508.goto = 500;
+    obj.addAction(a508);
+    var a509 = new Action(509, "santa-mad3", "!santa-mad3", "That will have to do. I have a job for you. Think you can do it?");
+    a509.addChoice("I'll do my best, sir!", 600);
+    obj.addAction(a509);
+
+    var a600 = new Action(600, "", "start", "I need you to find my sweater and bring it to me. It's getting cold in here.");
+    a600.addChoice("I'm on it!", 503);
+    obj.addAction(a600);
+
+    Rooms[2].addObject(obj);
+
+  </script>
+
 </head>
 <body onload="move(1);">
   <table>

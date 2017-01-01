@@ -1,0 +1,344 @@
+<html>
+<head>
+  <style>
+    body {
+      background: #000;
+    }
+
+    table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 600px;
+      border: 2px solid #006699; 
+      -webkit-border-radius: 3px; 
+      -moz-border-radius: 3px; 
+      border-radius: 3px;
+    }
+    th {
+      background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #118FCF), color-stop(1, #00486B) );
+      background:-moz-linear-gradient( center top, #118FCF 5%, #00486B 100% );
+      filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#118FCF', endColorstr='#00486B');
+      background-color:#118FCF; 
+      color:#19FF30; 
+      font-size: 20px; 
+      font-weight: bold; 
+      text-align:left;
+    }
+    td {
+      width: 300px;
+      vertical-align:top;
+      color: #C4D61C;
+      border-left: 3px solid #00486B;
+      background: #000;
+    }
+    button {
+      -moz-border-radius: 23px;
+      -moz-box-shadow: #6E7849 0px 0px 10px;
+      -moz-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      -webkit-border-radius: 23px;
+      -webkit-box-shadow: #6E7849 0 0 10px;
+      -webkit-transition: all 0.5s ease;
+      background-color: Transparent;
+      border-radius: 23px;
+      border: 4px solid #29a81f;
+      box-shadow: #6E7849 0px 0px 10px;
+      color: #10db0a;
+      display: inline-block;
+      margin: auto;
+      padding-top: 4px;
+      padding-right: 9px;
+      padding-bottom: 4px;
+      padding-left: 9px;
+      text-decoration: none;
+      text-shadow: #6E7849 5px 5px 15px;
+      transition: all 0.5s ease;
+    }
+    button:hover {
+      border: 4px solid #ebec13;
+    }
+  </style>
+  <script>
+
+    var State = {};
+    var Rooms = {};
+    var Objects = {};
+    var Self = {};
+
+    function Room(id, name, text)
+    {
+      this.id = id;
+      this.name = name;
+      this.alttext = {};
+      this.dir = {};
+      this.text = text;
+      this.object = [];
+
+      Rooms[id] = this;
+    }
+
+    Room.prototype.addAlt = function (text, key)
+    {
+      this.alttext[key] = text;
+    };
+
+    Room.prototype.addDirection = function (dir, id)
+    {
+      this.dir[dir] = id;
+    };
+
+    Room.prototype.addObject = function (obj)
+    {
+      Objects[obj.id] = obj;
+      this.object.push(obj.id);
+    };
+
+    function Thing(id, req, text)
+    {
+      this.id = id;
+      this.require = req;
+      this.text = text;
+      this.alttext = {};
+      this.choice = [];
+      this.action = {};
+      this.curaction = 0;
+    }
+
+    Thing.prototype.addAlt = function (text, key)
+    {
+      this.alttext[key] = text;
+    };
+
+    Thing.prototype.addChoice = function (text, id)
+    {
+      this.choice.push({ id: id, text: text });
+    };
+
+    Thing.prototype.addAction = function (obj)
+    {
+      this.action[obj.id] = obj;
+    };
+
+    function Action(id, req, set, text)
+    {
+      this.id = id;
+      this.require = req;
+      this.text = text;
+      this.setState = set;
+      this.choice = [];
+      this.goto = 0;
+    }
+
+    Action.prototype.addChoice = function (text, id)
+    {
+      this.choice.push({ id: id, text: text });
+    };
+
+    Self["take blue"] = "You have a blue painted ball.";
+    Self["take !blue"] = "You have a red ball.";
+
+    var room;
+    var obj;
+    room = new Room(1, "Entrance", "The entrance is devoid of features. Halls lead east and west.");
+    room.addDirection("West", 2);
+    room.addDirection("East", 3);
+
+    //*********** ROOM 2
+    room = new Room(2, "West Wing", "The remnants of a wild party are strewn all over the west wing.");
+    room.addDirection("East", 1);
+
+    obj = new Thing(102, "", "A hungover stoner");
+    obj.addChoice("Talk to stoner", 500);
+    obj.addChoice("Talk to stoner", 506);
+    obj.addChoice("Talk to stoner", 511);
+    room.addObject(obj);
+
+    var a500 = new Action(500, "!win !angry", "", "What do you say?");
+    a500.addChoice("Dude!", 501);
+    a500.addChoice("Shibby!", 509);
+    a500.addChoice("Shibby!", 510);
+    a500.addChoice("Shibby!", 512);
+    a500.addChoice("What the hell...?", 503);
+    a500.addChoice("I say, my good man, are you quite alright?", 502);
+    a500.addChoice("Nevermind", 505);
+    obj.addAction(a500);
+
+    var a501 = new Action(501, "", "talked", "The stoner says, \"Sweet!\"");
+    a501.addChoice("DUDE!!", 507);
+    a501.addChoice("Hells yeah!", 508);
+    a501.addChoice("Totally....", 508);
+    obj.addAction(a501);
+
+    var a507 = new Action(507, "", "shibby", "The stoner says, \"SWEET!!\"");
+    a507.goto = 500;
+    obj.addAction(a507);
+    obj.addAction(new Action(503, "!talked", "angry", "The stoner says, \"Bite me.\""));
+    obj.addAction(new Action(508, "", "", "The stoner says, \"Right on.\""));
+    obj.addAction(new Action(504, "", "angry", "The stoner says, \"Beat it!\""));
+    obj.addAction(new Action(505, "", "", ""));
+    obj.addAction(new Action(506, "angry", "", "The stoner won't talk to you."));
+    obj.addAction(new Action(509, "take blue shibby", "win", "The stoner says, \"Like, is that my ball, man? You WIN!\""));
+    obj.addAction(new Action(512, "take !blue shibby", "", "The stoner says, \"No shibby. I totes miss my old blue ball.\""));
+    obj.addAction(new Action(510, "!take shibby", "", "The stoner says, \"No shibby. I lost my damn ball.\""));
+    obj.addAction(new Action(511, "win", "", "The stoner says, \"It's over man! Go home!\""));
+
+    var a502 = new Action(502, "!talked", "", "The stoner says, \"Get lost, govnah!\"");
+    a502.addChoice("Well I never!", 504);
+    a502.addChoice("I take my leave of you, sirrah!", 504);
+    obj.addAction(a502);
+
+    //********* ROOM 3
+    room = new Room(3, "East Wing", "The east wing is musty and in great disrepair.");
+    room.addAlt("Blue paint is spilled everywhere.", "kick");
+    room.addDirection("West", 1);
+
+    obj = new Thing(100, "", "A button");
+    obj.addChoice("Press button", 500);
+    obj.addChoice("Press button", 501);
+    obj.addAction(new Action(500, "!press", "press", "You press the button. A ball falls from the ceiling."));
+    obj.addAction(new Action(501, "press", "", "You press the button. Nothing happens."));
+    room.addObject(obj);
+
+    obj = new Thing(101, "press !take", "A ball");
+    obj.addChoice("Look at ball", 502);
+    obj.addChoice("Take ball", 503);
+    obj.addAction(new Action(502, "", "", "Its a normal red ball."));
+    obj.addAction(new Action(503, "", "take", "You take the ball."));
+    room.addObject(obj);
+
+    obj = new Thing(103, "", "A can of paint.");
+    obj.addAlt("It's blue paint.", "look");
+    obj.addAlt("The can is kicked over", "kick");
+    obj.addChoice("Look at can", 501);
+    obj.addChoice("Kick the can", 502);
+    obj.addChoice("Paint the ball", 503);
+    obj.addAction(new Action(501, "!look", "look", "You lift the lid off of the can and look in."));
+    obj.addAction(new Action(502, "look !kick", "kick", "The can flies into the far wall throwing paint everywhere."));
+    obj.addAction(new Action(503, "take look !kick", "blue", "The ball is a lovely shade of blue now."));
+    room.addObject(obj);
+
+    function move(i)
+    {
+      State.room = i;
+      for (var i in Objects) Objects[i].curaction = 0;
+      document.getElementById("actiontext").innerHTML = "";
+      process();
+    }
+
+    function checkReqs(obj)
+    {
+      if (obj.require == "") return true;
+
+      var checks = obj.require ? obj.require.split(" ") : obj.split(" ");
+      for (var i in checks)
+      {
+        var member = checks[i];
+        if (member[0] == '!')
+        {
+          member = member.substr(1);
+          if ((member in State) == true) return false;
+        }
+        else
+        {
+          if ((member in State) == false) return false;
+        }
+      }
+      return true;
+    }
+
+    function perform(room, objectid, actionid)
+    {
+      var obj = Objects[objectid];
+      var action = obj.action[actionid];
+
+      if (action.setState.length > 0) State[action.setState] = true;
+      if (Object.keys(action.choice).length > 0) obj.curaction = actionid;
+      else obj.curaction = 0;
+
+      if (action.goto) obj.curaction = action.goto;
+      process();
+      document.getElementById("actiontext").innerHTML = action.text;
+    }
+
+    function getText(obj)
+    {
+      var desc = obj.text;
+      for (var i in obj.alttext)
+      {
+        if (checkReqs(i) == false) continue;
+        desc += " " + obj.alttext[i];
+      }
+      return desc;
+    }
+
+    function getSelfText()
+    {
+      var desc = "";
+      for (var i in Self)
+      {
+        if (checkReqs(i) == false) continue;
+        desc += " " + Self[i];
+      }
+      return desc;
+    }
+
+    function process()
+    {
+      var room = Rooms[State.room];
+      document.getElementById("title").innerText = room.name;
+      document.getElementById("text").innerHTML = getText(room) + "<br>" + getSelfText();
+
+      var objs = "";
+      var choices = "";
+
+      for (var i in room.object)
+      {
+        var obj = Objects[room.object[i]];
+        if (checkReqs(obj) == false) continue;
+        if (objs.length > 0) objs += "<br>";
+        objs += getText(obj);
+
+        var choice = obj;
+        if (obj.curaction) choice = obj.action[obj.curaction];
+        choice = choice.choice;
+        for (var i in choice)
+        {
+          var action = obj.action[choice[i].id];
+          if (checkReqs(action) == false) continue;
+          choices += "<button onclick='perform(" + room.id + "," + obj.id + "," + action.id + ");'>" + choice[i].text + "</button><br>";
+        }
+
+      }
+      document.getElementById("objects").innerHTML = objs;
+      document.getElementById("actions").innerHTML = choices;
+
+      var dir = "";
+      for (var i in room.dir)
+        dir += "<button onclick='move(" + room.dir[i] + ");'>"+i+"</button>";
+      document.getElementById("directions").innerHTML = dir;
+    }
+
+  </script>
+</head>
+<body onload="move(1);">
+  <table>
+    <tr>
+      <th colspan="2"><span id="title"></span> - <span id="directions"></span></th>
+    </tr>
+    <tr>
+      <td><span id="text"></span></td>
+      <td><span id="actiontext"></span></td>
+    </tr>
+    <tr>
+      <th>What's Here</th>
+      <th>Actions</th>
+    </tr>
+    <tr>
+      <td><span id="objects"></span></td>
+      <td><span id="actions"></span></td>
+    </tr>
+  </table>
+
+</body>
+</html>
