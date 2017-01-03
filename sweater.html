@@ -127,6 +127,7 @@
       this.setState = set;
       this.choice = [];
       this.goto = 0;
+      this.move = 0;
     }
 
     Action.prototype.addChoice = function (text, id)
@@ -179,7 +180,8 @@
       else obj.curaction = 0;
 
       if (action.goto) obj.curaction = action.goto;
-      process();
+      if (action.move) move(action.move);
+      else process();
       document.getElementById("actiontext").innerHTML = action.text;
     }
 
@@ -278,11 +280,32 @@
     room = new Room(8, "Dasher Ave S", "Merry's house is here. Describe house.");
     room.addDirection("North", 7);
 
-    room = new Room(9, "Donner Ave S", "Jolly's house is here. Describe house. Blitzen St crosses Donner St here.");
+    room = new Room(9, "Donner Ave S", "Blitzen St crosses Donner St here. There is a quaint green gingerbread house here surrounded by a hedge. Jolly lives here.");
     room.addDirection("North", 10);
     room.addDirection("South", 4);
     room.addDirection("East", 17);
     room.addDirection("West", 16);
+    obj = new Thing(101, "", "Door");
+    room.addObject(obj);
+    obj.addChoice("Knock on the door", 500);
+    obj.addChoice("Go see Jolly", 503);
+    var a500 = new Action(500, "!jolly-seen", "", "A voice calls out, 'Who is it?'");
+    a500.addChoice("I'm here on urgent Santa business", 501);
+    a500.addChoice("I'm here on urgent Santa business", 504);
+    a500.addChoice("Open up!", 502);
+    obj.addAction(a500);
+    var a501 = new Action(501, "start", "jolly-seen", "Come in!");
+    a501.addChoice("Enter the house", 503);
+    obj.addAction(a501);
+    var a502 = new Action(502, "", "", "Why should I?");
+    a502.goto = 500;
+    obj.addAction(a502);
+    var a503 = new Action(503, "jolly-seen", "", "You enter the Jolly's house.");
+    a503.move = 19;
+    obj.addAction(a503);
+    var a504 = new Action(504, "!start", "", "I don't believe you.");
+    a504.goto = 500;
+    obj.addAction(a504);
 
     room = new Room(10, "Donner Ave N", "Bob's house is here. Describe house. Comet St crosses Donner St here.");
     room.addDirection("South", 9);
@@ -319,6 +342,40 @@
     room = new Room(18, "Store", "This store is packed to the rafters with shelves of all sorts of knickknacks and other useless tourist junk. THe proprieter behind the counter is busy reading the newspaper.")
     room.addDirection("Leave", 3);
 
+    room = new Room(19, "Jolly's House", "Inside the house, Jolly is puttering around, cleaning the house. In one corner, a large doberman is using a sweater as a blanket to lay on.")
+    room.addDirection("Leave", 9);
+    obj = new Thing(102, "", "Jolly");
+    obj.addChoice("Talk to Jolly", 500);
+    room.addObject(obj);
+    var a500 = new Action(500, "", "", "What do you say?");
+    a500.addChoice("Have you seen Santa's sweater?", 503);
+    a500.addChoice("Isn't that the sweater right there?", 504);
+    a500.addChoice("You gotta give me the sweater. It's important!", 505);
+    a500.addChoice("So about that sweater...?", 506);
+    a500.addChoice("Nevermind", 507);
+    obj.addAction(a500);
+    var a503 = new Action(503, "!jolly", "jolly jolly2", "Jolly fidgets oddly. 'Nope, can't say that I have...'");
+    a503.goto = 500;
+    obj.addAction(a503);
+    var a504 = new Action(504, "jolly2", "!jolly2 jolly3", "Well, perhaps it is and perhaps it isn't.");
+    a504.goto = 500;
+    obj.addAction(a504);
+    var a505 = new Action(505, "jolly3", "!jolly3 jolly4", "No can do. If I give it to you, what will Princess use for her bed?");
+    obj.addAction(a505);
+    var a506 = new Action(506, "jolly4", "", "Nope.");
+    obj.addAction(a506);
+    var a507 = new Action(507, "", "", "");
+    obj.addAction(a507);
+
+    obj = new Thing(103, "", "Santa's sweater");
+    obj.addChoice("Look at sweater", 501);
+    obj.addChoice("Take sweater", 502);
+    room.addObject(obj);
+    var a501 = new Action(501, "", "sweater-look", "That's definitely Santa's sweater under that dog's butt.");
+    obj.addAction(a501);
+    var a502 = new Action(502, "sweater-look", "", "The dog growls and snaps at your hand!");
+    obj.addAction(a502);
+
     //--------------------------- SANTA
     obj = new Thing(100, "", "Santa Claus");
     obj.addChoice("Talk to Santa", 500);
@@ -335,12 +392,13 @@
     a500.addChoice("Lovely weather we're having.", 510);
     a500.addChoice("How are you doing today?", 511);
     a500.addChoice("Aren't you looking marvelous!", 512);
+    a500.addChoice("Hi Santa!", 601);
     a500.addChoice("Nevermind", 503);
     obj.addAction(a500);
 
     obj.addAction(new Action(503, "", "", ""));
 
-    var a501 = new Action(501, "!santa-annoy !santa-mad", "santa-ok", "Well, hello there little fella! Have you been a good helper this year?");
+    var a501 = new Action(501, "!start !santa-annoy !santa-mad", "santa-ok", "Well, hello there little fella! Have you been a good helper this year?");
     a501.addChoice("Of course!", 513);
     a501.addChoice("Not really.", 514);
     a501.addChoice("I don't know.", 515);
@@ -357,7 +415,7 @@
     a515.addChoice("Of course!", 600);
     obj.addAction(a515);
 
-    var a502 = new Action(502, "!santa-annoy !santa-mad", "santa-annoy", "All business then, eh? Can't even exchange pleasentries?");
+    var a502 = new Action(502, "!start !santa-annoy !santa-mad", "santa-annoy", "All business then, eh? Can't even exchange pleasentries?");
     a502.goto = 500;
     obj.addAction(a502);
     var a510 = new Action(510, "!santa-mad santa-annoy", "", "I wouldn't know. I've been cooped up in here all day.");
@@ -371,7 +429,7 @@
     a512.addChoice("Not really.", 504);
     obj.addAction(a512);
 
-    var a504 = new Action(504, "!santa-annoy !santa-mad", "santa-mad santa-mad1", "You impertenant rapscallion! I will not be addressed in this manner. Try again.");
+    var a504 = new Action(504, "!start !santa-annoy !santa-mad", "santa-mad santa-mad1", "You impertenant rapscallion! I will not be addressed in this manner. Try again.");
     a504.goto = 500;
     obj.addAction(a504);
     var a505 = new Action(505, "santa-mad1", "!santa-mad1 santa-mad2a", "Not good enough, sonny.");
@@ -393,6 +451,8 @@
     var a600 = new Action(600, "", "start", "I need you to find my sweater and bring it to me. It's getting cold in here.");
     a600.addChoice("I'm on it!", 503);
     obj.addAction(a600);
+    var a601 = new Action(601, "start", "", "Do you have my sweater?");
+    obj.addAction(a601);
 
     Rooms[2].addObject(obj);
 
