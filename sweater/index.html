@@ -1,0 +1,111 @@
+<html>
+<head>
+  <style>
+    body {
+      background: #000;
+    }
+
+    iframe {
+      visibility: hidden;
+    }
+
+    table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 600px;
+      border: 2px solid #006699;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+    }
+
+    th {
+      background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #118FCF), color-stop(1, #00486B) );
+      background: -moz-linear-gradient( center top, #118FCF 5%, #00486B 100% );
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#118FCF', endColorstr='#00486B');
+      background-color: #118FCF;
+      color: #19FF30;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    td {
+      width: 300px;
+      vertical-align: top;
+      color: #C4D61C;
+      border-left: 3px solid #00486B;
+      background: #000;
+    }
+
+    button {
+      -moz-border-radius: 23px;
+      -moz-box-shadow: #6E7849 0px 0px 10px;
+      -moz-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      -webkit-border-radius: 23px;
+      -webkit-box-shadow: #6E7849 0 0 10px;
+      -webkit-transition: all 0.5s ease;
+      background-color: Transparent;
+      border-radius: 23px;
+      border: 4px solid #29a81f;
+      box-shadow: #6E7849 0px 0px 10px;
+      color: #10db0a;
+      display: inline-block;
+      margin: auto;
+      padding-top: 4px;
+      padding-right: 9px;
+      padding-bottom: 4px;
+      padding-left: 9px;
+      text-decoration: none;
+      text-shadow: #6E7849 5px 5px 15px;
+      transition: all 0.5s ease;
+    }
+
+      button:hover {
+        border: 4px solid #ebec13;
+      }
+  </style>
+  <script src="sweaterParser.js"></script>
+  <script>
+    var game = new Game();
+
+    function main()
+    {
+      do {
+        let i = document.getElementById("gamedata");
+        if (!i) break;
+        let p = i.contentDocument.getElementsByTagName("pre");
+        if (!p || !p.length) break;
+        let text = p[0].innerHTML;
+
+        game.parse(new inputSource(text));
+        game.move(1);
+        return;
+      } while(false);
+      alert("error loading game");
+    }
+  </script>
+</head>
+<body onload="main();">
+  <table>
+    <tr>
+      <th colspan="2"><span id="title"></span> - <span id="directions"></span></th>
+    </tr>
+    <tr>
+      <td><span id="text"></span></td>
+      <td><span id="actiontext"></span></td>
+    </tr>
+    <tr>
+      <th>What's Here</th>
+      <th>Actions</th>
+    </tr>
+    <tr>
+      <td><span id="objects"></span></td>
+      <td><span id="actions"></span></td>
+    </tr>
+  </table>
+  <iframe id="gamedata" src="sweater.data"/>
+</body>
+</html>

@@ -1,0 +1,41 @@
+room 1 Santa's Sweater! Introduction
+Welcome to Santa's Sweater, a text adventure game. You are one of Santa's little helpers living in Santa's Village. Santa has called you to the Workshop because he has a very important mission for you! Click Start to begin!
+- Start 2
+
+room 2 Santa's Workshop
+Santa's helpers are busy running here and there, assembling toys for boys and girls. Noisy machines and conveyor belts are everywhere.
+- Leave Workshop 3
+
+room 3 Main St West
+This end of Main St is awash in green and red holiday lights. The street is a lovely boulevard for strolling along. Santa's Workshop is here at the end of the street, and a souviner shop is on the north side.
+- Enter Workshop 2
+- Enter Store 18
+- East 4
+
+room 4 Main Intersection
+This moderately busy intersection is where Main and Dasher streets meet. A lot of Santa's helpers live in the well-to-do north end of Dasher St, but south Dasher also has a few nice neighbourhoods.
+- North 9
+- South 7
+- East 5
+- West 3
+
+room 5 Main St East
+Main St is a continuous line of shops and restarants, all bustling with holiday activity. Various side streets connect the residential areas to Main St along the way.
+- North 17
+- East 6
+- West 4
+
+room 6 End of Main St
+Far past the shops and merrymakers, the end of Main St is gloomy and desolated. A fenced in vacant lot here looks long abandoned and has becoming a dumping ground.
+- West 5
+
+room 7 Dasher Ave N
+Holly's house is here. Describe house. An alleyway between houses is to the east. Dancer St is to the west.
+- North 4
+- South 8
+- East 11
+- West 13
+
+room 8 Dasher Ave S
+Merry's house is here. Describe house.
+- North 7
