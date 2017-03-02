@@ -159,13 +159,14 @@ class gTrigger extends gRequirement
 {
   constructor()
   {
+    super();
     this.id = 0;
     this.text = "";
   }
   parse(line)
   {
-    line[0] = '?';
-    let end = super.parse(line);
+//    line.substr[0] = '?';
+    let end = super.parse(line.replace("@", "?"));
     if (!end) return false;
     let words = line.substr(end).split(" ");
     this.id = words[0];
@@ -278,7 +279,7 @@ class gAction
   parse(input)
   {
     if (input.eof()) return false;
-    this.text = input.next;
+    this._text = input.next;
     while (true)
     {
       if (input.eof()) break;
@@ -342,7 +343,7 @@ class Game
       }
       else if (words[0] == "action")
       {
-        let r = new gAction(words[1], words[2], words[3].words[4]);
+        let r = new gAction(words[1], words[2], words[3], words[4]);
         r.parse(input);
         this.actions[r.id] = r;
       }
