@@ -50,11 +50,12 @@ Blitzen St crosses Donner St here. There is a quaint green gingerbread house her
 thing 101 9
 Door
 @ !jolly-seen ? 500 Knock on the door
-@  jolly-seen 503 Go see Jolly
+@  jolly-seen ? 503 Go see Jolly
 
-action 500 A voice calls out, 'Who is it?'
+action 500 
+A voice calls out, 'Who is it?'
 @  start ? 501 I'm here on urgent Santa business
-@ !start 504 I'm here on urgent Santa business
+@ !start ? 504 I'm here on urgent Santa business
 @ 502 Open up!
 
 action 501
@@ -120,7 +121,7 @@ Inside the house, Jolly is puttering around, cleaning the house. In one corner, 
 
 thing 102 19
 Jolly
-@ ? 600 Talk to Jolly
+@ 600 Talk to Jolly
 
 action 600
 What do you say?
@@ -128,7 +129,7 @@ What do you say?
 @ jolly2 ? 604 Isn't that the sweater right there?
 @ jolly3 ? 605 You gotta give me the sweater. It's important!
 @ jolly4 ? 606 So about that sweater...?
-@ ? 607 Nevermind
+@ 999 Nevermind
 
 action 603 600
 Jolly fidgets oddly. 'Nope, can't say that I have...'
@@ -145,24 +146,23 @@ No can do. If I give it to you, what will Princess use for her bed?
 action 606
 Nope.
 
-action 607 
+action 999 
 
 thing 103 19
 Santa's sweater
-@ ? 601 Look at sweater
+@ 601 Look at sweater
 @ sweater-look ? 602 Take sweater
 
 action 601
 That's definitely Santa's sweater under that dog's butt.
+! sweater-look
 
 action 602
 The dog growls and snaps at your hand!
-! sweater-look
-
 
 thing 104 2
 Santa Claus
-@ ? 700 Talk to Santa
+@ 700 Talk to Santa
 
 action 700
 What do you say?
@@ -178,7 +178,7 @@ What do you say?
 @ !santa-mad santa-annoy ? 711 How are you doing today?
 @ !santa-mad santa-annoy ? 712 Aren't you looking marvelous!
 @ start ? 801 Hi Santa!
-@ ? 607 Nevermind
+@ 999 Nevermind
 
 action 701
 Well, hello there little fella! Have you been a good helper this year?
@@ -189,20 +189,36 @@ Well, hello there little fella! Have you been a good helper this year?
 
 action 713
 Really? Remember I know all about you.
-@ ? 715 Well, I shaved my neighbour's cat once.
-@ ? 715 Well, I put laxatives in the eggnog once
-@ ? 715 Well, I made rude snowmen in front of the school
+@ 715.1 Well, I shaved my neighbour's cat once.
+@ 715.2 Well, I put laxatives in the eggnog once
+@ 715.3 Well, I made rude snowmen in front of the school
 
 action 714 713
 I thought so. How bad were you?
+
 action 715
 Well that's an honest answer. I have a job for you.
-@ ? 800 Of course!
+@ 800 Of course!
+
+action 715.1
+Well that's an honest answer. I have a job for you.
+! prank-cat
+@ 800 Of course!
+
+action 715.2
+Well that's an honest answer. I have a job for you.
+! prank-eggnog
+@ 800 Of course!
+
+action 715.3
+Well that's an honest answer. I have a job for you.
+! prank-snowmen
+@ 800 Of course!
 
 action 800
 I need you to find my sweater and bring it to me. It's getting cold in here.
 ! start
-@ ? 607 I'm on it!
+@ 999 I'm on it!
 
 action 801
 Do you have my sweater?
@@ -219,9 +235,9 @@ Lousy. I've been cooped up in here all day.
 
 action 712 
 Do you really think so?
-! santa-annoy
-@ ? 800 Of course!
-@ ? 704 Not really.
+! !santa-annoy
+@ 800 Of course!
+@ 704 Not really.
 
 action 704 700
 You impertenant rapscallion! I will not be addressed in this manner. Try again.
@@ -243,8 +259,8 @@ action 708 700
 I said not good enough!
 ! !santa-mad2b santa-mad3
 
-action 709 700
+action 709
 That will have to do. I have a job for you. Think you can do it?
 ! !santa-mad3
-@ ? 800 I'll do my best, sir!
+@ 800 I'll do my best, sir!
 

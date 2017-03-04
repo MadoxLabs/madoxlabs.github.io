@@ -68,7 +68,7 @@ class gRequirement
     if (end < 1) return false;
 
     this.stateReq = input.substring(1, end).trim().split(" ");
-    return end + 1;
+    return end + 2;
   }
   addStateReq(req)
   {
@@ -77,7 +77,10 @@ class gRequirement
   isSatisfied(state)
   {
     let ok = true;
-    this.stateReq.map((term) => (ok = (!state[term]) ? false : ok));
+    let s = state ? state : [];
+    this.stateReq.map((term) => { if (term[0] == '!') ok = (s[term.substr(1)]) ? false : ok;
+                                  else ok = (!s[term]) ? false : ok;
+                                });
     return ok;
   }
 }
@@ -165,10 +168,13 @@ class gTrigger extends gRequirement
   }
   parse(line)
   {
-//    line.substr[0] = '?';
-    let end = super.parse(line.replace("@", "?"));
-    if (!end) return false;
-    let words = line.substr(end).split(" ");
+    let end = 2;
+    if (line.indexOf("?") > -1)
+    {
+      end = super.parse(line.replace("@", "?"));
+      if (!end) return false;
+    }
+    let words = line.substr(end).trim().split(" ");
     this.id = words[0];
     this.text = words.slice(1).join(" ");
     return true;
@@ -207,7 +213,7 @@ class gThing extends gRequirement
 
       let line = input.next();
       let t = new gTrigger();
-      if (t.parse(line)) this.triggers[t.id] = t;
+      if (t.parse(line)) this.triggers.push(t);
     }
     return true;
   }
@@ -261,11 +267,10 @@ class gRoom
 
 class gAction
 {
-  constructor(id, starts, goto, move)
+  constructor(id, goto, move)
   {
     this._id = id;
     this._text = "";
-    this._starts = starts;
     this._goto = goto;
     this._move = move;
     this.set = [];
@@ -273,13 +278,12 @@ class gAction
   }
   get text() { return this._text; }
   get id() { return this._id; }
-  get starts() { return this._starts; }
   get move() { return this._move; }
   get goto() { return this._goto; }
   parse(input)
   {
     if (input.eof()) return false;
-    this._text = input.next;
+    this._text = input.next();
     while (true)
     {
       if (input.eof()) break;
@@ -287,19 +291,20 @@ class gAction
       {
         let line = input.next();
         let t = new gTrigger();
-        if (t.parse(line)) this.triggers[t.id] = t;
+        if (t.parse(line)) this.triggers.push(t);
       }
-      if (input.nextType() == "!")
+      else if (input.nextType() == "!")
       {
-        let vals = input.next().substr(2).split(" ");
+        let vals = input.next().substr(2).trim().split(" ");
         vals.map((v) => (this.set.push(v)));
       }
+      else break;
     }
     return true;
   }
   setState(state)
   {
-    for (var i in action.set) 
+    for (var i in this.set) 
     this.set.map((s) => { if (s[0] == '!') delete state[s.substr(1)]; else state[s] = true; });
   }
   getActions(state)
@@ -327,25 +332,28 @@ class Game
     {
       let line = input.next();
       if (line.length == 0) continue;
-      let words = line.split(" ");
+      let words = line.trim().split(" ");
       if (words.length == 0) continue;
       if (words[0] == "room")
       {
         let r = new gRoom(words[1], words.slice(2).join(" "));
         r.parse(input);
         this.rooms[r.id] = r;
+        console.log("Room: "+r.name);
       }
       else if (words[0] == "thing")
       {
         let r = new gThing(words[1], words[2], words.slice(3));
         r.parse(input);
         this.things[r.id] = r;
+        console.log("Thing: "+r.getDesc());
       }
       else if (words[0] == "action")
       {
         let r = new gAction(words[1], words[2], words[3], words[4]);
         r.parse(input);
         this.actions[r.id] = r;
+        console.log("Action: "+r.id);
       }
     }
 
@@ -368,19 +376,17 @@ class Game
 
     for (var i in room.things)
     {
-      var obj = this.things[room.things[i]];
+      var obj = this.things[room.things[i].id];
       if (obj.isSatisfied(this.state) == false) continue;
       if (objs.length > 0) objs += "<br>";
       objs += obj.getDesc(this.state);
 
       var choice = obj;
-      if (obj.curaction) choice = obj.action[obj.curaction];
-      choice = choice.triggers;
+      if (obj.curaction && this.actions[obj.curaction]) choice = this.actions[obj.curaction];
+      choice = choice.getActions(this.state);
       for (var i in choice)
       {
-        var action = this.actions[choice[i].id];
-        if (action.isSatisfied(this.state) == false) continue;
-        choices += "<button onclick='game.perform(" + room.id + "," + obj.id + "," + action.id + ");'>" + choice[i].text + "</button><br>";
+        choices += "<button onclick='game.perform(" + room.id + "," + obj.id + "," + i + ");'>" + choice[i] + "</button><br>";
       }
     }
     if (objs.length) document.getElementById("objects").innerHTML = objs;
@@ -403,7 +409,7 @@ class Game
     else obj.curaction = 0;
 
     if (action.goto) obj.curaction = action.goto;
-    if (action.move) move(action.move);
+    if (action.move) this.move(action.move);
     else this.process();
     document.getElementById("actiontext").innerHTML = action.text;
   }
