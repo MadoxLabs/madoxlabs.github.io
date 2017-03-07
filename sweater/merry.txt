@@ -1,0 +1,27 @@
+room 20 Merry's Garden
+In front of the house is a neat little garden that looks well tended.
+? !pick1 ? To the left are some daisies.
+? pick1 ? To the left are some daisies. A few have been picked.
+? !pick2 ? To the right are some tulips.
+? pick2 ? To the right are some tulips. A few have been picked.
+- Back to street 8
+
+thing 105 20
+Door
+@ !merry-seen ? 800 Knock on the door
+@  merry-seen ? 801 Go see Merry
+
+thing 106 20
+Daisies
+@ !pick1 ? 802 Pick dasies
+
+thing 107 20
+Tulips
+@ !pick2 ? 803 Pick tulips
+
+action 802 
+You pick a nearby daisy. Merry comes racing out of his house angrily and says "Well thats a find how do you do!" 
+
+thing 106 20
+Merry
+? 

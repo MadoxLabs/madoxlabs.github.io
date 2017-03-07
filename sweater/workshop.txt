@@ -1,0 +1,104 @@
+thing 103 2
+Santa Claus
+@ 700 Talk to Santa
+
+action 700
+What do you say?
+@ !start !santa-annoy !santa-mad ? 701 Hi Santa!
+@ !start !santa-annoy !santa-mad ? 702 You wanted to see me?
+@ !start !santa-annoy !santa-mad ? 704 Yo, big man!
+@ santa-mad1 ? 705 Hi Santa!
+@ santa-mad1 ? 706 You wanted to see me?
+@ santa-mad2b ? 707 Hi Santa!
+@ santa-mad2a ? 708 You wanted to see me?
+@ santa-mad3 ? 709 How may I be of assistance, Mr. Claus?
+@ !santa-mad santa-annoy ? 710 Lovely weather we're having.
+@ !santa-mad santa-annoy ? 711 How are you doing today?
+@ !santa-mad santa-annoy ? 712 Aren't you looking marvelous!
+@ start ? 801 Hi Santa!
+@ 999 Nevermind
+
+action 701
+Well, hello there little fella! Have you been a good helper this year?
+! santa-ok
+@ santa-ok ? 713 Of course!
+@ santa-ok ? 714 Not really.
+@ santa-ok ? 715 I don't know.
+
+action 713
+Really? Remember I know all about you.
+@ 715.1 Well, I shaved my neighbour's cat once.
+@ 715.2 Well, I put laxatives in the eggnog once
+@ 715.3 Well, I made rude snowmen in front of the school
+
+action 714 713
+I thought so. How bad were you?
+
+action 715
+Well that's an honest answer. I have a job for you.
+@ 800 Of course!
+
+action 715.1
+Well that's an honest answer. I have a job for you.
+! prank-cat
+@ 800 Of course!
+
+action 715.2
+Well that's an honest answer. I have a job for you.
+! prank-eggnog
+@ 800 Of course!
+
+action 715.3
+Well that's an honest answer. I have a job for you.
+! prank-snowmen
+@ 800 Of course!
+
+action 800
+I need you to find my sweater and bring it to me. It's getting cold in here.
+! start
+@ 999 I'm on it!
+
+action 801
+Do you have my sweater?
+
+action 702 700
+All business then, eh? Can't even exchange pleasentries?
+! santa-annoy
+
+action 710 700
+I wouldn't know. I've been cooped up in here all day.
+
+action 711 700
+Lousy. I've been cooped up in here all day.
+
+action 712 
+Do you really think so?
+! !santa-annoy
+@ 800 Of course!
+@ 704 Not really.
+
+action 704 700
+You impertenant rapscallion! I will not be addressed in this manner. Try again.
+! santa-mad santa-mad1
+
+action 705 700
+Not good enough, sonny.
+! !santa-mad1 santa-mad2a
+
+action 706 700
+Not good enough, sonny.
+! !santa-mad1 santa-mad2b
+
+action 707 700
+I said not good enough!
+! !santa-mad2b santa-mad3
+
+action 708 700
+I said not good enough!
+! !santa-mad2b santa-mad3
+
+action 709
+That will have to do. I have a job for you. Think you can do it?
+! !santa-mad3
+@ 800 I'll do my best, sir!
+

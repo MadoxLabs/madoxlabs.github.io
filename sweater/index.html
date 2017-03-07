@@ -70,21 +70,41 @@
   <script src="sweaterParser.js"></script>
   <script>
     var game = new Game();
+    var loaded = 0;
+    var waiting = 0;
+    var files = [];
+
+    function load(url)
+    {
+      var id = waiting++;
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        {
+          loaded++;
+          files[id] = xmlHttp.responseText;
+        } };
+      xmlHttp.open( "GET", url, true );
+      xmlHttp.send( null );
+    }
 
     function main()
     {
-      do {
-        let i = document.getElementById("gamedata");
-        if (!i) break;
-        let p = i.contentDocument.getElementsByTagName("pre");
-        if (!p || !p.length) break;
-        let text = p[0].innerHTML;
+      load("town.txt");
+      load("workshop.txt");
+      load("jolly.txt");
+      load("merry.txt");
+      onLoaded();
+    }
 
-        game.parse(new inputSource(text));
+    function onLoaded()
+    {
+      if (waiting && waiting == loaded) {
+        let data = "";
+        for (var i in files) data += files[i] + "\n";
+        game.parse(new inputSource(data));
         game.move(1);
-        return;
-      } while(false);
-      alert("error loading game");
+      } else setTimeout(onLoaded, 100);
     }
   </script>
 </head>
@@ -106,6 +126,5 @@
       <td><span id="actions"></span></td>
     </tr>
   </table>
-  <iframe id="gamedata" src="/sweater/sweater.data.txt"/>
 </body>
 </html>

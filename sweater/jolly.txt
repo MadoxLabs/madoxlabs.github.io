@@ -1,0 +1,55 @@
+thing 101 9
+Door
+@ !jolly-seen ? 500 Knock on the door
+@  jolly-seen ? 503 Go see Jolly
+
+action 500 
+A voice calls out, 'Who is it?'
+@  start ? 501 I'm here on urgent Santa business
+@ !start ? 504 I'm here on urgent Santa business
+@ 502 Open up!
+
+action 501
+Come in!
+! jolly-seen
+
+action 502 500
+Why should I?
+
+action 503 0 19
+You enter Jolly's house.
+
+action 504 500
+I don't believe you.
+
+room 19 Jolly's House
+Inside the house, Jolly is puttering around, cleaning the house. In one corner, a large doberman is using a sweater as a blanket to lay on.
+- Leave 9
+
+thing 102 19
+Jolly
+@ 600 Talk to Jolly
+
+action 600
+What do you say?
+@ !jolly ? 603 Have you seen Santa's sweater?
+@ sweater-look jolly2 ? 604 Isn't that the sweater right there?
+@ jolly3 ? 605 You gotta give me the sweater. It's important!
+@ jolly4 ? 606 So about that sweater...?
+@ 999 Nevermind
+
+action 603 600
+Jolly fidgets oddly. 'Nope, can't say that I have...'
+! jolly jolly2
+
+action 604 600
+Well, perhaps it is and perhaps it isn't.
+! !jolly2 jolly3
+
+action 605
+No can do. If I give it to you, what will Princess use for her bed?
+! !jolly3 jolly4
+
+action 606
+Nope.
+

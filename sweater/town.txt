@@ -1,0 +1,99 @@
+room 1 Santa's Sweater! Introduction
+Welcome to Santa's Sweater, a text adventure game. You are one of Santa's little helpers living in Santa's Village. Santa has called you to the Workshop because he has a very important mission for you! Click Start to begin!
+- Start 2
+
+room 2 Santa's Workshop
+Santa's helpers are busy running here and there, assembling toys for boys and girls. Noisy machines and conveyor belts are everywhere.
+- Leave Workshop 3
+
+room 3 Main St West
+This end of Main St is awash in green and red holiday lights. The street is a lovely boulevard for strolling along. Santa's Workshop is here at the end of the street, and a souviner shop is on the north side.
+- Enter Workshop 2
+- Enter Store 18
+- East 4
+
+room 4 Main Intersection
+This moderately busy intersection is where Main and Dasher streets meet. A lot of Santa's helpers live in the well-to-do north end of Dasher St, but south Dasher also has a few nice neighbourhoods.
+- North 9
+- South 7
+- East 5
+- West 3
+
+room 5 Main St East
+Main St is a continuous line of shops and restarants, all bustling with holiday activity. Various side streets connect the residential areas to Main St along the way.
+- North 17
+- East 6
+- West 4
+
+room 6 End of Main St
+Far past the shops and merrymakers, the end of Main St is gloomy and desolated. A fenced in vacant lot here looks long abandoned and has becoming a dumping ground.
+- West 5
+
+room 7 Dasher Ave N
+Holly's house is here. Describe house. An alleyway between houses is to the east. Dancer St is to the west.
+- North 4
+- South 8
+- East 11
+- West 13
+
+room 8 Dasher Ave S
+Merry's house is here. It's a short brownstone cottage witha slate roof, trimmed with twinkling christmas lights. A quaint garden fills the fenced in front yard.
+- North 7
+- Enter Garden 20
+
+room 9 Donner Ave S
+Blitzen St crosses Donner St here. There is a quaint green gingerbread house here surrounded by a hedge. Jolly lives here.
+- North 10
+- South 4
+- East 17
+- West 16
+
+room 10 Donner Ave N
+Bob's house is here. Describe house. Comet St crosses Donner St here.
+- South 9
+- East 15
+- West 14
+
+room 11 Alley
+The alleyway is dimly lit, but clean enough. A couple Ladys of the Night leaning up against one wall watching you eagery. The east end of the alley ends at a brick wall with a door set in it.
+- East 12
+- West 7
+
+room 12 Brick Wall
+You are standing in front of a plain brick wall with a steel door set into it.
+- West 11
+
+room 13 Dancer Lane
+Jingle's house is here. Describe house.
+- East 7
+
+room 14 W Comet St
+Snowbell's house is here. Describe house. The end of Comet St heads south to Blitzen St.
+- South 16
+- East 10
+
+room 15 E Comet St
+John's house is here. Describe house. The end of Comet St heads south to Blitzen St.
+- South 17
+- West 10
+
+room 16 W Blitzen St
+Chime's house is here. Describe house. The end of Blitzen St heads north to Comet St.
+- North 14
+- East 9
+
+room 17 E Blitzen St
+Flitter's house is here. Describe house. The end of Blitzen St heads north to Comet St and also back to Main St.
+- North 15
+- South 5
+- West 9
+
+room 18 Store
+This store is packed to the rafters with shelves of all sorts of knickknacks and other useless tourist junk. THe proprieter behind the counter is busy reading the newspaper.
+- Leave 3
+
+action 999
+
+// rooms   19
+// actions 800
+// things  104
