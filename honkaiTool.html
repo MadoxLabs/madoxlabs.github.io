@@ -1,0 +1,178 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title>Madox Labs - Honkai Impact Tool</title>
+
+  <style>
+    table.blueTable {
+      border: 1px solid #1C6EA4;
+      background-color: #EEEEEE;
+      width: 100%;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+      table.blueTable td, table.blueTable th {
+        border: 1px solid #AAAAAA;
+        padding: 3px 2px;
+      }
+
+      table.blueTable tbody td {
+        font-size: 13px;
+      }
+
+      table.blueTable tr:nth-child(even) {
+        background: #D0E4F5;
+      }
+
+      table.blueTable thead {
+        background: #1C6EA4;
+        background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+        background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+        background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+        border-bottom: 2px solid #444444;
+      }
+
+        table.blueTable thead th {
+          font-size: 15px;
+          font-weight: bold;
+          color: #FFFFFF;
+          border-left: 2px solid #D0E4F5;
+        }
+
+          table.blueTable thead th:first-child {
+            border-left: none;
+          }
+
+      table.blueTable tfoot td {
+        font-size: 14px;
+      }
+
+      table.blueTable tfoot .links {
+        text-align: right;
+      }
+
+        table.blueTable tfoot .links a {
+          display: inline-block;
+          background: #1C6EA4;
+          color: #FFFFFF;
+          padding: 2px 8px;
+          border-radius: 5px;
+        }
+  </style>
+
+  <script type="text/javascript">
+
+    var Valks = [
+      "Kreigsmesser",
+      "Battle Storm",
+      "Herrscher Of The Void",
+      "Shadow Dash",
+      "Valkyrie Ranger",
+      "Sundenjager",
+      "Valkyrie Chariot",
+      "Dimension Breaker",
+      "Night Squire",
+      "White Comet",
+      "Ritual Imayoh",
+      "Divine Prayer",
+      "Crimson Impulse",
+      "Gyakushinn Miko",
+      "Valkyrie Triumph",
+      "Scarlet Fusion",
+      "Valkyrie Pledge",
+      "Luna Kindred"
+    ];
+
+    function search(type, id)
+    {
+      let query = document.getElementById(type + id + "Search").value.toLowerCase();
+      let buf = "";
+      if (query.length > 0)
+      {
+        for (let i in Valks)
+        {
+          if (Valks[i].toLowerCase().indexOf(query) != -1)
+          {
+            buf += "<div id='valk" + i + "' onmouseout='lolite(" + i + ")' onmouseover='hilite(" + i + ")' onclick='pick(" + i + ")'>" + Valks[i] + "</div>";
+          }
+        }
+      }
+      document.getElementById(type + id + "Select").innerHTML = buf;
+    }
+
+    function pick(index)
+    {
+      document.getElementById("valkMode").innerHTML = "Name: " + Valks[index] + "<br><br><button onclick='reset()'>Reset</button>";
+    }
+
+    function reset()
+    {
+      document.getElementById("valkMode").innerHTML = "Select Valkyrie: <input type=\"text\" id=\"valk1Search\" onchange=\"search('valk', '1');\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"valk1Select\"></div>";
+    }
+
+    function hilite(index)
+    {
+      let item = document.getElementById("valk" + index);
+      item.style.backgroundColor = "#00aa00";
+    }
+
+    function lolite(index)
+    {
+      let item = document.getElementById("valk" + index);
+      item.style.backgroundColor = "#ffffff";
+    }
+  </script>
+</head>
+
+<body onload="reset();">
+  <table class="blueTable">
+    <thead><tr><td colspan="5">VALKYRIE 1</td></tr></thead>
+    <tbody>
+      <tr>
+        <td width="300px">
+          <div><b>Valkyrie</b></div>
+          <div id="valkMode"></div>
+        </td>
+        <td valign="top"><div><b>Weapon</b></div></td>
+        <td valign="top"><div><b>T Stigmata</b></div></td>
+        <td valign="top"><div><b>M Stigmata</b></div></td>
+        <td valign="top"><div><b>B Stigmata</b></div></td>
+      </tr>
+    </tbody>
+  </table>
+  <br />
+  <table class="blueTable">
+    <thead><tr><td colspan="5">VALKYRIE 2</td></tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <div><b>Valkyrie</b></div>
+        </td>
+        <td valign="top"><div><b>Weapon</b></div></td>
+        <td valign="top"><div><b>T Stigmata</b></div></td>
+        <td valign="top"><div><b>M Stigmata</b></div></td>
+        <td valign="top"><div><b>B Stigmata</b></div></td>
+      </tr>
+    </tbody>
+  </table>
+  <br />
+  <table class="blueTable">
+    <thead><tr><td colspan="5">VALKYRIE 3</td></tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <div><b>Valkyrie</b></div>
+        </td>
+        <td valign="top"><div><b>Weapon</b></div></td>
+        <td valign="top"><div><b>T Stigmata</b></div></td>
+        <td valign="top"><div><b>M Stigmata</b></div></td>
+        <td valign="top"><div><b>B Stigmata</b></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+</html>
