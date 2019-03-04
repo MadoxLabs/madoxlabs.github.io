@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<head>
+  <title>2d Gingerbread Test</title>
+  <script>
+    var assets = [];
+    var door = { file: "door.png", size: 2, left: true, right: true, top: true };
+    var blank2 = { file: "blank", size: 2, left: false, right: false, top: false };
+    var blank1 = { file: "blank", size: 1, left: false, right: false, top: false };
+
+    function init()
+    {
+      assets.push({ file: "largebox.png", size: 2, left: true, right: true, top: true });
+      assets.push({ file: "largebox.png", size: 2, left: true, right: true, top: true });
+      assets.push({ file: "largebox.png", size: 2, left: true, right: true, top: true });
+      assets.push({ file: "largebox.png", size: 2, left: true, right: true, top: true });
+      assets.push({ file: "leftporch.png", size: 1, left: false, right: true, top: false });
+      assets.push({ file: "leftroof.png",       size: 2, left: false, right: true, top: false});
+      assets.push({ file: "peakroof.png",       size: 2, left: false, right: false, top: false});
+      assets.push({ file: "peakroof2.png",      size: 2, left: false, right: false, top: false});
+      assets.push({ file: "rightporch.png",     size: 1, left: true, right: false, top: false});
+      assets.push({ file: "rightroof.png",      size: 2, left: true, right: false, top: false});
+      assets.push({ file: "smallbox.png", size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallbox.png", size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallbox.png", size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallbox.png", size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallleftroof.png", size: 1, left: false, right: true, top: false });
+      assets.push({ file: "smallrightroof.png", size: 1, left: true, right: false, top: false});
+      assets.push({ file: "tower.png", size: 1, left: false, right: false, top: true });
+      assets.push({ file: "tower2.png", size: 2, left: false, right: false, top: true });
+      assets.push({ file: "tower.png", size: 1, left: false, right: false, top: true });
+      assets.push({ file: "tower2.png", size: 2, left: false, right: false, top: true });
+
+      door.image = new Image();
+      door.image.src = door.file;
+      for (var a in assets)
+      {
+        assets[a].image = new Image();
+        assets[a].image.src = assets[a].file;
+      }
+    }
+
+    var levels;
+    var width;
+    var todo;
+    var house;
+
+    function run()
+    {
+      // pick the house size
+      levels = 2 + (Math.random() * 4) |0;
+      width = 3 + (Math.random() * 3) |0;
+      todo = {};
+      house = {};
+      // pick door location
+      var x = (Math.random() * width) | 0;
+      var y = 0;
+      house[x + "," + y] = door;
+      // add the neighbours todo
+      if (x > 0) todo[(x - 1) + "," + y] = {x: x-1, y: y};
+      if (x < width-1) todo[(x + 1) + "," + y] = {x: x+1, y: y};
+      todo[x + "," + (y + 1)] = { x: x, y: y + 1 };
+      // iterate
+      nextBlock();
+    }
+
+    function add(x, y)
+    {
+      var key = x + "," + y;
+      if (house[key]) return;
+      todo[x + "," + y] = { x: x, y: y };
+    }
+
+    function nextBlock()
+    {
+      // get next block. make sure the one below it is done, or its ground level
+      var keys = Object.keys(todo);
+      var x = -1;
+      var y = -1;
+      var i = -1;
+      do
+      {
+        i = (Math.random() * keys.length) | 0;
+        x = todo[keys[i]].x;
+        y = todo[keys[i]].y;
+        if (y == 0) break;
+        if (house[x + "," + (y - 1)]) break;
+      } while (true);
+      if (i != -1) delete todo[keys[i]];
+      if (x == -1) return;
+
+      if (y == 0 || (house[x + "," + (y - 1)].top))
+      {
+
+        // pick an asset. determine the requirements, then gether candidates, then random pick
+        var size = y ? house[x + "," + (y - 1)].size : 0;
+        var noleft = false;
+        var noright = false;
+        if (x > 0 && house[(x - 1) + "," + y] && house[(x - 1) + "," + y].right == false) noleft = true;
+        if (x < (width - 1) && house[(x + 1) + "," + y] && house[(x + 1) + "," + y].left == false) noright = true;
+
+        var picks = [];
+        for (var a in assets)
+        {
+          if (size && assets[a].size != size) continue;
+//          if (assets[a].top == false) continue;
+          if (y == 0 && assets[a].file.indexOf("roof") > -1) continue;
+          picks.push(assets[a]);
+        }
+
+        var a = (Math.random() * picks.length) | 0;
+        house[x + "," + y] = picks[a];
+        if (x > 0) add(x - 1, y);
+        if (x < width - 1) add(x + 1, y);
+        if (y < levels - 1) add(x, y + 1);
+      }
+      else
+        house[x + "," + y] = house[x + "," + (y - 1)].size == 1 ? blank1 : blank2;
+
+      // no more to do? we are done
+      if (Object.keys(todo).length == 0) return;
+      // not done
+      nextBlock();
+    }
+
+    function draw()
+    {
+      var canvas = document.getElementById('house');
+      var context = canvas.getContext("2d");
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (var y = 0; y < levels; y += 1)
+      {
+        var xloc = 0;
+        for (var x = 0; x < width; x += 1)
+        {
+          if (!house[x + "," + y]) continue;
+          var yloc = (levels - y) * 100;
+          if (house[x + "," + y].file != "blank")
+            context.drawImage(house[x + "," + y].image, xloc, yloc);
+          xloc += (house[x + "," + y].size == 1) ? 75 : 100;
+        }
+      }
+    }
+
+    function start()
+    {
+      init();
+      run();
+      draw();
+    }
+  </script>
+</head>
+<body>
+
+2D Gingerbread House Test<br />
+<br />
+<input type="button" value="Start" onclick="start();"/><br />
+<br />
+<canvas id="house" width="1500" height="1500" ></canvas>
+
+</body>
+</html>

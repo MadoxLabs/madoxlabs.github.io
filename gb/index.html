@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+<head>
+  <title>2d Gingerbread Test</title>
+  <script>
+    var assets = [];
+    var door = { file: "door.png", size: 2, left: true, right: true, top: true };
+    var blank2 = { file: "blank", size: 2, left: false, right: false, top: false };
+    var blank1 = { file: "blank", size: 1, left: false, right: false, top: false };
+
+    function init()
+    {
+      assets.push({ file: "largebox.png",       size: 2, left: true, right: true, top: true });
+      assets.push({ file: "largebox.png",       size: 2, left: true, right: true, top: true });
+      assets.push({ file: "largebox.png",       size: 2, left: true, right: true, top: true });
+      assets.push({ file: "largebox.png",       size: 2, left: true, right: true, top: true });
+      assets.push({ file: "leftporch.png",      size: 1, left: false, right: true, top: false });
+      assets.push({ file: "leftroof.png",       size: 2, left: false, right: true, top: false});
+      assets.push({ file: "peakroof.png",       size: 2, left: false, right: false, top: false});
+      assets.push({ file: "peakroof2.png",      size: 2, left: false, right: false, top: false});
+      assets.push({ file: "rightporch.png",     size: 1, left: true, right: false, top: false});
+      assets.push({ file: "rightroof.png",      size: 2, left: true, right: false, top: false});
+      assets.push({ file: "smallbox.png",       size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallbox.png",       size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallbox.png",       size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallbox.png",       size: 1, left: true, right: true, top: true });
+      assets.push({ file: "smallleftroof.png",  size: 1, left: false, right: true, top: false });
+      assets.push({ file: "smallrightroof.png", size: 1, left: true, right: false, top: false});
+      assets.push({ file: "tower.png",          size: 1, left: false, right: false, top: true });
+      assets.push({ file: "tower2.png",         size: 2, left: false, right: false, top: true });
+      assets.push({ file: "tower.png",          size: 1, left: false, right: false, top: true });
+      assets.push({ file: "tower2.png",         size: 2, left: false, right: false, top: true });
+
+      door.image = new Image();
+      door.image.src = door.file;
+      for (var a in assets)
+      {
+        assets[a].image = new Image();
+        assets[a].image.src = assets[a].file;
+      }
+    }
+
+    var levels;
+    var width;
+    var todo;
+    var house;
+
+    function run()
+    {
+      // pick the house size
+      levels = 2 + (Math.random() * 4) |0;
+      width = 3 + (Math.random() * 3) |0;
+      todo = {};
+      house = {};
+      // pick door location
+      var x = (Math.random() * width) | 0;
+      var y = 0;
+      house[x + "," + y] = door;
+      // do all blocks, unwinding if it gets wrong
+      build(0, 0);
+    }
+
+    function build(x, y)
+    {
+      var nextx = x;
+      var nexty = y;
+
+      if (x < width) nextx++;
+      else { nextx = 0; nexty++; }
+      if (nexty == levels) return true;
+
+      if (house[x + "," + y]) return build(nextx, nexty);
+
+      var assets = getAssets(x, y);
+      if (assets.length == 0) return false;
+      for (var i in assets)
+      {
+        house[x + "," + y] = assets[i];
+        if (build(nextx, nexty)) return true;
+      }
+      return false;
+    }
+
+    function shuffle(array)
+    {
+      var currentIndex = array.length, temporaryValue, randomIndex;
+
+      // While there remain elements to shuffle...
+      while (0 !== currentIndex)
+      {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+
+      return array;
+    }
+
+    function getAssets(x, y)
+    {
+      var picks = [];
+
+      // what size? based on below one
+      var size = y ? house[x + "," + (y - 1)].size : 0;
+
+      // need left attachment?
+      // need right?
+      var needleft = false;
+      var needright = false;
+      if (x > 0 && house[(x - 1) + "," + y] && house[(x - 1) + "," + y].file.indexOf('left') > -1) needleft = true;
+      if (x < (width - 1) && house[(x + 1) + "," + y] && house[(x + 1) + "," + y].file.indexOf('right') > -1) needright = true;
+
+      // no left?
+      // no right?
+      var noleft = false;
+      var noright = false;
+      if (x > 0 && house[(x - 1) + "," + y] && house[(x - 1) + "," + y].right == false) noleft = true;
+      if (x < (width - 1) && house[(x + 1) + "," + y] && house[(x + 1) + "," + y].left == false) noright = true;
+      if (x == 0) noleft = true;
+      if (x == (width - 1)) noright = true;
+
+      // is something below?
+      var hasbelow = (house[x + "," + (y - 1)]) && (house[x + "," + (y - 1)].top);
+      var roofbelow = (house[x + "," + (y - 1)]) && ((house[x + "," + (y - 1)].file.indexOf("porch") > -1) || (house[x + "," + (y - 1)].file.indexOf("roof") > -1));
+
+      if (needleft && noleft) return picks;
+      if (needright && noright) return picks;
+
+      // loop over assets, seeing if they are viable
+      for (var a in assets)
+      {
+        if (size && assets[a].size != size) continue;                     // wrong size
+        if (y == 0 && assets[a].file.indexOf("roof") > -1) continue;      // roofs not on ground
+        if (!hasbelow && assets[a].file.indexOf("roof") > -1) continue;   // roofs needs something below
+        if (roofbelow && assets[a].file.indexOf("porch") == -1) continue;   // only porches hang over roofs
+        if ((x != 0) && !hasbelow && assets[a].file.indexOf("tower") > -1) continue;   // tower needs something below
+        if (noleft && assets[a].left) continue;
+        if (noright && assets[a].right) continue;
+        if (needleft && !assets[a].left) continue;
+        if (needright && !assets[a].right) continue;
+        picks.push(assets[a]);
+      }
+
+      picks = shuffle(picks);
+
+      if (!needleft && !needright)
+      {
+        // always allow blanks based on size
+        if (size == 0 || size == 1) picks.push(blank1);
+        if (size == 0 || size == 2) picks.push(blank2);
+      }
+      return picks;
+    }
+
+    function draw()
+    {
+      var canvas = document.getElementById('house');
+      var context = canvas.getContext("2d");
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (var y = 0; y < levels; y += 1)
+      {
+        var xloc = 0;
+        for (var x = 0; x < width; x += 1)
+        {
+          if (!house[x + "," + y]) continue;
+          var yloc = (levels - y) * 100;
+          if (house[x + "," + y].file != "blank")
+            context.drawImage(house[x + "," + y].image, xloc, yloc);
+          xloc += (house[x + "," + y].size == 1) ? 75 : 100;
+        }
+      }
+    }
+
+    function start()
+    {
+      init();
+      run();
+      draw();
+    }
+  </script>
+</head>
+<body>
+
+2D Gingerbread House Test<br />
+<br />
+<input type="button" value="Start" onclick="start();"/><br />
+<br />
+<canvas id="house" width="1500" height="1500" ></canvas>
+
+</body>
+</html>
