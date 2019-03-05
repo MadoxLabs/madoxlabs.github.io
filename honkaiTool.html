@@ -65,25 +65,28 @@
 
   <script type="text/javascript">
 
+    var dataValks = [
+      "Battle Storm:[Himeko,BIO,aoe,fire,float,charge,weaken atk,(leader)reduce dmg,(paralyze)QTE]",
+      "Kreigsmesser:[Himeko,PSY,aoe,ice,slow,charge,knockdown,immune,(leader)[reduce dmg,incr atk],(ignite)QTE]",
+      "Herrscher Of The Void:[]",
+      "Shadow Dash:[]",
+      "Valkyrie Ranger:[]",
+      "Sundenjager:[]",
+      "Valkyrie Chariot:[]",
+      "Dimension Breaker:[]",
+      "Night Squire:[]",
+      "White Comet:[]",
+      "Ritual Imayoh:[]",
+      "Divine Prayer:[]",
+      "Crimson Impulse:[]",
+      "Gyakushinn Miko:[]",
+      "Valkyrie Triumph:[]",
+      "Scarlet Fusion:[]",
+      "Valkyrie Pledge:[]",
+      "Luna Kindred:[]"
+    ];
+
     var Valks = [
-      "Kreigsmesser",
-      "Battle Storm",
-      "Herrscher Of The Void",
-      "Shadow Dash",
-      "Valkyrie Ranger",
-      "Sundenjager",
-      "Valkyrie Chariot",
-      "Dimension Breaker",
-      "Night Squire",
-      "White Comet",
-      "Ritual Imayoh",
-      "Divine Prayer",
-      "Crimson Impulse",
-      "Gyakushinn Miko",
-      "Valkyrie Triumph",
-      "Scarlet Fusion",
-      "Valkyrie Pledge",
-      "Luna Kindred"
     ];
 
     function search(type, id)
@@ -94,9 +97,9 @@
       {
         for (let i in Valks)
         {
-          if (Valks[i].toLowerCase().indexOf(query) != -1)
+          if (Valks[i].name.toLowerCase().indexOf(query) != -1)
           {
-            buf += "<div id='valk" + i + "' onmouseout='lolite(" + i + ")' onmouseover='hilite(" + i + ")' onclick='pick(" + i + ")'>" + Valks[i] + "</div>";
+            buf += "<div id='valk" + i + "' onmouseout='lolite(" + i + ")' onmouseover='hilite(" + i + ")' onclick='pick(" + i + ")'>" + Valks[i].name + "</div>";
           }
         }
       }
@@ -105,12 +108,24 @@
 
     function pick(index)
     {
-      document.getElementById("valkMode").innerHTML = "Name: " + Valks[index] + "<br><br><button onclick='reset()'>Reset</button>";
+      buf = "Name: " + Valks[index].name + "<br><br>";
+      for (let i in Valks[index].props)
+      {
+        if (Valks[index].props[i].if)
+        {
+
+        }
+        else
+          buf += "<div>" + Valks[index].props[i]+"</div>";
+      }
+      buf += "<br><button onclick='reset()'>Reset</button>";
+
+      document.getElementById("valkMode").innerHTML = buf;
     }
 
     function reset()
     {
-      document.getElementById("valkMode").innerHTML = "Select Valkyrie: <input type=\"text\" id=\"valk1Search\" onchange=\"search('valk', '1');\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"valk1Select\"></div>";
+      document.getElementById("valkMode").innerHTML = "Select Valkyrie: <input onmouseover='this.focus()' onmouseout='this.blur()' type=\"text\" id=\"valk1Search\" onchange=\"search('valk', '1');\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"valk1Select\"></div>";
     }
 
     function hilite(index)
@@ -124,10 +139,80 @@
       let item = document.getElementById("valk" + index);
       item.style.backgroundColor = "#ffffff";
     }
+
+    function init()
+    {
+      reset();
+      for (let i in dataValks)
+      {
+        Valks.push(parseObject(dataValks[i]));
+      }
+    }
+    function parseObject(data)
+    {
+      // data := key ":" props
+      // props := "[" item ("," item) "]"
+      // item := (if) props
+      // if := "(" key ")"
+
+      // get the name
+      let loc = data.indexOf(':');
+      if (loc == -1) return null;
+      let name = data.substr(0, loc);
+      let props = data.substr(loc + 1);
+      // make item
+      let item = { name: name, props: parseProps(props) };
+      return item;
+    }
+
+    function parseProps(data)
+    {
+      let ret = [];
+      do
+      {
+        // start with [, end with ]
+        if (data[0] != '[') break;
+        if (data[data.length - 1] != ']') break;
+        // split into seperate terms
+        let inside = 0;
+        let start = 1;
+        for (let x = start; x < data.length-1; ++x)
+        {
+          switch (data[x])
+          {
+            case '[': inside++; break;
+            case ']': inside--; break;
+            case ',': if (!inside) { ret.push(parseItem(data.substr(start, x - start))); start = x + 1; break; }
+          }
+        }
+        if (start < data.length-1) ret.push(parseItem(data.substr(start, data.length-start-1)));
+      } while (false);
+      return ret;
+    }
+
+    function parseItem(data)
+    {
+      // check for if
+      if (data[0] == '(')
+      {
+
+        let loc = data.indexOf(')');
+        let ifkey = data.substr(1, loc - 1);
+        if (data[loc+1] == '[')
+          return { if: ifkey, props: parseProps(data.substr(loc + 1)) };
+        else
+          return { if: ifkey, props: parseItem(data.substr(loc + 1)) };
+      }
+      // its just a key
+      else
+      {
+        return data;
+      }
+    }
   </script>
 </head>
 
-<body onload="reset();">
+<body onload="init();">
   <table class="blueTable">
     <thead><tr><td colspan="5">VALKYRIE 1</td></tr></thead>
     <tbody>
