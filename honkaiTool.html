@@ -6,6 +6,16 @@
   <title>Madox Labs - Honkai Impact Tool</title>
 
   <style>
+    div.unmet {
+      background-color: #aa0000;
+      color: #ffffff;
+    }
+
+    div.met {
+      background-color: #00aa00;
+      color: #ffffff;
+    }
+
     table.blueTable {
       border: 1px solid #1C6EA4;
       background-color: #EEEEEE;
@@ -86,7 +96,17 @@
       "Luna Kindred:[]"
     ];
 
+    var dataWeapons = [
+      "Galactic Nova:[Mei,incr crit,incr dmg,sparkling star,aoe]",
+      "Jizo Mitama:[Mei,summon,float,(float)incr dmg,(coop)incr dmg]",
+      "Lurker:[Bronya,charge,knockback,stun,incr move]",
+      "Vanguard:[Himeko,float]"
+    ];
+
     var Valks = [
+    ];
+
+    var Weapons = [
     ];
 
     function obj(elem)
@@ -101,27 +121,29 @@
       return null;
     }
 
-    class ValkUI
+    class BaseUI
     {
       constructor(id)
       {
         this.id = id;
 
         this.lastHilite = -1;
-        this.divMode = "valkMode" + id;
-        this.divSelect = "valkSelect" + id;
-        this.elemSearch = "valkSearch" + id;
-        this.elemResult = id + "valk";
-        this.elemProp = id + "prop";
-
-        document.getElementById(this.divMode).obj = this;
+        this.drawIndex = 0;
+        this.divMode = "" + id;
+        this.divSelect = "" + id;
+        this.elemSearch = "" + id;
+        this.elemResult = id + "";
+        this.elemProp = id + "";
+        this.name = "";
       }
 
       reset()
       {
-        document.getElementById(this.divMode).innerHTML = "Select Valkyrie: <input onmouseover='this.focus()' onmouseout='this.blur()' type=\"text\" id=\"" + this.elemSearch + "\" onchange=\"obj(this).search();\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"" + this.divSelect + "\"></div>";
+        document.getElementById(this.divMode).innerHTML = "Select " + this.name + ": <input onmouseover='this.focus()' onmouseout='this.blur()' type=\"text\" id=\"" + this.elemSearch + "\" onchange=\"obj(this).search();\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"" + this.divSelect + "\"></div>";
         this.lastHilite = -1;
       }
+
+      getData() { return null; }
 
       search()
       {
@@ -129,72 +151,155 @@
         let buf = "";
         if (query.length > 0)
         {
-          for (let i in Valks)
+          let data = this.getData();
+          for (let i in data)
           {
-            if (Valks[i].name.toLowerCase().indexOf(query) != -1)
+            if (data[i].name.toLowerCase().indexOf(query) != -1)
             {
-              buf += "<div id='" + this.elemResult + i + "' onmouseover='obj(this).hilite(" + i + ")' onclick='obj(this).pick(" + i + ")'>" + Valks[i].name + "</div>";
+              buf += "<div id='" + this.elemResult + i + "' onmouseover='obj(this).hilite(" + i + ")' onclick='obj(this).pick(" + i + ")'>" + data[i].name + "</div>";
             }
           }
         }
         document.getElementById(this.divSelect).innerHTML = buf;
       }
- 
+
       hilite(index)
       {
         if (this.lastHilite > -1)
         {
           let item = document.getElementById(this.elemResult + this.lastHilite);
-          item.style.border = "";
+          if (item) item.style.border = "";//"2px solid rgba(0,0,0,0)";
         }
         this.lastHilite = index;
         let item = document.getElementById(this.elemResult + index);
-        item.style.border = "2px solid green";
+        if (item) item.style.border = "2px solid green";
       }
-  
+
       outline(index)
       {
         if (this.lastHilite > -1)
         {
           let item = document.getElementById(this.elemProp + this.lastHilite);
-          item.style.border = "";
+          if (item) item.style.border = "";//"2px solid rgba(0,0,0,0)";
         }
         this.lastHilite = index;
         let item = document.getElementById(this.elemProp + index);
-        item.style.border = "2px solid black";
-      }   
+        if (item) item.style.border = "2px solid black";
+      }
+
+      isSatisfied(item)
+      {
+        if (!item.if) return true;
+        if (item.if == "leader" && this.id == 0) return true;
+        return false;
+      }
 
       pick(index)
       {
-        let buf = "Name: " + Valks[index].name + "<br><br>";
-        for (let i in Valks[index].props)
-        {
-          if (Valks[index].props[i].if)
-          {
-
-          }
-          else
-            buf += "<div id='" + this.elemProp + i + "' onmouseout='obj(this).outline(" + i + ")' onmouseover='obj(this).outline(" + i + ")'>" + Valks[index].props[i] + "</div>";
-        }
+        let data = this.getData();
+        let buf = "Name: " + data[index].name + "<br><br>";
+        this.drawIndex = 0;
+        buf += this.drawProps(data[index]);
         buf += "<br><button onclick='obj(this).reset()'>Reset</button>";
 
         document.getElementById(this.divMode).innerHTML = buf;
       }
-    }
+
+      drawProps(item)
+      {
+        let buf = "";
+        let props = item.props;
+        if (!Array.isArray(props)) props = [props];
+
+        for (let i in props)
+        {
+          if (props[i].if)
+          {
+            // check if it is satisfied by our set of objects
+            if (this.isSatisfied(props[i]))
+            {
+              // if so add its props
+              buf += "<div class='met' id='" + this.elemProp + this.drawIndex + "' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
+              this.drawIndex += 1;
+              buf += this.drawProps(props[i]);
+            }
+            else
+            {
+              // if not its red
+              buf += "<div class='unmet' id='" + this.elemProp + this.drawIndex + "' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
+              this.drawIndex += 1;
+            }
+          }
+          else
+          {
+            buf += "<div id='" + this.elemProp + this.drawIndex + "' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i] + "</div>";
+            this.drawIndex += 1;
+          }
+        }
+        return buf;
+      }
+
+      hookup()
+      {
+        document.getElementById(this.divMode).obj = this;
+      }
+    };
+
+    class ValkUI extends BaseUI
+    {
+      constructor(id)
+      {
+        super(id);
+        this.divMode = "valkMode" + id;
+        this.divSelect = "valkSelect" + id;
+        this.elemSearch = "valkSearch" + id;
+        this.elemResult = id + "valk";
+        this.elemProp = id + "prop";
+        this.name = "Valkyrie";
+        this.hookup();
+      }
+
+      getData() { return Valks; }
+    };
+
+    class WeapUI extends BaseUI
+    {
+      constructor(id)
+      {
+        super(id);
+        this.divMode = "weapMode" + id;
+        this.divSelect = "weapSelect" + id;
+        this.elemSearch = "weapSearch" + id;
+        this.elemResult = id + "weap";
+        this.elemProp = id + "wprop";
+        this.name = "Weapon";
+        this.hookup();
+      }
+
+      getData() { return Weapons; }
+    };
 
     class App
     {
       Valk = [];
+      Weap = [];
       constructor()
       {
         this.Valk[0] = new ValkUI(0);
         this.Valk[1] = new ValkUI(1);
         this.Valk[2] = new ValkUI(2);
+        this.Weap[0] = new WeapUI(0);
+        this.Weap[1] = new WeapUI(1);
+        this.Weap[2] = new WeapUI(2);
+
+        for (let i in dataValks) Valks.push(parseObject(dataValks[i]));
+        for (let i in dataWeapons) Weapons.push(parseObject(dataWeapons[i]));
       }
 
       reset()
       {
         for (let i in this.Valk) this.Valk[i].reset();
+        for (let i in this.Weap) this.Weap[i].reset();
       }
     }
 
@@ -204,10 +309,6 @@
     {
       app = new App();
       app.reset();
-      for (let i in dataValks)
-      {
-        Valks.push(parseObject(dataValks[i]));
-      }
     }
 
     function parseObject(data)
@@ -238,7 +339,7 @@
         // split into seperate terms
         let inside = 0;
         let start = 1;
-        for (let x = start; x < data.length-1; ++x)
+        for (let x = start; x < data.length - 1; ++x)
         {
           switch (data[x])
           {
@@ -247,7 +348,7 @@
             case ',': if (!inside) { ret.push(parseItem(data.substr(start, x - start))); start = x + 1; break; }
           }
         }
-        if (start < data.length-1) ret.push(parseItem(data.substr(start, data.length-start-1)));
+        if (start < data.length - 1) ret.push(parseItem(data.substr(start, data.length - start - 1)));
       } while (false);
       return ret;
     }
@@ -260,7 +361,7 @@
 
         let loc = data.indexOf(')');
         let ifkey = data.substr(1, loc - 1);
-        if (data[loc+1] == '[')
+        if (data[loc + 1] == '[')
           return { if: ifkey, props: parseProps(data.substr(loc + 1)) };
         else
           return { if: ifkey, props: parseItem(data.substr(loc + 1)) };
@@ -283,7 +384,10 @@
           <div><b>Valkyrie</b></div>
           <div id="valkMode0"></div>
         </td>
-        <td valign="top"><div><b>Weapon</b></div></td>
+        <td valign="top">
+          <div><b>Weapon</b></div>
+          <div id="weapMode0"></div>
+        </td>
         <td valign="top"><div><b>T Stigmata</b></div></td>
         <td valign="top"><div><b>M Stigmata</b></div></td>
         <td valign="top"><div><b>B Stigmata</b></div></td>
@@ -299,7 +403,10 @@
           <div><b>Valkyrie</b></div>
           <div id="valkMode1"></div>
         </td>
-        <td valign="top"><div><b>Weapon</b></div></td>
+        <td valign="top">
+          <div><b>Weapon</b></div>
+          <div id="weapMode1"></div>
+        </td>
         <td valign="top"><div><b>T Stigmata</b></div></td>
         <td valign="top"><div><b>M Stigmata</b></div></td>
         <td valign="top"><div><b>B Stigmata</b></div></td>
@@ -315,7 +422,10 @@
           <div><b>Valkyrie</b></div>
           <div id="valkMode2"></div>
         </td>
-        <td valign="top"><div><b>Weapon</b></div></td>
+        <td valign="top">
+          <div><b>Weapon</b></div>
+          <div id="weapMode2"></div>
+        </td>
         <td valign="top"><div><b>T Stigmata</b></div></td>
         <td valign="top"><div><b>M Stigmata</b></div></td>
         <td valign="top"><div><b>B Stigmata</b></div></td>
