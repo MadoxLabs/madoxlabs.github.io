@@ -71,13 +71,70 @@
           padding: 2px 8px;
           border-radius: 5px;
         }
+
+    .slider {
+      -webkit-appearance: none;
+      height: 15px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+
+      .slider:hover {
+        opacity: 1;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        background: #4CAF50;
+        cursor: pointer;
+      }
+
+      .slider::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: #4CAF50;
+        cursor: pointer;
+      }
   </style>
 
   <script type="text/javascript">
 
+    /*
+    BATTLE STORM
+    B aoe knockdown (paralyze)[QTE, knockback] (crit)[fire] gather float fire charge weaken fracture slow
+    S stun
+    SS ignite
+    SSS stun
+
+    KRIEGSMESSER
+    A charge ice slow aoe knockdown (ignite)[QTE ice freeze] freeze
+    S ice
+    SSS slow
+
+    SCARLET FUSION
+    A charge float lightning paralyze
+    S (fracture)[QTE float lightning paralyze AOE] paralyze AOE (ignite) (bleed)
+    SS bleed
+    SSS paralyze
+
+    VALKYRIE TRIUMPH
+    A fracture aoe charge stun (frozen) (stun) (leader)[BIO]
+    S (frozen)[QTE] heal
+
+
+    */
+
     var dataValks = [
-      "Battle Storm:[Himeko,BIO,aoe,fire,float,charge,weaken atk,(leader)reduce dmg,(paralyze)QTE]",
-      "Kreigsmesser:[Himeko,PSY,aoe,ice,slow,charge,knockdown,immune,(leader)[reduce dmg,incr atk],(ignite)QTE]",
+      "Battle Storm:[(B)[Himeko,BIO,aoe,knockdown,(paralyze)[QTE,knockback],(crit)[],gather,float,fire,charge,weaken,fracture,slow],(S)stun,(SS)ignite]",
+      "Kreigsmesser:[(A)[Himeko,PSY,charge,ice,slow,aoe,knockdown,(ignite)[QTE],freeze],(SSS)slow]",
+      "Scarlet Fusion:[(A)[Himeko,MECH,charge,float,lightning,paralyze],(S)[(fracture)[QTE],aoe,(ignite)[],(bleed)[]],(SS)bleed]",
+      "Valkyrie Triumph:[(A)[Himeko,BIO,fracture,aoe,charge,stun,(frozen),(stun),(leader)[BIO]],(S)[(frozen)[QTE],heal]]",
       "Herrscher Of The Void:[]",
       "Shadow Dash:[]",
       "Valkyrie Ranger:[]",
@@ -97,10 +154,10 @@
     ];
 
     var dataWeapons = [
-      "Galactic Nova:[Mei,incr crit,incr dmg,sparkling star,aoe]",
-      "Jizo Mitama:[Mei,summon,float,(float)incr dmg,(coop)incr dmg]",
-      "Lurker:[Bronya,charge,knockback,stun,incr move]",
-      "Vanguard:[Himeko,float]"
+      "Galactic Nova:[(Mei)[incr crit,incr dmg,sparkling star,aoe]]",
+      "Jizo Mitama:[(Mei)[summon,float,(float)incr dmg,(coop)incr dmg]]",
+      "Lurker:[(Bronya)[charge,knockback,stun,incr move]]",
+      "Vanguard:[(Himeko)float]"
     ];
 
     var Valks = [
@@ -135,6 +192,7 @@
         this.elemResult = id + "";
         this.elemProp = id + "";
         this.name = "";
+        this.root = null;
       }
 
       reset()
@@ -191,18 +249,30 @@
       {
         if (!item.if) return true;
         if (item.if == "leader" && this.id == 0) return true;
+        return this.isSatisfiedExtra(item);
+      }
+
+      isSatisfiedExtra(item)
+      {
         return false;
       }
 
       pick(index)
       {
         let data = this.getData();
-        let buf = "Name: " + data[index].name + "<br><br>";
-        this.drawIndex = 0;
-        buf += this.drawProps(data[index]);
+        this.root = data[index];
+        let buf = "Name: " + this.root.name + this.extraControls();
+        buf += "<div id='" + this.divSelect + "Props'></div>";
         buf += "<br><button onclick='obj(this).reset()'>Reset</button>";
-
         document.getElementById(this.divMode).innerHTML = buf;
+
+        this.draw();
+      }
+
+      draw()
+      {
+        this.drawIndex = 0;
+        document.getElementById(this.divSelect + "Props").innerHTML = this.drawProps(this.root);
       }
 
       drawProps(item)
@@ -243,6 +313,11 @@
       {
         document.getElementById(this.divMode).obj = this;
       }
+
+      extraControls()
+      {
+        return "";
+      }
     };
 
     class ValkUI extends BaseUI
@@ -256,10 +331,46 @@
         this.elemResult = id + "valk";
         this.elemProp = id + "prop";
         this.name = "Valkyrie";
+        this.rank = "A";
+        this.rankNum = 1;
         this.hookup();
       }
 
+      isSatisfiedExtra(item)
+      {
+        if (item.if == "B" && this.rankNum >= 1) return true;
+        if (item.if == "A" && this.rankNum >= 2) return true;
+        if (item.if == "S" && this.rankNum >= 3) return true;
+        if (item.if == "SS" && this.rankNum >= 4) return true;
+        if (item.if == "SSS" && this.rankNum == 5) return true;
+        return false;
+      }
+
       getData() { return Valks; }
+
+      setrank()
+      {        
+        let elem = document.getElementById("valkRankSelect" + this.id);
+        if (elem)
+        {
+          this.rankNum = elem.value | 0;
+          switch (elem.value|0)
+          {
+            case 1: this.rank = "B"; break;
+            case 2: this.rank = "A"; break;
+            case 3: this.rank = "S"; break;
+            case 4: this.rank = "SS"; break;
+            case 5: this.rank = "SSS"; break;
+          }
+          this.draw();
+          document.getElementById("valkRank" + this.id).innerHTML = "<b>"+this.rank+"</b>";
+        }
+      }
+
+      extraControls()
+      {
+        return "<br>Rank: <span id=\"valkRank" + this.id + "\"><b>A</b></span> <input class='slider' oninput = 'obj(this).setrank()' type=\"range\" min=\"1\" max=\"5\" value=\"2\" id=\"valkRankSelect" + this.id + "\"><br><br>";
+      }
     };
 
     class WeapUI extends BaseUI
