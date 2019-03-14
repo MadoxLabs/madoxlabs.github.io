@@ -248,7 +248,7 @@
       isSatisfied(item)
       {
         if (!item.if) return true;
-        if (item.if == "leader" && this.id == 0) return true;
+        // check all my props to see if i am satisfied
         return this.isSatisfiedExtra(item);
       }
 
@@ -320,6 +320,14 @@
       }
     };
 
+    class WeaponUI extends BaseUI
+    {
+      isSatisfiedExtra(item)
+      {
+        // check my valk
+      }
+    }
+
     class ValkUI extends BaseUI
     {
       constructor(id)
@@ -338,11 +346,15 @@
 
       isSatisfiedExtra(item)
       {
+        if (item.if == "leader" && this.id == 0) return true;
         if (item.if == "B" && this.rankNum >= 1) return true;
         if (item.if == "A" && this.rankNum >= 2) return true;
         if (item.if == "S" && this.rankNum >= 3) return true;
         if (item.if == "SS" && this.rankNum >= 4) return true;
         if (item.if == "SSS" && this.rankNum == 5) return true;
+        // also check my weapon and other valks
+        // also check my stigs
+        // also check other valks
         return false;
       }
 
