@@ -249,7 +249,25 @@
       {
         if (!item.if) return true;
         // check all my props to see if i am satisfied
+        for (let p in this.root.props)
+        {
+          if (this.propHasProp(this.root.props[p], item.if)) return true;
+        }
         return this.isSatisfiedExtra(item);
+      }
+
+      propHasProp(prop, key)
+      {
+        if (prop.if == key) return false; // its ourself. avoid loops!
+        if (prop.if && this.isSatisfied(prop))
+        {
+          for (let p in prop.props)
+          {
+            if (this.propHasProp(prop.props[p], key)) return true;
+          }
+          return false;
+        }
+        return (prop == key);
       }
 
       isSatisfiedExtra(item)
@@ -320,14 +338,6 @@
       }
     };
 
-    class WeaponUI extends BaseUI
-    {
-      isSatisfiedExtra(item)
-      {
-        // check my valk
-      }
-    }
-
     class ValkUI extends BaseUI
     {
       constructor(id)
@@ -352,7 +362,7 @@
         if (item.if == "S" && this.rankNum >= 3) return true;
         if (item.if == "SS" && this.rankNum >= 4) return true;
         if (item.if == "SSS" && this.rankNum == 5) return true;
-        // also check my weapon and other valks
+        // also check my weapon
         // also check my stigs
         // also check other valks
         return false;
@@ -400,6 +410,12 @@
       }
 
       getData() { return Weapons; }
+
+      isSatisfiedExtra(item)
+      {
+        // check my valk
+      }
+
     };
 
     class App
