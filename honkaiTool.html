@@ -131,6 +131,7 @@
     */
 
     var dataValks = [
+      "Battle Test:[(B)[Himeko,(paralyze)[QTE,knockback]]",
       "Battle Storm:[(B)[Himeko,BIO,aoe,knockdown,(paralyze)[QTE,knockback],(crit)[],gather,float,fire,charge,weaken,fracture,slow],(S)stun,(SS)ignite]",
       "Kreigsmesser:[(A)[Himeko,PSY,charge,ice,slow,aoe,knockdown,(ignite)[QTE],freeze],(SSS)slow]",
       "Scarlet Fusion:[(A)[Himeko,MECH,charge,float,lightning,paralyze],(S)[(fracture)[QTE],aoe,(ignite)[],(bleed)[]],(SS)bleed]",
@@ -157,7 +158,8 @@
       "Galactic Nova:[(Mei)[incr crit,incr dmg,sparkling star,aoe]]",
       "Jizo Mitama:[(Mei)[summon,float,(float)incr dmg,(coop)incr dmg]]",
       "Lurker:[(Bronya)[charge,knockback,stun,incr move]]",
-      "Vanguard:[(Himeko)float]"
+      "Vanguard:[(Himeko)float]",
+      "Test:[(Himeko)paralyze]",
     ];
 
     var Valks = [
@@ -165,6 +167,8 @@
 
     var Weapons = [
     ];
+
+    var Code = 1;
 
     function obj(elem)
     {
@@ -184,6 +188,7 @@
       {
         this.id = id;
 
+        this.code = 1; 
         this.lastHilite = -1;
         this.drawIndex = 0;
         this.divMode = "" + id;
@@ -199,7 +204,12 @@
       {
         document.getElementById(this.divMode).innerHTML = "Select " + this.name + ": <input onmouseover='this.focus()' onmouseout='this.blur()' type=\"text\" id=\"" + this.elemSearch + "\" onchange=\"obj(this).search();\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"" + this.divSelect + "\"></div>";
         this.lastHilite = -1;
+        this.root = null;
+
+        this.resetExtra();
       }
+
+      resetExtra() { }
 
       getData() { return null; }
 
@@ -247,6 +257,18 @@
 
       isSatisfied(item)
       {
+        if (item.if)
+        {
+        // every issatisfied search has a code number to avoid infinite loops.
+        // if a prop has that code, it is skipped and considered not satisfied
+          Code += 1;
+          item.code = Code;
+        }
+        return this._isSatisfied(item);
+      }
+
+      _isSatisfied(item)
+      {
         if (!item.if) return true;
         // check all my props to see if i am satisfied
         for (let p in this.root.props)
@@ -258,14 +280,18 @@
 
       propHasProp(prop, key)
       {
-        if (prop.if == key) return false; // its ourself. avoid loops!
-        if (prop.if && this.isSatisfied(prop))
+        if (prop.if)
         {
-          for (let p in prop.props)
+          if (prop.code && prop.code == Code) return false;
+          prop.code = Code;
+          if (this._isSatisfied(prop))
           {
-            if (this.propHasProp(prop.props[p], key)) return true;
+            for (let p in prop.props)
+            {
+              if (this.propHasProp(prop.props[p], key)) return true;
+            }
+            return false;
           }
-          return false;
         }
         return (prop == key);
       }
@@ -285,6 +311,7 @@
         document.getElementById(this.divMode).innerHTML = buf;
 
         this.draw();
+        this.resetExtra();
       }
 
       draw()
@@ -354,6 +381,14 @@
         this.hookup();
       }
 
+      resetExtra()
+      {
+        if (app.Weap[this.id].root)
+        {
+          app.Weap[this.id].draw();
+        }
+      }
+
       isSatisfiedExtra(item)
       {
         if (item.if == "leader" && this.id == 0) return true;
@@ -363,6 +398,14 @@
         if (item.if == "SS" && this.rankNum >= 4) return true;
         if (item.if == "SSS" && this.rankNum == 5) return true;
         // also check my weapon
+        if (app.Weap[this.id].root)
+        {
+          if (app.Weap[this.id].code != Code)
+          {
+            app.Weap[this.id].code = Code;
+            return app.Weap[this.id]._isSatisfied(item);
+          }
+        }
         // also check my stigs
         // also check other valks
         return false;
@@ -385,6 +428,7 @@
             case 5: this.rank = "SSS"; break;
           }
           this.draw();
+          this.resetExtra();
           document.getElementById("valkRank" + this.id).innerHTML = "<b>"+this.rank+"</b>";
         }
       }
@@ -411,11 +455,28 @@
 
       getData() { return Weapons; }
 
+      resetExtra()
+      {
+        if (app.Valk[this.id].root)
+        {
+          app.Valk[this.id].draw();
+        }
+      }
+
       isSatisfiedExtra(item)
       {
         // check my valk
+        if (app.Valk[this.id].root)
+        {
+          if (app.Valk[this.id].code != Code)
+          {
+            app.Valk[this.id].code = Code;
+            return app.Valk[this.id]._isSatisfied(item);
+          }
+        }
+        else
+          return false;
       }
-
     };
 
     class App
@@ -501,9 +562,9 @@
         let loc = data.indexOf(')');
         let ifkey = data.substr(1, loc - 1);
         if (data[loc + 1] == '[')
-          return { if: ifkey, props: parseProps(data.substr(loc + 1)) };
+          return { if: ifkey, code: 1, props: parseProps(data.substr(loc + 1)) };
         else
-          return { if: ifkey, props: parseItem(data.substr(loc + 1)) };
+          return { if: ifkey, code: 1, props: parseItem(data.substr(loc + 1)) };
       }
       // its just a key
       else
