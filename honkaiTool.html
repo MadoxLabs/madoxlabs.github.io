@@ -6,6 +6,10 @@
   <title>Madox Labs - Honkai Impact Tool</title>
 
   <style>
+    body {
+      margin: 0px;
+    }
+
     div.my-tooltip {
       background: rgba(40,40,40,0.8);
       display: inline-block;
@@ -18,16 +22,26 @@
       font-size: 15px;
     }
 
-      div.my-tooltip.left-top:before {
-        content: "";
-        position: absolute;
-        width: 0;
-        height: 0;
-        border-top: 5px solid transparent;
-        border-right: 5px solid rgba(40,40,40,0.8);
-        border-bottom: 5px solid transparent;
-        margin: 1px 0 0 -15px;
-      }
+    div.my-tooltip.left-top:before {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-right: 5px solid rgba(40,40,40,0.8);
+      border-bottom: 5px solid transparent;
+      margin: 1px 0 0 -15px;
+    }
+
+    div.header {
+      background-color: #000000;
+      color: #ffffff;
+      position: absolute;
+      top: -80px;
+      left: 10px;
+      font-weight: bold;
+      font-size: 2em;
+    }
 
     div.unmet {
       background-color: #aa0000;
@@ -39,61 +53,74 @@
       color: #ffffff;
     }
 
+    div.menu {
+      background-color: #000000;
+      color: #ffffff;
+      position: absolute;
+      top: 0px;
+      left: 210px;
+      width: 100%;
+      height: 128px;
+      padding: 0px 0px;
+      margin: 0px;
+    }
+
     table.blueTable {
       border: 1px solid #1C6EA4;
       background-color: #EEEEEE;
       width: 100%;
       text-align: left;
       border-collapse: collapse;
+      margin: 8px;
     }
 
-      table.blueTable td, table.blueTable th {
-        border: 1px solid #AAAAAA;
-        padding: 3px 2px;
-      }
+    table.blueTable td, table.blueTable th {
+      border: 1px solid #AAAAAA;
+      padding: 3px 2px;
+    }
 
-      table.blueTable tbody td {
-        font-size: 13px;
-      }
+    table.blueTable tbody td {
+      font-size: 13px;
+    }
 
-      table.blueTable tr:nth-child(even) {
-        background: #D0E4F5;
-      }
+    table.blueTable tr:nth-child(even) {
+      background: #D0E4F5;
+    }
 
-      table.blueTable thead {
-        background: #1C6EA4;
-        background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-        background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-        background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-        border-bottom: 2px solid #444444;
-      }
+    table.blueTable thead {
+      background: #1C6EA4;
+      background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+      background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+      background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+      border-bottom: 2px solid #444444;
+    }
 
-        table.blueTable thead th {
-          font-size: 15px;
-          font-weight: bold;
-          color: #FFFFFF;
-          border-left: 2px solid #D0E4F5;
-        }
+    table.blueTable thead th {
+      font-size: 15px;
+      font-weight: bold;
+      color: #FFFFFF;
+      border-left: 2px solid #D0E4F5;
+    }
 
-          table.blueTable thead th:first-child {
-            border-left: none;
-          }
+    table.blueTable thead th:first-child {
+      border-left: none;
+    }
 
-      table.blueTable tfoot td {
-        font-size: 14px;
-      }
+    table.blueTable tfoot td {
+      font-size: 14px;
+    }
 
-      table.blueTable tfoot .links {
-        text-align: right;
-      }
+    table.blueTable tfoot .links {
+      text-align: right;
+    }
 
-        table.blueTable tfoot .links a {
-          display: inline-block;
-          background: #1C6EA4;
-          color: #FFFFFF;
-          padding: 2px 8px;
-          border-radius: 5px;
-        }
+    table.blueTable tfoot .links a {
+      display: inline-block;
+      background: #1C6EA4;
+      color: #FFFFFF;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
 
     .slider {
       -webkit-appearance: none;
@@ -105,25 +132,25 @@
       transition: opacity .2s;
     }
 
-      .slider:hover {
-        opacity: 1;
-      }
+    .slider:hover {
+      opacity: 1;
+    }
 
-      .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 15px;
-        height: 15px;
-        background: #4CAF50;
-        cursor: pointer;
-      }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
 
-      .slider::-moz-range-thumb {
-        width: 15px;
-        height: 15px;
-        background: #4CAF50;
-        cursor: pointer;
-      }
+    .slider::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
   </style>
 
   <script type="text/javascript">
@@ -150,58 +177,36 @@
     A fracture aoe charge stun (frozen) (stun) (leader)[BIO]
     S (frozen)[QTE] heal
 
-    draw valk
-     get to (para)
-     is para satisfied?
-       check all props - no
-       check weapon
-        check all props
-         get to (Hime)
-
-
-    set
-      valk
-      weapon
-      stig3
-      resolver
-
-      onset/unset
-        clear resolver
-        add set to resolver
-
-     resolver
-       add set
-         forall items
-           add all non ifs to list
-           add ifs to iflist
-         loop
-          go through if list
-            check ifs, add to list
-            if nothing added to lsit, break
-
+    Valkyrie Ranger
+    A pierce (crit) stun bleed (freeze)[QTE aoe] gather (break)[stun]
+    S fire (MECH)
+    SS crit (freeze)
     */
 
     var dataValks = [
       "Battle Storm:[(B)[Himeko,BIO,aoe,knockdown,(paralyze)[QTE,knockback],(crit)[],gather,float,fire,charge,weaken,fracture,slow],(S)stun,(SS)ignite]",
       "Kreigsmesser:[(A)[Himeko,PSY,charge,ice,slow,aoe,knockdown,(ignite)[QTE],freeze],(SSS)slow]",
       "Scarlet Fusion:[(A)[Himeko,MECH,charge,float,lightning,paralyze],(S)[(fracture)[QTE],aoe,(ignite)[],(bleed)[]],(SS)bleed]",
-      "Valkyrie Triumph:[(A)[Himeko,BIO,fracture,aoe,charge,stun,(frozen),(stun),(leader)[BIO]],(S)[(frozen)[QTE],heal]]",
+      "Valkyrie Triumph:[(A)[Himeko,BIO,fracture,aoe,charge,stun,(freeze),(stun),(leader)[BIO]],(S)[(freeze)[QTE],heal]]",
       "Herrscher Of The Void:[]",
-      "Shadow Dash:[(B)[Mei,MECH]]",
+      "White Comet:[]",
       "Valkyrie Ranger:[]",
-      "Sundenjager:[]",
+      "Divine Prayer:[]",
+      "Shadow Dash:[(B)[Mei,MECH]]",
+      "Crimson Impulse:[]",
       "Valkyrie Chariot:[]",
       "Dimension Breaker:[]",
-      "Night Squire:[]",
-      "White Comet:[]",
-      "Ritual Imayoh:[]",
-      "Divine Prayer:[]",
-      "Crimson Impulse:[]",
-      "Gyakushinn Miko:[]",
-      "Valkyrie Triumph:[]",
-      "Scarlet Fusion:[]",
+      "Yamabuki Armor:[]",
+      "Snowy Sniper:[]",
+      "Wolf's Dawn:[]",
       "Valkyrie Pledge:[]",
-      "Luna Kindred:[]"
+      "Luna Kindred:[]",
+      "Night Squire:[]",
+      "Umbral Rose:[]",
+      "Gyakushinn Miko:[]",
+      "Flame Sakitama:[]",
+      "Sundenjager:[]",
+      "Ritual Imayoh:[]"
     ];
 
     var dataWeapons = [
@@ -579,6 +584,12 @@
         for (let i in dataWeapons) Weapons.push(parseObject(dataWeapons[i]));
       }
 
+      stopTutorial()
+      {
+        ftuestep = 99;
+        document.getElementById("ftue").style.display = "none";
+      }
+
       pointAt(step,name,text)
       {
         if (step != ftuestep) return;
@@ -737,10 +748,23 @@
         return data;
       }
     }
+
+    animImage = new Image();
+    animImage.src = "frontpage/animatedlogo.gif";
+    staticImage = new Image();
+    staticImage.src = "frontpage/logo.jpg";
   </script>
 </head>
 
 <body onload="init();">
+  <div class="header">
+    <a href='#1' onmouseover="logo.src=animImage.src;" onmouseout="logo.src=staticImage.src;"><img name="logo" src="frontpage/logo.jpg" /></a>
+  </div>
+  <div class="menu">
+    HONKAI IMPACT TOOL<br /><br />
+    <button onclick="app.stopTutorial();">Skip Tutorial</button>
+  </div>
+  <div style="position: absolute; top:130px">
   <table class="blueTable">
     <thead><tr><td colspan="5">VALKYRIE 1</td></tr></thead>
     <tbody>
@@ -797,6 +821,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
   <div  class="my-tooltip left-top" id="ftue">This is some help text</div>
 </body>
 </html>
