@@ -6,6 +6,29 @@
   <title>Madox Labs - Honkai Impact Tool</title>
 
   <style>
+    div.my-tooltip {
+      background: rgba(40,40,40,0.8);
+      display: inline-block;
+      border-radius: 4px;
+      color: white;
+      box-shadow: 1px 1px 3px #aaa;
+      padding: 5px 10px;
+      margin: 5px 10px;
+      line-height: 100%;
+      font-size: 11px;
+    }
+
+      div.my-tooltip.left-top:before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-top: 5px solid transparent;
+        border-right: 5px solid rgba(40,40,40,0.8);
+        border-bottom: 5px solid transparent;
+        margin: 1px 0 0 -15px;
+      }
+
     div.unmet {
       background-color: #aa0000;
       color: #ffffff;
@@ -127,17 +150,44 @@
     A fracture aoe charge stun (frozen) (stun) (leader)[BIO]
     S (frozen)[QTE] heal
 
+    draw valk
+     get to (para)
+     is para satisfied?
+       check all props - no
+       check weapon
+        check all props
+         get to (Hime)
+
+
+    set
+      valk
+      weapon
+      stig3
+      resolver
+
+      onset/unset
+        clear resolver
+        add set to resolver
+
+     resolver
+       add set
+         forall items
+           add all non ifs to list
+           add ifs to iflist
+         loop
+          go through if list
+            check ifs, add to list
+            if nothing added to lsit, break
 
     */
 
     var dataValks = [
-      "Battle Test:[(B)[Himeko,(paralyze)[QTE,knockback]]",
       "Battle Storm:[(B)[Himeko,BIO,aoe,knockdown,(paralyze)[QTE,knockback],(crit)[],gather,float,fire,charge,weaken,fracture,slow],(S)stun,(SS)ignite]",
       "Kreigsmesser:[(A)[Himeko,PSY,charge,ice,slow,aoe,knockdown,(ignite)[QTE],freeze],(SSS)slow]",
       "Scarlet Fusion:[(A)[Himeko,MECH,charge,float,lightning,paralyze],(S)[(fracture)[QTE],aoe,(ignite)[],(bleed)[]],(SS)bleed]",
       "Valkyrie Triumph:[(A)[Himeko,BIO,fracture,aoe,charge,stun,(frozen),(stun),(leader)[BIO]],(S)[(frozen)[QTE],heal]]",
       "Herrscher Of The Void:[]",
-      "Shadow Dash:[]",
+      "Shadow Dash:[(B)[Mei,MECH]]",
       "Valkyrie Ranger:[]",
       "Sundenjager:[]",
       "Valkyrie Chariot:[]",
@@ -155,7 +205,7 @@
     ];
 
     var dataWeapons = [
-      "Galactic Nova:[(Mei)[incr crit,incr dmg,sparkling star,aoe]]",
+      "Galactic Nova:[(Mei)[sparkling star,aoe]]",
       "Jizo Mitama:[(Mei)[summon,float,(float)incr dmg,(coop)incr dmg]]",
       "Lurker:[(Bronya)[charge,knockback,stun,incr move]]",
       "Vanguard:[(Himeko)float]",
@@ -167,8 +217,6 @@
 
     var Weapons = [
     ];
-
-    var Code = 1;
 
     function obj(elem)
     {
@@ -188,7 +236,6 @@
       {
         this.id = id;
 
-        this.code = 1; 
         this.lastHilite = -1;
         this.drawIndex = 0;
         this.divMode = "" + id;
@@ -205,6 +252,7 @@
         document.getElementById(this.divMode).innerHTML = "Select " + this.name + ": <input onmouseover='this.focus()' onmouseout='this.blur()' type=\"text\" id=\"" + this.elemSearch + "\" onchange=\"obj(this).search();\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"" + this.divSelect + "\"></div>";
         this.lastHilite = -1;
         this.root = null;
+        app.Set[this.id].Res.resolve(app.Set[this.id]);
 
         this.resetExtra();
       }
@@ -257,48 +305,9 @@
 
       isSatisfied(item)
       {
-        if (item.if)
-        {
-        // every issatisfied search has a code number to avoid infinite loops.
-        // if a prop has that code, it is skipped and considered not satisfied
-          Code += 1;
-          item.code = Code;
-        }
-        return this._isSatisfied(item);
-      }
-
-      _isSatisfied(item)
-      {
         if (!item.if) return true;
         // check all my props to see if i am satisfied
-        for (let p in this.root.props)
-        {
-          if (this.propHasProp(this.root.props[p], item.if)) return true;
-        }
-        return this.isSatisfiedExtra(item);
-      }
-
-      propHasProp(prop, key)
-      {
-        if (prop.if)
-        {
-          if (prop.code && prop.code == Code) return false;
-          prop.code = Code;
-          if (this._isSatisfied(prop))
-          {
-            for (let p in prop.props)
-            {
-              if (this.propHasProp(prop.props[p], key)) return true;
-            }
-            return false;
-          }
-        }
-        return (prop == key);
-      }
-
-      isSatisfiedExtra(item)
-      {
-        return false;
+        return app.Set[this.id].Res.has(item.if);
       }
 
       pick(index)
@@ -307,11 +316,25 @@
         this.root = data[index];
         let buf = "Name: " + this.root.name + this.extraControls();
         buf += "<div id='" + this.divSelect + "Props'></div>";
-        buf += "<br><button onclick='obj(this).reset()'>Reset</button>";
+        buf += "<br><button id='" + this.elemResult + "reset' onclick='obj(this).reset()'>Reset</button>";
         document.getElementById(this.divMode).innerHTML = buf;
+
+        app.Set[this.id].Res.resolve(app.Set[this.id]);
 
         this.draw();
         this.resetExtra();
+
+        if (this.root.name == "Galactic Nova")
+        {
+          app.pointAt(6,this.elemProp + "0", "This is a Mei weapon, so its red.");
+          setTimeout(function () { app.pointAt(7,"0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
+        }
+
+        if (this.root.name == "Battle Storm")
+        {
+          app.pointAt(2,this.elemProp + "14", "This is a list of her properties.<br>S rank is red because she is rank A.");
+          setTimeout(function () { app.pointAt(3,"valkRankSelect0", "Drag the Rank slider to make her Rank S.") }, 5000);
+        }
       }
 
       draw()
@@ -334,20 +357,20 @@
             if (this.isSatisfied(props[i]))
             {
               // if so add its props
-              buf += "<div class='met' id='" + this.elemProp + this.drawIndex + "' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
+              buf += "<div class='met' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
               this.drawIndex += 1;
               buf += this.drawProps(props[i]);
             }
             else
             {
               // if not its red
-              buf += "<div class='unmet' id='" + this.elemProp + this.drawIndex + "' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
+              buf += "<div class='unmet' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
               this.drawIndex += 1;
             }
           }
           else
           {
-            buf += "<div id='" + this.elemProp + this.drawIndex + "' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i] + "</div>";
+            buf += "<div id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i] + "</div>";
             this.drawIndex += 1;
           }
         }
@@ -363,6 +386,47 @@
       {
         return "";
       }
+
+      query(index)
+      {
+        let word = document.getElementById(this.elemProp + index).innerText;
+        app.Set[this.id].query(word);
+      }
+
+      handleQuery(key)
+      {
+        let buf = "";
+        if (key.length > 0)
+        {
+          let data = this.getData();
+          for (let i in data)
+          {
+            if (this.hasProp(key,data[i]))
+            {
+              buf += "<div id='" + this.elemResult + i + "' onmouseover='obj(this).hilite(" + i + ")' onclick='obj(this).pick(" + i + ")'>" + data[i].name + "</div>";
+            }
+          }
+        }
+        document.getElementById(this.divSelect).innerHTML = buf;
+      }
+
+      hasProp(key, item)
+      {
+        let props = item.props;
+        if (!Array.isArray(props)) props = [props];
+
+        for (let i in props)
+        {
+          if (props[i].if)
+          {
+            if (props[i].if == key) return true;
+            if (this.hasProp(key, props[i])) return true;
+          }
+          else if (props[i] == key) return true;
+        }
+        return false;
+      }
+
     };
 
     class ValkUI extends BaseUI
@@ -377,59 +441,42 @@
         this.elemProp = id + "prop";
         this.name = "Valkyrie";
         this.rank = "A";
-        this.rankNum = 1;
         this.hookup();
       }
 
       resetExtra()
       {
-        if (app.Weap[this.id].root)
+        if (app.Set[this.id].Weap.root)
         {
-          app.Weap[this.id].draw();
+          app.Set[this.id].Weap.draw();
         }
-      }
-
-      isSatisfiedExtra(item)
-      {
-        if (item.if == "leader" && this.id == 0) return true;
-        if (item.if == "B" && this.rankNum >= 1) return true;
-        if (item.if == "A" && this.rankNum >= 2) return true;
-        if (item.if == "S" && this.rankNum >= 3) return true;
-        if (item.if == "SS" && this.rankNum >= 4) return true;
-        if (item.if == "SSS" && this.rankNum == 5) return true;
-        // also check my weapon
-        if (app.Weap[this.id].root)
-        {
-          if (app.Weap[this.id].code != Code)
-          {
-            app.Weap[this.id].code = Code;
-            return app.Weap[this.id]._isSatisfied(item);
-          }
-        }
-        // also check my stigs
-        // also check other valks
-        return false;
       }
 
       getData() { return Valks; }
 
       setrank()
-      {        
+      {
         let elem = document.getElementById("valkRankSelect" + this.id);
         if (elem)
         {
-          this.rankNum = elem.value | 0;
           switch (elem.value|0)
           {
             case 1: this.rank = "B"; break;
             case 2: this.rank = "A"; break;
-            case 3: this.rank = "S"; break;
+            case 3: {
+              this.rank = "S"; app.pointAt(4,this.elemProp + "14", "Now she is S Rank! More properties appear.");
+              setTimeout(function () { app.pointAt(5,app.Set[0].Weap.elemSearch, "Now lets search for 'Galactic Nova'!") },5000);
+              break;
+            }
             case 4: this.rank = "SS"; break;
             case 5: this.rank = "SSS"; break;
           }
+
+          app.Set[this.id].Res.resolve(app.Set[this.id]);
+
           this.draw();
           this.resetExtra();
-          document.getElementById("valkRank" + this.id).innerHTML = "<b>"+this.rank+"</b>";
+          document.getElementById("valkRank" + this.id).innerHTML = "<b>" + this.rank + "</b>";
         }
       }
 
@@ -457,51 +504,144 @@
 
       resetExtra()
       {
-        if (app.Valk[this.id].root)
+        if (app.Set[this.id].Valk.root)
         {
-          app.Valk[this.id].draw();
+          app.Set[this.id].Valk.draw();
         }
-      }
 
-      isSatisfiedExtra(item)
-      {
-        // check my valk
-        if (app.Valk[this.id].root)
-        {
-          if (app.Valk[this.id].code != Code)
-          {
-            app.Valk[this.id].code = Code;
-            return app.Valk[this.id]._isSatisfied(item);
-          }
-        }
-        else
-          return false;
+        if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
+          app.pointAt(8,app.Set[0].Valk.elemProp + "1", "Now click on Himeko's name to search for her weapons.");
+
       }
     };
 
+    class Set
+    {
+      Valk = null;
+      Weap = null;
+      Res = null;
+
+      constructor(id)
+      {
+        this.Valk = new ValkUI(id);
+        this.Weap = new WeapUI(id);
+        this.Res = new Resolver();
+      }
+
+      reset()
+      {
+        this.Valk.reset();
+        this.Weap.reset();
+      }
+
+      query(key)
+      {
+        if (this.Valk.root == null) this.Valk.handleQuery(key);
+        if (this.Weap.root == null) this.Weap.handleQuery(key);
+      }
+    };
+
+    ftuestep = 1;
+
     class App
     {
-      Valk = [];
-      Weap = [];
+      Set = [];
       constructor()
       {
-        this.Valk[0] = new ValkUI(0);
-        this.Valk[1] = new ValkUI(1);
-        this.Valk[2] = new ValkUI(2);
-        this.Weap[0] = new WeapUI(0);
-        this.Weap[1] = new WeapUI(1);
-        this.Weap[2] = new WeapUI(2);
+        this.Set[0] = new Set(0);
+        this.Set[1] = new Set(1);
+        this.Set[2] = new Set(2);
 
         for (let i in dataValks) Valks.push(parseObject(dataValks[i]));
         for (let i in dataWeapons) Weapons.push(parseObject(dataWeapons[i]));
       }
 
+      pointAt(step,name,text)
+      {
+        if (step != ftuestep) return;
+        ftuestep += 1;
+        let elem = document.getElementById(name).getBoundingClientRect();
+        let ftue = document.getElementById("ftue");
+        ftue.style.position = "absolute";
+        ftue.style.left = elem.right + 'px';
+        ftue.style.top = elem.top + 'px';
+        ftue.innerHTML = text;
+      }
+
       reset()
       {
-        for (let i in this.Valk) this.Valk[i].reset();
-        for (let i in this.Weap) this.Weap[i].reset();
+        for (let i in this.Set) this.Set[i].reset();
       }
-    }
+    };
+
+    class Resolver
+    {
+      props = {};
+      ifs = [];
+
+      constructor()
+      {
+      }
+
+      has(key) { return (this.props[key] != null); }
+
+      resolve(set)
+      {
+        this.props = {};
+        this.ifs = [];
+        if (set.Valk.root)
+        {
+          // special case - valk rank
+          if (set.Valk.rank == "B")   { this.props["B"] = "B"; }
+          if (set.Valk.rank == "A")   { this.props["B"] = "B"; this.props["A"] = "A";  }
+          if (set.Valk.rank == "S")   { this.props["B"] = "B"; this.props["A"] = "A"; this.props["S"] = "S";  }
+          if (set.Valk.rank == "SS")  { this.props["B"] = "B"; this.props["A"] = "A"; this.props["S"] = "S"; this.props["SS"] = "SS"; }
+          if (set.Valk.rank == "SSS") { this.props["B"] = "B"; this.props["A"] = "A"; this.props["S"] = "S"; this.props["SS"] = "SS"; this.props["SSS"] = "SSS";}
+          this.processItem(set.Valk.root);
+        }
+        if (set.Weap.root) this.processItem(set.Weap.root);
+        while (this.processIf()) { }
+      }
+
+      processItem(obj)
+      {
+        for (let i in obj.props) this.processProp(obj.props[i]);
+      }
+
+      processProp(item)
+      {
+        let props = item.props;
+        if (!Array.isArray(props)) props = [props];
+
+        for (let i in props)
+        {
+          if (props[i].if)
+          {
+            this.ifs.push(props[i]);
+          }
+          else
+          {
+            this.props[props[i]] = props[i];
+          }
+        }
+      }
+
+      processIf()
+      {
+        let ret = false;
+        for (let i in this.ifs)
+        {
+          if (!this.ifs[i]) continue;
+          if (this.props[this.ifs[i].if])
+          {
+            this.processProp(this.ifs[i]);
+            this.ifs[i] = null;
+            ret = true;
+          }
+        }
+        return ret;
+      }
+    };
 
     var app = null;
 
@@ -509,6 +649,8 @@
     {
       app = new App();
       app.reset();
+      app.pointAt(1,app.Set[0].Valk.elemSearch, "Try searching for 'Battle Storm'<br>Click her name when it appears.");
+
     }
 
     function parseObject(data)
@@ -632,6 +774,6 @@
       </tr>
     </tbody>
   </table>
-
+  <div  class="my-tooltip left-top" id="ftue">This is some help text</div>
 </body>
 </html>
