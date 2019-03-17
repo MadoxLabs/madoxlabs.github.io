@@ -324,10 +324,22 @@
         this.draw();
         this.resetExtra();
 
+        if (this.root.name == "Vanguard")
+        {
+          app.pointAt(10, this.elemProp + "0", "This is a Himeko weapon.<br>Vanguard's properties appear here.");
+          setTimeout(function () { app.pointAt(11, "0weapreset", "Reset this again.") }, 5000);
+        }
+
         if (this.root.name == "Galactic Nova")
         {
           app.pointAt(6,this.elemProp + "0", "This is a Mei weapon, so its red.");
           setTimeout(function () { app.pointAt(7,"0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
+        }
+
+        if (this.root.name == "Test")
+        {
+          app.pointAt(14, "0prop5", "With 'paralyze' available, Battle Storm's QTE becomes available.<br>THE END!");
+          setTimeout(function () { document.getElementById("ftue").style.display = "none"; }, 10000);
         }
 
         if (this.root.name == "Battle Storm")
@@ -408,6 +420,15 @@
           }
         }
         document.getElementById(this.divSelect).innerHTML = buf;
+
+        if (key == "Himeko")
+        {
+          app.pointAt(9, "0weap3", "Vanguard showed up. Click it.");
+        }
+        if (key == "paralyze")
+        {
+          app.pointAt(13, "0weap4", "A test weapon showed up. This weapon causes paralyzation. Click it.<br>I just added this for demonstrating.");
+        }
       }
 
       hasProp(key, item)
@@ -511,6 +532,8 @@
 
         if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
           app.pointAt(8,app.Set[0].Valk.elemProp + "1", "Now click on Himeko's name to search for her weapons.");
+
+        app.pointAt(12, "0prop5", "Battle Storm can make use of the paralyze skill.<br>It is red because nothing is providing the paralyze skill<br>Lets search for something. Click 'paralyze'");
 
       }
     };
