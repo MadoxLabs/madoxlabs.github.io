@@ -151,6 +151,15 @@
       background: #4CAF50;
       cursor: pointer;
     }
+
+    a {
+      text-decoration: none
+    }
+
+    span.right {
+      text-align: right;
+      display: block;
+    }
   </style>
 
   <script type="text/javascript">
@@ -250,6 +259,8 @@
         this.elemProp = id + "";
         this.name = "";
         this.root = null;
+        this.results = [];
+        this.resultCursor = 0;
       }
 
       reset()
@@ -258,6 +269,8 @@
         this.lastHilite = -1;
         this.root = null;
         app.Set[this.id].Res.resolve(app.Set[this.id]);
+        this.resultCursor = 0;
+        this.results = [];
 
         this.resetExtra();
       }
@@ -270,6 +283,8 @@
       {
         let query = document.getElementById(this.elemSearch).value.toLowerCase();
         let buf = "";
+        this.results = [];
+        this.resultCursor = 0;
         if (query.length > 0)
         {
           let data = this.getData();
@@ -277,10 +292,23 @@
           {
             if (data[i].name.toLowerCase().indexOf(query) != -1)
             {
-              buf += "<div id='" + this.elemResult + i + "' onmouseover='obj(this).hilite(" + i + ")' onclick='obj(this).pick(" + i + ")'>" + data[i].name + "</div>";
+              this.results.push(i);
             }
           }
         }
+
+        this.drawResults();
+      }
+
+      drawResults()
+      {
+        let buf = "";
+        let data = this.getData();
+        for (let i in this.results)
+        {
+          buf += "<div id='" + this.elemResult + this.results[i] + "' onmouseover='obj(this).hilite(" + this.results[i] + ")' onclick='obj(this).pick(" + this.results[i] + ")'>" + data[this.results[i]].name + "</div>";
+        }
+
         document.getElementById(this.divSelect).innerHTML = buf;
       }
 
@@ -311,14 +339,25 @@
       isSatisfied(item)
       {
         if (!item.if) return true;
-        // check all my props to see if i am satisfied
+        // check all the resolver to see if i am satisfied
         return app.Set[this.id].Res.has(item.if);
+      }
+
+      next()
+      {
+        if (this.resultCursor < this.results.length-1) this.pick(this.results[this.resultCursor + 1]);
+      }
+
+      prev()
+      {
+        if (this.resultCursor > 0) this.pick(this.results[this.resultCursor - 1]);
       }
 
       pick(index)
       {
         let data = this.getData();
         this.root = data[index];
+        for (let i in this.results) { if (this.results[i] == index) this.resultCursor = i|0; }
         let buf = "Name: " + this.root.name + this.extraControls();
         buf += "<div id='" + this.divSelect + "Props'></div>";
         buf += "<br><button id='" + this.elemResult + "reset' onclick='obj(this).reset()'>Reset</button>";
@@ -413,6 +452,8 @@
       handleQuery(key)
       {
         let buf = "";
+        this.results = [];
+        this.resultCursor = 0;
         if (key.length > 0)
         {
           let data = this.getData();
@@ -420,11 +461,11 @@
           {
             if (this.hasProp(key,data[i]))
             {
-              buf += "<div id='" + this.elemResult + i + "' onmouseover='obj(this).hilite(" + i + ")' onclick='obj(this).pick(" + i + ")'>" + data[i].name + "</div>";
+              this.results.push(i);
             }
           }
         }
-        document.getElementById(this.divSelect).innerHTML = buf;
+        this.drawResults();
 
         if (key == "Himeko")
         {
@@ -602,6 +643,26 @@
         ftue.innerHTML = text;
       }
 
+      prevValk(id)
+      {
+        this.Set[id].Valk.prev();
+      }
+
+      nextValk(id)
+      {
+        this.Set[id].Valk.next();
+      }
+
+      prevWeap(id)
+      {
+        this.Set[id].Weap.prev();
+      }
+
+      nextWeap(id)
+      {
+        this.Set[id].Weap.next();
+      }
+
       reset()
       {
         for (let i in this.Set) this.Set[i].reset();
@@ -770,11 +831,11 @@
     <tbody>
       <tr>
         <td width="300px">
-          <div><b>Valkyrie</b></div>
+          <div><b>Valkyrie <span class="right"><a href="#" onclick="app.prevValk(0);">&lt;Prev</a> <a href="#" onclick="app.nextValk(0);">Next&gt;</a></span></b></div>
           <div id="valkMode0"></div>
         </td>
         <td valign="top">
-          <div><b>Weapon</b></div>
+          <div><b>Weapon <span class="right"><a href="#" onclick="app.prevWeap(0);">&lt;Prev</a> <a href="#" onclick="app.nextWeap(0);">Next&gt;</a></span></b></div>
           <div id="weapMode0"></div>
         </td>
         <td valign="top"><div><b>T Stigmata</b></div></td>
@@ -789,11 +850,11 @@
     <tbody>
       <tr>
         <td width="300px">
-          <div><b>Valkyrie</b></div>
+          <div><b>Valkyrie <span class="right"><a href="#" onclick="app.prevValk(1);">&lt;Prev</a> <a href="#" onclick="app.nextValk(1);">Next&gt;</a></span></b></div>
           <div id="valkMode1"></div>
         </td>
         <td valign="top">
-          <div><b>Weapon</b></div>
+          <div><b>Weapon <span class="right"><a href="#" onclick="app.prevWeap(1);">&lt;Prev</a> <a href="#" onclick="app.nextWeap(1);">Next&gt;</a></span></b></div>
           <div id="weapMode1"></div>
         </td>
         <td valign="top"><div><b>T Stigmata</b></div></td>
@@ -808,11 +869,11 @@
     <tbody>
       <tr>
         <td width="300px">
-          <div><b>Valkyrie</b></div>
+          <div><b>Valkyrie <span class="right"><a href="#" onclick="app.prevValk(2);">&lt;Prev</a> <a href="#" onclick="app.nextValk(2);">Next&gt;</a></span></b></div>
           <div id="valkMode2"></div>
         </td>
         <td valign="top">
-          <div><b>Weapon</b></div>
+          <div><b>Weapon <span class="right"><a href="#" onclick="app.prevWeap(2);">&lt;Prev</a> <a href="#" onclick="app.nextWeap(2);">Next&gt;</a></span></b></div>
           <div id="weapMode2"></div>
         </td>
         <td valign="top"><div><b>T Stigmata</b></div></td>
