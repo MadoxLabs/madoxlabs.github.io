@@ -209,7 +209,7 @@
     ];
 
     var dataStigmata = [
-      "Shakespeare (M):[fire,shakespeare,(shakespeare:x2)[],(shakespeare:x3)[]]",
+      "Shakespeare (M):[fire,shakespeare,(shakespeare:x2)[evasion+,(PSY)[SP+]],(shakespeare:x3)[SP+]]",
       "Shakespeare (T):[ice,shakespeare,(shakespeare:x2)[],(shakespeare:x3)[]]",
       "Shakespeare (B):[ignite,shakespeare,(shakespeare:x2)[],(shakespeare:x3)[]]"
     ];
@@ -406,7 +406,7 @@
           buf += "<div class='off' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + (props[i].if ? props[i].if : props[i]) + "</div>";
           this.drawIndex += 1;
           if (props[i].if)
-              buf += this.drawProps(props[i]);
+            buf += this.drawPropsDisabled(props[i]);
         }
         return buf;
       }
@@ -672,15 +672,17 @@
     class App
     {
       Set = [];
+      All = new Resolver();
+
       constructor()
       {
         this.Set[0] = new Set(0);
         this.Set[1] = new Set(1);
         this.Set[2] = new Set(2);
 
-        for (let i in dataValks) Valks.push(parseObject(dataValks[i]));
-        for (let i in dataWeapons) Weapons.push(parseObject(dataWeapons[i]));
-        for (let i in dataStigmata) Stigmata.push(parseObject(dataStigmata[i]));
+        for (let i in dataValks) { let o = parseObject(dataValks[i]); this.All.processItem(o); Valks.push(o); }
+        for (let i in dataWeapons) { let o = parseObject(dataWeapons[i]); this.All.processItem(o); Weapons.push(o); }
+        for (let i in dataStigmata) { let o = parseObject(dataStigmata[i]); this.All.processItem(o); Stigmata.push(o); }
       }
 
       stopTutorial()
@@ -713,6 +715,30 @@
       nextStigM(id) { this.Set[id].StigM.next(); }
 
       reset() { for (let i in this.Set) this.Set[i].reset(); }
+
+      propSearch()
+      {
+        let name = document.getElementById('psearch').value;
+        let list = this.All.getPropsMatching(name);
+        let select = document.getElementById('presult');
+        select.innerHTML = "";
+        for (let i in list)
+        {
+          var opt = document.createElement('option');
+          opt.value = list[i];
+          opt.innerHTML = list[i];
+          select.appendChild(opt);
+        }
+      }
+
+      searchProp()
+      {
+        let e = document.getElementById('presult');
+        let key = e.options[e.selectedIndex].value;
+        this.Set[0].query(key);
+        this.Set[1].query(key);
+        this.Set[2].query(key);
+      }
     };
 
     class Resolver
@@ -722,6 +748,16 @@
 
       constructor()
       {
+      }
+
+      getPropsMatching(name)
+      {
+        let result = [];
+        for (let i in this.props)
+        {
+          if (i.toLowerCase().indexOf(name.toLowerCase()) != -1) result.push(i);
+        }
+        return result;
       }
 
       has(key) { return this.props[key]; }
@@ -780,16 +816,21 @@
       processIf()
       {
         let ret = false;
+        let newifs = [];
         for (let i in this.ifs)
         {
           if (!this.ifs[i]) continue;
           if (this.props[this.ifs[i].if])
           {
             this.processProp(this.ifs[i]);
-            this.ifs[i] = null;
             ret = true;
           }
+          else
+          {
+            newifs.push(this.ifs[i]);
+          }
         }
+        this.ifs = newifs;
         return ret;
       }
     };
@@ -879,7 +920,9 @@
   </div>
   <div class="menu">
     HONKAI IMPACT TOOL<br /><br />
-    <button onclick="app.stopTutorial();">Skip Tutorial</button>
+    <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
+    Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/><select id="presult"></select>
+    <button onclick="app.searchProp();">Search</button><br />
   </div>
   <div style="position: absolute; top:130px">
   <table class="blueTable">
