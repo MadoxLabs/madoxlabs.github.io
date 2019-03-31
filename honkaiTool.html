@@ -505,6 +505,7 @@
 
       draw()
       {
+        if (!this.root) return;
         this.drawIndex = 0;
         document.getElementById(this.divSelect + "Props").innerHTML = this.drawProps(this.root);
       }
@@ -535,8 +536,18 @@
         {
           if (props[i].if)
           {
+            let satisfied = this.isSatisfied(props[i]);
+            // if its a QTE one, we can not self-satisfy
+            if (props[i].props.includes("QTE"))
+            {
+              satisfied = false;
+              // check other valks
+              if (this.id != 0 && app.Set[0].Valk.isSatisfied(props[i])) satisfied = true;
+              if (this.id != 1 && app.Set[1].Valk.isSatisfied(props[i])) satisfied = true;
+              if (this.id != 2 && app.Set[2].Valk.isSatisfied(props[i])) satisfied = true;
+            }
             // check if it is satisfied by our set of objects
-            if (this.isSatisfied(props[i]))
+            if (satisfied)
             {
               // if so add its props
               buf += "<div class='met' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
@@ -648,6 +659,10 @@
         if (app.Set[this.id].TStig.root) { app.Set[this.id].TStig.draw(); }
         if (app.Set[this.id].MStig.root) { app.Set[this.id].MStig.draw(); }
         if (app.Set[this.id].BStig.root) { app.Set[this.id].BStig.draw(); }
+
+        if (this.id != 0) app.Set[0].Valk.draw();
+        if (this.id != 1) app.Set[1].Valk.draw();
+        if (this.id != 2) app.Set[2].Valk.draw();
       }
 
       getData() { return Valks; }
@@ -707,6 +722,10 @@
         if (app.Set[this.id].MStig.root) { app.Set[this.id].MStig.draw(); }
         if (app.Set[this.id].BStig.root) { app.Set[this.id].BStig.draw(); }
 
+        if (this.id != 0) app.Set[0].Valk.draw();
+        if (this.id != 1) app.Set[1].Valk.draw();
+        if (this.id != 2) app.Set[2].Valk.draw();
+
         if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
           app.pointAt(8,app.Set[0].Valk.elemProp + "1", "Now click on Himeko's name to search for her weapons.");
 
@@ -740,6 +759,10 @@
         if (this.type != "T" && app.Set[this.id].TStig.root) { app.Set[this.id].TStig.draw(); }
         if (this.type != "M" && app.Set[this.id].MStig.root) { app.Set[this.id].MStig.draw(); }
         if (this.type != "B" && app.Set[this.id].BStig.root) { app.Set[this.id].BStig.draw(); }
+
+        if (this.id != 0) app.Set[0].Valk.draw();
+        if (this.id != 1) app.Set[1].Valk.draw();
+        if (this.id != 2) app.Set[2].Valk.draw();
       }
     };
 
@@ -1069,23 +1092,23 @@
     <tbody>
       <tr>
         <td width="300px">
-          <div><b>Valkyrie <span class="right"><span id="0valkquery"></span><a href="#" onclick="app.prevValk(0);">&lt;Prev</a> <a href="#" onclick="app.nextValk(0);">Next&gt;</a></span></b></div>
+          <div><b>Valkyrie <span class="right"><span id="0valkquery"></span><a href="#" onclick="app.prevValk(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(0); return false;">Next&gt;</a></span></b></div>
           <div id="valkMode0"></div>
         </td>
         <td valign="top">
-          <div><b>Weapon <span class="right"><span id="0weapquery"></span><a href="#" onclick="app.prevWeap(0);">&lt;Prev</a> <a href="#" onclick="app.nextWeap(0);">Next&gt;</a></span></b></div>
+          <div><b>Weapon <span class="right"><span id="0weapquery"></span><a href="#" onclick="app.prevWeap(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(0); return false;">Next&gt;</a></span></b></div>
           <div id="weapMode0"></div>
         </td>
         <td valign="top">
-          <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0);">&lt;Prev</a> <a href="#" onclick="app.nextStigT(0);">Next&gt;</a></span></b></div>
+          <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
           <div id="TstigMode0"></div>
         </td>
         <td valign="top">
-          <div><b>Middle Stigmata <span class="right"><span id="0Mstigquery"></span><a href="#" onclick="app.prevStigM(0);">&lt;Prev</a> <a href="#" onclick="app.nextStigM(0);">Next&gt;</a></span></b></div>
+          <div><b>Middle Stigmata <span class="right"><span id="0Mstigquery"></span><a href="#" onclick="app.prevStigM(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(0); return false;">Next&gt;</a></span></b></div>
           <div id="MstigMode0"></div>
         </td>
         <td valign="top">
-          <div><b>Bottom Stigmata <span class="right"><span id="0Bstigquery"></span><a href="#" onclick="app.prevStigB(0);">&lt;Prev</a> <a href="#" onclick="app.nextStigB(0);">Next&gt;</a></span></b></div>
+          <div><b>Bottom Stigmata <span class="right"><span id="0Bstigquery"></span><a href="#" onclick="app.prevStigB(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(0); return false;">Next&gt;</a></span></b></div>
           <div id="BstigMode0"></div>
         </td>
       </tr>
@@ -1097,23 +1120,23 @@
     <tbody>
       <tr>
         <td width="300px">
-          <div><b>Valkyrie <span class="right"><span id="1valkquery"></span><a href="#" onclick="app.prevValk(1);">&lt;Prev</a> <a href="#" onclick="app.nextValk(1);">Next&gt;</a></span></b></div>
+          <div><b>Valkyrie <span class="right"><span id="1valkquery"></span><a href="#" onclick="app.prevValk(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(1); return false;">Next&gt;</a></span></b></div>
           <div id="valkMode1"></div>
         </td>
         <td valign="top">
-          <div><b>Weapon <span class="right"><span id="1weapquery"></span><a href="#" onclick="app.prevWeap(1);">&lt;Prev</a> <a href="#" onclick="app.nextWeap(1);">Next&gt;</a></span></b></div>
+          <div><b>Weapon <span class="right"><span id="1weapquery"></span><a href="#" onclick="app.prevWeap(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(1); return false;">Next&gt;</a></span></b></div>
           <div id="weapMode1"></div>
         </td>
         <td valign="top">
-          <div><b>Top Stigmata <span class="right"><span id="1Tstigquery"></span><a href="#" onclick="app.prevStigT(1);">&lt;Prev</a> <a href="#" onclick="app.nextStigT(1);">Next&gt;</a></span></b></div>
+          <div><b>Top Stigmata <span class="right"><span id="1Tstigquery"></span><a href="#" onclick="app.prevStigT(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(1); return false;">Next&gt;</a></span></b></div>
           <div id="TstigMode1"></div>
         </td>
         <td valign="top">
-          <div><b>Middle Stigmata <span class="right"><span id="1Mstigquery"></span><a href="#" onclick="app.prevStigM(1);">&lt;Prev</a> <a href="#" onclick="app.nextStigM(1);">Next&gt;</a></span></b></div>
+          <div><b>Middle Stigmata <span class="right"><span id="1Mstigquery"></span><a href="#" onclick="app.prevStigM(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(1); return false;">Next&gt;</a></span></b></div>
           <div id="MstigMode1"></div>
         </td>
         <td valign="top">
-          <div><b>Bottom Stigmata <span class="right"><span id="1Bstigquery"></span><a href="#" onclick="app.prevStigB(1);">&lt;Prev</a> <a href="#" onclick="app.nextStigB(1);">Next&gt;</a></span></b></div>
+          <div><b>Bottom Stigmata <span class="right"><span id="1Bstigquery"></span><a href="#" onclick="app.prevStigB(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(1); return false;">Next&gt;</a></span></b></div>
           <div id="BstigMode1"></div>
         </td>
       </tr>
@@ -1125,23 +1148,23 @@
     <tbody>
       <tr>
         <td width="300px">
-          <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2);">&lt;Prev</a> <a href="#" onclick="app.nextValk(2);">Next&gt;</a></span></b></div>
+          <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(2); return false;">Next&gt;</a></span></b></div>
           <div id="valkMode2"></div>
         </td>
         <td valign="top">
-          <div><b>Weapon <span class="right"><span id="2weapquery"></span><a href="#" onclick="app.prevWeap(2);">&lt;Prev</a> <a href="#" onclick="app.nextWeap(2);">Next&gt;</a></span></b></div>
+          <div><b>Weapon <span class="right"><span id="2weapquery"></span><a href="#" onclick="app.prevWeap(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(2); return false;">Next&gt;</a></span></b></div>
           <div id="weapMode2"></div>
         </td>
         <td valign="top">
-          <div><b>Top Stigmata <span class="right"><span id="2Tstigquery"></span><a href="#" onclick="app.prevStigT(2);">&lt;Prev</a> <a href="#" onclick="app.nextStigT(2);">Next&gt;</a></span></b></div>
+          <div><b>Top Stigmata <span class="right"><span id="2Tstigquery"></span><a href="#" onclick="app.prevStigT(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(2); return false;">Next&gt;</a></span></b></div>
           <div id="TstigMode2"></div>
         </td>
         <td valign="top">
-          <div><b>Middle Stigmata <span class="right"><span id="2Mstigquery"></span><a href="#" onclick="app.prevStigM(2);">&lt;Prev</a> <a href="#" onclick="app.nextStigM(2);">Next&gt;</a></span></b></div>
+          <div><b>Middle Stigmata <span class="right"><span id="2Mstigquery"></span><a href="#" onclick="app.prevStigM(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(2); return false;">Next&gt;</a></span></b></div>
           <div id="MstigMode2"></div>
         </td>
         <td valign="top">
-          <div><b>Bottom Stigmata <span class="right"><span id="2Bstigquery"></span><a href="#" onclick="app.prevStigB(2);">&lt;Prev</a> <a href="#" onclick="app.nextStigB(2);">Next&gt;</a></span></b></div>
+          <div><b>Bottom Stigmata <span class="right"><span id="2Bstigquery"></span><a href="#" onclick="app.prevStigB(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(2); return false;">Next&gt;</a></span></b></div>
           <div id="BstigMode2"></div>
         </td>
       </tr>
