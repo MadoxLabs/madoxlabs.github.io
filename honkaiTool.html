@@ -169,16 +169,16 @@
   </style>
 
   <script type="text/javascript">
-    
+
     var dataValks = [
-      "Battle Storm:[(B)[Himeko,BIO,aoe,knockdown,(paralyze)[QTE,knockback],(crit)[],gather,float,fire,charge,weaken,fracture,slow],(S)stun,(SS)ignite]",
-      "Kreigsmesser:[(A)[Himeko,PSY,charge,ice,slow,aoe,knockdown,(ignite)[QTE],freeze],(SSS)slow]",
-      "Scarlet Fusion:[(A)[Himeko,MECH,charge,float,lightning,paralyze],(S)[(fracture)[QTE],aoe,(ignite)[],(bleed)[]],(SS)bleed]",
-      "Valkyrie Triumph:[(A)[Himeko,BIO,fracture,aoe,charge,stun,(freeze),(stun),(leader)[BIO]],(S)[(freeze)[QTE],heal]]",
-      "Herrscher Of The Void:[]",
-      "White Comet:[]",
-      "Valkyrie Ranger:[]",
-      "Divine Prayer:[]",
+      "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[dmg+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
+      "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
+      "Valkyrie Ranger:[(B)[Kiana,pistol,MECH],(A)[combo,pierce,stun,dmg+,speed+,bleed,(freeze)[QTE,aoe,impair],gather],(S)[fire,(leader)[speed+,(MECH)[speed+]],(SS)[def+,crit,(freeze)[crit]],(SSS)[crit]]",
+      "Herrscher of the Void:[(B)[Kiana,pistol,BIO],(A)[],(S)[aoe,time prison,speed+,(timeslow)QTE,(timelock)QTE,crit,dmg+,(mech)dmg+,gather,timeslow,dmg-],(SS)[crit,(leader)[crit,critdmg+]],(SSS)[fracture]]",
+      "Battle Storm:[(B)[Himeko,sword,BIO,aoe,knockdown,(paralyze)[QTE,knockback],(crit)[],gather,float,fire,charge,weaken,fracture,slow],(S)stun,(SS)ignite]",
+      "Kreigsmesser:[(A)[Himeko,sword,PSY,charge,ice,slow,aoe,knockdown,(ignite)[QTE],freeze],(SSS)slow]",
+      "Scarlet Fusion:[(A)[Himeko,sword,MECH,charge,float,lightning,paralyze],(S)[(fracture)[QTE],aoe,(ignite)[],(bleed)[]],(SS)bleed]",
+      "Valkyrie Triumph:[(A)[Himeko,sword,BIO,fracture,aoe,charge,stun,(freeze),(stun),(leader)[BIO]],(S)[(freeze)[QTE],heal]]",
       "Shadow Dash:[(B)[Mei,MECH]]",
       "Crimson Impulse:[]",
       "Valkyrie Chariot:[]",
@@ -197,21 +197,127 @@
     ];
 
     var dataWeapons = [
-      "Galactic Nova:[(Mei)[sparkling star,aoe]]",
-      "Jizo Mitama:[(Mei)[summon,float,(float)incr dmg,(coop)incr dmg]]",
-      "Lurker:[(Bronya)[charge,knockback,stun,incr move]]",
-      "Vanguard:[****,(Himeko)[aoe,float]]",
-      "Balmung:[*****,(Himeko)aoe]",
-      "Ai-chan's Hammer:[****,(Himeko)[aoe,knockback,stun]]",
-      "Proto Pulse Cleaver:[****,(Himeko)[]]",
-      "Ion Resonance:[****,(Himeko)[lightning,aoe,paralyze]]",
-      "Alloy Betrayer:[****,(Himeko)[range,aoe]]",
+      "Desert Eagle:[***,(pistol)[range,dmg+,pierce]]",
+      "Artemis' Guardian:[****,(pistol)[range,aoe,float,timelock]]",
+      "Water Spirit Type 1:[****,(pistol)[range,(float)dmg+]]",
+      "Xuanyuan Pistols:[****,(pistol)[range,lightning,pierce,impair,def-]]",
+      "Dark Suns:[****,(pistol)[range,dmg+,move+]]",
+      "Alloy Dominators:[****,(pistol)[range,aoe,fire]]",
+      "Fire Spirit Type 1:[***,(pistol)[range,ignite]]",
+      "Alloy Hurricanes:[****,(pistol)[range,aoe,ice]]",
+      "Colt Anaconda:[***,(pistol)[range,aoe,move-]]",
+      "Colt Peacemaker:[***,(pistol)[range,aoe,stun]]",
+      "Lightning Soul:[****,(katana)[melee,lightning]]",
+      "Galactic Nova:[*****,(katana)[melee,dmg+,lightningFX,(star)crit,star,aoe]]",
+      "Anemoi:[*****,(katana)[melee,float,ice,aoe,move+,move-]]",
+      "Jizo Mitama:[*****,(katana)[melee,summon,float,aoe,(float)dmg+]]",
+      "Crystal Edge:[****,(katana)[melee,aoe,freeze]]",
+      "Alloy Gluttony:[****,(katana)[melee,aoe,gather,stun]]",
+      "Alloy Anemoi:[****,(katana)[melee,aoe,float,ice]]",
+      "Muramasa Bloodlust:[***,(katana)[melee,summon,bleed]]",
+      "Willow:[***,(katana)[melee,aoe]]",
+      "Rosefinch:[***,(katana)[melee,fire]]",
+      "Flint Sanada:[*****,(cannon)[range,fire,aoe,speed+,charge]]",
+      "Lurker:[*****,(cannon)[range,knockback,stun,speed+,charge]]",
+      "Markov Type 4:[****,(cannon)[range,ignite,charge]]",
+      "Cathode Type 09:[****,(cannon)[range,pierce,paralyze]]",
+      "Alloy Lurker:[****,(cannon)[range,knockback]]",
+      "Raider Missiles:[****,(cannon)[range,charge,move+]]",
+      "Cathode Type 07:[****,(cannon)[range,pierce,move-]]",
+      "Alloy Devourer:[****,(cannon)[range,pierce,fire]]",
+      "MIG-7:[***,(cannon)[range,pierce]]",
+      "Lightning Angel:[****,(cross)[melee,lightning,aoe,paralyze]]",
+      "Hailstone:[***,(cross)[melee,ice,aoe,speed-]]",
+      "Oath of Ice:[***,(cross)[melee,ice]]",
+      "Cross:[**,(cross)[melee,aoe]]",
+      "Wotan's Fists:[*****,(gauntlet)[melee,gather,paralyze,float,def+,dmg+]]",
+      "Grips of Tai Xuan:[*****,(gauntlet)[melee,summon,fire,timelock,dmg+]]",
+      "Cas-II Namiko:[****,(gauntlet)[melee,pierce]]",
+      "Senescence:[*****,(scythe)[melee,aoe,bleed,(bleed)crit]]",
+      "Balmung:[*****,(sword)[melee,aoe,dmg+]]",
+      "Cleaver of Shamash:[*****,(sword)[melee,fire,dmg+,dmg-,heal]]",
+      "Vanguard:[****,(sword)[melee,float,aoe]]",
+      "AI-Chan's Hammer:[****,(sword)[melee,knockback,stun]]",
+      "Proto Pulse Cleaver:[****,(sword)[melee,dmg+]]",
+      "Alloy Betrayer:[****,(sword)[melee,range,aoe]]",
+      "Ion Resonance:[****,(sword)[melee,lightning,aoe,paralyze]]",
+      "Alloy Wotan's Cleaver:[****,(sword)[melee,aoe,fire]]",
+      "Hybred Type-27:[***,(sword)[melee,float]]"
     ];
 
     var dataStigmata = [
-      "Shakespeare (M):[fire,shakespeare,(shakespeare:x2)[evasion+,(PSY)[SP+]],(shakespeare:x3)[SP+]]",
-      "Shakespeare (T):[ice,shakespeare,(shakespeare:x2)[],(shakespeare:x3)[]]",
-      "Shakespeare (B):[ignite,shakespeare,(shakespeare:x2)[],(shakespeare:x3)[]]"
+      "Shakespeare (M):[*****,fire,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
+      "Himeko New Year (M):[*****,lucky new year,(fireworks)[aoe,heal,fire],(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
+      "Fu Hua New Year (T):[*****,lucky new year,fireworks,fire,(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
+      "Theresa New Year (B):[*****,lucky new year,(fireworks)[aoe,dmg+,fire],(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
+      "Cecilia Formals (T):[*****,reburn party,dmg+,crit,(reburn party:x2)[dmg+],(reburn party:x3)[aoe]]",
+      "Higokumaru Formals (M):[*****,reburn party,fire,lightning,ice,dmg-,(reburn party:x2)[dmg+],(reburn party:x3)[aoe]]",
+      "Celine (M):[*****,HoV,debuff-,dmg-,(HoV:x2)[(Mei)[crit,critdmg+],(Yae)[crit,critdmg+]],(HoV:x3)[dmg-,dmg+]]",
+      "Kepler (T):[*****,ruler of sky,(crit)[],aoe,dmg+,(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
+      "Theresa Overlord (B):[*****,homecoming theater,(crit)[],dmg+,move+,(homecoming theater:x2)[summon,dmg+,immune],(homecoming theater:x3)[dmg+,heal]]",
+      "Fu Hua Knight (M):[*****,homecoming theater,dmg+,(homecoming theater:x2)[summon,dmg+,immune],(homecoming theater:x3)[dmg+,heal]]",
+      "Ai-chan Memories (M):[*****,ice,heal]",
+      "Elizabeth Bathory (T):[****,vampiric countess,def+,(vampiric countess:x2)[(melee)[],(BIO)SP+],(vampiric countess:x3)[heal]]",
+      "Elizabeth Bathory (M):[****,vampiric countess,def+,(vampiric countess:x2)[(melee)[],(BIO)SP+],(vampiric countess:x3)[heal]]",
+      "Elizabeth Bathory (B):[****,vampiric countess,move+,(vampiric countess:x2)[(melee)[],(BIO)SP+],(vampiric countess:x3)[heal]]",
+      "Wang Zhaojhun (T):[****,frontier seductress,hp+,(frontier seductress:x2)[(range)dmg+,(PSY)SP+],(frontier seductress:x3)[SP+]]",
+      "Wang Zhaojhun (M):[****,frontier seductress,def+,(frontier seductress:x2)[(range)dmg+,(PSY)SP+],(frontier seductress:x3)[SP+]]",
+      "Attila (T):[****,scourge of god,speed+,(scourge of god:x2)[crit,(MECH)SP+],(scourge of god:x3)[crit]]",
+      "Attila (M):[****,scourge of god,def+,(scourge of god:x2)[crit,(MECH)SP+],(scourge of god:x3)[crit]]",
+      "Attila (B):[****,scourge of god,dmg+,(scourge of god:x2)[crit,(MECH)SP+],(scourge of god:x3)[crit]]",
+
+      "Rinaldo (B):[****,berserk knight,(crit)[],heal,(berserk knight:x2)[crit],(berserk knight:x3)[critdmg+]]",
+      "Rinaldo (M):[****,berserk knight,aoe,paralyze,(berserk knight:x2)[crit],(berserk knight:x3)[critdmg+]]",
+      "Ryunosuke  Akutagawa (T):[****,writer,dmg+,(writer:x2)[shield,crit],(writer:x3)[(melee)dmg+]]",
+      "Ryunosuke  Akutagawa (M):[****,writer,crit,(writer:x2)[shield,crit],(writer:x3)[(melee)dmg+]]",
+      "Ryunosuke  Akutagawa (B):[****,writer,speed+,(writer:x2)[shield,crit],(writer:x3)[(melee)dmg+]]",
+      "Mei Diva (M):[****,crit,(mei)crit]",
+      "Nikola Tesla (T):[****,sine twin tails,(paralyze)dmg+,(sine twin tails:x2)[dmg+],(sine twin tails:x3)[lightning]]",
+      "Nikola Tesla (B):[****,sine twin tails,(stun)dmg+,(sine twin tails:x2)[dmg+],(sine twin tails:x3)[lightning]]",
+      "Sakamoto Ryoma (T):[****,sentyu hassaku,(charge)dmg+,(sentyu hassaku:x2)[dmg+],(sentyu hassaku:x3)[debuff-]]",
+      "Edison (T):[****,inventor,lightning,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
+      "Edison (M):[****,inventor,shield,(inventor:x2)[],(inventor:x3)][]",
+      "Edison (B):[****,inventor,slow,speed+,(inventor:x2)[],(inventor:x3)][]",
+      "Naoe Kanetsugu (T):[****,niou dachi,dmg+,crit,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
+      "Naoe Kanetsugu (M):[****,niou dachi,fire-,dmg+,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
+      "Naoe Kanetsugu (B):[****,niou dachi,heal,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
+      "Kiana Summer Surf (T):[****,summer surf(range)dmg+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Theresa Summer Surf (M):[****,summer surf,(range)crit,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Himeko Summer Surf (B):[****,summer surf,dmg-,hp+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Teri Teri (M):[****,dmg-]",
+      "Shigure Kira (T):[****,solar prominence,(fire)dmg+,(ice)dmg+,(lightning)dmg+,(solar prominence:x2)[dmg-],(solar prominence:x3)[dmg+]]",
+      "Shigure Kira (B):[****,solar prominence,fire,ice,lightning,(solar prominence:x2)[dmg-],(solar prominence:x3)[dmg+]]",
+      "Winter Princess (T):[****,dmg+,(kiana)freeze]",
+      "Himeko Winter (M):[****,hp+,(himeko)[slow,ignite,weaken,impair]]",
+      "Himeko Christmas (T):[****,santa claus,move+,(himeko)move+,(santa claus:x2)[(charge)dmg+],(santa claus:x3)[dmg+,(himeko)dmg+]]",
+      "Himeko Christmas (M):[****,santa claus,speed-,(santa claus:x2)[(charge)dmg+],(santa claus:x3)[dmg+,(himeko)dmg+]]",
+      "Himeko Christmas (B):[****,santa claus,jinglebell,sp+,(himeko)sp+,(santa claus:x2)[(charge)dmg+],(santa claus:x3)[dmg+,(himeko)dmg+]]",
+      "Charlemagne (B):[****,charles the great,move+,(charles the great:x2)[atk-,def-],(charles the great:x3)[dmg+,(mei)hp+,(yae)hp+]]",
+      "Galileo (M):[****,stargazer,dmg+,(float)dmg+,(stargazer:x2)[(melee)crit],(stargazer:x3)[bleed-]]",
+      "Eternal Love (M):[****,hp+,(kiana)[(mei)dmg+],(mei)[(kiana)dmg+]]",
+      "Himeko New Year (B):[****,envelope,heal]",
+      "Himeko Tuition (M):[****,dmg+,(kiana)crit]",
+      "Hannah (T):[***,teutonic order,(switch)dmg+,(QTE)dmg+,(teutonic order:x2)[(melee)dmg+,(kiana)hp+,(kallen)hp+],(teutonic order:x3)[speed+]]",
+      "Hannah (M):[***,teutonic order,(switch)dmg+,(QTE)dmg+,(teutonic order:x2)[(melee)dmg+,(kiana)hp+,(kallen)hp+],(teutonic order:x3)[speed+]]",
+      "Hannah (B):[***,teutonic order,(switch)dmg+,(QTE)dmg+,(teutonic order:x2)[(melee)dmg+,(kiana)hp+,(kallen)hp+],(teutonic order:x3)[speed+]]",
+      "Viola (T):[***,knight hospitaller,hp+,(knight hospitaller:x2)[dmg+],(knight hospitaller:x3)[move+]]",
+      "Viola (M):[***,knight hospitaller,hp+,(knight hospitaller:x2)[dmg+],(knight hospitaller:x3)[move+]]",
+      "Viola (B):[***,knight hospitaller,hp+,(knight hospitaller:x2)[dmg+],(knight hospitaller:x3)[move+]]",
+      "Victoria (T):[***,exiled knight,(melee)dmg+,(exiled knight:x2)[SP+,(himeko)hp+],(exiled knight:x3)[crit]]",
+      "Victoria (M):[***,exiled knight,(melee)dmg+,(exiled knight:x2)[SP+,(himeko)hp+],(exiled knight:x3)[crit]]",
+      "Victoria (B):[***,exiled knight,(melee)dmg+,(exiled knight:x2)[SP+,(himeko)hp+],(exiled knight:x3)[crit]]",
+      "Octavia (T):[***,schicksal order,(combo)dmg+,(schicksal order:x2)[critdmg+,(mei)hp+,(yae)hp+],(schicksal order:x3)[pickup+]]",
+      "Octavia (M):[***,schicksal order,(combo)dmg+,(schicksal order:x2)[critdmg+,(mei)hp+,(yae)hp+],(schicksal order:x3)[pickup+]]",
+      "Octavia (B):[***,schicksal order,(combo)dmg+,(schicksal order:x2)[critdmg+,(mei)hp+,(yae)hp+],(schicksal order:x3)[pickup+]]",
+      "Lucia (T):[***,knight templar,(charge)dmg+,(knight templar:x2)[(range)dmg+,(bronya)hp+],(knight templar:x3)[def+]]",
+      "Lucia (M):[***,knight templar,(charge)dmg+,(knight templar:x2)[(range)dmg+,(bronya)hp+],(knight templar:x3)[def+]]",
+      "Lucia (B):[***,knight templar,(charge)dmg+,(knight templar:x2)[(range)dmg+,(bronya)hp+],(knight templar:x3)[def+]]",
+      "Charlotte (T):[**,hooded archer,(:x2)[dmg+],(:x3)[def+]]",
+      "Charlotte (M):[**,hooded archer,(:x2)[dmg+],(:x3)[def+]]",
+      "Charlotte (B):[**,hooded archer,(:x2)[dmg+],(:x3)[def+]]",
+      "Selena (T):[**,swordsman,(:x2)[(melee)dmg+],(:x3)[hp+]]",
+      "Selena (M):[**,swordsman,(:x2)[(melee)dmg+],(:x3)[hp+]]",
+      "Selena (B):[**,swordsman,(:x2)[(melee)dmg+],(:x3)[hp+]]"
     ];
 
     var Valks = [];
@@ -296,9 +402,17 @@
       {
         let buf = "";
         let data = this.getData();
+        let revMap = {} // a reverse map of name:index
+        let names = [] // a list of the names so we can sort it
         for (let i in this.results)
         {
-          buf += "<div id='" + this.elemResult + this.results[i] + "' onmouseover='obj(this).hilite(" + this.results[i] + ")' onclick='obj(this).pick(" + this.results[i] + ")'>" + data[this.results[i]].name + "</div>";
+          revMap[data[this.results[i]].name] = this.results[i];
+          names.push(data[this.results[i]].name);
+        }
+        names.sort();
+        for (let i in names)
+        {
+          buf += "<div id='" + this.elemResult + revMap[names[i]] + "' onmouseover='obj(this).hilite(" + revMap[names[i]] + ")' onclick='obj(this).pick(" + revMap[names[i]] + ")'>" + names[i] + "</div>";
         }
 
         document.getElementById(this.divSelect).innerHTML = buf;
@@ -667,7 +781,7 @@
       }
     };
 
-    ftuestep = 1;
+    ftuestep = 1000;
 
     class App
     {
@@ -680,9 +794,12 @@
         this.Set[1] = new Set(1);
         this.Set[2] = new Set(2);
 
+        this.All.allowEverything();
         for (let i in dataValks) { let o = parseObject(dataValks[i]); this.All.processItem(o); Valks.push(o); }
         for (let i in dataWeapons) { let o = parseObject(dataWeapons[i]); this.All.processItem(o); Weapons.push(o); }
         for (let i in dataStigmata) { let o = parseObject(dataStigmata[i]); this.All.processItem(o); Stigmata.push(o); }
+        this.All.resolveIf();
+        this.propSearch();
       }
 
       stopTutorial()
@@ -745,9 +862,15 @@
     {
       props = {};
       ifs = [];
+      everything = false;
 
       constructor()
       {
+      }
+
+      allowEverything()
+      {
+        this.everything = true;
       }
 
       getPropsMatching(name)
@@ -757,7 +880,7 @@
         {
           if (i.toLowerCase().indexOf(name.toLowerCase()) != -1) result.push(i);
         }
-        return result;
+        return result.sort();
       }
 
       has(key) { return this.props[key]; }
@@ -775,6 +898,7 @@
         if (set.Valk.root)
         {
           // special case - valk rank
+          if (set.Valk.id == 0) { this.setProp("leader"); }
           if (set.Valk.rank == "B")   { this.setProp("B"); }
           if (set.Valk.rank == "A")   { this.setProp("B"); this.setProp("A");  }
           if (set.Valk.rank == "S")   { this.setProp("B"); this.setProp("A"); this.setProp("S"); }
@@ -786,12 +910,27 @@
         if (set.TStig.root) this.processItem(set.TStig.root);
         if (set.BStig.root) this.processItem(set.BStig.root);
         if (set.MStig.root) this.processItem(set.MStig.root);
+        this.resolveIf();
+      }
+
+      resolveIf()
+      {
         while (this.processIf()) { }
       }
 
       processItem(obj)
       {
-        for (let i in obj.props) this.processProp(obj.props[i]);
+        for (let i in obj.props)
+        {
+          if (obj.props[i].if)
+          {
+            this.ifs.push(obj.props[i]);
+          }
+          else
+          {
+            this.processProp(obj.props[i]);
+          }
+        }
       }
 
       processProp(item)
@@ -820,7 +959,7 @@
         for (let i in this.ifs)
         {
           if (!this.ifs[i]) continue;
-          if (this.props[this.ifs[i].if])
+          if (this.everything || this.props[this.ifs[i].if])
           {
             this.processProp(this.ifs[i]);
             ret = true;
