@@ -276,12 +276,12 @@
       "Nikola Tesla (B):[****,sine twin tails,(stun)dmg+,(sine twin tails:x2)[dmg+],(sine twin tails:x3)[lightning]]",
       "Sakamoto Ryoma (T):[****,sentyu hassaku,(charge)dmg+,(sentyu hassaku:x2)[dmg+],(sentyu hassaku:x3)[debuff-]]",
       "Edison (T):[****,inventor,lightning,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
-      "Edison (M):[****,inventor,shield,(inventor:x2)[],(inventor:x3)][]",
-      "Edison (B):[****,inventor,slow,speed+,(inventor:x2)[],(inventor:x3)][]",
+      "Edison (M):[****,inventor,shield,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
+      "Edison (B):[****,inventor,slow,speed+,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
       "Naoe Kanetsugu (T):[****,niou dachi,dmg+,crit,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
       "Naoe Kanetsugu (M):[****,niou dachi,fire-,dmg+,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
       "Naoe Kanetsugu (B):[****,niou dachi,heal,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
-      "Kiana Summer Surf (T):[****,summer surf(range)dmg+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Kiana Summer Surf (T):[****,summer surf,(range)dmg+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
       "Theresa Summer Surf (M):[****,summer surf,(range)crit,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
       "Himeko Summer Surf (B):[****,summer surf,dmg-,hp+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
       "Teri Teri (M):[****,dmg-]",
@@ -825,6 +825,34 @@
         this.propSearch();
       }
 
+      help()
+      {
+        alert("Explaination of Terms\n\
+\n\
+Most properties should be self explainatory, but these might need some explaination.\n\
+          CD+ - cooldowns are somehow improved\n\
+          SP+ - usage of SP is somehow improved\n\
+          aoe - affects a large area\n\
+          atk- - monster's attacks are reduced\n\
+          bleed- - effects of bleeding on valks is reduced\n\
+          crit - change of crit\n\
+          debuff- - effects of debuff on valks is reduced\n\
+          def+ - increased defense\n\
+          def- - monster's defense reduced\n\
+          dmg+ - increased damage\n\
+          dmg- - monster's damage reduced\n\
+          dot - damage ofer time, like bleed\n\
+          fire- - reduced damage on valks from fire\n\
+          float - toss enemies in the air\n\
+          gather - attract enemies\n\
+          move+ - valk's movement speed increased\n\
+          move- - moster's movement speed reduced\n\
+          speed+ - valk's attack speed increased\n\
+          speed- - monster's attack speed reduced\n\
+          rescue - revivie dead valks\n\
+");
+      }
+
       stopTutorial()
       {
         ftuestep = 99;
@@ -1085,6 +1113,7 @@
     <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/><select id="presult"></select>
     <button onclick="app.searchProp();">Search</button><br />
+    <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
   </div>
   <div style="position: absolute; top:130px">
   <table class="blueTable">
