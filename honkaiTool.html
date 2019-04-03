@@ -182,18 +182,19 @@
       "Shadow Dash:[(B)[Mei,katana,MECH],(A)[combo,float,switch,(stun)QTE,summon,aoe,paralyze,crit],(S)[(leader)crit,(stun)dmg+,(paralyze)dmg+,(timeslow)dmg+],(SS)[summon,crit],(SSS)[SP+,summon]]",
       "Crimson Impulse:[(B)[Mei,katana,BIO],(A)[combo,float,(float)[QTE],fire,aoe,bleed,fracture,crit,(leader)dmg+],(S)[],(SS)[SP+,dmg+],(SSS)[dmg+]]",
       "Valkyrie Chariot:[(B)[Bronya,cannon,PSY],(A)[switch,float,(stun)[QTE,float,timelock,charge,block,],gather,bleed,aoe,ignite,fire,(ignite)dmg+,fracture,(stun)dmg+,(paralyze)dmg+,leader(dmg-)],(S)[stun,aoe,crit],(SS)[CD+],(SSS)[dmg+]]",
-      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,float,timelock,(timeslow)dmg+,(timelock)bleed,(parazyle)[QTE,fire,float,timelock],gather,charge,fire,paralyze,crit,move+],(SS)[SP+,(leader)[(MECH)dmg+]],(SSS)[(leader)[(Mei)crit,(Kiana)crit]]]",
+      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,float,timelock,(timeslow)dmg+,(timelock)bleed,(paralyze)[QTE,fire,float,timelock],gather,charge,fire,paralyze,crit,move+],(SS)[SP+,(leader)[(MECH)dmg+]],(SSS)[(leader)[(Mei)crit,(Kiana)crit]]]",
       "Yamabuki Armor:[(B)[Bronya,cannon,PSY],(A)[switch,float,(timeslow)[QTE,stun],ironbody,(impair)[timelock,(Fu Hua)heal],aoe,impair,charge,fracture,fire,shield,lightning],(S)[def+,(leader)[(combo)crit,(PSY)crit]],(SS)[SP+],(SSS)[heal]]",
       "Snowy Sniper:[(B)[Bronya,cannon,BIO],(A)[switch,move+,(float)[QTE,aoe,freeze],freeze,ice,charge,move-,speed-],(S)[(leader)CD+],(SS)[timelock,critdmg+],(SSS)[crit]]",
       "Wolf's Dawn:[(B)[Bronya,cannon,PSY],(A)[switch,(timeslow)[QTE,stun],stun,timelock,charge,aoe,weaken,fracture,float,shield],(S)[def+,(leader)[crit,(PSY)critdmg+]],(SS)[SP+,dmg+],(SSS)[gather]]",
       "Valkyrie Pledge:[(B)[Theresa,cross,PSY],(A)[],(S)[],(SS)[],(SSS)[]]",
+      "Celestial Hymn:[(B)[Theresa,cross,BIO],(S)[],(SS)[],(SSS)[]]",
       "Luna Kindred:[(B)[Theresa,cross,BIO],(A)[],(S)[],(SS)[],(SSS)[]]",
       "Night Squire:[(B)[Fu Hua,gauntlet,BIO],(A)[],(S)[],(SS)[],(SSS)[]]",
-      "Umbral Rose:[(B)[Rita,scythe,PSY],(A)[],(S)[],(SS)[],(SSS)[]]",
-      "Gyakushinn Miko:[(B)[Yae,katana,BIO],(A)[],(S)[],(SS)[],(SSS)[]]",
+      "Umbral Rose:[(B)[Rita,scythe,PSY],(S)[],(SS)[],(SSS)[]]",
+      "Gyakushinn Miko:[(B)[Yae,katana,BIO],(S)[],(SS)[],(SSS)[]]",
       "Flame Sakitama:[(B)[Yae,katana,BIO],(A)[],(S)[],(SS)[],(SSS)[]]",
-      "Sundenjager:[(B)[Kallen,pistol,MECH],(A)[],(S)[],(SS)[],(SSS)[]]",
-      "Ritual Imayoh:[(B)[Kallen,pistol,MECH],(A)[],(S)[],(SS)[],(SSS)[]]"
+      "Sundenjager:[(B)[Kallen,pistol,MECH],(S)[],(SS)[],(SSS)[]]",
+      "Ritual Imayoh:[(B)[Kallen,pistol,MECH](S)[],(SS)[],(SSS)[]]"
     ];
 
     var dataWeapons = [
@@ -460,7 +461,7 @@
       {
         if (!item.if) return true;
         // special case - things that can come from other team mates
-        if (["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya","Rita","Himeko","Yae","Kallen"].includes(item.if))
+        if (["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya","Rita","Himeko","Yae","Kallen","timeslow","timelock","bleed","freeze","stun","ignite","slow","paralyze","impair","fracture"].includes(item.if))
         {
           if (app.Set[0].Res.has(item.if)) return true;
           if (app.Set[1].Res.has(item.if)) return true;
