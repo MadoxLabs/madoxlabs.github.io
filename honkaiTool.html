@@ -174,16 +174,16 @@
       "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[dmg+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
       "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
       "Valkyrie Ranger:[(B)[Kiana,pistol,MECH],(A)[combo,pierce,stun,dmg+,speed+,bleed,(freeze)[QTE,aoe,impair],gather],(S)[fire,(leader)[speed+,(MECH)[speed+]],(SS)[def+,crit,(freeze)[crit]],(SSS)[crit]]",
-      "Herrscher of the Void:[(B)[Kiana,pistol,BIO],(A)[],(S)[aoe,time prison,speed+,(timeslow)QTE,(timelock)QTE,crit,dmg+,gather,timeslow,dmg-],(SS)[crit,(leader)[crit,critdmg+]],(SSS)[fracture]]",
+      "Herrscher of the Void:[(B)[Kiana,pistol,BIO],(S)[aoe,time prison,speed+,(timeslow)QTE,(timelock)QTE,crit,dmg+,gather,timeslow,dmg-],(SS)[crit,(leader)[crit,critdmg+]],(SSS)[fracture]]",
       "Battle Storm:[(B)[Himeko,sword,BIO,switch,charge,aoe,knockdown,float,gather,weaken,atk-,fracture,move+,slow,(leader)dmg-],(A)[(paralyze)[QTE,aoe,knockback],(crit)[],fire],(S)[dmg-,stun],(SS)[ignite],(SSS)[stun]]",
       "Kreigsmesser:[(B)[Himeko,sword,PSY],(A)[charge,switch,aoe,knockdown,(ignite)[QTE,ice,freeze],ice,freeze,slow,(leader)[(PSY)dmg+]],(S)[ice,(move-)dmg+,(speed-)dmg+]]",
       "Scarlet Fusion:[(B)[Himeko,sword,MECH],(A)[charge,combo,float,lightning,switch,pierce,aoe,paralyze],(S)[aoe,paralyze,(timelock)[QTE,paralyze,lightning],(timeslow)[QTE,paralyze,lightning],(bleed)dmg+,(leader)[(switch)dmg+]],(SS)[bleed],(SSS)[paralyze]]",
       "Valkyrie Triumph:[(B)[Himeko,sword,BIO],(A)[switch,timeslow,aoe,charge,stun,(freeze),(stun),(leader)[dmg+,(BIO)def+]],(S)[(freeze)[QTE],heal]]",
       "Shadow Dash:[(B)[Mei,katana,MECH],(A)[combo,float,switch,(stun)QTE,summon,aoe,paralyze,crit],(S)[(leader)crit,(stun)dmg+,(paralyze)dmg+,(timeslow)dmg+],(SS)[summon,crit],(SSS)[SP+,summon]]",
       "Crimson Impulse:[(B)[Mei,katana,BIO],(A)[combo,float,(float)[QTE],fire,aoe,bleed,fracture,crit,(leader)dmg+],(S)[],(SS)[SP+,dmg+],(SSS)[dmg+]]",
-      "Valkyrie Chariot:[(B)[Bronya,cannon,PSY],(A)[],(S)[],(SS)[],(SSS)[]]",
-      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(A)[],(S)[],(SS)[],(SSS)[]]",
-      "Yamabuki Armor:[(B)[Bronya,cannon,PSY],(A)[],(S)[],(SS)[],(SSS)[]]",
+      "Valkyrie Chariot:[(B)[Bronya,cannon,PSY],(A)[switch,float,(stun)[QTE,float,timelock,charge,block,],gather,bleed,aoe,ignite,fire,(ignite)dmg+,fracture,(stun)dmg+,(paralyze)dmg+,leader(dmg-)],(S)[stun,aoe,crit],(SS)[CD+],(SSS)[dmg+]]",
+      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,float,timelock,(timeslow)dmg+,(timelock)bleed,(parazyle)[QTE,fire,float,timelock],gather,charge,fire,paralyze,crit,move+],(SS)[SP+,(leader)[(MECH)dmg+]],(SSS)[(leader)[(Mei)crit,(Kiana)crit]]]",
+      "Yamabuki Armor:[(B)[Bronya,cannon,PSY],(A)[switch,float,(timeslow)[QTE,stun],ironbody,(impair)[timelock,(Fu Hua)heal],aoe,impair,charge,fracture,fire,shield,lightning],(S)[def+,(leader)[(combo)crit,(PSY)crit]],(SS)[SP+],(SSS)[heal]]",
       "Snowy Sniper:[(B)[Bronya,cannon,BIO],(A)[switch,move+,(float)[QTE,aoe,freeze],freeze,ice,charge,move-,speed-],(S)[(leader)CD+],(SS)[timelock,critdmg+],(SSS)[crit]]",
       "Wolf's Dawn:[(B)[Bronya,cannon,PSY],(A)[switch,(timeslow)[QTE,stun],stun,timelock,charge,aoe,weaken,fracture,float,shield],(S)[def+,(leader)[crit,(PSY)critdmg+]],(SS)[SP+,dmg+],(SSS)[gather]]",
       "Valkyrie Pledge:[(B)[Theresa,cross,PSY],(A)[],(S)[],(SS)[],(SSS)[]]",
@@ -243,9 +243,12 @@
       "Ion Resonance:[****,(sword)[melee,lightning,aoe,paralyze]]",
       "Alloy Wotan's Cleaver:[****,(sword)[melee,aoe,fire]]",
       "Hybred Type-27:[***,(sword)[melee,float]]"
+      cross
+      cross
     ];
 
     var dataStigmata = [
+      otto
       "Shakespeare (M):[*****,fire,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
       "Himeko New Year (M):[*****,lucky new year,(fireworks)[aoe,heal,fire],(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
       "Fu Hua New Year (T):[*****,lucky new year,fireworks,fire,(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
@@ -454,8 +457,8 @@
       isSatisfied(item)
       {
         if (!item.if) return true;
-        // special case - valk types
-        if (["BIO", "MECH", "PSY"].includes(item.if))
+        // special case - things that can come from other team mates
+        if (["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya","Rita","Himeko","Yae","Kallen"].includes(item.if))
         {
           if (app.Set[0].Res.has(item.if)) return true;
           if (app.Set[1].Res.has(item.if)) return true;
