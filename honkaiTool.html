@@ -194,7 +194,7 @@
       "Gyakushinn Miko:[(B)[Yae,katana,BIO],(S)[],(SS)[],(SSS)[]]",
       "Flame Sakitama:[(B)[Yae,katana,BIO],(A)[],(S)[],(SS)[],(SSS)[]]",
       "Sundenjager:[(B)[Kallen,pistol,MECH],(S)[],(SS)[],(SSS)[]]",
-      "Ritual Imayoh:[(B)[Kallen,pistol,MECH](S)[],(SS)[],(SSS)[]]"
+      "Ritual Imayoh:[(B)[Kallen,pistol,MECH],(S)[],(SS)[],(SSS)[]]"
     ];
 
     var dataWeapons = [
@@ -486,17 +486,24 @@
         if (this.resultCursor > 0) this.pick(this.results[this.resultCursor - 1]);
       }
 
+      extraPick()
+      {
+
+      }
+
       pick(index)
       {
         let data = this.getData();
         this.root = data[index];
-        for (let i in this.results) { if (this.results[i] == index) this.resultCursor = i|0; }
+        this.extraPick();
+        for (let i in this.results) { if (this.results[i] == index) this.resultCursor = i | 0; }
+
+        app.Set[this.id].Res.resolve(app.Set[this.id]);
+
         let buf = "Name: " + this.root.name + this.extraControls();
         buf += "<div id='" + this.divSelect + "Props'></div>";
         buf += "<br><button id='" + this.elemResult + "reset' onclick='obj(this).reset()'>Reset</button>";
         document.getElementById(this.divMode).innerHTML = buf;
-
-        app.Set[this.id].Res.resolve(app.Set[this.id]);
 
         this.draw();
         this.resetExtra();
@@ -717,9 +724,17 @@
         }
       }
 
+      extraPick()
+      {
+        this.rank = "A";
+        if (!this.hasProp("A", this.root)) { this.rank = "S"; }
+      }
+
       extraControls()
       {
-        return "<br>Rank: <span id=\"valkRank" + this.id + "\"><b>A</b></span> <input class='slider' oninput = 'obj(this).setrank()' type=\"range\" min=\"1\" max=\"5\" value=\"2\" id=\"valkRankSelect" + this.id + "\"><br><br>";
+        let num = 2;
+        if (!this.rank == 'S') { num = 3; }
+        return "<br>Rank: <span id=\"valkRank" + this.id + "\"><b>"+this.rank+"</b></span> <input class='slider' oninput = 'obj(this).setrank()' type=\"range\" min=\"1\" max=\"5\" value=\""+num+"\" id=\"valkRankSelect" + this.id + "\"><br><br>";
       }
     };
 
