@@ -194,7 +194,8 @@
       "Gyakushinn Miko:[(B)[Yae,katana,BIO],(S)[],(SS)[],(SSS)[]]",
       "Flame Sakitama:[(B)[Yae,katana,BIO],(A)[],(S)[],(SS)[],(SSS)[]]",
       "Sundenjager:[(B)[Kallen,pistol,MECH],(S)[],(SS)[],(SSS)[]]",
-      "Ritual Imayoh:[(B)[Kallen,pistol,MECH],(S)[],(SS)[],(SSS)[]]"
+      "Ritual Imayoh:[(B)[Kallen,pistol,MECH],(S)[],(SS)[],(SSS)[]]",
+      "Black Nucleus:[(B)[Bronya,cannon,MECH],(S)[],(SS)[],(SSS)[]]"
     ];
 
     var dataWeapons = [
@@ -380,6 +381,7 @@
 
       search()
       {
+        let onlyme = document.getElementById("myfilter").checked;
         let query = document.getElementById(this.elemSearch).value.toLowerCase();
 
         document.getElementById(this.elemResult + "query").innerText = "'" + query + "'";
@@ -391,6 +393,8 @@
           let data = this.getData();
           for (let i in data)
           {
+            if (onlyme && app.Collection.has(data[i].name) == false) continue;
+
             if (this.searchFilter && data[i].name.indexOf(this.searchFilter) == -1) continue;
 
             if (data[i].name.toLowerCase().indexOf(query) != -1)
@@ -461,7 +465,7 @@
       {
         if (!item.if) return true;
         // special case - things that can come from other team mates
-        if (["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya","Rita","Himeko","Yae","Kallen","timeslow","timelock","bleed","freeze","stun","ignite","slow","paralyze","impair","fracture"].includes(item.if))
+        if (["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "slow", "paralyze", "impair", "fracture"].includes(item.if))
         {
           if (app.Set[0].Res.has(item.if)) return true;
           if (app.Set[1].Res.has(item.if)) return true;
@@ -478,7 +482,7 @@
 
       next()
       {
-        if (this.resultCursor < this.results.length-1) this.pick(this.results[this.resultCursor + 1]);
+        if (this.resultCursor < this.results.length - 1) this.pick(this.results[this.resultCursor + 1]);
       }
 
       prev()
@@ -516,8 +520,8 @@
 
         if (this.root.name == "Galactic Nova")
         {
-          app.pointAt(6,this.elemProp + "0", "This is a Mei weapon, so its red.<br>It's properties are greyed out");
-          setTimeout(function () { app.pointAt(7,"0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
+          app.pointAt(6, this.elemProp + "0", "This is a Mei weapon, so its red.<br>It's properties are greyed out");
+          setTimeout(function () { app.pointAt(7, "0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
         }
 
         if (this.root.name == "Ion Resonance")
@@ -528,8 +532,8 @@
 
         if (this.root.name == "Battle Storm")
         {
-          app.pointAt(2,this.elemProp + "16", "This is a list of her properties.<br>S rank is red because she is rank A.");
-          setTimeout(function () { app.pointAt(3,"valkRankSelect0", "Drag the Rank slider to make her Rank S.") }, 5000);
+          app.pointAt(2, this.elemProp + "16", "This is a list of her properties.<br>S rank is red because she is rank A.");
+          setTimeout(function () { app.pointAt(3, "valkRankSelect0", "Drag the Rank slider to make her Rank S.") }, 5000);
         }
       }
 
@@ -619,6 +623,7 @@
 
       handleQuery(key)
       {
+        let onlyme = document.getElementById("myfilter").checked;
         document.getElementById(this.elemResult + "query").innerText = "'" + key + "'";
 
         let buf = "";
@@ -629,9 +634,10 @@
           let data = this.getData();
           for (let i in data)
           {
+            if (onlyme && app.Collection.has(data[i].name) == false) continue;
             if (this.searchFilter && data[i].name.indexOf(this.searchFilter) == -1) continue;
 
-            if (this.hasProp(key,data[i]))
+            if (this.hasProp(key, data[i]))
             {
               this.results.push(i);
             }
@@ -703,13 +709,13 @@
         let elem = document.getElementById("valkRankSelect" + this.id);
         if (elem)
         {
-          switch (elem.value|0)
+          switch (elem.value | 0)
           {
             case 1: this.rank = "B"; break;
             case 2: this.rank = "A"; break;
             case 3: {
-              this.rank = "S"; app.pointAt(4,this.elemProp + "16", "Now she is S Rank! More properties appear.");
-              setTimeout(function () { app.pointAt(5,app.Set[0].Weap.elemSearch, "Now lets search for 'Galactic Nova'!") },5000);
+              this.rank = "S"; app.pointAt(4, this.elemProp + "16", "Now she is S Rank! More properties appear.");
+              setTimeout(function () { app.pointAt(5, app.Set[0].Weap.elemSearch, "Now lets search for 'Galactic Nova'!") }, 5000);
               break;
             }
             case 4: this.rank = "SS"; break;
@@ -734,7 +740,7 @@
       {
         let num = 2;
         if (!this.rank == 'S') { num = 3; }
-        return "<br>Rank: <span id=\"valkRank" + this.id + "\"><b>"+this.rank+"</b></span> <input class='slider' oninput = 'obj(this).setrank()' type=\"range\" min=\"1\" max=\"5\" value=\""+num+"\" id=\"valkRankSelect" + this.id + "\"><br><br>";
+        return "<br>Rank: <span id=\"valkRank" + this.id + "\"><b>" + this.rank + "</b></span> <input class='slider' oninput = 'obj(this).setrank()' type=\"range\" min=\"1\" max=\"5\" value=\"" + num + "\" id=\"valkRankSelect" + this.id + "\"><br><br>";
       }
     };
 
@@ -766,7 +772,7 @@
         if (this.id != 2) app.Set[2].Valk.draw();
 
         if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
-          app.pointAt(8,app.Set[0].Valk.elemProp + "1", "Now click on Himeko's name to search for her weapons.");
+          app.pointAt(8, app.Set[0].Valk.elemProp + "1", "Now click on Himeko's name to search for her weapons.");
 
         app.pointAt(12, "0prop5", "Battle Storm can make use of the paralyze skill.<br>It is red because nothing is providing the paralyze skill<br>Lets search for something. Click 'paralyze'");
 
@@ -845,10 +851,93 @@
 
     ftuestep = 1000;
 
+    class Collection
+    {
+      items = { Valks: {}, Weapons: {}, Stigmata: {} };
+
+      constructor()
+      {
+
+      }
+
+      has(name)
+      {
+        if (this.items.Valks[name]) return true;
+        if (this.items.Weapons[name]) return true;
+        if (this.items.Stigmata[name]) return true;
+        return false;
+      }
+
+      load()
+      {
+        let data = localStorage.getItem("ValkTool");
+        if (data) this.items = JSON.parse(data);
+      }
+
+      save()
+      {
+        let data = JSON.stringify(this.items);
+        localStorage.setItem("ValkTool", data);
+      }
+
+      view()
+      {
+        let bufV = "";
+        let bufW = "";
+        let bufST = "";
+        let bufSM = "";
+        let bufSB = "";
+
+        for (let i in this.items.Valks) bufV += i + "<br>";
+        for (let i in this.items.Weapons) bufW += i + "<br>";
+        for (let i in this.items.Stigmata)
+        {
+          if (i.indexOf("(T)") >=0) bufST += i + "<br>";
+          if (i.indexOf("(M)") >=0) bufSM += i + "<br>";
+          if (i.indexOf("(B)") >=0) bufSB += i + "<br>";
+        }
+        return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB } };
+      }
+
+      edit()
+      {
+        let bufV = "";
+        let bufW = "";
+        let bufST = "";
+        let bufSM = "";
+        let bufSB = "";
+
+        for (let i in Valks)
+          bufV += "<input type=checkbox id='valk" + i + "' value='true' " + (this.items.Valks[Valks[i].name] ? "checked" : "") + ">" + Valks[i].name + "<br>";
+        for (let i in Weapons)
+          bufW += "<input type=checkbox id='weap" + i + "' value='true' " + (this.items.Weapons[Weapons[i].name] ? "checked" : "") + ">" + Weapons[i].name + "<br>";
+        for (let i in Stigmata)
+        {
+          if (Stigmata[i].name.indexOf("(T)") >=0) bufST += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+          if (Stigmata[i].name.indexOf("(M)") >= 0) bufSM += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+          if (Stigmata[i].name.indexOf("(B)") >= 0) bufSB += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+        }
+        return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB }  };
+      }
+
+      update()
+      {
+        this.items = { Valks: {}, Weapons: {}, Stigmata: {} };
+        for (let i in Valks)
+          if (document.getElementById("valk" + i).checked) this.items.Valks[Valks[i].name] = true;
+        for (let i in Weapons)
+          if (document.getElementById("weap" + i).checked) this.items.Weapons[Weapons[i].name] = true;
+        for (let i in Stigmata)
+          if (document.getElementById("stig" + i).checked) this.items.Stigmata[Stigmata[i].name] = true;
+        this.save();
+      }
+    };
+
     class App
     {
       Set = [];
       All = new Resolver();
+      Collection = new Collection();
 
       constructor()
       {
@@ -862,6 +951,69 @@
         for (let i in dataStigmata) { let o = parseObject(dataStigmata[i]); this.All.processItem(o); Stigmata.push(o); }
         this.All.resolveIf();
         this.propSearch();
+        this.Collection.load();
+      }
+
+      saveMyCollection()
+      {
+        this.Collection.update();
+        this.Collection.save();
+        this.Set[0].reset();
+        this.Set[1].reset();
+        this.Set[2].reset();
+      }
+
+      editMyCollection()
+      {
+        document.getElementById("valkMode0").innerHTML = "";
+        document.getElementById("weapMode0").innerHTML = "";
+        document.getElementById("TstigMode0").innerHTML = "";
+        document.getElementById("BstigMode0").innerHTML = "";
+        document.getElementById("MstigMode0").innerHTML = "";
+        document.getElementById("valkMode1").innerHTML = "";
+        document.getElementById("weapMode1").innerHTML = "";
+        document.getElementById("TstigMode1").innerHTML = "";
+        document.getElementById("BstigMode1").innerHTML = "";
+        document.getElementById("MstigMode1").innerHTML = "";
+        document.getElementById("valkMode2").innerHTML = "";
+        document.getElementById("weapMode2").innerHTML = "";
+        document.getElementById("TstigMode2").innerHTML = "";
+        document.getElementById("BstigMode2").innerHTML = "";
+        document.getElementById("MstigMode2").innerHTML = "";
+        let data = this.Collection.edit();
+        document.getElementById("valkMode0").innerHTML += "<button onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button>";
+        document.getElementById("valkMode0").innerHTML += "<button onclick='app.saveMyCollection()'>Save</button><br>";
+        document.getElementById("valkMode0").innerHTML += data.Valks;
+        document.getElementById("weapMode0").innerHTML = data.Weapons;
+        document.getElementById("TstigMode0").innerHTML = data.Stigmata.T;
+        document.getElementById("MstigMode0").innerHTML = data.Stigmata.M;
+        document.getElementById("BstigMode0").innerHTML = data.Stigmata.B;
+      }
+
+      viewMyCollection()
+      {
+        document.getElementById("valkMode0").innerHTML = "";
+        document.getElementById("weapMode0").innerHTML = "";
+        document.getElementById("TstigMode0").innerHTML = "";
+        document.getElementById("BstigMode0").innerHTML = "";
+        document.getElementById("MstigMode0").innerHTML = "";
+        document.getElementById("valkMode1").innerHTML = "";
+        document.getElementById("weapMode1").innerHTML = "";
+        document.getElementById("TstigMode1").innerHTML = "";
+        document.getElementById("BstigMode1").innerHTML = "";
+        document.getElementById("MstigMode1").innerHTML = "";
+        document.getElementById("valkMode2").innerHTML = "";
+        document.getElementById("weapMode2").innerHTML = "";
+        document.getElementById("TstigMode2").innerHTML = "";
+        document.getElementById("BstigMode2").innerHTML = "";
+        document.getElementById("MstigMode2").innerHTML = "";
+        let data = this.Collection.view();
+        document.getElementById("valkMode0").innerHTML += "<button onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button><br>";
+        document.getElementById("valkMode0").innerHTML += data.Valks;
+        document.getElementById("weapMode0").innerHTML = data.Weapons;
+        document.getElementById("TstigMode0").innerHTML = data.Stigmata.T;
+        document.getElementById("MstigMode0").innerHTML = data.Stigmata.M;
+        document.getElementById("BstigMode0").innerHTML = data.Stigmata.B;
       }
 
       help()
@@ -889,6 +1041,7 @@ Most properties should be self explainatory, but these might need some explainat
           speed+ - valk's attack speed increased\n\
           speed- - monster's attack speed reduced\n\
           rescue - revivie dead valks\n\
+          pierce - attack hits several enemies in a straight line\n\
 ");
       }
 
@@ -898,7 +1051,7 @@ Most properties should be self explainatory, but these might need some explainat
         document.getElementById("ftue").style.display = "none";
       }
 
-      pointAt(step,name,text)
+      pointAt(step, name, text)
       {
         if (step != ftuestep) return;
         ftuestep += 1;
@@ -989,11 +1142,11 @@ Most properties should be self explainatory, but these might need some explainat
         {
           // special case - valk rank
           if (set.Valk.id == 0) { this.setProp("leader"); }
-          if (set.Valk.rank == "B")   { this.setProp("B"); }
-          if (set.Valk.rank == "A")   { this.setProp("B"); this.setProp("A");  }
-          if (set.Valk.rank == "S")   { this.setProp("B"); this.setProp("A"); this.setProp("S"); }
-          if (set.Valk.rank == "SS")  { this.setProp("B"); this.setProp("A"); this.setProp("S"); this.setProp("SS"); }
-          if (set.Valk.rank == "SSS") { this.setProp("B"); this.setProp("A"); this.setProp("S"); this.setProp("SS"); this.setProp("SSS");}
+          if (set.Valk.rank == "B") { this.setProp("B"); }
+          if (set.Valk.rank == "A") { this.setProp("B"); this.setProp("A"); }
+          if (set.Valk.rank == "S") { this.setProp("B"); this.setProp("A"); this.setProp("S"); }
+          if (set.Valk.rank == "SS") { this.setProp("B"); this.setProp("A"); this.setProp("S"); this.setProp("SS"); }
+          if (set.Valk.rank == "SSS") { this.setProp("B"); this.setProp("A"); this.setProp("S"); this.setProp("SS"); this.setProp("SSS"); }
           this.processItem(set.Valk.root);
         }
         if (set.Weap.root) this.processItem(set.Weap.root);
@@ -1070,7 +1223,7 @@ Most properties should be self explainatory, but these might need some explainat
     {
       app = new App();
       app.reset();
-      app.pointAt(1,app.Set[0].Valk.elemSearch, "Try searching for 'Battle Storm'<br>Click her name when it appears.");
+      app.pointAt(1, app.Set[0].Valk.elemSearch, "Try searching for 'Battle Storm'<br>Click her name when it appears.");
 
     }
 
@@ -1149,96 +1302,97 @@ Most properties should be self explainatory, but these might need some explainat
   </div>
   <div class="menu">
     HONKAI IMPACT TOOL<br /><br />
+    <button onclick="app.viewMyCollection();">View My Collection</button> <button onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection<input id="myfilter" type="checkbox" checked /><br />
     <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
-    Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/><select id="presult"></select>
+    Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
     <button onclick="app.searchProp();">Search</button><br />
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
   </div>
   <div style="position: absolute; top:130px">
-  <table class="blueTable">
-    <thead><tr><td colspan="5">VALKYRIE 1</td></tr></thead>
-    <tbody>
-      <tr>
-        <td width="300px">
-          <div><b>Valkyrie <span class="right"><span id="0valkquery"></span><a href="#" onclick="app.prevValk(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(0); return false;">Next&gt;</a></span></b></div>
-          <div id="valkMode0"></div>
-        </td>
-        <td valign="top">
-          <div><b>Weapon <span class="right"><span id="0weapquery"></span><a href="#" onclick="app.prevWeap(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(0); return false;">Next&gt;</a></span></b></div>
-          <div id="weapMode0"></div>
-        </td>
-        <td valign="top">
-          <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
-          <div id="TstigMode0"></div>
-        </td>
-        <td valign="top">
-          <div><b>Middle Stigmata <span class="right"><span id="0Mstigquery"></span><a href="#" onclick="app.prevStigM(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(0); return false;">Next&gt;</a></span></b></div>
-          <div id="MstigMode0"></div>
-        </td>
-        <td valign="top">
-          <div><b>Bottom Stigmata <span class="right"><span id="0Bstigquery"></span><a href="#" onclick="app.prevStigB(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(0); return false;">Next&gt;</a></span></b></div>
-          <div id="BstigMode0"></div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <br />
-  <table class="blueTable">
-    <thead><tr><td colspan="5">VALKYRIE 2</td></tr></thead>
-    <tbody>
-      <tr>
-        <td width="300px">
-          <div><b>Valkyrie <span class="right"><span id="1valkquery"></span><a href="#" onclick="app.prevValk(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(1); return false;">Next&gt;</a></span></b></div>
-          <div id="valkMode1"></div>
-        </td>
-        <td valign="top">
-          <div><b>Weapon <span class="right"><span id="1weapquery"></span><a href="#" onclick="app.prevWeap(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(1); return false;">Next&gt;</a></span></b></div>
-          <div id="weapMode1"></div>
-        </td>
-        <td valign="top">
-          <div><b>Top Stigmata <span class="right"><span id="1Tstigquery"></span><a href="#" onclick="app.prevStigT(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(1); return false;">Next&gt;</a></span></b></div>
-          <div id="TstigMode1"></div>
-        </td>
-        <td valign="top">
-          <div><b>Middle Stigmata <span class="right"><span id="1Mstigquery"></span><a href="#" onclick="app.prevStigM(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(1); return false;">Next&gt;</a></span></b></div>
-          <div id="MstigMode1"></div>
-        </td>
-        <td valign="top">
-          <div><b>Bottom Stigmata <span class="right"><span id="1Bstigquery"></span><a href="#" onclick="app.prevStigB(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(1); return false;">Next&gt;</a></span></b></div>
-          <div id="BstigMode1"></div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <br />
-  <table class="blueTable">
-    <thead><tr><td colspan="5">VALKYRIE 3</td></tr></thead>
-    <tbody>
-      <tr>
-        <td width="300px">
-          <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(2); return false;">Next&gt;</a></span></b></div>
-          <div id="valkMode2"></div>
-        </td>
-        <td valign="top">
-          <div><b>Weapon <span class="right"><span id="2weapquery"></span><a href="#" onclick="app.prevWeap(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(2); return false;">Next&gt;</a></span></b></div>
-          <div id="weapMode2"></div>
-        </td>
-        <td valign="top">
-          <div><b>Top Stigmata <span class="right"><span id="2Tstigquery"></span><a href="#" onclick="app.prevStigT(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(2); return false;">Next&gt;</a></span></b></div>
-          <div id="TstigMode2"></div>
-        </td>
-        <td valign="top">
-          <div><b>Middle Stigmata <span class="right"><span id="2Mstigquery"></span><a href="#" onclick="app.prevStigM(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(2); return false;">Next&gt;</a></span></b></div>
-          <div id="MstigMode2"></div>
-        </td>
-        <td valign="top">
-          <div><b>Bottom Stigmata <span class="right"><span id="2Bstigquery"></span><a href="#" onclick="app.prevStigB(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(2); return false;">Next&gt;</a></span></b></div>
-          <div id="BstigMode2"></div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <table class="blueTable">
+      <thead><tr><td colspan="5">VALKYRIE 1</td></tr></thead>
+      <tbody>
+        <tr>
+          <td valign="top" width="300px">
+            <div><b>Valkyrie <span class="right"><span id="0valkquery"></span><a href="#" onclick="app.prevValk(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(0); return false;">Next&gt;</a></span></b></div>
+            <div id="valkMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Weapon <span class="right"><span id="0weapquery"></span><a href="#" onclick="app.prevWeap(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(0); return false;">Next&gt;</a></span></b></div>
+            <div id="weapMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
+            <div id="TstigMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Middle Stigmata <span class="right"><span id="0Mstigquery"></span><a href="#" onclick="app.prevStigM(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(0); return false;">Next&gt;</a></span></b></div>
+            <div id="MstigMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Bottom Stigmata <span class="right"><span id="0Bstigquery"></span><a href="#" onclick="app.prevStigB(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(0); return false;">Next&gt;</a></span></b></div>
+            <div id="BstigMode0"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <table class="blueTable">
+      <thead><tr><td colspan="5">VALKYRIE 2</td></tr></thead>
+      <tbody>
+        <tr>
+          <td valign="top" width="300px">
+            <div><b>Valkyrie <span class="right"><span id="1valkquery"></span><a href="#" onclick="app.prevValk(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(1); return false;">Next&gt;</a></span></b></div>
+            <div id="valkMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Weapon <span class="right"><span id="1weapquery"></span><a href="#" onclick="app.prevWeap(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(1); return false;">Next&gt;</a></span></b></div>
+            <div id="weapMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Top Stigmata <span class="right"><span id="1Tstigquery"></span><a href="#" onclick="app.prevStigT(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(1); return false;">Next&gt;</a></span></b></div>
+            <div id="TstigMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Middle Stigmata <span class="right"><span id="1Mstigquery"></span><a href="#" onclick="app.prevStigM(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(1); return false;">Next&gt;</a></span></b></div>
+            <div id="MstigMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Bottom Stigmata <span class="right"><span id="1Bstigquery"></span><a href="#" onclick="app.prevStigB(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(1); return false;">Next&gt;</a></span></b></div>
+            <div id="BstigMode1"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <table class="blueTable">
+      <thead><tr><td colspan="5">VALKYRIE 3</td></tr></thead>
+      <tbody>
+        <tr>
+          <td valign="top"  width="300px">
+            <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(2); return false;">Next&gt;</a></span></b></div>
+            <div id="valkMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Weapon <span class="right"><span id="2weapquery"></span><a href="#" onclick="app.prevWeap(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(2); return false;">Next&gt;</a></span></b></div>
+            <div id="weapMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Top Stigmata <span class="right"><span id="2Tstigquery"></span><a href="#" onclick="app.prevStigT(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(2); return false;">Next&gt;</a></span></b></div>
+            <div id="TstigMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Middle Stigmata <span class="right"><span id="2Mstigquery"></span><a href="#" onclick="app.prevStigM(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(2); return false;">Next&gt;</a></span></b></div>
+            <div id="MstigMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Bottom Stigmata <span class="right"><span id="2Bstigquery"></span><a href="#" onclick="app.prevStigB(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(2); return false;">Next&gt;</a></span></b></div>
+            <div id="BstigMode2"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <div  class="my-tooltip left-top" id="ftue">This is some help text</div>
+  <div class="my-tooltip left-top" id="ftue">This is some help text</div>
 </body>
 </html>
