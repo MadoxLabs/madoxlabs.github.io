@@ -634,6 +634,7 @@
           let data = this.getData();
           for (let i in data)
           {
+            if (app.filterByLocks(data[i]) == false) continue;
             if (onlyme && app.Collection.has(data[i].name) == false) continue;
             if (this.searchFilter && data[i].name.indexOf(this.searchFilter) == -1) continue;
 
@@ -892,9 +893,9 @@
         for (let i in this.items.Weapons) bufW += i + "<br>";
         for (let i in this.items.Stigmata)
         {
-          if (i.indexOf("(T)") >=0) bufST += i + "<br>";
-          if (i.indexOf("(M)") >=0) bufSM += i + "<br>";
-          if (i.indexOf("(B)") >=0) bufSB += i + "<br>";
+          if (i.indexOf("(T)") >= 0) bufST += i + "<br>";
+          if (i.indexOf("(M)") >= 0) bufSM += i + "<br>";
+          if (i.indexOf("(B)") >= 0) bufSB += i + "<br>";
         }
         return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB } };
       }
@@ -913,11 +914,11 @@
           bufW += "<input type=checkbox id='weap" + i + "' value='true' " + (this.items.Weapons[Weapons[i].name] ? "checked" : "") + ">" + Weapons[i].name + "<br>";
         for (let i in Stigmata)
         {
-          if (Stigmata[i].name.indexOf("(T)") >=0) bufST += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+          if (Stigmata[i].name.indexOf("(T)") >= 0) bufST += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
           if (Stigmata[i].name.indexOf("(M)") >= 0) bufSM += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
           if (Stigmata[i].name.indexOf("(B)") >= 0) bufSB += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
         }
-        return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB }  };
+        return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB } };
       }
 
       update()
@@ -938,6 +939,7 @@
       Set = [];
       All = new Resolver();
       Collection = new Collection();
+      Locks = [];
 
       constructor()
       {
@@ -1098,6 +1100,46 @@ Most properties should be self explainatory, but these might need some explainat
         this.Set[0].query(key);
         this.Set[1].query(key);
         this.Set[2].query(key);
+      }
+
+      lockProp()
+      {
+        let e = document.getElementById('presult');
+        let key = e.options[e.selectedIndex].value;
+        this.Locks.push(key);
+        this.drawLocks();
+      }
+
+      deleteLastLock()
+      {
+        this.Locks.pop();
+        this.drawLocks();
+        this.searchProp();
+      }
+
+      deleteLocks()
+      {
+        this.Locks = [];
+        this.searchProp();
+        this.drawLocks();
+      }
+
+      filterByLocks(item)
+      {
+        if (this.Locks.length == 0) return true;
+        for (let i in this.Locks)
+        {
+          if (this.Set[0].Valk.hasProp(this.Locks[i], item)) return true;
+        }
+        return false;
+      }
+
+      drawLocks()
+      {
+        let buf = "";
+        for (let i in this.Locks) buf += this.Locks[i] + ", ";
+        buf = buf.substr(0, buf.length - 2);
+        document.getElementById("locks").innerText = buf;
       }
     };
 
@@ -1303,10 +1345,11 @@ Most properties should be self explainatory, but these might need some explainat
   <div class="menu">
     HONKAI IMPACT TOOL<br /><br />
     <button onclick="app.viewMyCollection();">View My Collection</button> <button onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection<input id="myfilter" type="checkbox" checked /><br />
-    <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
-    <button onclick="app.searchProp();">Search</button><br />
+    <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
+    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button><br />
+    <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
   </div>
   <div style="position: absolute; top:130px">
     <table class="blueTable">
@@ -1369,7 +1412,7 @@ Most properties should be self explainatory, but these might need some explainat
       <thead><tr><td colspan="5">VALKYRIE 3</td></tr></thead>
       <tbody>
         <tr>
-          <td valign="top"  width="300px">
+          <td valign="top" width="300px">
             <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(2); return false;">Next&gt;</a></span></b></div>
             <div id="valkMode2"></div>
           </td>
