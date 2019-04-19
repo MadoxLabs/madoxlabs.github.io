@@ -170,6 +170,8 @@
 
   <script type="text/javascript">
 
+    var globalTerms = ["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"];
+
     var dataValks = [
       "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[dmg+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
       "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
@@ -199,7 +201,7 @@
       "Knight Moonbeam:[(B)[Kiana,pistol,BIO],(S)[combo,aoe,switch,(float)dmg+,(float)[QTE],SP+,fracture,crit,(stun)dmg+,(paralyze)dmg+],(SS)[fracture,(leader)[crit,(BIO)dmg+]],(SSS)[CD+]]",
       "Sixth Serenade:[(B)[Kallen,pistol,PSY],(S)[combo,switch,QTE,dmg+,aoe,ice,float,CD+,timelock,(leader)[dmg+,dmg-]],(SS)[dmg+,SP+],(SSS)[]]",
       "Valkyrie Bladestrike:[(B)[Mei,katana,BIO],(A)[combo,switch,(float)[critdmg+,crit],dmg+,SP+,aoe,speed+,fracture],(S)[(timeslow)[QTE,dmg+],crit,critdmg+,dmg-,(leader)[def+,(BIO)hp+]],(SS)[SP+],(SSS)[speed+,float]]",
-      "Lightning Emperess:[(B)[Mei,katana,BIO],(S)[],(SS)[],(SSS)[]]",
+      "Lightning Emperess:[(B)[Mei,katana,BIO],(S)[lightning,switch,aoe,(float)[QTE,SP+],paralyze,speed+,dmg-,(freeze)dmg+,(slow)dmg+],(SS)[paralyze,(leader)[SP+,(PSY)dmg+]],(SSS)[paralyze]]",
       "Goushinnso Memento:[(B)[Yae,katana,MECH],(S)[],(SS)[],(SSS)[]]",
       "Blood Rose:[(B)[Himeko,sword,PSY],(S)[],(SS)[],(SSS)[]]",
       "Vermilion Knight Eclipse:[(B)[Himeko,sword,MECH],(S)[],(SS)[],(SSS)[]]",
@@ -490,7 +492,7 @@
         // special case - things that can come from other team mates
         if (!selfonly)
         {
-          if (["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"].includes(item.if))
+          if (globalTerms.includes(item.if))
           {
             if (app.Set[0].Res.has(item.if)) return true;
             if (app.Set[1].Res.has(item.if)) return true;
@@ -644,7 +646,14 @@
       query(index)
       {
         let word = document.getElementById(this.elemProp + index).innerText;
-        app.Set[this.id].query(word);
+        if (globalTerms.includes(word))
+        {
+          app.Set[0].query(word);
+          app.Set[1].query(word);
+          app.Set[2].query(word);
+        }
+        else
+          app.Set[this.id].query(word);
       }
 
       handleQuery(key)
