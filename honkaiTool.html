@@ -265,7 +265,8 @@
       "Ion Resonance:[****,(sword)[melee,lightning,aoe,paralyze]]",
       "Alloy Wotan's Cleaver:[****,(sword)[melee,aoe,fire]]",
       "Hybred Type-27:[***,(sword)[melee,float]]",
-
+      "King Cobra:[****,(sword)[melee,SP+]]",
+      "Nitro Crystal:[****,(sword)[melee,(frozen)dmg+]]",
       "Obsidian Reaper:[****,(scythe)[melee,aoe,knockback,fire]]",
       "Azure Storm:[****,(scythe)[melee,speed+]]",
       "Carmine Steel:[****,(scythe)[melee,shield,heal,dmg+]]",
@@ -293,8 +294,29 @@
       "Eliudnir:[*****,(cross)[melee,aoe,(stun)dmg+,knockdown,stun,]]",
       "Selune's Elegy:[*****,(cross)[melee,aoe,ice,(charge)[dmg+,aoe]]]",
       "Jack'o Lantern:[*****,(cross)[melee,aoe,fire]]",
-      "Super-* Sonata:[*****,(cross)[melee,aoe,fire,dmg+]]"
-
+      "Super-* Sonata:[*****,(cross)[melee,aoe,fire,dmg+]]",
+      "Hybrid Type 16:[***,(sword)[melee,(paralyze)dmg+,(timeslow)dmg+,(stun)dmg+]]",
+      "Fusion Sword EX:[***,(sword)[melee,aoe,knockdown]]",
+      "Inquisition Torch:[****,(sword)[melee,aoe,fire]]",
+      "Violet Knight:[****,(sword)[melee,aoe]]",
+      "Crimson Queen:[****,(sword)[melee,dmg+]]",
+      "Chain Sword:[****,(sword)[melee,speed+,crit]]",
+      "Nighogg's Claws:[*****,(sword)[melee,knockback,invincible,bleed]]",
+      "7th Sacred Relic:[*****,(sword)[melee,aoe,stun,(stun)[crit,speed+]]]",
+      "Blood Dance:[*****,(sword)[melee,aoe,heal]]",
+      "Sunfire:[*****,(sword)[melee,aoe,fire,float,ignite]]",
+      "Dragon Spine:[*****,(sword)[melee,aoe,immobilize,bleed,(bleed)heal]]",
+      "Schiffschneider:[*****,(sword)[melee,aoe,knockdown,lightning,(paralyze)crit]]",
+      "Xuanyuan Sword:[*****,(sword)[melee,lightning,fire,ice,paralyze,ignite,freeze,(charge)dmg+,pierce,float]]",
+      "Judgement By Dawn:[*****,(sword)[melee,lightning,impair]]",
+      "Dark Xuanyuan Sword:[*****,(sword)[melee,dmg+,fracture]]",
+      "Gyukikiri Nagamitsu:[*****,(sword)[melee,dmg+]]",
+      "Ranger's Sawtooth:[*****,(sword)[melee,move-,dmg-,fire,aoe,ice-,ranger,(ranger)dmg+]]",
+      "Hrungnir:[*****,(sword)[melee,aoe,ice,speed+,(freeze)[ice,dmg+],(move-)[ice,dmg+],(speed-)[ice,dmg+]]]",
+      "Godslayer Surtr:[*****,(sword)[melee,dmg+,SP+,speed+]]",
+      "Wotan's Cleaver:[*****,(sword)[melee,aoe,fire,ignite,dmg+]]",
+      "Betrayer:[*****,(sword)[melee,range,aoe,stun,dmg+]]",
+      "Xuanyuan Sword (Key of Domination):[*****,(sword)[melee,lightning,fire,ice,paralyze,ignite,freeze,(charge)dmg+,pierce,float,dmg+,dmg-]]"
     ];
 
     var dataStigmata = [
@@ -1403,7 +1425,7 @@ Most properties should be self explainatory, but these might need some explainat
   </div>
   <div class="menu">
     HONKAI IMPACT TOOL<br /><br />
-    <button onclick="app.viewMyCollection();">View My Collection</button> <button onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection<input id="myfilter" type="checkbox" checked /><br />
+    <button onclick="app.viewMyCollection();">View My Collection</button> <button onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection<input id="myfilter" type="checkbox" /><br />
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
     <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
