@@ -173,7 +173,7 @@
     var globalTerms = ["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"];
 
     var dataValks = [
-      "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[dmg+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
+      "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[elem+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
       "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
       "Valkyrie Ranger:[(B)[Kiana,pistol,MECH],(A)[combo,pierce,stun,dmg+,speed+,bleed,(freeze)[QTE,aoe,impair],gather],(S)[fire,(leader)[speed+,(MECH)[speed+]],(SS)[def+,crit,(freeze)[crit]],(SSS)[crit]]",
       "Herrscher of the Void:[(B)[Kiana,pistol,BIO],(S)[aoe,time prison,space core,speed+,(timeslow)QTE,(timelock)QTE,crit,dmg+,gather,timeslow,dmg-],(SS)[crit,(leader)[crit,critdmg+]],(SSS)[fracture]]",
@@ -184,10 +184,10 @@
       "Shadow Dash:[(B)[Mei,katana,MECH],(A)[combo,float,switch,(stun)QTE,summon,aoe,paralyze,crit],(S)[(leader)crit,(stun)dmg+,(paralyze)dmg+,(timeslow)dmg+],(SS)[summon,crit],(SSS)[SP+,summon]]",
       "Crimson Impulse:[(B)[Mei,katana,BIO],(A)[combo,float,(float)[QTE],fire,aoe,bleed,fracture,crit,(leader)dmg+],(S)[],(SS)[SP+,dmg+],(SSS)[dmg+]]",
       "Valkyrie Chariot:[(B)[Bronya,cannon,PSY],(A)[switch,float,(stun)[QTE,float,timelock,charge,block,],gather,bleed,aoe,ignite,fire,(ignite)dmg+,fracture,(stun)dmg+,(paralyze)dmg+,(leader)dmg-],(S)[stun,aoe,crit],(SS)[CD+],(SSS)[dmg+]]",
-      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,float,timelock,(timeslow)dmg+,(timelock)bleed,(paralyze)[QTE,fire,float,timelock],gather,charge,fire,paralyze,crit,move+],(SS)[SP+,(leader)[(MECH)dmg+]],(SSS)[(leader)[(Mei)crit,(Kiana)crit]]]",
+      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,elem+,float,timelock,(timeslow)dmg+,(timelock)bleed,(paralyze)[QTE,fire,float,timelock],gather,charge,fire,paralyze,crit,move+],(SS)[SP+,(leader)[(MECH)dmg+]],(SSS)[(leader)[(Mei)crit,(Kiana)crit]]]",
       "Yamabuki Armor:[(B)[Bronya,cannon,PSY],(A)[switch,float,(timeslow)[QTE,stun],iron body,(impair)[timelock,(Fu Hua)heal],aoe,impair,charge,fracture,fire,shield,lightning],(S)[def+,(leader)[(combo)crit,(PSY)crit]],(SS)[SP+],(SSS)[heal]]",
       "Snowy Sniper:[(B)[Bronya,cannon,BIO],(A)[switch,move+,(float)[QTE,aoe,freeze],freeze,ice,charge,slow],(S)[(leader)CD+],(SS)[timelock,critdmg+],(SSS)[crit]]",
-      "Wolf's Dawn:[(B)[Bronya,cannon,PSY],(A)[switch,(timeslow)[QTE,stun],stun,timelock,charge,aoe,weaken,fracture,float,shield],(S)[def+,(leader)[crit,(PSY)critdmg+]],(SS)[SP+,dmg+],(SSS)[gather]]",
+      "Wolf's Dawn:[(B)[Bronya,cannon,PSY],(A)[switch,(timeslow)[QTE,stun],stun,timelock,charge,aoe,weaken,fracture,float,shield,elem-],(S)[def+,(leader)[crit,(PSY)critdmg+]],(SS)[SP+,dmg+],(SSS)[gather]]",
       "Valkyrie Pledge:[(B)[Theresa,cross,PSY],(A)[charge,switch,lightning,paralyze,aoe,def-,fracture,move+,SP+,speed+],(S)[(freeze)QTE,immobilize,(leader)[def+,(PSY)dmg+]],(SS)[knockdown],(SSS)[dmg+]]",
       "Celestial Hymn:[(B)[Theresa,cross,BIO],(S)[charge,aoe,impair,switch,(timeslow)[QTE,impair,def-],gather,crit,SP+,shield,CD+,(impair)crit],(SS)[dmg+,(leader)[SP+,(BIO)dmg+]],(SSS)[speed-,ice]]",
       "Luna Kindred:[(B)[Theresa,cross,BIO],(A)[charge,bleed,switch,aoe,weaken,move+,fracture,SP+],(S)[speed+,(paralyze)[QTE,bleed],(bleed)[dmg+,dmg-,heal],(leader)[def+,(BIO)dmg+],(SS)[fracture,dmg+],(SSS)[(charge)crit]]",
@@ -198,7 +198,7 @@
       "Ritual Imayoh:[(B)[Kallen,pistol,MECH],(S)[combo,switch,(freeze)QTE,ignite,fire,summon,aoe,crit,stun,fracture,dmg+,(leader)[hp+,(MECH)crit]],(SS)[(freeze)fire],(SSS)[stun,move+,speed+]]",
       "Sundenjager:[(B)[Kallen,pistol,MECH],(S)[hunted brand,combo,pierce,dmg+,ignite,fire,aoe,slow-,speed-,weaken,impair,heal,def-,def+,(float)[QTE],(ignite)dmg+,(bleed)dmg+,(leader)[move+,(MECH)speed+]],(SS)[summon],(SSS)[aoe,ignite]]",
       "Black Nucleus:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,dmg+,(timeslow)[QTE,aoe,invisble],(float)[QTE,aoe,invisble],ignite,fire,charge,crit,invisible,(invisible)dmg+,CD+,(leader)CD+],(SS)[stun,(crit)[fire,dmg+]],(SSS)[move+]]",
-      "Knight Moonbeam:[(B)[Kiana,pistol,BIO],(S)[combo,aoe,switch,(float)dmg+,(float)[QTE],SP+,fracture,crit,(stun)dmg+,(paralyze)dmg+],(SS)[fracture,(leader)[crit,(BIO)dmg+]],(SSS)[CD+]]",
+      "Knight Moonbeam:[(B)[Kiana,pistol,BIO],(S)[combo,aoe,switch,elem+,(float)dmg+,(float)[QTE],SP+,fracture,crit,(stun)dmg+,(paralyze)dmg+],(SS)[fracture,(leader)[crit,(BIO)dmg+]],(SSS)[CD+]]",
       "Sixth Serenade:[(B)[Kallen,pistol,PSY],(S)[combo,switch,QTE,dmg+,aoe,ice,float,CD+,timelock,(leader)[dmg+,dmg-]],(SS)[dmg+,SP+],(SSS)[]]",
       "Valkyrie Bladestrike:[(B)[Mei,katana,BIO],(A)[combo,switch,(float)[critdmg+,crit],dmg+,SP+,aoe,speed+,fracture,paralyze],(S)[(timeslow)[QTE,dmg+],crit,critdmg+,dmg-,(leader)[def+,(BIO)hp+]],(SS)[SP+],(SSS)[speed+,float]]",
       "Lightning Emperess:[(B)[Mei,katana,BIO],(S)[lightning,switch,aoe,(float)[QTE,SP+],paralyze,speed+,dmg-,(freeze)dmg+,(slow)dmg+],(SS)[paralyze,(leader)[SP+,(PSY)dmg+]],(SSS)[paralyze]]",
@@ -286,7 +286,7 @@
       "Moment of Truth:[****,(scythe)[melee,timeslow,aoe,speed+,move+]]",
       "Onyx Iron:[*****,(scythe)[melee,shield,heal,dmg+]]",
       "Aphrodite:[*****,(scythe)[melee,dmg+,aoe,blink]]",
-      "Genome Reaper:[*****,(scythe)[melee,lightning,aoe,(move+)dmg+,move+]]",
+      "Genome Reaper:[*****,(scythe)[melee,lightning,aoe,(move+)dmg+,move+,elem+]]",
       "Skadi Ondurgud:[*****,(scythe)[melee,aoe,ice,dmg-,dmg+,(hypothemia)SP+]]",
       "Cas-X Saints:[****,(gauntlet)[melee,fire]]",
       "White Star Banishers:[****,(gauntlet)[melee,float]]",
@@ -295,7 +295,7 @@
       "Stellar Vortex:[*****,(gauntlet)[melee,speed-,(combo)aoe]]",
       "Jade Bloom:[*****,(gauntlet)[melee,heal,dmg+]]",
       "Ranger Gauntlets:[*****,(gauntlet)[melee,hp-,dmg+,bleed-,ice-,ranger,(ranger)dmg+]]",
-      "Cinder Hawk:[*****,(gauntlet)[melee,(firebrand)[dmg+,shield],(ignite)[dmg+,shield],fire]]",
+      "Cinder Hawk:[*****,(gauntlet)[melee,(firebrand)[dmg+,shield],(ignite)[dmg+,shield],fire,elem+]]",
       "Skoll and Hati:[*****,(gauntlet)[melee,dmg+,(timeslow)crit,(move-)crit,(speed-)crit]]",      
       "Ai-chan's Candy:[****,(cross)[melee,aoe,candy]]",
       "Oath of Judah:[*****,(cross)[melee,aoe,lightning,immobilize]]",
@@ -307,7 +307,7 @@
       "Eliudnir:[*****,(cross)[melee,aoe,(stun)dmg+,knockdown,stun,]]",
       "Selune's Elegy:[*****,(cross)[melee,aoe,ice,(charge)[dmg+,aoe]]]",
       "Jack'o Lantern:[*****,(cross)[melee,aoe,fire]]",
-      "Super-* Sonata:[*****,(cross)[melee,aoe,fire,dmg+]]",
+      "Super-* Sonata:[*****,(cross)[melee,aoe,fire,dmg+,elem+]]",
       "Hybrid Type 16:[***,(sword)[melee,(paralyze)dmg+,(timeslow)dmg+,(stun)dmg+]]",
       "Fusion Sword EX:[***,(sword)[melee,aoe,knockdown]]",
       "Inquisition Torch:[****,(sword)[melee,aoe,fire]]",
@@ -382,7 +382,7 @@
       "Demonblade Florid Sakura:[*****,(katana)[melee,fire,invincible,shield]]",
       "Pledge of Rain:[*****,(katana)[melee,aoe,ice,slow,(slow)dmg+]]",
       "Ai-chan's Crutch:[*****,(katana)[melee,(crit)aoe]]",
-      "Futsunushi-To:[*****,(katana)[melee,aoe]]",
+      "Futsunushi-To:[*****,(katana)[melee,aoe,elem+]]",
       "One Salty Tuna:[*****,(katana)[melee,dmg+]]",
       "Gluttony:[*****,(katana)[melee,gather,stun,SP+]]",
       "Water Spirit Type II:[****,(pistol)[range,aoe,freeze]]",
@@ -408,7 +408,7 @@
       "Proto Alberich's Bows:[*****,(pistol)[range,pierce,(bleed)SP+,move+,speed+]]",
       "Ranger'sPistol:[*****,(pistol)[range,aoe,fire,stun,(stun)dmg+,ranger,(ranger)fire]]",
       "PSY - Bows of Hel:[*****,(pistol)[range,aoe,freeze,crit,(stun)dmg+,(freeze)dmg+]]",
-      "Tranquil Arias:[*****,(pistol)[range,(timeslow)[dmg+,aoe,ice],dmg+]]",
+      "Tranquil Arias:[*****,(pistol)[range,(timeslow)[dmg+,elem+,aoe,ice],dmg+]]",
       "Judgement of Shamash:[*****,(pistol)[range,fire,slow,dot,stun,iron body,dmg-,hp-,ignite,(ignite)dmg+]]",
       "Keys of the Void:[*****,(pistol)[range,aoe,float,space core,dmg+,crit]]",
       "Blooded Saints:[*****,(pistol)[range,aoe,dmg+,(hunted brand)[]]]",
@@ -431,7 +431,7 @@
       "Yae Sakura Qipao (T):[****,dmg+,(Yae)dmg+]",
       "Theresa Descent (T):[****,(switch)aoe]",
       "Mei Demon (M):[****,move+,dmg+]",
-      "Mei Bride (M):[****,(Mei)dmg-,move+]",
+      "Mei Bride (M):[****,(Mei)elem-,move+]",
       "Himeko Bride (M):[****,(charge)dmg+,(Himeko)critdmg+]",
       "Theresa Magic Loli (M):[****,fire,(theresa)[(cross)dmg+]]",
       "Kiana Birthday (M):[****,dmg+,(kiana)speed+]",
@@ -447,9 +447,30 @@
       "Yae Sakura Prayer (B):[*****,(combo)dmg+,(Yae)[(combo)dmg+]]",
       "Void Queen Snowy Fest (B):[*****,ice,slow]",
 
+//      "():[*****,(:x2)[],(:x3)[]]",
+
+      "Cleopatra (T):[*****,queen of egypt,dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
+      "Cleopatra (M):[*****,queen of egypt,(stun)dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
+      "Cleopatra (B):[*****,queen of egypt,(paralyze)dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
+      "Jixuanyuan (T):[*****,emperor xuanyuan,(switch)dmg+,(QTE)dmg+,(emperor xuanyuan:x2)[debuff-,(mei)hp+,(yae)hp+,(himeko)hp+],(emperor xuanyuan:x3)[dmg+,crit]]",
+      "Jixuanyuan (M):[*****,emperor xuanyuan,(charge)dmg+,(emperor xuanyuan:x2)[debuff-,(mei)hp+,(yae)hp+,(himeko)hp+],(emperor xuanyuan:x3)[dmg+,crit]]",
+      "Jixuanyuan (B):[*****,emperor xuanyuan,dmg+,(emperor xuanyuan:x2)[debuff-,(mei)hp+,(yae)hp+,(himeko)hp+],(emperor xuanyuan:x3)[dmg+,crit]]",     
       "Shakespeare (T):[*****,lightning,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
       "Shakespeare (M):[*****,fire,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
       "Shakespeare (B):[*****,ice,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
+      "Ekaterina (T):[*****,tsar of russia,(combo)def+,(tsar of russia:x2)[crit,(MECH)SP+],(tsar of russia:x3)[(combo)critdmg+]]",
+      "Ekaterina (M):[*****,tsar of russia,(combo)dmg+,(tsar of russia:x2)[crit,(MECH)SP+],(tsar of russia:x3)[(combo)critdmg+]]",
+      "Ekaterina (B):[*****,tsar of russia,(combo)move+,(tsar of russia:x2)[crit,(MECH)SP+],(tsar of russia:x3)[(combo)critdmg+]]",
+      "Lier (T):[*****,noble stillness,def+,(noble stillness:x2)[heal,(BIO)SP+],(noble stillness:x3)[shield,float]]",
+      "Lier (M):[*****,noble stillness,move+,(noble stillness:x2)[heal,(BIO)SP+],(noble stillness:x3)[shield,float]]",
+      "Lier (B):[*****,noble stillness,dmg+,(noble stillness:x2)[heal,(BIO)SP+],(noble stillness:x3)[shield,float]]",
+      "Einstein (T):[*****,relatively natural curls,(charge)dmg+,dmg+,(relatively natural curls:x2)[(range)dmg+],(relatively natural curls:x3)[(melee)dmg-]]",
+      "Einstein (T):[*****,relatively natural curls,(charge)[heal,SP+],(relatively natural curls:x2)[(range)dmg+],(relatively natural curls:x3)[(melee)dmg-]]",
+      "Einstein (T):[*****,relatively natural curls,(charge)dmg+,speed+,(relatively natural curls:x2)[(range)dmg+],(relatively natural curls:x3)[(melee)dmg-]]",
+
+      "Fuxi (T):[*****,code of civ,(freeze)elem+,(code of civ:x2)[hp+,CD+],(code of civ:x3)[elem-,elem+]]",
+      "Fuxi (M):[*****,code of civ,(paralyze)elem+,(code of civ:x2)[hp+,CD+],(code of civ:x3)[elem-,elem+]]",
+      "Fuxi (B):[*****,code of civ,(ignite)elem+,(code of civ:x2)[hp+,CD+],(code of civ:x3)[elem-,elem+]]",
 
       "Kepler (T):[*****,ruler of sky,(crit)[aoe,dmg+],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
       "Kepler (M):[*****,ruler of sky,(crit)[aoe,paralyze],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
@@ -921,14 +942,30 @@
         {
           if (props[i].if)
           {
-            if (yesifs && props[i].if == key) return true;
+            if (yesifs && this.compareKeys(props[i].if,key)) return true;
             if (this.hasProp(key, props[i])) return true;
           }
-          else if (yesprops && props[i] == key) return true;
+          else if (yesprops && this.compareKeys(props[i],key)) return true;
         }
         return false;
       }
 
+      compareKeys(key1, key2)
+      {
+        let exact = document.getElementById("exact").checked;
+        if (!exact)
+        {
+          if (key1 == "ignite" && key2 == "fire") return true;
+          if (key2 == "ignite" && key1 == "fire") return true;
+          if (key2 == "elem+" && key1 == "fire") return true;
+          if (key2 == "elem+" && key1 == "ice") return true;
+          if (key2 == "elem+" && key1 == "lightning") return true;
+          if (key1 == "elem+" && key2 == "fire") return true;
+          if (key1 == "elem+" && key2 == "ice") return true;
+          if (key1 == "elem+" && key2 == "lightning") return true;
+        }
+        return (key1 == key2);
+      }
     };
 
     class ValkUI extends BaseUI
@@ -1603,7 +1640,7 @@ Most properties should be self explainatory, but these might need some explainat
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
     <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
-    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /><br />
+    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" type="checkbox" />>Exact match only: <input id="exact" checked type="checkbox" /><br />
     <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
   </div>
   <div style="position: absolute; top:130px">
