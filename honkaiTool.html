@@ -172,6 +172,9 @@
 
     var globalTerms = ["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"];
 
+//    Sf -> click timelock -> get non- collection Valks
+  //  bronya -> cannon -> no reulsts
+
     var dataValks = [
       "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[elem+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
       "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
@@ -179,7 +182,7 @@
       "Herrscher of the Void:[(B)[Kiana,pistol,BIO],(S)[aoe,time prison,space core,speed+,(timeslow)QTE,(timelock)QTE,crit,dmg+,gather,timeslow,dmg-],(SS)[crit,(leader)[crit,critdmg+]],(SSS)[fracture]]",
       "Battle Storm:[(B)[Himeko,sword,BIO,switch,charge,aoe,knockdown,float,gather,weaken,atk-,fracture,move+,slow,elem-,(leader)dmg-],(A)[(paralyze)[QTE,aoe,knockback],(crit)[],fire],(S)[dmg-,stun],(SS)[ignite],(SSS)[stun]]",
       "Kreigsmesser:[(B)[Himeko,sword,PSY],(A)[charge,switch,aoe,knockdown,(ignite)[QTE,ice,freeze],ice,freeze,slow,(leader)[(PSY)dmg+]],(S)[ice,(slow)dmg+]]",
-      "Scarlet Fusion:[(B)[Himeko,sword,MECH],(A)[charge,combo,float,lightning,switch,pierce,aoe,paralyze],(S)[aoe,paralyze,(timelock)[QTE,paralyze,lightning],(timeslow)[QTE,paralyze,lightning],(bleed)dmg+,(leader)[(switch)dmg+]],(SS)[bleed],(SSS)[paralyze]]",
+      "Scarlet Fusion:[(B)[Himeko,sword,MECH],(A)[charge,combo,float,lightning,switch,pierce,aoe,paralyze,(timelock)[QTE,float,paralyze,lightning],(timeslow)[QTE,paralyze,lightning]],(S)[aoe,paralyze,(bleed)dmg+,(leader)[(switch)dmg+]],(SS)[bleed],(SSS)[paralyze]]",
       "Valkyrie Triumph:[(B)[Himeko,sword,BIO],(A)[switch,timeslow,aoe,charge,stun,(freeze),(stun),(leader)[dmg+,(BIO)def+]],(S)[(freeze)[QTE],heal]]",
       "Shadow Dash:[(B)[Mei,katana,MECH],(A)[combo,float,switch,(stun)QTE,summon,aoe,paralyze,crit],(S)[(leader)crit,(stun)dmg+,(paralyze)dmg+,(timeslow)dmg+],(SS)[summon,crit],(SSS)[SP+,summon]]",
       "Crimson Impulse:[(B)[Mei,katana,BIO],(A)[combo,float,(float)[QTE],fire,aoe,bleed,fracture,crit,(leader)dmg+],(S)[],(SS)[SP+,dmg+],(SSS)[dmg+]]",
@@ -446,6 +449,7 @@
       "Bronya Sloth (M):[*****,SP-,SP+]",
       "Yae Sakura Prayer (B):[*****,(combo)dmg+,(Yae)[(combo)dmg+]]",
       "Void Queen Snowy Fest (B):[*****,ice,slow]",
+      "Theresa Hot Springs (B):[*****,heal,SP+]",
 
       "Cleopatra (T):[*****,queen of egypt,dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
       "Cleopatra (M):[*****,queen of egypt,(stun)dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
@@ -492,12 +496,53 @@
       "Dark Jixuanyuan (T):[*****,black kirin,(fracture)[dmg+,aoe,kn ockback],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
       "Dark Jixuanyuan (M):[*****,black kirin,(fracture)crit,(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
       "Dark Jixuanyuan (B):[*****,black kirin,(fracture)[move+,speed+],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
-
-      "():[*****,(:x2)[],(:x3)[]]",
-
+      "Lier Scarlet (T):[*****,red poet,hp-,dmg+,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
+      "Lier Scarlet (M):[*****,red poet,hp-,heal,aoe,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
+      "Lier Scarlet (B):[*****,red poet,hp-,speed+,move+,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
+      "Kallen Pledge (T):[*****,daughter of schicksal,dmg+,aoe,(daughter of schicksal:x2)[crit],(daughter of schicksal:x3)[dmg+]]",
+      "Kallen Pledge (M):[*****,daughter of schicksal,hp+,debuff-,(daughter of schicksal:x2)[crit],(daughter of schicksal:x3)[dmg+]]",
+      "Kallen Pledge (B):[*****,daughter of schicksal,dmg+,dmg-,(daughter of schicksal:x2)[crit],(daughter of schicksal:x3)[dmg+]]",
+      "Sanada Yukimura (T):[*****,sanada maru,(switch)dmg+,(sanada maru:x2)[immune],(sanada maru:x3)[(mei)hp+,(yae)hp+]]",
+      "Sanada Yukimura (M):[*****,sanada maru,(switch)crit,(sanada maru:x2)[immune],(sanada maru:x3)[(mei)hp+,(yae)hp+]]",
+      "Sanada Yukimura (B):[*****,sanada maru,(switch)def+,(sanada maru:x2)[immune],(sanada maru:x3)[(mei)hp+,(yae)hp+]]",
+      "Siegfried Kaslana (T):[*****,lonely hero,SP+,speed+,(lonely hero:x2)[dmg+],(lonely hero:x3)[dmg+,move+,speed+,debuff-]]",
+      "Siegfried Kaslana (M):[*****,lonely hero,CD+,def+,(lonely hero:x2)[dmg+],(lonely hero:x3)[dmg+,move+,speed+,debuff-]]",
+      "Siegfried Kaslana (B):[*****,lonely hero,dmg+,move+,(lonely hero:x2)[dmg+],(lonely hero:x3)[dmg+,move+,speed+,debuff-]]",
+      "Cecilia Schariac (T):[*****,legendary lady,(black white stars)[dmg+,(combo)dmg+],(legendary lady:x2)[black white stars,dmg+,(combo)crit],(legendary lady:x3)[dmg+]]",
+      "Cecilia Schariac (M):[*****,legendary lady,(black white stars)[SP+,(combo)heal],(legendary lady:x2)[black white stars,dmg+,(combo)crit],(legendary lady:x3)[dmg+]]",
+      "Cecilia Schariac (B):[*****,legendary lady,(black white stars)[speed+,dmg-],(legendary lady:x2)[black white stars,dmg+,(combo)crit],(legendary lady:x3)[dmg+]]",
+      "Nohime (T):[*****,butterfly yuki,freeze,(freeze)dmg+,(butterfly yuki:x2)[aoe,ice,slow],(butterfly yuki:x3)[hp+,ice]]",
+      "Nohime (M):[*****,butterfly yuki,ice,(butterfly yuki:x2)[aoe,ice,slow],(butterfly yuki:x3)[hp+,ice]]",
+      "Nohime (B):[*****,butterfly yuki,(slow)[move+,ice],(freeze)[move+,ice],(butterfly yuki:x2)[aoe,ice,slow],(butterfly yuki:x3)[hp+,ice]]",
+      "Yae Sakura (T):[*****,dream of sakura,(sakura brand)[stun,critdmg+],(dream of sakura:x2)[hp+,(sakura brand)lightning],(dream of sakura:x3)[heal]]",
+      "Yae Sakura (M):[*****,dream of sakura,(sakura brand)[lightning,aoe,dmg+],(dream of sakura:x2)[hp+,(sakura brand)lightning],(dream of sakura:x3)[heal]]",
+      "Yae Sakura (B):[*****,dream of sakura,(sakura brand)[dmg+,crit],(dream of sakura:x2)[hp+,(sakura brand)lightning],(dream of sakura:x3)[heal]]",
+      "Seele Vollerie (T):[*****,sea of quanta,dmg+,(sea of quanta:x2)[move+,teleport],(sea of quanta:x3)[dmg+]]",
+      "Seele Vollerie (M):[*****,sea of quanta,dmg-,(sea of quanta:x2)[move+,teleport],(sea of quanta:x3)[dmg+]]",
+      "Seele Vollerie (B):[*****,sea of quanta,speed+,(sea of quanta:x2)[move+,teleport],(sea of quanta:x3)[dmg+]]",
+      "Einstein Band (T):[*****,anti-entropy ball,summon,dmg+,(anti-entropy ball:x2)[dmg+],(anti-entropy ball:x3)[dmg+]]",
+      "Einstein Band (M):[*****,anti-entropy ball,summon,aoe,knockback,float,timelock,(anti-entropy ball:x2)[dmg+],(anti-entropy ball:x3)[dmg+]]",
+      "Einstein Band (B):[*****,anti-entropy ball,summon,dmg+,dmg-,(anti-entropy ball:x2)[dmg+],(anti-entropy ball:x3)[dmg+]]",
       "Kepler (T):[*****,ruler of sky,(crit)[aoe,dmg+],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
       "Kepler (M):[*****,ruler of sky,(crit)[aoe,paralyze],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
       "Kepler (B):[*****,ruler of sky,(crit)[heal],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
+      "Zhangheng (T):[*****,observer,dmg+,(observer:x2)[knockdown,stun],(observer:x3)[dmg+]]",
+      "Zhangheng (M):[*****,observer,dmg-,(observer:x2)[knockdown,stun],(observer:x3)[dmg+]]",
+      "Zhangheng (B):[*****,observer,lightning,(observer:x2)[knockdown,stun],(observer:x3)[dmg+]]",
+      "Nagamitsu (T):[*****,legendary bladesmith,shield,lightning,(legendary bladesmith:x2)[slow],(legendary bladesmith:x3)[freeze]]",
+      "Nagamitsu (M):[*****,legendary bladesmith,shield,lightning,(legendary bladesmith:x2)[slow],(legendary bladesmith:x3)[freeze]]",
+      "Nagamitsu (B):[*****,legendary bladesmith,shield,dmg-,(legendary bladesmith:x2)[slow],(legendary bladesmith:x3)[freeze]]",
+      "Dracula (T):[*****,vampire prince,(bleed)dmg+,(vampire prince:x2)[(crit)[summon,dmg+,critdmg+]],(vampire prince:x3)[immune,heal,aoe,float,dot]]",
+      "Dracula (M):[*****,vampire prince,(bleed)[heal,SP+],(vampire prince:x2)[(crit)[summon,dmg+,critdmg+]],(vampire prince:x3)[immune,heal,aoe,float,dot]]",
+      "Dracula (B):[*****,vampire prince,(bleed)[speed+,crit],(vampire prince:x2)[(crit)[summon,dmg+,critdmg+]],(vampire prince:x3)[immune,heal,aoe,float,dot]]",
+      "Bronya Shadow (T):[*****,traitor wolf,range,dmg+,(traitor wolf:x2)[(cannon)dmg+],(traitor wolf:x3)[(bronya)critdmg+]]",
+      "Bronya Shadow (M):[*****,traitor wolf,dmg-,(traitor wolf:x2)[(cannon)dmg+],(traitor wolf:x3)[(bronya)critdmg+]]",
+      "Bronya Shadow (B):[*****,traitor wolf,speed+,(traitor wolf:x2)[(cannon)dmg+],(traitor wolf:x3)[(bronya)critdmg+]]",
+      "Sin Mal (T):[*****,savage halberd,invisible,dmg+,(savage halberd:x2)[aoe,dmg+,immobilize],(savage halberd:x3)[heal,SP+]]",
+      "Sin Mal (M):[*****,savage halberd,(invisible)[move+],(savage halberd:x2)[aoe,dmg+,immobilize],(savage halberd:x3)[heal,SP+]]",
+      "Sin Mal (B):[*****,savage halberd,(invisible)[crit,speed+],(savage halberd:x2)[aoe,dmg+,immobilize],(savage halberd:x3)[heal,SP+]]",
+
+      "():[*****,(:x2)[],(:x3)[]]",
 
       "Otto Apocalypse (T):[*****,shicksal overseer,dmg+,(charge)dmg+,(shicksal overseer:x2)[aoe,lightning],(shicksal overseer:x3)[aoe,lightning]]",
       "Otto Apocalypse (M):[*****,shicksal overseer,weaken,dmg-,(shicksal overseer:x2)[aoe,lightning],(shicksal overseer:x3)[aoe,lightning]]",
@@ -978,6 +1023,8 @@
         let exact = document.getElementById("exact").checked;
         if (!exact)
         {
+          if (key1 == "fracture" && key2 == "timeslow") return true;
+          if (key2 == "fracture" && key1 == "timeslow") return true;
           if (key1 == "ignite" && key2 == "fire") return true;
           if (key2 == "ignite" && key1 == "fire") return true;
           if (key2 == "elem+" && key1 == "fire") return true;
@@ -1177,6 +1224,26 @@
       }
 
       has(name)
+      {
+        let ret = this._has(name);
+        if (ret) return ret;
+
+        let exact = document.getElementById("exact").checked;
+        if (exact) return ret;
+
+        if (name == "fracture") { ret = this._has("timeslow"); if (ret) return ret; }
+        if (name == "timeslow") { ret = this._has("fracture"); if (ret) return ret; }
+        if (name == "ignite") { ret = this._has("fire"); if (ret) return ret; }
+        if (name == "fire") { ret = this._has("ignite"); if (ret) return ret; }
+        if (name == "elem+") { ret = this._has("fire"); if (ret) return ret; }
+        if (name == "elem+") { ret = this._has("ice"); if (ret) return ret; }
+        if (name == "elem+") { ret = this._has("lightning"); if (ret) return ret; }
+        if (name == "fire") { ret = this._has("elem"); if (ret) return ret; }
+        if (name == "ice") { ret = this._has("elem"); if (ret) return ret; }
+        if (name == "lightning") { ret = this._has("elem"); if (ret) return ret; }
+      }
+
+      _has(name)
       {
         if (this.items.Valks[name]) return true;
         if (this.items.Weapons[name]) return true;
@@ -1483,7 +1550,27 @@ Most properties should be self explainatory, but these might need some explainat
         return result.sort();
       }
 
-      has(key) { return this.props[key]; }
+      has(key)
+      {
+        let ret = this.props[key];
+        if (ret) return ret;
+
+        let exact = document.getElementById("exact").checked;
+        if (exact) return ret;
+
+        if (key == "fracture")  { ret = this.props["timeslow"];  if (ret) return ret; }
+        if (key == "timeslow")  { ret = this.props["fracture"];  if (ret) return ret; }
+        if (key == "ignite")    { ret = this.props["fire"];      if (ret) return ret; }
+        if (key == "fire")      { ret = this.props["ignite"];    if (ret) return ret; }
+        if (key == "elem+")     { ret = this.props["fire"];      if (ret) return ret; }
+        if (key == "elem+")     { ret = this.props["ice"];       if (ret) return ret; }
+        if (key == "elem+")     { ret = this.props["lightning"]; if (ret) return ret; }
+        if (key == "fire")      { ret = this.props["elem"];      if (ret) return ret; }
+        if (key == "ice")       { ret = this.props["elem"];      if (ret) return ret; }
+        if (key == "lightning") { ret = this.props["elem"];      if (ret) return ret; }
+
+        return ret;
+      }
 
       setProp(prop)
       {
@@ -1663,7 +1750,7 @@ Most properties should be self explainatory, but these might need some explainat
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
     <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
-    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" type="checkbox" />>Exact match only: <input id="exact" checked type="checkbox" /><br />
+    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact" type="checkbox" /><br />
     <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
   </div>
   <div style="position: absolute; top:130px">
