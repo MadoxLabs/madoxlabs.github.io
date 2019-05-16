@@ -172,9 +172,6 @@
 
     var globalTerms = ["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"];
 
-//    Sf -> click timelock -> get non- collection Valks
-  //  bronya -> cannon -> no reulsts
-
     var dataValks = [
       "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[elem+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
       "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
@@ -280,7 +277,7 @@
       "Alloy Betrayer:[****,(sword)[melee,range,aoe]]",
       "Ion Resonance:[****,(sword)[melee,lightning,aoe,paralyze]]",
       "Alloy Wotan's Cleaver:[****,(sword)[melee,aoe,fire]]",
-      "Hybred Type-27:[***,(sword)[melee,float]]",
+      "Hybrid Type-27:[***,(sword)[melee,float]]",
       "King Cobra:[****,(sword)[melee,SP+]]",
       "Nitro Crystal:[****,(sword)[melee,(frozen)dmg+]]",
       "Obsidian Reaper:[****,(scythe)[melee,aoe,knockback,fire]]",
@@ -911,29 +908,7 @@
         this.draw();
         this.resetExtra();
 
-        if (this.root.name == "Vanguard")
-        {
-          app.pointAt(10, this.elemProp + "0", "This is a Himeko weapon.<br>Vanguard's properties appear here.");
-          setTimeout(function () { app.pointAt(11, "0weapreset", "Reset this again.") }, 5000);
-        }
-
-        if (this.root.name == "Galactic Nova")
-        {
-          app.pointAt(6, this.elemProp + "0", "This is a Mei weapon, so its red.<br>It's properties are greyed out");
-          setTimeout(function () { app.pointAt(7, "0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
-        }
-
-        if (this.root.name == "Ion Resonance")
-        {
-          app.pointAt(14, "0prop5", "With 'paralyze' available, Battle Storm's QTE becomes available.<br>THE END!");
-          setTimeout(function () { document.getElementById("ftue").style.display = "none"; }, 10000);
-        }
-
-        if (this.root.name == "Battle Storm")
-        {
-          app.pointAt(2, this.elemProp + "16", "This is a list of her properties.<br>S rank is red because she is rank A.");
-          setTimeout(function () { app.pointAt(3, "valkRankSelect0", "Drag the Rank slider to make her Rank S.") }, 5000);
-        }
+        app.advanceFTUE("pick", this.root.name);
       }
 
       draw()
@@ -969,7 +944,7 @@
         {
           if (props[i].if)
           {
-            let satisfied = this.isSatisfied(props[i]);
+            let satisfied = this.isSatisfied(props[i],false);
             // if its a QTE one, we can not self-satisfy
             if (props[i].props.includes("QTE"))
             {
@@ -1053,14 +1028,7 @@
         this.sortResults();
         this.drawResults();
 
-        if (key == "Himeko")
-        {
-          app.pointAt(9, "0weap3", "Vanguard showed up. Click it.");
-        }
-        if (key == "paralyze")
-        {
-          app.pointAt(13, "0weap7", "Ion Resonance showed up. This weapon causes paralyzation. Click it.");
-        }
+        app.advanceFTUE("handleQuery", key);
       }
 
       hasProp(key, item)
@@ -1141,8 +1109,8 @@
             case 1: this.rank = "B"; break;
             case 2: this.rank = "A"; break;
             case 3: {
-              this.rank = "S"; app.pointAt(4, this.elemProp + "16", "Now she is S Rank! More properties appear.");
-              setTimeout(function () { app.pointAt(5, app.Set[0].Weap.elemSearch, "Now lets search for 'Galactic Nova'!") }, 5000);
+              this.rank = "S";
+              app.advanceFTUE("setrank", "");
               break;
             }
             case 4: this.rank = "SS"; break;
@@ -1198,11 +1166,7 @@
         if (this.id != 1) app.Set[1].Valk.draw();
         if (this.id != 2) app.Set[2].Valk.draw();
 
-        if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
-          app.pointAt(8, app.Set[0].Valk.elemProp + "1", "Now click on Himeko's name to search for her weapons.");
-
-        app.pointAt(12, "0prop5", "Battle Storm can make use of the paralyze skill.<br>It is red because nothing is providing the paralyze skill<br>Lets search for something. Click 'paralyze'");
-
+        app.advanceFTUE("resetExtra", "");
       }
     };
 
@@ -1276,7 +1240,7 @@
       }
     };
 
-    ftuestep = 1000;
+    ftuestep = 1;
 
     class Collection
     {
@@ -1305,6 +1269,7 @@
         if (name == "fire") { ret = this._has("elem"); if (ret) return ret; }
         if (name == "ice") { ret = this._has("elem"); if (ret) return ret; }
         if (name == "lightning") { ret = this._has("elem"); if (ret) return ret; }
+        return false;
       }
 
       _has(name)
@@ -1488,15 +1453,27 @@ Most properties should be self explainatory, but these might need some explainat
           move- - moster's movement speed reduced\n\
           speed+ - valk's attack speed increased\n\
           speed- - monster's attack speed reduced\n\
-          rescue - revivie dead valks\n\
-          pierce - attack hits several enemies in a straight line\n\
-");
+          rescue - revive dead valks\n\
+          pierce - attack hits several enemies in a straight line");
       }
 
       stopTutorial()
       {
-        ftuestep = 99;
+        ftuestep = 9999;
         document.getElementById("ftue").style.display = "none";
+      }
+
+      startTutorial()
+      {
+        this.reset();
+        let e = document.getElementById('tutorials');
+        let key = e.options[e.selectedIndex].value;
+        if (key == "1") // basic search
+        {
+          ftuestep = 1;
+          document.getElementById("ftue").style.display = "block";
+          this.pointAt(1, app.Set[0].Valk.elemSearch, "Try searching for 'Valkyrie Chariot'<br>Click her name when it appears.");
+        }
       }
 
       pointAt(step, name, text)
@@ -1509,6 +1486,78 @@ Most properties should be self explainatory, but these might need some explainat
         ftue.style.left = elem.right + 'px';
         ftue.style.top = elem.top + 'px';
         ftue.innerHTML = text;
+      }
+
+      advanceFTUE(source, data)
+      {
+        if (source == "pick")
+        {
+          if (data == "Devourer")
+          {
+            app.pointAt(8, "0wprop0", "This is a Bronya weapon.<br>Devourer's properties appear here.");
+            setTimeout(function () { app.pointAt(9, "0weapreset", "Reset this again.") }, 5000);
+          }
+
+          if (data == "Galactic Nova")
+          {
+            app.pointAt(4, "0wprop0", "This is a Mei weapon, so its red.<br>It's properties are greyed out");
+            setTimeout(function () { app.pointAt(5, "0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
+          }
+
+          if (data == "Lurker")
+          {
+            app.pointAt(12, "0prop20", "With 'stun' available, Chariot's extra damage becomes available.");
+            setTimeout(function ()
+            {
+              app.pointAt(13, "0prop27", "Let's return to this.<br>S rank is red because she is rank A.");
+              setTimeout(function () { app.pointAt(14, "valkRankSelect0", "Drag the Rank slider to make her Rank S.") }, 5000);
+            }, 5000);
+          }
+
+          if (data == "Valkyrie Chariot")
+          {
+            app.pointAt(2, "0prop27", "This is a list of her properties.<br>Note that some properties are not currently available.");
+            setTimeout(function () { app.pointAt(3, app.Set[0].Weap.elemSearch, "Now lets get a weapon. Search for 'Galactic Nova'!") }, 5000);
+          }
+
+          if (data == "Shadow Knight")
+          {
+            app.pointAt(18, "0prop8", "Since Shadow Knight can also stun, Chariot's QTE is now available!<br>The End!");
+            setTimeout(function () { document.getElementById("ftue").style.display = "none"; }, 10000);
+          }
+        }
+
+        if (source == "handleQuery")
+        {
+          if (data == "cannon")
+          {
+            app.pointAt(7, "0weap41", "Devourer showed up. Click it.");
+          }
+          if (data == "stun")
+          {
+            if (ftuestep == 17)
+              app.pointAt(17, "1valk35", "Pick a teammate! Click on Shadow Knight");
+            else
+              app.pointAt(11, "0weap28", "Lurker showed up. This weapon causes a stun. Click it.");
+          }
+        }
+
+        if (source == "setrank")
+        {
+          app.pointAt(15, "0prop27", "Now she is S Rank! More properties light up.");
+          setTimeout(function ()
+          {
+            app.pointAt(16, "0prop7", "Her QTE is still not available because a teammate must trigger it.<br>Click 'stun' again and scroll down!");
+          }, 5000);
+        }
+
+        if (source == "resetExtra")
+        {
+          if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
+            app.pointAt(6, app.Set[0].Valk.elemProp + "2", "Now click on 'cannon' to search for Bronya's weapons.");
+
+          app.pointAt(10, "0prop21", "Valkyrie Chariot can make use of the stun skill.<br>It is red because nothing is providing the stun skill.<br>Lets search for something. Click 'stun'");
+        }
       }
 
       prevValk(id) { this.Set[id].Valk.prev(); }
@@ -1730,9 +1779,8 @@ Most properties should be self explainatory, but these might need some explainat
     function init()
     {
       app = new App();
+      app.stopTutorial();
       app.reset();
-      app.pointAt(1, app.Set[0].Valk.elemSearch, "Try searching for 'Battle Storm'<br>Click her name when it appears.");
-
     }
 
     function parseObject(data)
@@ -1815,7 +1863,13 @@ Most properties should be self explainatory, but these might need some explainat
     <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
     Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact" type="checkbox" /><br />
-    <button onclick="app.stopTutorial();">Skip Tutorial</button><br />
+    Start a tutorial: <select id="tutorials">
+      <option value="1">Basic Searching</option>
+      <option value="2">Property Searching</option>
+      <option value="3">Locked Properties</option>
+      <option value="4">My Collection</option>
+    </select>
+    <button onclick="app.startTutorial();" >Start Tutorial</button> <button onclick="app.stopTutorial();">Stop Tutorial</button><br />
   </div>
   <div style="position: absolute; top:130px">
     <table class="blueTable">
