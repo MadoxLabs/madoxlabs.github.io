@@ -10,6 +10,29 @@
       margin: 0px;
     }
 
+    div.my-tooltip2 {
+      background: rgba(255,255,40,1);
+      display: inline-block;
+      border-radius: 4px;
+      color: black;
+      box-shadow: 1px 1px 3px #aaa;
+      padding: 5px 10px;
+      margin: 5px 10px;
+      line-height: 100%;
+      font-size: 15px;
+    }
+
+      div.my-tooltip2.left-top:before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-top: 5px solid transparent;
+        border-right: 5px solid rgba(255,255,40,1);
+        border-bottom: 5px solid transparent;
+        margin: 1px 0 0 -15px;
+      }
+
     div.my-tooltip {
       background: rgba(40,40,40,0.8);
       display: inline-block;
@@ -1482,8 +1505,8 @@ Most properties should be self explainatory, but these might need some explainat
         {
           ftuestep = 401;
           document.getElementById("ftue").style.display = "block";
-          document.getElementById("ftue").style.background = "rgba(255,255,0,1)";
-          document.getElementById("ftue").style.color = "black";
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
           this.pointAt(401, "view", "Let's view the valks and gear in your collection.<br>Click this button");
         }
       }
@@ -1504,32 +1527,32 @@ Most properties should be self explainatory, but these might need some explainat
       {
         if (source == "view")
         {
-          document.getElementById("ftue").style.background = "rgba(40,40,40,0.8)";
-          document.getElementById("ftue").style.color = "white";
+          document.getElementById("ftue").classList.remove("my-tooltip2");
+          document.getElementById("ftue").classList.add("my-tooltip");
           app.pointAt(402, "colreset", "You probably don't have anything set yet. Click on reset");
         }
         if (source == "save")
         {
-          document.getElementById("ftue").style.background = "rgba(255,255,0,1)";
-          document.getElementById("ftue").style.color = "black";
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
           app.pointAt(405, "myfilter", "Turn on this checkbox, and you will only see things you own in the search results<br>Try it out on your own!<br>The End!");
           setTimeout(function ()
           {
             document.getElementById("ftue").style.display = "none";
-            document.getElementById("ftue").style.background = "rgba(40,40,40,0.8)";
-            document.getElementById("ftue").style.color = "white";
+            document.getElementById("ftue").classList.remove("my-tooltip2");
+            document.getElementById("ftue").classList.add("my-tooltip");
           }, 10000);
         }
         if (source == "edit")
         {
-          document.getElementById("ftue").style.background = "rgba(40,40,40,0.8)";
-          document.getElementById("ftue").style.color = "white";
+          document.getElementById("ftue").classList.remove("my-tooltip2");
+          document.getElementById("ftue").classList.add("my-tooltip");
           app.pointAt(404, "save", "Here is a list of everything in the game.<br>Check off all the things that you currently own!<br>Ya it sucks, but thats how it is for now!<br>Click save when you are done.");
         }
         if (source == "reset")
         {
-          document.getElementById("ftue").style.background = "rgba(255,255,0,1)";
-          document.getElementById("ftue").style.color = "black";
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
           app.pointAt(403, "edit", "Click here to add or remove things from your collection.");
         }
         if (source == "pick")
