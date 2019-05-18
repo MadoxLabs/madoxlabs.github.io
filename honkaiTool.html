@@ -1228,6 +1228,7 @@
         this.TStig.reset();
         this.MStig.reset();
         this.BStig.reset();
+        app.advanceFTUE("reset");
       }
 
       query(key)
@@ -1374,6 +1375,7 @@
         this.Set[0].reset();
         this.Set[1].reset();
         this.Set[2].reset();
+        this.advanceFTUE("save");
       }
 
       editMyCollection()
@@ -1394,13 +1396,14 @@
         document.getElementById("BstigMode2").innerHTML = "";
         document.getElementById("MstigMode2").innerHTML = "";
         let data = this.Collection.edit();
-        document.getElementById("valkMode0").innerHTML += "<button onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button>";
-        document.getElementById("valkMode0").innerHTML += "<button onclick='app.saveMyCollection()'>Save</button><br>";
+        document.getElementById("valkMode0").innerHTML += "<button id='colreset' onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button>";
+        document.getElementById("valkMode0").innerHTML += "<button id='save' onclick='app.saveMyCollection()'>Save</button><br>";
         document.getElementById("valkMode0").innerHTML += data.Valks;
         document.getElementById("weapMode0").innerHTML = data.Weapons;
         document.getElementById("TstigMode0").innerHTML = data.Stigmata.T;
         document.getElementById("MstigMode0").innerHTML = data.Stigmata.M;
         document.getElementById("BstigMode0").innerHTML = data.Stigmata.B;
+        this.advanceFTUE("edit");
       }
 
       viewMyCollection()
@@ -1421,12 +1424,13 @@
         document.getElementById("BstigMode2").innerHTML = "";
         document.getElementById("MstigMode2").innerHTML = "";
         let data = this.Collection.view();
-        document.getElementById("valkMode0").innerHTML += "<button onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button><br>";
+        document.getElementById("valkMode0").innerHTML += "<button id='colreset' onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button><br>";
         document.getElementById("valkMode0").innerHTML += data.Valks;
         document.getElementById("weapMode0").innerHTML = data.Weapons;
         document.getElementById("TstigMode0").innerHTML = data.Stigmata.T;
         document.getElementById("MstigMode0").innerHTML = data.Stigmata.M;
         document.getElementById("BstigMode0").innerHTML = data.Stigmata.B;
+        this.advanceFTUE("view");
       }
 
       help()
@@ -1474,6 +1478,14 @@ Most properties should be self explainatory, but these might need some explainat
           document.getElementById("ftue").style.display = "block";
           this.pointAt(1, app.Set[0].Valk.elemSearch, "Try searching for 'Valkyrie Chariot'<br>Click her name when it appears.");
         }
+        if (key == "4") // my collection
+        {
+          ftuestep = 401;
+          document.getElementById("ftue").style.display = "block";
+          document.getElementById("ftue").style.background = "rgba(255,255,0,1)";
+          document.getElementById("ftue").style.color = "black";
+          this.pointAt(401, "view", "Let's view the valks and gear in your collection.<br>Click this button");
+        }
       }
 
       pointAt(step, name, text)
@@ -1490,6 +1502,36 @@ Most properties should be self explainatory, but these might need some explainat
 
       advanceFTUE(source, data)
       {
+        if (source == "view")
+        {
+          document.getElementById("ftue").style.background = "rgba(40,40,40,0.8)";
+          document.getElementById("ftue").style.color = "white";
+          app.pointAt(402, "colreset", "You probably don't have anything set yet. Click on reset");
+        }
+        if (source == "save")
+        {
+          document.getElementById("ftue").style.background = "rgba(255,255,0,1)";
+          document.getElementById("ftue").style.color = "black";
+          app.pointAt(405, "myfilter", "Turn on this checkbox, and you will only see things you own in the search results<br>Try it out on your own!<br>The End!");
+          setTimeout(function ()
+          {
+            document.getElementById("ftue").style.display = "none";
+            document.getElementById("ftue").style.background = "rgba(40,40,40,0.8)";
+            document.getElementById("ftue").style.color = "white";
+          }, 10000);
+        }
+        if (source == "edit")
+        {
+          document.getElementById("ftue").style.background = "rgba(40,40,40,0.8)";
+          document.getElementById("ftue").style.color = "white";
+          app.pointAt(404, "save", "Here is a list of everything in the game.<br>Check off all the things that you currently own!<br>Ya it sucks, but thats how it is for now!<br>Click save when you are done.");
+        }
+        if (source == "reset")
+        {
+          document.getElementById("ftue").style.background = "rgba(255,255,0,1)";
+          document.getElementById("ftue").style.color = "black";
+          app.pointAt(403, "edit", "Click here to add or remove things from your collection.");
+        }
         if (source == "pick")
         {
           if (data == "Devourer")
@@ -1522,10 +1564,12 @@ Most properties should be self explainatory, but these might need some explainat
 
           if (data == "Shadow Knight")
           {
+            window.scrollTo(0, 0);
             app.pointAt(18, "0prop8", "Since Shadow Knight can also stun, Chariot's QTE is now available!<br>The End!");
             setTimeout(function () { document.getElementById("ftue").style.display = "none"; }, 10000);
           }
         }
+
 
         if (source == "handleQuery")
         {
@@ -1536,8 +1580,10 @@ Most properties should be self explainatory, but these might need some explainat
           if (data == "stun")
           {
             if (ftuestep == 17)
-              app.pointAt(17, "1valk35", "Pick a teammate! Click on Shadow Knight.<br>Go back and check to see that Chariot's QTE is now available.");
-            else
+            {
+              window.scrollTo(0, 600);
+              app.pointAt(17, "1valk35", "Pick a teammate! Click on Shadow Knight, who is able to trigger Chariot's QTE");
+            } else
               app.pointAt(11, "0weap28", "Lurker showed up. This weapon causes a stun. Click it.");
           }
         }
@@ -1547,7 +1593,7 @@ Most properties should be self explainatory, but these might need some explainat
           app.pointAt(15, "0prop27", "Now she is S Rank! More properties light up.");
           setTimeout(function ()
           {
-            app.pointAt(16, "0prop7", "Her QTE is still not available because a teammate must trigger it.<br>Click 'stun' again and scroll down!");
+            app.pointAt(16, "0prop7", "Her QTE is still not available because a teammate must trigger it.<br>Click 'stun' again and we will scroll down to Valkryie 2.");
           }, 5000);
         }
 
@@ -1858,7 +1904,7 @@ Most properties should be self explainatory, but these might need some explainat
   </div>
   <div class="menu">
     HONKAI IMPACT TOOL<br /><br />
-    <button onclick="app.viewMyCollection();">View My Collection</button> <button onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection: <input id="myfilter" type="checkbox" /><br />
+    <button id="view" onclick="app.viewMyCollection();">View My Collection</button> <button id="edit" onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection: <input id="myfilter" type="checkbox" /><br />
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
     <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
     <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
