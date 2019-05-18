@@ -10,6 +10,44 @@
       margin: 0px;
     }
 
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+      .close:hover,
+      .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
     div.my-tooltip2 {
       background: rgba(255,255,40,1);
       display: inline-block;
@@ -513,7 +551,7 @@
       "Zhuge Kongming (T):[*****,stone sentinel,CD+,(stone sentinel:x2)[(kallen)hp+,(kiana)hp+],(stone sentinel:x3)[aoe,knockback]]",
       "Zhuge Kongming (M):[*****,stone sentinel,dmg-,(stone sentinel:x2)[(kallen)hp+,(kiana)hp+],(stone sentinel:x3)[aoe,knockback]]",
       "Zhuge Kongming (B):[*****,stone sentinel,def+,(stone sentinel:x2)[(kallen)hp+,(kiana)hp+],(stone sentinel:x3)[aoe,knockback]]",
-      "Dark Jixuanyuan (T):[*****,black kirin,(fracture)[dmg+,aoe,kn ockback],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
+      "Dark Jixuanyuan (T):[*****,black kirin,(fracture)[dmg+,aoe,knockback],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
       "Dark Jixuanyuan (M):[*****,black kirin,(fracture)crit,(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
       "Dark Jixuanyuan (B):[*****,black kirin,(fracture)[move+,speed+],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
       "Lier Scarlet (T):[*****,red poet,hp-,dmg+,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
@@ -1458,36 +1496,15 @@
 
       help()
       {
-        alert("Explaination of Terms\n\
-\n\
-Most properties should be self explainatory, but these might need some explaination.\n\
-          CD+ - cooldowns are somehow improved\n\
-          SP+ - usage of SP is somehow improved\n\
-          aoe - affects a large area\n\
-          atk- - monster's attacks are reduced\n\
-          bleed- - effects of bleeding on valks is reduced\n\
-          crit - change of crit\n\
-          debuff- - effects of debuff on valks is reduced\n\
-          def+ - increased defense\n\
-          def- - monster's defense reduced\n\
-          dmg+ - increased damage\n\
-          dmg- - monster's damage reduced\n\
-          dot - damage ofer time, like bleed\n\
-          fire- - reduced damage on valks from fire\n\
-          float - toss enemies in the air\n\
-          gather - attract enemies\n\
-          move+ - valk's movement speed increased\n\
-          move- - moster's movement speed reduced\n\
-          speed+ - valk's attack speed increased\n\
-          speed- - monster's attack speed reduced\n\
-          rescue - revive dead valks\n\
-          pierce - attack hits several enemies in a straight line");
+        document.getElementById("myModal").style.display = "block";
       }
 
       stopTutorial()
       {
         ftuestep = 9999;
         document.getElementById("ftue").style.display = "none";
+        document.getElementById("ftue").classList.remove("my-tooltip2");
+        document.getElementById("ftue").classList.add("my-tooltip");
       }
 
       startTutorial()
@@ -1500,6 +1517,18 @@ Most properties should be self explainatory, but these might need some explainat
           ftuestep = 1;
           document.getElementById("ftue").style.display = "block";
           this.pointAt(1, app.Set[0].Valk.elemSearch, "Try searching for 'Valkyrie Chariot'<br>Click her name when it appears.");
+        }
+        if (key == "2") // advanced search
+        {
+          ftuestep = 201;
+          document.getElementById("ftue").style.display = "block";
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
+          this.pointAt(201, "presult", "You can search for items that have a certain property<br>Click to open up this list");
+        }
+        if (key == "3") // advanced search
+        {
+          alert("Sorry, not ready yet.\nLearn about: locking, excluding triggers or props, why crit is special");
         }
         if (key == "4") // my collection
         {
@@ -1514,6 +1543,7 @@ Most properties should be self explainatory, but these might need some explainat
       pointAt(step, name, text)
       {
         if (step != ftuestep) return;
+//        if (!document.getElementById(name)) return;
         ftuestep += 1;
         let elem = document.getElementById(name).getBoundingClientRect();
         let ftue = document.getElementById("ftue");
@@ -1525,6 +1555,36 @@ Most properties should be self explainatory, but these might need some explainat
 
       advanceFTUE(source, data)
       {
+        if (source == "exact")
+        {
+          app.pointAt(211, "terms", "There are a few properties that act this way.<br>Learn more by clicking the green link.<br>The End!");
+          setTimeout(function ()
+          {
+            document.getElementById("ftue").style.display = "none";
+          }, 10000);
+        }
+        if (source == "searchprop")
+        {
+          document.getElementById("ftue").classList.remove("my-tooltip2");
+          document.getElementById("ftue").classList.add("my-tooltip");
+          app.pointAt(206, "0Tstig157", "These are all the things that involve 'fire' somehow.<br>Click on Caravaggio.");
+        }
+        if (source == "propsearch")
+        {
+          if (data == "fi")
+          {
+            app.pointAt(204, "presult", "Even before you are done, the list is already getting shorter. Check it out");
+          }
+          if (data == "fire")
+          {
+            app.pointAt(205, "psearchb", "Only 'fire' is left in the list. Click 'Search' now");
+          }
+        }
+        if (source == "presult")
+        {
+          app.pointAt(202, "presult", "There is a lot of properties in here. Close this when you are done looking at it.");
+          setTimeout(function () { app.pointAt(203, "psearch", "We can filter that list by typing in here.<br>Try searching for 'fire'") }, 5000);
+        }
         if (source == "view")
         {
           document.getElementById("ftue").classList.remove("my-tooltip2");
@@ -1551,12 +1611,30 @@ Most properties should be self explainatory, but these might need some explainat
         }
         if (source == "reset")
         {
-          document.getElementById("ftue").classList.remove("my-tooltip");
-          document.getElementById("ftue").classList.add("my-tooltip2");
-          app.pointAt(403, "edit", "Click here to add or remove things from your collection.");
+          if (403 == ftuestep) 
+          {
+            document.getElementById("ftue").classList.remove("my-tooltip");
+            document.getElementById("ftue").classList.add("my-tooltip2");
+            app.pointAt(403, "edit", "Click here to add or remove things from your collection.");
+          }
         }
         if (source == "pick")
         {
+          if (data == "Caravaggio (T)")
+          {
+            app.pointAt(207, "next", "This area shows what you searched for<br>Click prev and next to move through the result list. Try it!");
+            setTimeout(function () { app.pointAt(208, "0Mstig158", "Lets look at Caravaggio (M) when you are ready.") }, 5000);
+          }
+          if (data == "Caravaggio (M)")
+          {
+            app.pointAt(209, "0Msprop4", "We searched for 'fire' but this says 'elem+'<br>Since fire is a type of element, <br>we also get results for 'elem+'");
+            setTimeout(function ()
+            {
+              document.getElementById("ftue").classList.remove("my-tooltip");
+              document.getElementById("ftue").classList.add("my-tooltip2");
+              app.pointAt(210, "exact", "If you only want exactly 'fire' items, you can turn on Exact Match Only.<br>Click it")
+            }, 10000);
+          }
           if (data == "Devourer")
           {
             app.pointAt(8, "0wprop0", "This is a Bronya weapon.<br>Devourer's properties appear here.");
@@ -1645,6 +1723,7 @@ Most properties should be self explainatory, but these might need some explainat
       propSearch()
       {
         let name = document.getElementById('psearch').value;
+        if (app) app.advanceFTUE("propsearch", name);
         let list = this.All.getPropsMatching(name);
         let select = document.getElementById('presult');
         select.innerHTML = "";
@@ -1662,6 +1741,7 @@ Most properties should be self explainatory, but these might need some explainat
         let e = document.getElementById('presult');
         let key = e.options[e.selectedIndex].value;
         this.Set[0].query(key);
+        if (app) app.advanceFTUE("searchprop", key);
         this.Set[1].query(key);
         this.Set[2].query(key);
       }
@@ -1928,14 +2008,14 @@ Most properties should be self explainatory, but these might need some explainat
   <div class="menu">
     HONKAI IMPACT TOOL<br /><br />
     <button id="view" onclick="app.viewMyCollection();">View My Collection</button> <button id="edit" onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection: <input id="myfilter" type="checkbox" /><br />
-    Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select id="presult"></select>
-    <button onclick="app.searchProp();">Search</button><button onclick="app.lockProp();">Lock</button> -
-    <a href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
-    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact" type="checkbox" /><br />
+    Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select onmousedown="if (app) app.advanceFTUE('presult', '');" onclick="this.onmousedown();" id="presult"></select>
+    <button id="psearchb" onclick="app.searchProp();">Search</button><button id="plock" onclick="app.lockProp();">Lock</button> -
+    <a id="terms" href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
+    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact"  onmousedown="if (app) app.advanceFTUE('exact', '');" onclick="this.onmousedown();" type="checkbox" /><br />
     Start a tutorial: <select id="tutorials">
       <option value="1">Basic Searching</option>
       <option value="2">Property Searching</option>
-      <option value="3">Locked Properties</option>
+      <option value="3">Advanced Searching</option>
       <option value="4">My Collection</option>
     </select>
     <button onclick="app.startTutorial();" >Start Tutorial</button> <button onclick="app.stopTutorial();">Stop Tutorial</button><br />
@@ -1954,7 +2034,7 @@ Most properties should be self explainatory, but these might need some explainat
             <div id="weapMode0"></div>
           </td>
           <td valign="top">
-            <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
+            <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a id="next" href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
             <div id="TstigMode0"></div>
           </td>
           <td valign="top">
@@ -2026,5 +2106,45 @@ Most properties should be self explainatory, but these might need some explainat
     </table>
   </div>
   <div class="my-tooltip left-top" id="ftue">This is some help text</div>
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="document.getElementById('myModal').style.display = 'none';">&times;</span>
+      Explaination of Terms<br />
+      <br />
+      Most properties should be self explainatory, but these might need some explaination.<br />
+      <br />
+      <table><tr><td>
+                   CD+ - cooldowns are somehow improved<br />
+                   SP+ - usage of SP is somehow improved<br />
+                   aoe - affects a large area<br />
+                   atk- - monster's attacks are reduced<br />
+                   bleed- - effects of bleeding on valks is reduced<br />
+                   blink - valkyrie will teleport around<br />
+                   crit - chance of crit<br />
+                   debuff- - effects of debuff on valks is reduced<br />
+                   def+ - increased defense<br />
+                   def- - monster's defense reduced<br />
+                   dmg+ - increased damage<br />
+                   dmg- - monster's damage reduced<br />
+                   dot - damage over time, like bleed<br />
+                   fire- - reduced damage on valks from fire<br />
+                   float - toss enemies in the air<br />
+                   gather - attract enemies to a location<br />
+                   move+ - valk's movement speed increased<br />
+                   move- - monster's movement speed reduced<br />
+                   pierce - attack hits several enemies in a straight line
+                   rescue - revive dead valks<br />
+                   speed+ - valk's attack speed increased<br />
+                   speed- - monster's attack speed reduced<br />
+     </td><td>
+       elem+ - with match with fire, ice, and lightning<br />
+       fire - will match with elem+, ignite<br />
+       ice - will match with elem+<br />
+       lightning - will match with elem+<br />
+       ignite - will match with fire<br />
+       fracture - will match with timeslow<br /> 
+      </td></tr></table>
+    </div>
+  </div>
 </body>
 </html>
