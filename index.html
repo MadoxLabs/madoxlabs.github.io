@@ -34,10 +34,11 @@
 
     <div class="slide" ><div class="scrollWindow">
       <a href='#2'><h2>Noise Tool</h2></a><p>GUI for manipulating Perlin Noise</p><br />
-      <a href='#3'><h2>CodeImage</h2></a><p>A way to encode javascript in images</p><br />
-      <a href='#4'><h2>WebGL Projects</h2></a><p>I have many WebGL projects on the go</p><br />
-      <a href='#5'><h2>Escape Room Tycoon</h2></a><p>A new game demo I'm working on</p><br />
-      <a href='#6'><h2>Misc</h2></a><p>Misc javascript things I have made</p><br />
+      <a href='#3'><h2>Escape Game</h2></a><p>A WebGL point and click escape room game.</p><br />
+      <a href='#4'><h2>CodeImage</h2></a><p>A way to encode javascript in images</p><br />
+      <a href='#5'><h2>WebGL Projects</h2></a><p>I have many WebGL projects on the go</p><br />
+      <a href='#6'><h2>Escape Room Tycoon</h2></a><p>A new game demo I'm working on</p><br />
+      <a href='#7'><h2>Misc</h2></a><p>Misc javascript things I have made</p><br />
     </div></div>
 
     <div class="slide"><div class="scrollWindow">
@@ -54,9 +55,19 @@
       <a href="frontpage/noiseimage2.jpg" rel="lightbox" title="NoiseTool Terrain"><img width=200 src='frontpage/noiseimage2.jpg' class=scale></a>
     </div><h1><a href='#1'>Home</a></h1></div>
 
+    <div class="slide">
+      <div class="scrollWindow">
+        <h2>Escape</h2><br />
+        <p>Escape is my first WebGL escape room simulation. It's based on the old one room adventure games that we used to play back in the flash days. Originally made for the Oculus Devkit 1, it no longer works in VR but its still fun! Can you use the clues and figure out how to open the door?</p>
+        <br />
+        <a href="http://madox.ca/WebGL/Escape/">Launch Escape Game</a><br />
+      </div><h1><a href='#1'>Home</a></h1>
+    </div>
+
     <div class="slide"><div class="scrollWindow">
       <h2>CodeImage</h2><br />
       <p>CodeImage lets you encode javascript into an image. Webpages can load and run code directly from the image.</p>
+      <p>CodeImage is currently used by my webgl engine as a way to load model assets. All the model data is converted to JSON and encoded as a jpg. The JSON gets read from the image at run time and is ready to use immediately with no processing or parsing.</p>
       <br />
       <a href="http://madoxlabs.github.io/CodeImage">More information here</a><br />
     </div><h1><a href='#1'>Home</a></h1></div>
@@ -64,10 +75,6 @@
     <div class="slide"><div class="scrollWindow">
       <h2>WebGL</h2>
       <p>I've worked with DirectX for many years in C++, then with SharpDX in C# for Windows and XBox. Lately, with the advances of WebGL, I have changed my focus to be on online graphics rendering.</p>
-      <br />
-      <h2>Escape</h2>
-      <p>Escape is my first WebGL escape room simulation. It's based on the old one room adventure games.</p>
-      <a href="http://madox.ca/WebGL/Escape/">Launch Escape Game</a><br />
       <br />
       <h2>mxPipeline</h2>
       <p>My custom pipeline is used to prepare 3D models into a proprietary format that my WebGl engine uses. It handles FBX files and textures. Plans are underway to handle IK and bones.</p>
