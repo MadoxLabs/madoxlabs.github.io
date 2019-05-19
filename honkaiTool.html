@@ -268,11 +268,11 @@
       "Vermilion Knight Eclipse:[(B)[Himeko,sword,MECH],(S)[charge,fire,ignite,SP+,(timeslow)[QTE,aoe,ignite,fire],bleed-,(ignite)dmg+,(leader)[(switch)dmg+,dmg+]],(SS)[fire,CD+],(SSS)[fire]]",
       "Violet Executor:[(B)[Theresa,cross,MECH],(S)[charge,float,bleed,switch,(timeslow)[QTE,aoe,float],aoe,stun,move+,knockdown,CD+,SP+,(bleed)dmg+],(SS)[(leader)[dmg+],dmg-,knockdown,aoe],(SSS)[crit]]",
       "Sakuno Rondo:[(B)[Theresa,cross,PSY,(sakura)[]],(A)[charge,aoe,fire,float,knockdown,SP+,switch,ignite,move+],(S)[(paralyze)[QTE,fire],(freeze)dmg+,dmg+,CD+,bleed,(leader)[elem+,(float)dmg+]],(SS)[elem+],(SSS)[dmg-,speed+]]",
-      "Valkyrie Accipiter:[(B)[Fu Hua,gauntlet,PSY],(A)[combo,switch,aoe,float,QTE,(QTE)[timeslow,impair,def-],fracture,stun],(S)[(impair)dmg+,(stun)dmg+,CD+,(range)dmg+,heal,(leader)[(Mei)crit,(Kiana)crit,(Bronya)crit]],(SS)[def-],(SSS)[dmg-]]",
+      "Valkyrie Accipiter:[(B)[Fu Hua,gauntlet,PSY],(A)[combo,switch,aoe,float,(dmg+)[QTE],(QTE)[timeslow,impair,def-],fracture,stun],(S)[(impair)dmg+,(stun)dmg+,CD+,(range)dmg+,heal,(leader)[(Mei)crit,(Kiana)crit,(Bronya)crit]],(SS)[def-],(SSS)[dmg-]]",
       "Shadow Knight:[(B)[Fu Hua,gauntlet,MECH],(S)[combo,knockback,stun,switch,aoe,lightning,elem+,(freeze)[QTE,aoe,lightning],bleed-,imprison,CD+,SP+,bleed,(slow)dmg+,(bleed)dmg+],(SS)[timeslow,bleed,speed+,dmg-,(leader)[SP+]],(SSS)[paralyze,aoe]]",
       "Phoenix:[(B)[Fu Hua,gauntlet,PSY],(S)[combo,(ignite)[QTE,aoe,fire],switch,aoe,fire,firebrand,timelock,atk-],(SS)[ignite,(leader)[speed+,(PSY)dmg+]],(SSS)[stun,aoe]]",
       "Phantom Iron:[(B)[Rita,scythe,MECH],(A)[charge,lightning,(timeslow)[QTE,aoe,lightning,float,summon,speed+,aoe,paralyze]],(S)[dmg+,elem+,(leader)[dmg-,(MECH)dmg+]],(SS)[(paralyze)dmg+,(ignite)dmg+],(SSS)[lightning,dmg+]]",
-      "Argent Knight Artemis:(B)[Rita,scythe,BIO],(S)[charge,hypothemia,ice,aoe,(freeze)[QTE,ice],(paralyze)[QTE,ice],dmg-,freeze,heal],(SS)[CD+,(leader)[elem+,(charge)dmg+,(combo)dmg+]],(SSS)[ice,dmg+]]"
+      "Argent Knight Artemis:[(B)[Rita, scythe, BIO],(S)[charge, hypothemia, ice, aoe, (freeze)[QTE, ice], (paralyze)[QTE, ice], dmg -,freeze, heal],(SS)[CD +,(leader)[elem +,(charge)dmg+,(combo)dmg+]],(SSS)[ice, dmg+]]"
     ];
 
     var dataWeapons = [
@@ -1265,13 +1265,14 @@
 
     class Set
     {
+      /*
       Valk = null;
       Weap = null;
       TStig = null;
       MStig = null;
       BStig = null;
       Res = null;
-
+*/
       constructor(id)
       {
         this.Valk = new ValkUI(id);
@@ -1306,11 +1307,11 @@
 
     class Collection
     {
-      items = { Valks: {}, Weapons: {}, Stigmata: {} };
+//      items = { Valks: {}, Weapons: {}, Stigmata: {} };
 
       constructor()
       {
-
+        this.items = { Valks: {}, Weapons: {}, Stigmata: {} };
       }
 
       has(name)
@@ -1409,13 +1410,18 @@
 
     class App
     {
-      Set = [];
-      All = new Resolver();
-      Collection = new Collection();
-      Locks = [];
+//      Set = [];
+//      All = new Resolver();
+//      Collection = new Collection();
+//      Locks = [];
 
       constructor()
       {
+        this.Set = [];
+        this.All = new Resolver();
+        this.Collection = new Collection();
+        this.Locks = [];
+
         this.Set[0] = new Set(0);
         this.Set[1] = new Set(1);
         this.Set[2] = new Set(2);
@@ -1789,12 +1795,15 @@
 
     class Resolver
     {
-      props = {};
-      ifs = [];
-      everything = false;
+//      props = {};
+//      ifs = [];
+//      everything = false;
 
       constructor()
       {
+        this.props = {};
+        this.ifs = [];
+        this.everything = false;
       }
 
       allowEverything()
