@@ -272,7 +272,7 @@
       "Shadow Knight:[(B)[Fu Hua,gauntlet,MECH],(S)[combo,knockback,stun,switch,aoe,lightning,elem+,(freeze)[QTE,aoe,lightning],bleed-,imprison,CD+,SP+,bleed,(slow)dmg+,(bleed)dmg+],(SS)[timeslow,bleed,speed+,dmg-,(leader)[SP+]],(SSS)[paralyze,aoe]]",
       "Phoenix:[(B)[Fu Hua,gauntlet,PSY],(S)[combo,(ignite)[QTE,aoe,fire],switch,aoe,fire,firebrand,timelock,atk-],(SS)[ignite,(leader)[speed+,(PSY)dmg+]],(SSS)[stun,aoe]]",
       "Phantom Iron:[(B)[Rita,scythe,MECH],(A)[charge,lightning,(timeslow)[QTE,aoe,lightning,float,summon,speed+,aoe,paralyze]],(S)[dmg+,elem+,(leader)[dmg-,(MECH)dmg+]],(SS)[(paralyze)dmg+,(ignite)dmg+],(SSS)[lightning,dmg+]]",
-      "Argent Knight Artemis:[(B)[Rita, scythe, BIO],(S)[charge, hypothemia, ice, aoe, (freeze)[QTE, ice], (paralyze)[QTE, ice], dmg -,freeze, heal],(SS)[CD +,(leader)[elem +,(charge)dmg+,(combo)dmg+]],(SSS)[ice, dmg+]]"
+      "Argent Knight Artemis:[(B)[Rita,scythe,BIO],(S)[charge,hypothemia,ice,aoe,(freeze)[QTE,ice],(paralyze)[QTE,ice],dmg-,freeze,heal],(SS)[CD+,(leader)[elem+,(charge)dmg+,(combo)dmg+]],(SSS)[ice,dmg+]]"
     ];
 
     var dataWeapons = [
@@ -1688,8 +1688,8 @@
           {
             if (ftuestep == 17)
             {
-              window.scrollTo(0, 600);
               app.pointAt(17, "1valk35", "Pick a teammate! Click on Shadow Knight, who is able to trigger Chariot's QTE");
+              window.scrollTo(0, 600);
             } else
               app.pointAt(11, "0weap28", "Lurker showed up. This weapon causes a stun. Click it.");
           }
