@@ -1,0 +1,2466 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title>Madox Labs - Honkai Impact Tool</title>
+
+  <style>
+    body {
+      margin: 0px;
+    }
+
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+      .close:hover,
+      .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+    div.my-tooltip2 {
+      background: rgba(255,255,40,1);
+      display: inline-block;
+      border-radius: 4px;
+      color: black;
+      box-shadow: 1px 1px 3px #aaa;
+      padding: 5px 10px;
+      margin: 5px 10px;
+      line-height: 100%;
+      font-size: 15px;
+    }
+
+      div.my-tooltip2.left-top:before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-top: 5px solid transparent;
+        border-right: 5px solid rgba(255,255,40,1);
+        border-bottom: 5px solid transparent;
+        margin: 1px 0 0 -15px;
+      }
+
+    div.my-tooltip {
+      background: rgba(40,40,40,0.8);
+      display: inline-block;
+      border-radius: 4px;
+      color: white;
+      box-shadow: 1px 1px 3px #aaa;
+      padding: 5px 10px;
+      margin: 5px 10px;
+      line-height: 100%;
+      font-size: 15px;
+    }
+
+    div.my-tooltip.left-top:before {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-right: 5px solid rgba(40,40,40,0.8);
+      border-bottom: 5px solid transparent;
+      margin: 1px 0 0 -15px;
+    }
+
+    div.header {
+      background-color: #000000;
+      color: #ffffff;
+      position: absolute;
+      top: -80px;
+      left: 10px;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+    div.off {
+      background-color: #eeeeee;
+      color: #aaaaaa;
+      font-style: italic;
+    }
+
+    div.unmet {
+      background-color: #aa0000;
+      color: #ffffff;
+    }
+
+    div.met {
+      background-color: #00aa00;
+      color: #ffffff;
+    }
+
+    div.menu {
+      background-color: #000000;
+      color: #ffffff;
+      position: absolute;
+      top: 0px;
+      left: 210px;
+      width: 100%;
+      height: 128px;
+      padding: 0px 0px;
+      margin: 0px;
+    }
+
+    table.blueTable {
+      border: 1px solid #1C6EA4;
+      background-color: #EEEEEE;
+      width: 100%;
+      text-align: left;
+      border-collapse: collapse;
+      margin: 8px;
+    }
+
+    table.blueTable td, table.blueTable th {
+      border: 1px solid #AAAAAA;
+      padding: 3px 2px;
+    }
+
+    table.blueTable tbody td {
+      font-size: 13px;
+    }
+
+    table.blueTable tr:nth-child(even) {
+      background: #D0E4F5;
+    }
+
+    table.blueTable thead {
+      background: #1C6EA4;
+      background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+      background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+      background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+      border-bottom: 2px solid #444444;
+    }
+
+    table.blueTable thead th {
+      font-size: 15px;
+      font-weight: bold;
+      color: #FFFFFF;
+      border-left: 2px solid #D0E4F5;
+    }
+
+    table.blueTable thead th:first-child {
+      border-left: none;
+    }
+
+    table.blueTable tfoot td {
+      font-size: 14px;
+    }
+
+    table.blueTable tfoot .links {
+      text-align: right;
+    }
+
+    table.blueTable tfoot .links a {
+      display: inline-block;
+      background: #1C6EA4;
+      color: #FFFFFF;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      height: 15px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+
+    .slider:hover {
+      opacity: 1;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+
+    a {
+      text-decoration: none
+    }
+
+    span.right {
+      text-align: right;
+      display: block;
+    }
+
+    /* BELOW HERE is the styles for the V2 UI */
+    div.box {
+      border-radius: 10px 10px 0px 0px;
+      -moz-border-radius: 10px 10px 0px 0px;
+      -webkit-border-radius: 10px 10px 0px 0px;
+      border: 2px solid #0799FA;
+    }
+
+    div.group {
+      margin: 4px;
+      border-radius: 10px 10px 10px 10px;
+      -moz-border-radius: 10px 10px 10px 10px;
+      -webkit-border-radius: 10px 10px 10px 10px;
+      border: 2px solid #0799FA;
+    }
+
+    span.item {
+      margin: 4px;
+    }
+
+    span.item-no {
+      margin: 4px;
+      background-color: #ffa8a8;
+      display: block;
+      box-sizing: border-box;
+      color: #999999;
+    }
+
+    span.item-un {
+      margin: 4px;
+      color: #999999;
+    }
+
+    span.header {
+      display: block;
+      text-align: right;
+      box-sizing: border-box;
+      width: auto;
+      padding: 2px;
+      border-radius: 10px 10px 0px 0px;
+      background-color: #0799FA;
+    }
+
+    span.groupname {
+      display: block;
+      box-sizing: border-box;
+      width: auto;
+      border-radius: 10px 10px 0px 0px;
+      background-color: #b4ebff;
+    }
+
+    span.groupname-no {
+      display: block;
+      box-sizing: border-box;
+      width: auto;
+      border-radius: 10px 10px 0px 0px;
+      background-color: #ffa8a8;
+      color: #999999
+    }
+
+    .alignleft {
+      margin: 4px;
+      float: left;
+    }
+
+    .alignright {
+      margin: 4px;
+      float: right;
+    }
+  </style>
+
+  <script type="text/javascript">
+
+    var globalTerms = ["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"];
+
+    var dataValks = [
+      "Divine Prayer v2:[(B)[Kiana,pistol,PSY],(A)[phy dmg+|a,aoe|a,weaken|a,(crit)[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice dot|v,heal|gv,phy dmg+|s,(float)[stun]|s,charge|c,phy dmg+|c,knockback|c,(paralyze)[dmg+,phy dmg+,heal|g]|q,burst|u,heal dot|gu,elem dmg+|gl,elem dmg-|gl],(S)[(combo)[crit]|p,CD+|v,debuff-|s,def-|s],(SS)[heal|gu,move+|gu,speed+|gu],(SSS)[rescue|x]]",
+
+      "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[elem+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
+      "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
+      "Valkyrie Ranger:[(B)[Kiana,pistol,MECH],(A)[combo,pierce,stun,dmg+,speed+,bleed,(freeze)[QTE,aoe,impair],gather],(S)[fire,(leader)[speed+,(MECH)[speed+]],(SS)[def+,crit,(freeze)[crit]],(SSS)[crit]]",
+      "Herrscher of the Void:[(B)[Kiana,pistol,BIO],(S)[herrscher,aoe,time prison,space core,speed+,(timeslow)QTE,(timelock)QTE,crit,dmg+,gather,timeslow,dmg-],(SS)[crit,(leader)[crit,critdmg+]],(SSS)[fracture]]",
+      "Battle Storm:[(B)[Himeko,sword,BIO,switch,charge,aoe,knockdown,float,gather,weaken,atk-,fracture,move+,slow,elem-,(leader)dmg-],(A)[(paralyze)[QTE,aoe,knockback],(crit)[],fire],(S)[dmg-,stun],(SS)[ignite],(SSS)[stun]]",
+      "Kreigsmesser:[(B)[Himeko,sword,PSY],(A)[charge,switch,aoe,knockdown,(ignite)[QTE,ice,freeze],ice,freeze,slow,(leader)[(PSY)dmg+]],(S)[ice,(slow)dmg+]]",
+      "Scarlet Fusion:[(B)[Himeko,sword,MECH],(A)[charge,combo,float,lightning,switch,pierce,aoe,paralyze,(timelock)[QTE,float,paralyze,lightning],(timeslow)[QTE,paralyze,lightning]],(S)[aoe,paralyze,(bleed)dmg+,(leader)[(switch)dmg+]],(SS)[bleed],(SSS)[paralyze]]",
+      "Valkyrie Triumph:[(B)[Himeko,sword,BIO],(A)[switch,timeslow,aoe,charge,stun,(freeze),(stun),(leader)[dmg+,(BIO)def+]],(S)[(freeze)[QTE],heal]]",
+      "Shadow Dash:[(B)[Mei,katana,MECH],(A)[combo,float,switch,(stun)QTE,summon,aoe,paralyze,crit],(S)[(leader)crit,(stun)dmg+,(paralyze)dmg+,(timeslow)dmg+],(SS)[summon,crit],(SSS)[SP+,summon]]",
+      "Crimson Impulse:[(B)[Mei,katana,BIO],(A)[combo,float,(float)[QTE],fire,aoe,bleed,fracture,crit,(leader)dmg+],(S)[],(SS)[SP+,dmg+],(SSS)[dmg+]]",
+      "Valkyrie Chariot:[(B)[Bronya,cannon,PSY],(A)[switch,float,(stun)[QTE,float,timelock,charge,block,],gather,bleed,aoe,ignite,fire,(ignite)dmg+,fracture,(stun)dmg+,(paralyze)dmg+,(leader)dmg-],(S)[stun,aoe,crit],(SS)[CD+],(SSS)[dmg+]]",
+      "Dimension Breaker:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,elem+,float,timelock,(timeslow)dmg+,(timelock)bleed,(paralyze)[QTE,fire,float,timelock],gather,charge,fire,paralyze,crit,move+],(SS)[SP+,(leader)[(MECH)dmg+]],(SSS)[(leader)[(Mei)crit,(Kiana)crit]]]",
+      "Yamabuki Armor:[(B)[Bronya,cannon,PSY],(A)[switch,float,(timeslow)[QTE,stun],iron body,(impair)[timelock,(Fu Hua)heal],aoe,impair,charge,fracture,fire,shield,lightning],(S)[def+,(leader)[(combo)crit,(PSY)crit]],(SS)[SP+],(SSS)[heal]]",
+      "Snowy Sniper:[(B)[Bronya,cannon,BIO],(A)[switch,move+,(float)[QTE,aoe,freeze],freeze,ice,charge,slow],(S)[(leader)CD+],(SS)[timelock,critdmg+],(SSS)[crit]]",
+      "Wolf's Dawn:[(B)[Bronya,cannon,PSY],(A)[switch,(timeslow)[QTE,stun],stun,timelock,charge,aoe,weaken,fracture,float,shield,elem-],(S)[def+,(leader)[crit,(PSY)critdmg+]],(SS)[SP+,dmg+],(SSS)[gather]]",
+      "Valkyrie Pledge:[(B)[Theresa,cross,PSY],(A)[charge,switch,lightning,paralyze,aoe,def-,fracture,move+,SP+,speed+],(S)[(freeze)QTE,immobilize,(leader)[def+,(PSY)dmg+]],(SS)[knockdown],(SSS)[dmg+]]",
+      "Celestial Hymn:[(B)[Theresa,cross,BIO],(S)[charge,aoe,impair,switch,(timeslow)[QTE,impair,def-],gather,crit,SP+,shield,CD+,(impair)crit],(SS)[dmg+,(leader)[SP+,(BIO)dmg+]],(SSS)[speed-,ice]]",
+      "Luna Kindred:[(B)[Theresa,cross,BIO],(A)[charge,bleed,switch,aoe,weaken,move+,fracture,SP+],(S)[speed+,(paralyze)[QTE,bleed],(bleed)[dmg+,dmg-,heal],(leader)[def+,(BIO)dmg+],(SS)[fracture,dmg+],(SSS)[(charge)crit]]",
+      "Night Squire:[(B)[Fu Hua,gauntlet,BIO],(A)[switch,(float)[QTE,fracture],speed+,move-,dmg-,dmg+,fracture,],(S)[(leader)[hp+,(BIO)crit],crit,CD+,dmg+,(slow)dmg+,(bleed)dmg+,(ignite)dmg+],(SS)[recharge,dmg+,aoe,bleed],(SSS)[aoe]]",
+      "Umbral Rose:[(B)[Rita,scythe,PSY],(A)[hp-,heal,charge,(impair)[QTE],aoe,timeslow,SP+,dmg+],(S)[heal,dmg+,(leader)[speed+,dmg+]],(SS)[dmg-],(SSS)[(bleed)dmg+,(impair)dmg+,recover,heal]]",
+      "Gyakushinn Miko:[(B)[Yae,katana,BIO],(A)[float,switch,(brand)dmg+,(float)[QTE,aoe,sakura brand],sakura brand,aoe,bleed,crit,critdmg],(S)[(leader)dmg+,(sakura brand)dmg+,crit,speed+,CD+],(SS)[dmg+],(SSS)[dmg+]]",
+      "Flame Sakitama:[(B)[Yae,katana,BIO],(A)[combo,fire,(paralyze)[QTE,fire],switch,(switch)fracture,fracture,aoe,timelock,timeslow,speed+,dmg-,(timeslow)[dmg+,elem+]],(S)[dmg+,(leader)[def+,(BIO)hp+]],(SS)[SP+,dmg+],(SSS)[fire]]",
+      "Ritual Imayoh:[(B)[Kallen,pistol,MECH],(S)[combo,switch,(freeze)QTE,ignite,fire,summon,aoe,crit,stun,fracture,dmg+,(leader)[hp+,(MECH)crit]],(SS)[(freeze)fire],(SSS)[stun,move+,speed+]]",
+      "Sundenjager:[(B)[Kallen,pistol,MECH],(S)[hunted brand,combo,pierce,dmg+,ignite,fire,aoe,slow-,speed-,weaken,impair,heal,def-,def+,(float)[QTE],(ignite)dmg+,(bleed)dmg+,(leader)[move+,(MECH)speed+]],(SS)[summon],(SSS)[aoe,ignite]]",
+      "Black Nucleus:[(B)[Bronya,cannon,MECH],(S)[switch,aoe,dmg+,(timeslow)[QTE,aoe,invisble],(float)[QTE,aoe,invisble],ignite,fire,charge,crit,invisible,(invisible)dmg+,CD+,(leader)CD+],(SS)[stun,(crit)[fire,dmg+]],(SSS)[move+]]",
+      "Knight Moonbeam:[(B)[Kiana,pistol,BIO],(S)[combo,aoe,switch,elem+,(float)dmg+,(float)[QTE],SP+,fracture,crit,(stun)dmg+,(paralyze)dmg+],(SS)[fracture,(leader)[crit,(BIO)dmg+]],(SSS)[CD+]]",
+      "Sixth Serenade:[(B)[Kallen,pistol,PSY],(S)[combo,switch,(dmg+)QTE,dmg+,aoe,ice,float,CD+,timelock,(leader)[elem+,dmg+,dmg-]],(SS)[dmg+,SP+],(SSS)[]]",
+      "Valkyrie Bladestrike:[(B)[Mei,katana,BIO],(A)[combo,switch,(float)[critdmg+,crit],dmg+,SP+,aoe,speed+,fracture,paralyze],(S)[(timeslow)[QTE,dmg+],crit,critdmg+,dmg-,(leader)[def+,(BIO)hp+]],(SS)[SP+],(SSS)[speed+,float]]",
+      "Lightning Emperess:[(B)[Mei,katana,BIO],(S)[lightning,switch,aoe,(float)[QTE,SP+],paralyze,speed+,dmg-,(freeze)dmg+,(slow)dmg+],(SS)[paralyze,(leader)[SP+,(PSY)dmg+]],(SSS)[paralyze]]",
+      "Goushinnso Memento:[(B)[Yae,katana,MECH],(S)[kinetic energy,combo,ice,switch,aoe,dmg-,freeze,heal,QTE,CD+,(leader)crit],(SS)[],(SSS)[freeze]]",
+      "Blood Rose:[(B)[Himeko,sword,PSY],(S)[SP+,aoe,switch,ignite,fire,(stun)[QTE,aoe,fire],hp-,move+,speed+,charge],(SS)[fire,crit,heal,ignite,(leader)[(charge)dmg+]],(SSS)[elem-,dmg-,CD+]]",
+      "Vermilion Knight Eclipse:[(B)[Himeko,sword,MECH],(S)[charge,fire,ignite,SP+,(timeslow)[QTE,aoe,ignite,fire],bleed-,(ignite)dmg+,(leader)[(switch)dmg+,dmg+]],(SS)[fire,CD+],(SSS)[fire]]",
+      "Violet Executor:[(B)[Theresa,cross,MECH],(S)[charge,float,bleed,switch,(timeslow)[QTE,aoe,float],aoe,stun,move+,knockdown,CD+,SP+,(bleed)dmg+],(SS)[(leader)[dmg+],dmg-,knockdown,aoe],(SSS)[crit]]",
+      "Sakuno Rondo:[(B)[Theresa,cross,PSY,(sakura)[]],(A)[charge,aoe,fire,float,knockdown,SP+,switch,ignite,move+],(S)[(paralyze)[QTE,fire],(freeze)dmg+,dmg+,CD+,bleed,(leader)[elem+,(float)dmg+]],(SS)[elem+],(SSS)[dmg-,speed+]]",
+      "Valkyrie Accipiter:[(B)[Fu Hua,gauntlet,PSY],(A)[combo,switch,aoe,float,(dmg+)[QTE],(QTE)[timeslow,impair,def-],fracture,stun],(S)[(impair)dmg+,(stun)dmg+,CD+,(range)dmg+,heal,(leader)[(Mei)crit,(Kiana)crit,(Bronya)crit]],(SS)[def-],(SSS)[dmg-]]",
+      "Shadow Knight:[(B)[Fu Hua,gauntlet,MECH],(S)[combo,knockback,stun,switch,aoe,lightning,elem+,(freeze)[QTE,aoe,lightning],bleed-,imprison,CD+,SP+,bleed,(slow)dmg+,(bleed)dmg+],(SS)[timeslow,bleed,speed+,dmg-,(leader)[SP+]],(SSS)[paralyze,aoe]]",
+      "Phoenix:[(B)[Fu Hua,gauntlet,PSY],(S)[combo,(ignite)[QTE,aoe,fire],switch,aoe,fire,firebrand,timelock,atk-],(SS)[ignite,(leader)[speed+,(PSY)dmg+]],(SSS)[stun,aoe]]",
+      "Phantom Iron:[(B)[Rita,scythe,MECH],(A)[charge,lightning,(timeslow)[QTE,aoe,lightning,float,summon,speed+,aoe,paralyze]],(S)[dmg+,elem+,(leader)[dmg-,(MECH)dmg+]],(SS)[(paralyze)dmg+,(ignite)dmg+],(SSS)[lightning,dmg+]]",
+      "Argent Knight Artemis:[(B)[Rita,scythe,BIO],(S)[charge,hypothemia,ice,aoe,(freeze)[QTE,ice],(paralyze)[QTE,ice],dmg-,freeze,heal],(SS)[CD+,(leader)[elem+,(charge)dmg+,(combo)dmg+]],(SSS)[ice,dmg+]]"
+    ];
+
+    var dataWeapons = [
+      "Desert Eagle:[***,(pistol)[range,dmg+,pierce]]",
+      "Artemis' Guardian:[****,(pistol)[range,aoe,float,timelock]]",
+      "Water Spirit Type 1:[****,(pistol)[range,(float)dmg+]]",
+      "Xuanyuan Pistols:[****,(pistol)[range,lightning,pierce,impair,def-]]",
+      "Dark Suns:[****,(pistol)[range,dmg+,move+]]",
+      "Alloy Dominators:[****,(pistol)[range,aoe,fire]]",
+      "Fire Spirit Type 1:[***,(pistol)[range,ignite]]",
+      "Alloy Hurricanes:[****,(pistol)[range,aoe,ice]]",
+      "Colt Anaconda EX:[***,(pistol)[range,aoe,slow]]",
+      "Colt Peacemaker:[***,(pistol)[range,aoe,stun]]",
+      "USP45:[**,(pistol)[range]]",
+      "USP EX:[**,(pistol)[range]]",
+      "M1911:[***,(pistol)[range]]",
+      "Starry Woofers:[*****,(pistol)[range,sparkling star,(sparkling star)[dmg+,move+]]]",
+      "Hurricanes:[*****,(pistol)[range,aoe,ice,slow,move+]]",
+      "Lightning Soul:[****,(katana)[melee,lightning]]",
+      "Galactic Nova:[*****,(katana)[melee,dmg+,lightningFX,(sparkling star)crit,sparkling star,aoe]]",
+      "Anemoi:[*****,(katana)[melee,float,ice,aoe,move+,slow]]",
+      "Jizo Mitama:[*****,(katana)[melee,summon,float,aoe,(float)dmg+]]",
+      "Crystal Edge:[****,(katana)[melee,aoe,freeze]]",
+      "Alloy Gluttony:[****,(katana)[melee,aoe,gather,stun]]",
+      "Alloy Anemoi:[****,(katana)[melee,aoe,float,ice]]",
+      "Muramasa Bloodlust:[***,(katana)[melee,summon,bleed]]",
+      "Willow:[***,(katana)[melee,aoe]]",
+      "Rosefinch:[***,(katana)[melee,fire]]",
+      "Seishuu Muramasa:[**,(katana)[melee]]",
+      "Horikawa Kunihiro:[***,(katana)[melee]]",
+      "Flint Sanada:[*****,(cannon)[range,fire,aoe,speed+,charge]]",
+      "Lurker:[*****,(cannon)[range,knockback,stun,speed+,charge]]",
+      "Markov Type A:[****,(cannon)[range,ignite,charge]]",
+      "Cathode Type 09:[****,(cannon)[range,pierce,paralyze]]",
+      "Alloy Lurker:[****,(cannon)[range,knockback]]",
+      "Raider Missiles:[****,(cannon)[range,charge,move+]]",
+      "Cathode Type 07:[****,(cannon)[range,pierce,move-]]",
+      "Alloy Devourer:[****,(cannon)[range,pierce,fire]]",
+      "MIG-7:[***,(cannon)[range,pierce]]",
+      "SU-22 Howitzer:[**,(cannon)[range,charge]]",
+      "SU-30 Cannon:[***,(cannon)[range,charge]]",
+      "MIG-11:[***,(cannon)[range,charge]]",
+      "MIG-13:[***,(cannon)[range,charge]]",
+      "Fury Belcher:[***,(cannon)[range,charge]]",
+      "Devourer:[*****,(cannon)[range,pierce,fire,ignite,move+]]",
+      "Lightning Angel:[****,(cross)[melee,lightning,aoe,paralyze]]",
+      "Hailstone:[***,(cross)[melee,ice,aoe,speed-]]",
+      "Brimstone:[***,(cross)[melee,fire,aoe]]",
+      "AP Turret:[***,(cross)[melee,aoe]]",
+      "Oath of Ice:[***,(cross)[melee,aoe,ice]]",
+      "Cross:[**,(cross)[melee,aoe]]",
+      "The Dark Crusher:[****,(cross)[melee,fire,aoe]]",
+      "Oath of Fire:[***,(cross)[melee,ignite,fire]]",
+      "Wotan's Fists:[*****,(gauntlet)[melee,gather,paralyze,float,def+,dmg+]]",
+      "Grips of Tai Xuan:[*****,(gauntlet)[melee,summon,fire,timelock,dmg+]]",
+      "Cas-II Namiko:[****,(gauntlet)[melee,pierce]]",
+      "Senescence:[*****,(scythe)[melee,aoe,bleed,(bleed)crit]]",
+      "Balmung:[*****,(sword)[melee,aoe,dmg+]]",
+      "Cleaver of Shamash:[*****,(sword)[melee,fire,dmg+,dmg-,heal]]",
+      "Vanguard:[****,(sword)[melee,float,aoe]]",
+      "AI-Chan's Hammer:[****,(sword)[melee,knockback,stun]]",
+      "Proto Pulse Cleaver:[****,(sword)[melee,dmg+]]",
+      "Alloy Betrayer:[****,(sword)[melee,range,aoe]]",
+      "Ion Resonance:[****,(sword)[melee,lightning,aoe,paralyze]]",
+      "Alloy Wotan's Cleaver:[****,(sword)[melee,aoe,fire]]",
+      "Hybrid Type-27:[***,(sword)[melee,float]]",
+      "King Cobra:[****,(sword)[melee,SP+]]",
+      "Nitro Crystal:[****,(sword)[melee,(frozen)dmg+]]",
+      "Obsidian Reaper:[****,(scythe)[melee,aoe,knockback,fire]]",
+      "Azure Storm:[****,(scythe)[melee,speed+]]",
+      "Carmine Steel:[****,(scythe)[melee,shield,heal,dmg+]]",
+      "Moment of Truth:[****,(scythe)[melee,timeslow,aoe,speed+,move+]]",
+      "Onyx Iron:[*****,(scythe)[melee,shield,heal,dmg+]]",
+      "Aphrodite:[*****,(scythe)[melee,dmg+,aoe,blink]]",
+      "Genome Reaper:[*****,(scythe)[melee,lightning,aoe,(move+)dmg+,move+,elem+]]",
+      "Skadi Ondurgud:[*****,(scythe)[melee,aoe,ice,dmg-,dmg+,(hypothemia)SP+]]",
+      "Cas-X Saints:[****,(gauntlet)[melee,fire]]",
+      "White Star Banishers:[****,(gauntlet)[melee,float]]",
+      "Cygnus Gauntlets:[*****,(gauntlet)[melee,heal,speed+,SP+]]",
+      "Nuada's Grief:[*****,(gauntlet)[melee,float,bleed,lightning]]",
+      "Stellar Vortex:[*****,(gauntlet)[melee,speed-,(combo)aoe]]",
+      "Jade Bloom:[*****,(gauntlet)[melee,heal,dmg+]]",
+      "Ranger Gauntlets:[*****,(gauntlet)[melee,hp-,dmg+,bleed-,ice-,ranger,(ranger)dmg+]]",
+      "Cinder Hawk:[*****,(gauntlet)[melee,(firebrand)[dmg+,shield],(ignite)[dmg+,shield],fire,elem+]]",
+      "Skoll and Hati:[*****,(gauntlet)[melee,dmg+,(timeslow)crit,(move-)crit,(speed-)crit]]",
+      "Ai-chan's Candy:[****,(cross)[melee,aoe,candy]]",
+      "Oath of Judah:[*****,(cross)[melee,aoe,lightning,immobilize]]",
+      "Blood Embrace:[*****,(cross)[melee,aoe,float,bleed,(bleed)dmg+]]",
+      "Pledge of Sakura:[*****,(cross)[melee,aoe,sakura,(sakura)fire]]",
+      "11th Sacred Relic:[*****,(cross)[melee,aoe,crit,(impair)heal]]",
+      "Silver Reaper:[*****,(cross)[melee,aoe,atk-,weaken,(weaken)dmg+]]",
+      "Ranger's Cross:[*****,(cross)[melee,aoe,fire,ignite,(ignite)dmg+,ice-,ranger,(ranger)dmg+]]",
+      "Eliudnir:[*****,(cross)[melee,aoe,(stun)dmg+,knockdown,stun,]]",
+      "Selune's Elegy:[*****,(cross)[melee,aoe,ice,(charge)[dmg+,aoe]]]",
+      "Jack'o Lantern:[*****,(cross)[melee,aoe,fire]]",
+      "Super-* Sonata:[*****,(cross)[melee,aoe,fire,dmg+,elem+]]",
+      "Hybrid Type 16:[***,(sword)[melee,(paralyze)dmg+,(timeslow)dmg+,(stun)dmg+]]",
+      "Fusion Sword EX:[***,(sword)[melee,aoe,knockdown]]",
+      "Inquisition Torch:[****,(sword)[melee,aoe,fire]]",
+      "Violet Knight:[****,(sword)[melee,aoe]]",
+      "Crimson Queen:[****,(sword)[melee,dmg+]]",
+      "Chain Sword:[****,(sword)[melee,speed+,crit]]",
+      "Nighogg's Claws:[*****,(sword)[melee,knockback,invincible,bleed]]",
+      "7th Sacred Relic:[*****,(sword)[melee,aoe,stun,(stun)[crit,speed+]]]",
+      "Blood Dance:[*****,(sword)[melee,aoe,heal]]",
+      "Sunfire:[*****,(sword)[melee,aoe,fire,float,ignite]]",
+      "Dragon Spine:[*****,(sword)[melee,aoe,immobilize,bleed,(bleed)heal]]",
+      "Schiffschneider:[*****,(sword)[melee,aoe,knockdown,lightning,(paralyze)crit]]",
+      "Xuanyuan Sword:[*****,(sword)[melee,lightning,fire,ice,paralyze,ignite,freeze,(charge)dmg+,pierce,float]]",
+      "Judgement By Dawn:[*****,(sword)[melee,lightning,impair]]",
+      "Dark Xuanyuan Sword:[*****,(sword)[melee,dmg+,fracture]]",
+      "Gyukikiri Nagamitsu:[*****,(sword)[melee,dmg+]]",
+      "Ranger's Sawtooth:[*****,(sword)[melee,slow,dmg-,fire,aoe,ice-,ranger,(ranger)dmg+]]",
+      "Hrungnir:[*****,(sword)[melee,aoe,ice,speed+,(freeze)[ice,dmg+],(slow)[ice,dmg+],(speed-)[ice,dmg+]]]",
+      "Godslayer Surtr:[*****,(sword)[melee,dmg+,SP+,speed+]]",
+      "Wotan's Cleaver:[*****,(sword)[melee,aoe,fire,ignite,dmg+]]",
+      "Betrayer:[*****,(sword)[melee,range,aoe,stun,dmg+]]",
+      "Xuanyuan Sword (Key of Domination):[*****,(sword)[melee,lightning,fire,ice,paralyze,ignite,freeze,(charge)dmg+,pierce,float,dmg+,dmg-]]",
+      "Markov Type C:[****,(cannon)[range,charge,speed+]]",
+      "Proto Pulse Cannon:[****,(cannon)[range,charge,dmg+]]",
+      "X-01 Azure Eye:[****,(cannon)[range,charge,slow]]",
+      "Ice Roar:[****,(cannon)[range,charge,freeze]]",
+      "XuanYuan Cannon:[****,(cannon)[range,charge,aoe,fire,ignite]]",
+      "Frost Rain:[****,(cannon)[range,charge,aoe,slow]]",
+      "Ai-chan's Cannon:[****,(cannon)[range,charge,weaken,slow,move+]]",
+      "5th Sacred Relic:[*****,(cannon)[range,charge]]",
+      "Cyclops PRI:[*****,(cannon)[range,charge,aoe]]",
+      "Briareus PRI:[*****,(cannon)[range,charge,stun,paralyze,freeze,fire,lightning,ice,aoe,timeslow,def-]]",
+      "Project Bunny 19C:[*****,(cannon)[range,pierce,dmg+]]",
+      "Core Evoker Delta:[*****,(cannon)[range,pierce,(paralyze)dmg+,lightning,paralyze]]",
+      "Hand of Ymir:[*****,(cannon)[range,charge,aoe,float,slow,move+,speed+]]",
+      "Book of Fuxi:[*****,(cannon)[range,(ignite)dmg+,(slow)dmg+,(impair)dmg+,(freeze)dmg+,fire,lightning,ice,ignite,impair,slow]]",
+      "Chiyuu Cannon:[*****,(cannon)[range,charge,(freeze)[],freeze,dot,heal]]",
+      "Quantum Destroyer Type II:[*****,(cannon)[range,pierce,(timeslow)dmg+,gather,slow,ice,dot,]]",
+      "Hellfire Type III:[*****,(cannon)[range,charge,(slow)dmg+,(freeze)dmg+,fire]]",
+      "Hand of Tyr:[*****,(cannon)[range,charge,aoe,bleed]]",
+      "M134 Vulcan Minigun:[*****,(cannon)[range,pierce,aoe,crit,critdmg+,hp-]]",
+      "Star Destroyer 19C:[*****,(cannon)[range,charge,crit,critdmg+,float,ignite]]",
+      "Ranger's Laser:[*****,(cannon)[range,pierce,speed+,ice-,ranger,(ranger)[SP+]]]",
+      "Dumpling Wrapper:[*****,(cannon)[range,charge,slow,(slow)heal]]",
+      "Star of Eden:[*****,(cannon)[range,charge,stun,aoe,crit,critdmg+]]",
+      "Stellar Tempo:[*****,(cannon)[range,pierce,(sparkling star)[aoe,impair,def-,speed+]]]",
+      "Amemura Bloodlust:[***,(katana)[melee]]",
+      "Hell Thunder:[****,(katana)[melee,aoe,impair,def-]]",
+      "Pulse Katana Type 17:[****,(katana)[melee,ice,slow]]",
+      "Pulse Katana Type 19:[****,(katana)[melee,SP+]]",
+      "Proto Pulse Tachi:[****,(katana)[melee,dmg+]]",
+      "Thermal Cutter:[****,(katana)[melee,aoe,ignite]]",
+      "Vermillion Edge:[****,(katana)[melee,immobilize]]",
+      "Thunderstorms:[****,(katana)[melee,lightning,aoe,paralyze]]",
+      "Xuanyuan Katana:[****,(katana)[melee,ice,aoe,slow]]",
+      "Endergonic Tachi:[****,(katana)[melee,dmg+,fire]]",
+      "Phoenix Razor:[****,(katana)[melee,fire,(Kiana)fire]]",
+      "3rd Sacred Relic:[*****,(katana)[melee,dmg+]]",
+      "Raikiri:[*****,(katana)[melee,shield,lightning,dot,bleed-]]",
+      "MagStorm:[*****,(katana)[melee,aoe,lightning,paralyze]]",
+      "Plasma Kagehide:[*****,(katana)[melee,ice,dot,aoe,(freeze)dmg+,(slow)dmg+]]",
+      "Vorpal Sword Type 11:[*****,(katana)[melee,gather,bleed,aoe]]",
+      "Void Blade:[*****,(katana)[melee,timeslow,crit,dmg+]]",
+      "Nuwa's Sword:[*****,(katana)[melee,summon,fire,aoe,ignite]]",
+      "Sky Breaker:[*****,(katana)[melee,aoe,impair,lightning,paralyze,(impair)dmg+,(paralyze)dmg+]]",
+      "Vibro Cutter:[*****,(katana)[melee,immobilize,def-,lightning,float,timelock]]",
+      "Osahoko:[*****,(katana)[melee,lightning,aoe,paralyze]]",
+      "Ice Epiphylium:[*****,(katana)[melee,aoe,ice,(kinetic energy)[]]]",
+      "Sakura Blossom:[*****,(katana)[melee,pierce,(sakura brand)stun,aoe]]",
+      "Fairy Sword Silven:[*****,(katana)[melee,aoe,speed+,move+,dmg+]]",
+      "Dawn Breaker Talwar:[*****,(katana)[melee,SP+,crit,dmg+]]",
+      "Demonblade Florid Sakura:[*****,(katana)[melee,fire,invincible,shield]]",
+      "Pledge of Rain:[*****,(katana)[melee,aoe,ice,slow,(slow)dmg+]]",
+      "Ai-chan's Crutch:[*****,(katana)[melee,(crit)aoe]]",
+      "Futsunushi-To:[*****,(katana)[melee,aoe,elem+]]",
+      "One Salty Tuna:[*****,(katana)[melee,dmg+]]",
+      "Gluttony:[*****,(katana)[melee,gather,stun,SP+]]",
+      "Water Spirit Type II:[****,(pistol)[range,aoe,freeze]]",
+      "Fire Spirit Type II:[****,(pistol)[range,ignite]]",
+      "Proto Pistols:[****,(pistol)[range,dmg+]]",
+      "Mosin-Nagant:[****,(pistol)[range,aoe,fire]]",
+      "Icarus Pinions:[****,(pistol)[range,aoe,fire]]",
+      "Twin Phoenix:[****,(pistol)[range,ignite,(Mei)aoe]]",
+      "Holy Guns - Kallen:[****,(pistol)[range,aoe,slow]]",
+      "Ai-chan's Syringe:[****,(pistol)[range,slow,ice]]",
+      "2nd Sacred Relic:[*****,(pistol)[range,SP+,lightning,critdmg+]]",
+      "Fafnir Flame:[*****,(pistol)[range,aoe,fire,ignite]]",
+      "Mjolnir:[*****,(pistol)[range,knockdown,impair,def-]]",
+      "Hyper Railguns:[*****,(pistol)[range,aoe,lightning,paralyze]]",
+      "Blaze Destroyer:[*****,(pistol)[range,aoe,float,fire,ignite]]",
+      "Light and Shadow:[*****,(pistol)[range,gather,freeze,ice,slow]]",
+      "Shennong's Guardians:[*****,(pistol)[range,impair,immobilize,time freeze,(weaken)dmg+]]",
+      "Jingwei's Wings:[*****,(pistol)[range,aoe,ignite,fire,crit,critdmg+]]",
+      "Energy Leapers:[*****,(pistol)[range,aoe,stun,fracture,speed+,crit]]",
+      "Usurpers:[*****,(pistol)[range,aoe,weaken,move+]]",
+      "Spirit Guns Yae:[*****,(pistol)[range,immobilize,(fracture)[bleed]]]",
+      "Thunder Kikaku:[*****,(pistol)[range,lightning,dot]]",
+      "Proto Alberich's Bows:[*****,(pistol)[range,pierce,(bleed)SP+,move+,speed+]]",
+      "Ranger'sPistol:[*****,(pistol)[range,aoe,fire,stun,(stun)dmg+,ranger,(ranger)fire]]",
+      "PSY - Bows of Hel:[*****,(pistol)[range,aoe,freeze,crit,(stun)dmg+,(freeze)dmg+]]",
+      "Tranquil Arias:[*****,(pistol)[range,(timeslow)[dmg+,elem+,aoe,ice],dmg+]]",
+      "Judgement of Shamash:[*****,(pistol)[range,fire,slow,dot,stun,iron body,dmg-,hp-,ignite,(ignite)dmg+]]",
+      "Keys of the Void:[*****,(pistol)[range,aoe,float,space core,dmg+,crit]]",
+      "Blooded Saints:[*****,(pistol)[range,aoe,dmg+,(hunted brand)[]]]",
+      "Hallowed Saints:[*****,(pistol)[range,fire,aoe,pumpkin mark,(pumpkin mark)[crit,critdmg+]]]"
+    ];
+
+    var dataStigmata = [
+      "Ai-chan Memories (M):[*****,ice,heal]",
+      "Mei Diva (M):[****,crit,(mei)crit]",
+      "Teri Teri (M):[****,dmg-]",
+      "Winter Princess (T):[****,dmg+,(kiana)freeze]",
+      "Himeko Winter (M):[****,hp+,(himeko)[slow,ignite,weaken,impair]]",
+      "Eternal Love (M):[****,hp+,(kiana)[(mei)dmg+],(mei)[(kiana)dmg+]]",
+      "Himeko New Year (B):[****,envelope,heal]",
+      "Himeko Tuition (M):[****,dmg+,(kiana)crit]",
+      "Rita Dame de Coeur (T):[****,(charge)dmg+,(Rita)[(charge)dmg+]]",
+      "Blood Embrace (B):[****,dmg+]",
+      "Bronya Hacker (T):[****,(range)crit,(Bronya)speed+]",
+      "Valkyrie Judah (T):[****,aoe,lightning]",
+      "Yae Sakura Qipao (T):[****,dmg+,(Yae)dmg+]",
+      "Theresa Descent (T):[****,(switch)aoe]",
+      "Mei Demon (M):[****,move+,dmg+]",
+      "Mei Bride (M):[****,(Mei)elem-,move+]",
+      "Himeko Bride (M):[****,(charge)dmg+,(Himeko)critdmg+]",
+      "Theresa Magic Loli (M):[****,fire,(theresa)[(cross)dmg+]]",
+      "Kiana Birthday (M):[****,dmg+,(kiana)speed+]",
+      "Seele The Deep (M):[****,(switch)[slow,aoe]]",
+      "Fu Hua Outing (B):[****,(fu hua)[speed+,move+]]",
+      "Rita Autumn Leaves (B):[****,dmg+]",
+      "Theresa Gluttony (T):[*****,candy,(candy)dmg+]",
+      "Himeko - Men's Attire (T):[*****,(melee)dmg+,(himeko)[(charge)dmg+]]",
+      "Mei Wrath (M):[*****,aoe]",
+      "Kiana Diva (M):[*****,heal,(kiana)heal]",
+      "Fu Hua Pride (M):[*****,(melee)dmg+,dmg+]",
+      "Bronya Sloth (M):[*****,SP-,SP+]",
+      "Yae Sakura Prayer (B):[*****,(combo)dmg+,(Yae)[(combo)dmg+]]",
+      "Void Queen Snowy Fest (B):[*****,ice,slow]",
+      "Theresa Hot Springs (B):[*****,heal,SP+]",
+
+      "Cleopatra (T):[*****,queen of egypt,dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
+      "Cleopatra (M):[*****,queen of egypt,(stun)dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
+      "Cleopatra (B):[*****,queen of egypt,(paralyze)dmg+,(queen of egypt:x2)[move+,(kianna)hp+,(kallen)hp+],(queen of egypt:x3)[(range)dmg+]]",
+      "Jixuanyuan (T):[*****,emperor xuanyuan,(switch)dmg+,(QTE)dmg+,(emperor xuanyuan:x2)[debuff-,(mei)hp+,(yae)hp+,(himeko)hp+],(emperor xuanyuan:x3)[dmg+,crit]]",
+      "Jixuanyuan (M):[*****,emperor xuanyuan,(charge)dmg+,(emperor xuanyuan:x2)[debuff-,(mei)hp+,(yae)hp+,(himeko)hp+],(emperor xuanyuan:x3)[dmg+,crit]]",
+      "Jixuanyuan (B):[*****,emperor xuanyuan,dmg+,(emperor xuanyuan:x2)[debuff-,(mei)hp+,(yae)hp+,(himeko)hp+],(emperor xuanyuan:x3)[dmg+,crit]]",
+      "Shakespeare (T):[*****,lightning,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
+      "Shakespeare (M):[*****,fire,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
+      "Shakespeare (B):[*****,ice,renaissance,(renaissance:x2)[CD+,(PSY)[SP+]],(renaissance:x3)[SP+]]",
+      "Ekaterina (T):[*****,tsar of russia,(combo)def+,(tsar of russia:x2)[crit,(MECH)SP+],(tsar of russia:x3)[(combo)critdmg+]]",
+      "Ekaterina (M):[*****,tsar of russia,(combo)dmg+,(tsar of russia:x2)[crit,(MECH)SP+],(tsar of russia:x3)[(combo)critdmg+]]",
+      "Ekaterina (B):[*****,tsar of russia,(combo)move+,(tsar of russia:x2)[crit,(MECH)SP+],(tsar of russia:x3)[(combo)critdmg+]]",
+      "Lier (T):[*****,noble stillness,def+,(noble stillness:x2)[heal,(BIO)SP+],(noble stillness:x3)[shield,float]]",
+      "Lier (M):[*****,noble stillness,move+,(noble stillness:x2)[heal,(BIO)SP+],(noble stillness:x3)[shield,float]]",
+      "Lier (B):[*****,noble stillness,dmg+,(noble stillness:x2)[heal,(BIO)SP+],(noble stillness:x3)[shield,float]]",
+      "Einstein (T):[*****,relatively natural curls,(charge)dmg+,dmg+,(relatively natural curls:x2)[(range)dmg+],(relatively natural curls:x3)[(melee)dmg-]]",
+      "Einstein (M):[*****,relatively natural curls,(charge)[heal,SP+],(relatively natural curls:x2)[(range)dmg+],(relatively natural curls:x3)[(melee)dmg-]]",
+      "Einstein (B):[*****,relatively natural curls,(charge)dmg+,speed+,(relatively natural curls:x2)[(range)dmg+],(relatively natural curls:x3)[(melee)dmg-]]",
+      "Fuxi (T):[*****,code of civ,(freeze)elem+,(code of civ:x2)[hp+,CD+],(code of civ:x3)[elem-,elem+]]",
+      "Fuxi (M):[*****,code of civ,(paralyze)elem+,(code of civ:x2)[hp+,CD+],(code of civ:x3)[elem-,elem+]]",
+      "Fuxi (B):[*****,code of civ,(ignite)elem+,(code of civ:x2)[hp+,CD+],(code of civ:x3)[elem-,elem+]]",
+      "Nuwa (T):[*****,sky mender,(ignite)[aoe,fire,dmg+],(sky mender:x2)[(summon)dmg+],(sky mender:x3)[(summon)dmg+]]",
+      "Nuwa (M):[*****,sky mender,(combo)fire,(sky mender:x2)[(summon)dmg+],(sky mender:x3)[(summon)dmg+]]",
+      "Nuwa (B):[*****,sky mender,(ignite)dmg+,(sky mender:x2)[(summon)dmg+],(sky mender:x3)[(summon)dmg+]]",
+      "Shennong (T):[*****,gentle herbalist,dmg+,def+,(gentle herbalist:x2)[(weaken)dmg-],(gentle herbalist:x3)[hp+,SP+]]",
+      "Shennong (M):[*****,gentle herbalist,speed+,move+,(gentle herbalist:x2)[(weaken)dmg-],(gentle herbalist:x3)[hp+,SP+]]",
+      "Shennong (B):[*****,gentle herbalist,shield,(gentle herbalist:x2)[(weaken)dmg-],(gentle herbalist:x3)[hp+,SP+]]",
+      "Jingwei (T):[*****,princess of fate,dmg+,(princess of fate:x2)[(ignite)speed+],(princess of fate:x3)[dmg-]]",
+      "Jingwei (M):[*****,princess of fate,move+,(charge)fire,(combo)fire,(princess of fate:x2)[(ignite)speed+],(princess of fate:x3)[dmg-]]",
+      "Jingwei (B):[*****,princess of fate,def+,heal,(princess of fate:x2)[(ignite)speed+],(princess of fate:x3)[dmg-]]",
+      "Isaac Newton (T):[*****,laws of motion,dmg+,(laws of motion:x2)[paralyze,freeze,stun,slow,ignite,impair,weaken],(laws of motion:x3)[dmg+]]",
+      "Isaac Newton (M):[*****,laws of motion,move+,shield,(laws of motion:x2)[paralyze,freeze,stun,slow,ignite,impair,weaken],(laws of motion:x3)[dmg+]]",
+      "Isaac Newton (B):[*****,laws of motion,dmg+,(laws of motion:x2)[paralyze,freeze,stun,slow,ignite,impair,weaken],(laws of motion:x3)[dmg+]]",
+      "Schrodinger (T):[*****,kitty experiment,dmg+,(kitty experiment:x2)[dmg-],(kitty experiment:x3)[(himeko)[]]]",
+      "Schrodinger (M):[*****,kitty experiment,CD+,(kitty experiment:x2)[dmg-],(kitty experiment:x3)[(himeko)[]]]",
+      "Schrodinger (B):[*****,kitty experiment,SP+,(kitty experiment:x2)[dmg-],(kitty experiment:x3)[(himeko)[]]]",
+      "Plank (T):[*****,maidess of quanta,dmg+,(maidess of quanta:x2)[(bronya)[(range)dmg+]],(maidess of quanta:x3)[heal,(bronya)SP+]]",
+      "Plank (M):[*****,maidess of quanta,dmg+,(maidess of quanta:x2)[(bronya)[(range)dmg+]],(maidess of quanta:x3)[heal,(bronya)SP+]]",
+      "Plank (B):[*****,maidess of quanta,speed+,(maidess of quanta:x2)[(bronya)[(range)dmg+]],(maidess of quanta:x3)[heal,(bronya)SP+]]",
+      "Zhuge Kongming (T):[*****,stone sentinel,CD+,(stone sentinel:x2)[(kallen)hp+,(kiana)hp+],(stone sentinel:x3)[aoe,knockback]]",
+      "Zhuge Kongming (M):[*****,stone sentinel,dmg-,(stone sentinel:x2)[(kallen)hp+,(kiana)hp+],(stone sentinel:x3)[aoe,knockback]]",
+      "Zhuge Kongming (B):[*****,stone sentinel,def+,(stone sentinel:x2)[(kallen)hp+,(kiana)hp+],(stone sentinel:x3)[aoe,knockback]]",
+      "Dark Jixuanyuan (T):[*****,black kirin,(fracture)[dmg+,aoe,knockback],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
+      "Dark Jixuanyuan (M):[*****,black kirin,(fracture)crit,(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
+      "Dark Jixuanyuan (B):[*****,black kirin,(fracture)[move+,speed+],(black kirin:x2)[(fracture)dmg+,(kiana)SP+,(kallen)SP+],(black kirin:x3)[(fracture)SP+]]",
+      "Lier Scarlet (T):[*****,red poet,hp-,dmg+,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
+      "Lier Scarlet (M):[*****,red poet,hp-,heal,aoe,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
+      "Lier Scarlet (B):[*****,red poet,hp-,speed+,move+,(red poet:x2)[dmg-,bleed-],(red poet:x3)[crit,critdmg+,immune]]",
+      "Kallen Pledge (T):[*****,daughter of schicksal,dmg+,aoe,(daughter of schicksal:x2)[crit],(daughter of schicksal:x3)[dmg+]]",
+      "Kallen Pledge (M):[*****,daughter of schicksal,hp+,debuff-,(daughter of schicksal:x2)[crit],(daughter of schicksal:x3)[dmg+]]",
+      "Kallen Pledge (B):[*****,daughter of schicksal,dmg+,dmg-,(daughter of schicksal:x2)[crit],(daughter of schicksal:x3)[dmg+]]",
+      "Sanada Yukimura (T):[*****,sanada maru,(switch)dmg+,(sanada maru:x2)[immune],(sanada maru:x3)[(mei)hp+,(yae)hp+]]",
+      "Sanada Yukimura (M):[*****,sanada maru,(switch)crit,(sanada maru:x2)[immune],(sanada maru:x3)[(mei)hp+,(yae)hp+]]",
+      "Sanada Yukimura (B):[*****,sanada maru,(switch)def+,(sanada maru:x2)[immune],(sanada maru:x3)[(mei)hp+,(yae)hp+]]",
+      "Siegfried Kaslana (T):[*****,lonely hero,SP+,speed+,(lonely hero:x2)[dmg+],(lonely hero:x3)[dmg+,move+,speed+,debuff-]]",
+      "Siegfried Kaslana (M):[*****,lonely hero,CD+,def+,(lonely hero:x2)[dmg+],(lonely hero:x3)[dmg+,move+,speed+,debuff-]]",
+      "Siegfried Kaslana (B):[*****,lonely hero,dmg+,move+,(lonely hero:x2)[dmg+],(lonely hero:x3)[dmg+,move+,speed+,debuff-]]",
+      "Cecilia Schariac (T):[*****,legendary lady,(black white stars)[dmg+,(combo)dmg+],(legendary lady:x2)[black white stars,dmg+,(combo)crit],(legendary lady:x3)[dmg+]]",
+      "Cecilia Schariac (M):[*****,legendary lady,(black white stars)[SP+,(combo)heal],(legendary lady:x2)[black white stars,dmg+,(combo)crit],(legendary lady:x3)[dmg+]]",
+      "Cecilia Schariac (B):[*****,legendary lady,(black white stars)[speed+,dmg-],(legendary lady:x2)[black white stars,dmg+,(combo)crit],(legendary lady:x3)[dmg+]]",
+      "Nohime (T):[*****,butterfly yuki,freeze,(freeze)dmg+,(butterfly yuki:x2)[aoe,ice,slow],(butterfly yuki:x3)[hp+,ice]]",
+      "Nohime (M):[*****,butterfly yuki,ice,(butterfly yuki:x2)[aoe,ice,slow],(butterfly yuki:x3)[hp+,ice]]",
+      "Nohime (B):[*****,butterfly yuki,(slow)[move+,ice],(freeze)[move+,ice],(butterfly yuki:x2)[aoe,ice,slow],(butterfly yuki:x3)[hp+,ice]]",
+      "Yae Sakura (T):[*****,dream of sakura,(sakura brand)[stun,critdmg+],(dream of sakura:x2)[hp+,(sakura brand)lightning],(dream of sakura:x3)[heal]]",
+      "Yae Sakura (M):[*****,dream of sakura,(sakura brand)[lightning,aoe,dmg+],(dream of sakura:x2)[hp+,(sakura brand)lightning],(dream of sakura:x3)[heal]]",
+      "Yae Sakura (B):[*****,dream of sakura,(sakura brand)[dmg+,crit],(dream of sakura:x2)[hp+,(sakura brand)lightning],(dream of sakura:x3)[heal]]",
+      "Seele Vollerie (T):[*****,sea of quanta,dmg+,(sea of quanta:x2)[move+,teleport],(sea of quanta:x3)[dmg+]]",
+      "Seele Vollerie (M):[*****,sea of quanta,dmg-,(sea of quanta:x2)[move+,teleport],(sea of quanta:x3)[dmg+]]",
+      "Seele Vollerie (B):[*****,sea of quanta,speed+,(sea of quanta:x2)[move+,teleport],(sea of quanta:x3)[dmg+]]",
+      "Einstein Band (T):[*****,anti-entropy ball,summon,dmg+,(anti-entropy ball:x2)[dmg+],(anti-entropy ball:x3)[dmg+]]",
+      "Einstein Band (M):[*****,anti-entropy ball,summon,aoe,knockback,float,timelock,(anti-entropy ball:x2)[dmg+],(anti-entropy ball:x3)[dmg+]]",
+      "Einstein Band (B):[*****,anti-entropy ball,summon,dmg+,dmg-,(anti-entropy ball:x2)[dmg+],(anti-entropy ball:x3)[dmg+]]",
+      "Kepler (T):[*****,ruler of sky,(crit)[aoe,dmg+],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
+      "Kepler (M):[*****,ruler of sky,(crit)[aoe,paralyze],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
+      "Kepler (B):[*****,ruler of sky,(crit)[heal],(ruler of sky:x2)[critdmg+],(ruler of sky:x3)[dot,crit]]",
+      "Zhangheng (T):[*****,observer,dmg+,(observer:x2)[knockdown,stun],(observer:x3)[dmg+]]",
+      "Zhangheng (M):[*****,observer,dmg-,(observer:x2)[knockdown,stun],(observer:x3)[dmg+]]",
+      "Zhangheng (B):[*****,observer,lightning,(observer:x2)[knockdown,stun],(observer:x3)[dmg+]]",
+      "Nagamitsu (T):[*****,legendary bladesmith,shield,lightning,(legendary bladesmith:x2)[slow],(legendary bladesmith:x3)[freeze]]",
+      "Nagamitsu (M):[*****,legendary bladesmith,shield,lightning,(legendary bladesmith:x2)[slow],(legendary bladesmith:x3)[freeze]]",
+      "Nagamitsu (B):[*****,legendary bladesmith,shield,dmg-,(legendary bladesmith:x2)[slow],(legendary bladesmith:x3)[freeze]]",
+      "Dracula (T):[*****,vampire prince,(bleed)dmg+,(vampire prince:x2)[(crit)[summon,dmg+,critdmg+]],(vampire prince:x3)[immune,heal,aoe,float,dot]]",
+      "Dracula (M):[*****,vampire prince,(bleed)[heal,SP+],(vampire prince:x2)[(crit)[summon,dmg+,critdmg+]],(vampire prince:x3)[immune,heal,aoe,float,dot]]",
+      "Dracula (B):[*****,vampire prince,(bleed)[speed+,crit],(vampire prince:x2)[(crit)[summon,dmg+,critdmg+]],(vampire prince:x3)[immune,heal,aoe,float,dot]]",
+      "Bronya Shadow (T):[*****,traitor wolf,range,dmg+,(traitor wolf:x2)[(cannon)dmg+],(traitor wolf:x3)[(bronya)critdmg+]]",
+      "Bronya Shadow (M):[*****,traitor wolf,dmg-,(traitor wolf:x2)[(cannon)dmg+],(traitor wolf:x3)[(bronya)critdmg+]]",
+      "Bronya Shadow (B):[*****,traitor wolf,speed+,(traitor wolf:x2)[(cannon)dmg+],(traitor wolf:x3)[(bronya)critdmg+]]",
+      "Sin Mal (T):[*****,savage halberd,invisible,dmg+,(savage halberd:x2)[aoe,dmg+,immobilize],(savage halberd:x3)[heal,SP+]]",
+      "Sin Mal (M):[*****,savage halberd,(invisible)[move+],(savage halberd:x2)[aoe,dmg+,immobilize],(savage halberd:x3)[heal,SP+]]",
+      "Sin Mal (B):[*****,savage halberd,(invisible)[crit,speed+],(savage halberd:x2)[aoe,dmg+,immobilize],(savage halberd:x3)[heal,SP+]]",
+      "Otto Apocalypse (T):[*****,shicksal overseer,dmg+,(charge)dmg+,(shicksal overseer:x2)[aoe,lightning],(shicksal overseer:x3)[aoe,lightning]]",
+      "Otto Apocalypse (M):[*****,shicksal overseer,weaken,dmg-,(shicksal overseer:x2)[aoe,lightning],(shicksal overseer:x3)[aoe,lightning]]",
+      "Otto Apocalypse (B):[*****,shicksal overseer,(summon)lightning,(shicksal overseer:x2)[aoe,lightning],(shicksal overseer:x3)[aoe,lightning]]",
+      "Picasso (T):[*****,master of color,dmg+,(master of color:x2)[dmg+,aoe,heal],(master of color:x3)[paint]]",
+      "Picasso (M):[*****,master of color,dmg-,(master of color:x2)[dmg+,aoe,heal],(master of color:x3)[paint]]",
+      "Picasso (B):[*****,master of color,speed+,(master of color:x2)[dmg+,aoe,heal],(master of color:x3)[paint]]",
+      "White Comet Burst Mode (T):[*****,aniversary festival,aoe,(aniversary festival:x2)[dmg+,(combo)heal,dmg-,speed+],(aniversary festival:x3)[hp+,crit]]",
+      "White Comet Burst Mode (M):[*****,aniversary festival,dmg-,(aniversary festival:x2)[dmg+,(combo)heal,dmg-,speed+],(aniversary festival:x3)[hp+,crit]]",
+      "White Comet Burst Mode (B):[*****,aniversary festival,critdmg+,(aniversary festival:x2)[dmg+,(combo)heal,dmg-,speed+],(aniversary festival:x3)[hp+,crit]]",
+      "Serine (T):[*****,HoV,(melee)dmg+,(float)dmg+,(HoV:x2)[(Mei)[crit,critdmg+],(Yae)[crit,critdmg+]],(HoV:x3)[dmg-,dmg+]]",
+      "Serine (M):[*****,HoV,debuff-,dmg-,(HoV:x2)[(Mei)[crit,critdmg+],(Yae)[crit,critdmg+]],(HoV:x3)[dmg-,dmg+]]",
+      "Serine (B):[*****,HoV,dmg+,(HoV:x2)[(Mei)[crit,critdmg+],(Yae)[crit,critdmg+]],(HoV:x3)[dmg-,dmg+]]",
+      "Kallen Hymn (T):[*****,celestial hymn,dmg+,(summon)dmg+,(impair)dmg+,(celestial hymn:x2)[dmg+],(celestial hymn:x3)[(impair)[heal,SP+]]]",
+      "Kallen Hymn (M):[*****,celestial hymn,shield,dmg-,(celestial hymn:x2)[dmg+],(celestial hymn:x3)[(impair)[heal,SP+]]]",
+      "Kallen Hymn (B):[*****,celestial hymn,(impair)[speed+,critdmg+],(celestial hymn:x2)[dmg+],(celestial hymn:x3)[(impair)[heal,SP+]]]",
+      "Cocolia (T):[*****,anti entropy commander,dmg+,(summon)critdmg+,(anti entropy commander:x2)[shield],(anti entropy commander:x3)[aoe]]",
+      "Cocolia (M):[*****,anti entropy commander,hp+,dmg-,(anti entropy commander:x2)[shield],(anti entropy commander:x3)[aoe]]",
+      "Cocolia (B):[*****,anti entropy commander,speed+,(summon)dmg+,(anti entropy commander:x2)[shield],(anti entropy commander:x3)[aoe]]",
+      "Higokumaru (T):[*****,ancient willpower,fire,summon,(ancient willpower:x2)[(combo)fire],(ancient willpower:x3)[combo,]]",
+      "Higokumaru (M):[*****,ancient willpower,dmg-,summon,(ancient willpower:x2)[(combo)fire],(ancient willpower:x3)[combo,]]",
+      "Higokumaru (B):[*****,ancient willpower,(ignite)speed+,fire,(ancient willpower:x2)[(combo)fire],(ancient willpower:x3)[combo,]]",
+      "Michelangelo (T):[*****,renaissance,dmg+,(renaissance:x2)[dmg+],(renaissance:x3)[heal,aoe]]",
+      "Michelangelo (M):[*****,renaissance,crit,(renaissance:x2)[dmg+],(renaissance:x3)[heal,aoe]]",
+      "Michelangelo (B):[*****,renaissance,critdmg+,(renaissance:x2)[dmg+],(renaissance:x3)[heal,aoe]]",
+      "Mary Shelley (T):[*****,frankenstein,hp+,dmg+,(frankenstein:x2)[aoe,lightning],(frankenstein:x3)[dmg+,heal]]",
+      "Mary Shelley (M):[*****,frankenstein,hp+,shield,(frankenstein:x2)[aoe,lightning],(frankenstein:x3)[dmg+,heal]]",
+      "Mary Shelley (B):[*****,frankenstein,hp+,def+,(frankenstein:x2)[aoe,lightning],(frankenstein:x3)[dmg+,heal]]",
+      "Tesla Band (T):[*****,anti entropy band,dmg+,speed+,(anti entropy band:x2)[lightning,paralyze],(anti entropy band:x3)[hp+,lightning]]",
+      "Tesla Band (M):[*****,anti entropy band,lightning,dmg-,(anti entropy band:x2)[lightning,paralyze],(anti entropy band:x3)[hp+,lightning]]",
+      "Tesla Band (B):[*****,anti entropy band,move+,lightning,(anti entropy band:x2)[lightning,paralyze],(anti entropy band:x3)[hp+,lightning]]",
+      "Kianna's Gift (T):[*****,heartfelt memories,dmg+,(heartfelt memories:x2)[crit,critdmg+],(heartfelt memories:x3)[hp+,SP+]]",
+      "Kianna's Gift (M):[*****,heartfelt memories,dmg-,(heartfelt memories:x2)[crit,critdmg+],(heartfelt memories:x3)[hp+,SP+]]",
+      "Kianna's Gift (B):[*****,heartfelt memories,speed+,(heartfelt memories:x2)[crit,critdmg+],(heartfelt memories:x3)[hp+,SP+]]",
+      "Schrodinger Band (T):[*****,anti entropy drummer,dmg+,(anti entropy drummer:x2)[(combo)dmg+],(anti entropy drummer:x3)[(freeze)dmg+,(kiana)[(combo)dmg+],(kallen)[(combo)dmg+]]]",
+      "Schrodinger Band (M):[*****,anti entropy drummer,crit,(anti entropy drummer:x2)[(combo)dmg+],(anti entropy drummer:x3)[(freeze)dmg+,(kiana)[(combo)dmg+],(kallen)[(combo)dmg+]]]",
+      "Schrodinger Band (B):[*****,anti entropy drummer,speed+,(anti entropy drummer:x2)[(combo)dmg+],(anti entropy drummer:x3)[(freeze)dmg+,(kiana)[(combo)dmg+],(kallen)[(combo)dmg+]]]",
+      "Caravaggio (T):[*****,painter,dmg+,(summon)dmg-,(painter:x2)[(summon)[elem+]],(painter:x3)[(summon)dmg-]]",
+      "Caravaggio (M):[*****,painter,lightning,(summon)elem+,(painter:x2)[(summon)[elem+]],(painter:x3)[(summon)dmg-]]",
+      "Caravaggio (B):[*****,painter,move+,speed+,(summon)[move+,speed+],(painter:x2)[(summon)[elem+]],(painter:x3)[(summon)dmg-]]",
+      "Jin Shengtan (T):[*****,critic,def+,elem+,(critic:x2)[elem+],(critic:x3)[ice-]]",
+      "Jin Shengtan (M):[*****,critic,ice-,ice,(critic:x2)[elem+],(critic:x3)[ice-]]",
+      "Jin Shengtan (B):[*****,critic,speed+,dmg-,(critic:x2)[elem+],(critic:x3)[ice-]]",
+      "Nuwa Figurine Master (T):[*****,figuring master,stun,dmg+,(figuring master:x2)[aoe,immobilize,dmg+],(figuring master:x3)[debuff-]]",
+      "Nuwa Figurine Master (M):[*****,figuring master,(combo)dmg+,shield,(figuring master:x2)[aoe,immobilize,dmg+],(figuring master:x3)[debuff-]]",
+      "Nuwa Figurine Master (B):[*****,figuring master,dmg+,(figuring master:x2)[aoe,immobilize,dmg+],(figuring master:x3)[debuff-]]",
+      "Himeko New Year (M):[*****,lucky new year,(fireworks)[aoe,heal,fire],(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
+      "Fu Hua New Year (T):[*****,lucky new year,fireworks,fire,(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
+      "Theresa New Year (B):[*****,lucky new year,(fireworks)[aoe,dmg+,fire],(lucky new year:x2)[(fireworks)ignite,fire],(lucky new year:x3)[fire,aoe,stun]",
+      "Monet (T):[*****,painter2,lightning,(combo)dmg+,(painter2:x2)[shield,lightning],(painter2:x3)[aoe,slow,heal]]",
+      "Monet (M):[*****,painter2,dmg-,(combo)lightning,(painter2:x2)[shield,lightning],(painter2:x3)[aoe,slow,heal]]",
+      "Monet (B):[*****,painter2,slow,speed+,(painter2:x2)[shield,lightning],(painter2:x3)[aoe,slow,heal]]",
+      "Fu Hua Musician (T):[*****,musician,(firebrand)[aoe,fire],(ignite)[aoe,fire],(musician:x2)[dmg+],(musician:x3)[hp+,fire]]",
+      "Fu Hua Musician (M):[*****,musician,fire,elem-,(musician:x2)[dmg+],(musician:x3)[hp+,fire]]",
+      "Fu Hua Musician (B):[*****,musician,fire,(firebrand)dmg+,(ignite)dmg+,(musician:x2)[dmg+],(musician:x3)[hp+,fire]]",
+      "Zorro (T):[*****,night vigilante,dmg+,SP+,(night vigilante:x2)[lightning,stun],(night vigilante:x3)[aoe,dmg+,impair,def-]]",
+      "Zorro (M):[*****,night vigilante,critdmg+,crit,(night vigilante:x2)[lightning,stun],(night vigilante:x3)[aoe,dmg+,impair,def-]]",
+      "Zorro (B):[*****,night vigilante,dmg+,(night vigilante:x2)[lightning,stun],(night vigilante:x3)[aoe,dmg+,impair,def-]]",
+      "Gustav Klimt (T):[*****,accursed shadows,dmg+,dmg-,(accursed shadows:x2)[aoe],(accursed shadows:x3)[dmg-]]",
+      "Gustav Klimt (M):[*****,accursed shadows,dmg+,(accursed shadows:x2)[aoe],(accursed shadows:x3)[dmg-]]",
+      "Gustav Klimt (B):[*****,accursed shadows,heal,(accursed shadows:x2)[aoe],(accursed shadows:x3)[dmg-]]",
+      "Sirin Ascendant (T):[*****,honkai queen,dmg+,(herrscher)dmg+,(honkai queen:x2)[(summon)dmg+],(honkai queen:x3)[critdmg+,(herrscher)crit]]",
+      "Sirin Ascendant (M):[*****,honkai queen,CD+,critdmg+,(honkai queen:x2)[(summon)dmg+],(honkai queen:x3)[critdmg+,(herrscher)crit]]",
+      "Sirin Ascendant (B):[*****,honkai queen,shield,speed+,dmg+,(honkai queen:x2)[(summon)dmg+],(honkai queen:x3)[critdmg+,(herrscher)crit]]",
+      "Edwin Hubble (T):[*****,space explorer,ice,aoe,freeze,(space explorer:x2)[(slow)speed+],(space explorer:x3)[ice,(combo)dmg+,(charge)dmg+]]",
+      "Edwin Hubble (M):[*****,space explorer,slow,(space explorer:x2)[(slow)speed+],(space explorer:x3)[ice,(combo)dmg+,(charge)dmg+]]",
+      "Edwin Hubble (B):[*****,space explorer,(freeze)dmg+,(slow)dmg+,(space explorer:x2)[(slow)speed+],(space explorer:x3)[ice,(combo)dmg+,(charge)dmg+]]",
+      "Cecilia Formals (T):[*****,reburn party,dmg+,crit,(reburn party:x2)[dmg+],(reburn party:x3)[aoe]]",
+      "Higokumaru Formals (M):[*****,reburn party,fire,lightning,ice,dmg-,(reburn party:x2)[dmg+],(reburn party:x3)[aoe]]",
+      "Seele Formals (B):[*****,reburn party,move+,speed+,(reburn party:x2)[dmg+],(reburn party:x3)[aoe]]",
+      "Wilde (T):[*****,aesthetics first,dmg+,(fracture)speed+,(aesthetics first:x2)[dmg+],(aesthetics first:x3)[critdmg+]]",
+      "Wilde (M):[*****,aesthetics first,heal,(aesthetics first:x2)[dmg+],(aesthetics first:x3)[critdmg+]]",
+      "Wilde (B):[*****,aesthetics first,crit,(charge)[aoe,bleed],(aesthetics first:x2)[dmg+],(aesthetics first:x3)[critdmg+]]",
+      "Darwin (T):[*****,evolution,(combo)lightning,(evolution:x2)[shield,aoe,paralyze,lightning],(evolution:x3)[move+]]",
+      "Darwin (M):[*****,evolution,dmg-,(evolution:x2)[shield,aoe,paralyze,lightning],(evolution:x3)[move+]]",
+      "Darwin (B):[*****,evolution,dmg+,(evolution:x2)[shield,aoe,paralyze,lightning],(evolution:x3)[move+]]",
+      "Theresa Overlord (B):[*****,homecoming theater,(crit)[],dmg+,move+,(homecoming theater:x2)[summon,dmg+,immune],(homecoming theater:x3)[dmg+,heal]]",
+      "Fu Hua Knight (M):[*****,homecoming theater,dmg+,(homecoming theater:x2)[summon,dmg+,immune],(homecoming theater:x3)[dmg+,heal]]",
+      "Mei Princess (T):[*****,homecoming theater,(PSY)dmg+,(homecoming theater:x2)[summon,dmg+,immune],(homecoming theater:x3)[dmg+,heal]]",
+      "Thales (T):[*****,eclipse predictor,dmg+,(combo)fire,(eclipse predictor:x2)[dmg+,(charge)dmg+],(eclipse predictor:x3)[heal,dmg-]]",
+      "Thales (M):[*****,eclipse predictor,dmg+,fire,(eclipse predictor:x2)[dmg+,(charge)dmg+],(eclipse predictor:x3)[heal,dmg-]]",
+      "Thales (B):[*****,eclipse predictor,speed+,(combo)dmg-,(eclipse predictor:x2)[dmg+,(charge)dmg+],(eclipse predictor:x3)[heal,dmg-]]",
+      "Robert Peary (T):[*****,arctic explorer,dmg-,(combo)ice,(arctic explorer:x2)[dmg-,freeze],(arctic explorer:x3)[speed+,dmg+]]",
+      "Robert Peary (M):[*****,arctic explorer,(combo)[dmg+,ice],(arctic explorer:x2)[dmg-,freeze],(arctic explorer:x3)[speed+,dmg+]]",
+      "Robert Peary (B):[*****,arctic explorer,(freeze)heal,(arctic explorer:x2)[dmg-,freeze],(arctic explorer:x3)[speed+,dmg+]]",
+      "Beethoven (T):[*****,klassik komponist,hp+,(klassik komponist:x2)[(switch)dmg+],(klassik komponist:x3)[(switch)[dmg-,heal]]]",
+      "Beethoven (M):[*****,klassik komponist,dmg+,dmg-,(klassik komponist:x2)[(switch)dmg+],(klassik komponist:x3)[(switch)[dmg-,heal]]]",
+      "Beethoven (B):[*****,klassik komponist,SP+,(klassik komponist:x2)[(switch)dmg+],(klassik komponist:x3)[(switch)[dmg-,heal]]]",
+
+      "Elizabeth Bathory (T):[****,vampiric countess,def+,(vampiric countess:x2)[(melee)[],(BIO)SP+],(vampiric countess:x3)[heal]]",
+      "Elizabeth Bathory (M):[****,vampiric countess,def+,(vampiric countess:x2)[(melee)[],(BIO)SP+],(vampiric countess:x3)[heal]]",
+      "Elizabeth Bathory (B):[****,vampiric countess,move+,(vampiric countess:x2)[(melee)[],(BIO)SP+],(vampiric countess:x3)[heal]]",
+      "Wang Zhaojhun (T):[****,frontier seductress,hp+,(frontier seductress:x2)[(range)dmg+,(PSY)SP+],(frontier seductress:x3)[SP+]]",
+      "Wang Zhaojhun (M):[****,frontier seductress,def+,(frontier seductress:x2)[(range)dmg+,(PSY)SP+],(frontier seductress:x3)[SP+]]",
+      "Wang Zhaojhun (B):[****,frontier seductress,SP+,(frontier seductress:x2)[(range)dmg+,(PSY)SP+],(frontier seductress:x3)[SP+]]",
+      "Attila (T):[****,scourge of god,speed+,(scourge of god:x2)[crit,(MECH)SP+],(scourge of god:x3)[crit]]",
+      "Attila (M):[****,scourge of god,def+,(scourge of god:x2)[crit,(MECH)SP+],(scourge of god:x3)[crit]]",
+      "Attila (B):[****,scourge of god,dmg+,(scourge of god:x2)[crit,(MECH)SP+],(scourge of god:x3)[crit]]",
+      "Sakamoto Ryoma (T):[****,sentyu hassaku,(charge)dmg+,(sentyu hassaku:x2)[dmg+],(sentyu hassaku:x3)[debuff-]]",
+      "Sakamoto Ryoma (M):[****,sentyu hassaku,(switch)dmg+,(QTE)dmg+,(sentyu hassaku:x2)[dmg+],(sentyu hassaku:x3)[debuff-]]",
+      "Sakamoto Ryoma (B):[****,sentyu hassaku,(combo)dmg+,(sentyu hassaku:x2)[dmg+],(sentyu hassaku:x3)[debuff-]]",
+      "Nikola Tesla (T):[****,sine twin tails,(paralyze)dmg+,(sine twin tails:x2)[dmg+],(sine twin tails:x3)[lightning]]",
+      "Nikola Tesla (M):[****,sine twin tails,(freeze)dmg+,(sine twin tails:x2)[dmg+],(sine twin tails:x3)[lightning]]",
+      "Nikola Tesla (B):[****,sine twin tails,(stun)dmg+,(sine twin tails:x2)[dmg+],(sine twin tails:x3)[lightning]]",
+      "Edison (T):[****,inventor,lightning,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
+      "Edison (M):[****,inventor,shield,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
+      "Edison (B):[****,inventor,slow,speed+,(inventor:x2)[dmg+],(inventor:x3)[def+,(himeko)hp+]]",
+      "Bronya Magic (T):[****,halloween witch,(charge)dmg+,(halloween witch:x2)[dmg+,(bronya)[(switch)dmg+,(QTE)dmg+]],(halloween witch:x3)[move+]]",
+      "Bronya Magic (M):[****,halloween witch,(range)dmg+,(bronya)hp+,(halloween witch:x2)[dmg+,(bronya)[(switch)dmg+,(QTE)dmg+]],(halloween witch:x3)[move+]]",
+      "Bronya Magic (B):[****,halloween witch,fire,(halloween witch:x2)[dmg+,(bronya)[(switch)dmg+,(QTE)dmg+]],(halloween witch:x3)[move+]]",
+      "Rowland (T):[****,holy knight,heal,(holy knight:x2)[(kiana)hp+,(kallen)hp+],(holy knight:x3)[(kiana)crit,(kallen)crit]]",
+      "Rowland (M):[****,holy knight,debuff-,(holy knight:x2)[(kiana)hp+,(kallen)hp+],(holy knight:x3)[(kiana)crit,(kallen)crit]]]",
+      "Rowland (B):[****,holy knight,def+,(holy knight:x2)[(kiana)hp+,(kallen)hp+],(holy knight:x3)[(kiana)crit,(kallen)crit]]]",
+      "Himeko Christmas (T):[****,santa claus,move+,(himeko)move+,(santa claus:x2)[(charge)dmg+],(santa claus:x3)[dmg+,(himeko)dmg+]]",
+      "Himeko Christmas (M):[****,santa claus,speed-,(santa claus:x2)[(charge)dmg+],(santa claus:x3)[dmg+,(himeko)dmg+]]",
+      "Himeko Christmas (B):[****,santa claus,jinglebell,SP+,(himeko)SP+,(santa claus:x2)[(charge)dmg+],(santa claus:x3)[dmg+,(himeko)dmg+]]",
+      "Charlemagne (T):[****,charles the great,dmg+,(charles the great:x2)[atk-,def-],(charles the great:x3)[dmg+,(mei)hp+,(yae)hp+]]",
+      "Charlemagne (M):[****,charles the great,def+,(charles the great:x2)[atk-,def-],(charles the great:x3)[dmg+,(mei)hp+,(yae)hp+]]",
+      "Charlemagne (B):[****,charles the great,move+,(charles the great:x2)[atk-,def-],(charles the great:x3)[dmg+,(mei)hp+,(yae)hp+]]",
+      "Ogier (T):[****,holger danske,dmg+,(holger danske:x2)[hp+,aoe],(holger danske:x3)[dmg+,(Bronya)crit]]",
+      "Ogier (M):[****,holger danske,dmg-,(holger danske:x2)[hp+,aoe],(holger danske:x3)[dmg+,(Bronya)crit]]",
+      "Ogier (B):[****,holger danske,move+,(holger danske:x2)[hp+,aoe],(holger danske:x3)[dmg+,(Bronya)crit]]",
+      "Yodo Dono (T):[****,sengoku hime,fire-,(melee)dmg+,(sengoku hime:x2)[aoe,fire,(kiana)[],(kallen)[]],(sengoku hime:x3)[ignite]]",
+      "Yodo Dono (M):[****,sengoku hime,fire,fire-,(sengoku hime:x2)[aoe,fire,(kiana)[],(kallen)[]],(sengoku hime:x3)[ignite]]",
+      "Yodo Dono (B):[****,sengoku hime,move+,def+,(sengoku hime:x2)[aoe,fire,(kiana)[],(kallen)[]],(sengoku hime:x3)[ignite]]",
+      "Naoe Kanetsugu (T):[****,niou dachi,dmg+,crit,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
+      "Naoe Kanetsugu (M):[****,niou dachi,fire-,dmg+,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
+      "Naoe Kanetsugu (B):[****,niou dachi,heal,(niou dachi:x2)[dmg+],(niou dachi:x3)[dmg+,def+]]",
+      "Shigure Kira (T):[****,solar prominence,(fire)dmg+,(ice)dmg+,(lightning)dmg+,(solar prominence:x2)[dmg-],(solar prominence:x3)[dmg+]]",
+      "Shigure Kira (M):[****,solar prominence,hp+,def+,(solar prominence:x2)[dmg-],(solar prominence:x3)[dmg+]]",
+      "Shigure Kira (B):[****,solar prominence,fire,ice,lightning,(solar prominence:x2)[dmg-],(solar prominence:x3)[dmg+]]",
+      "Kiana Dragon Boat (T):[****,dragon boat,(combo)[dmg+,crit],(dragon boat:x2)[SP+,hp+],(dragon boat:x3)[dmg+]",
+      "Kiana Dragon Boat (M):[****,dragon boat,paralyze,(dragon boat:x2)[SP+,hp+],(dragon boat:x3)[dmg+]",
+      "Kiana Dragon Boat (B):[****,dragon boat,debuff-,(switch)dmg+,(QTE)dmg+,(dragon boat:x2)[SP+,hp+],(dragon boat:x3)[dmg+]",
+      "Rinaldo (T):[****,berserk knight,(crit)[dmg+,aoe],(berserk knight:x2)[crit],(berserk knight:x3)[critdmg+]]",
+      "Rinaldo (B):[****,berserk knight,(crit)[],heal,(berserk knight:x2)[crit],(berserk knight:x3)[critdmg+]]",
+      "Rinaldo (M):[****,berserk knight,aoe,paralyze,(berserk knight:x2)[crit],(berserk knight:x3)[critdmg+]]",
+      "Theresa Origins (T):[****,lost nun,dmg+,(lost nun:x2)[dmg-,(theresa)SP+],(lost nun:x3)[(switch)dmg+,(QTE)dmg+,(theresa)[(switch)dmg+,(QTE)dmg+]]]",
+      "Theresa Origins (M):[****,lost nun,CD+,(lost nun:x2)[dmg-,(theresa)SP+],(lost nun:x3)[(switch)dmg+,(QTE)dmg+,(theresa)[(switch)dmg+,(QTE)dmg+]]]",
+      "Theresa Origins (B):[****,lost nun,speed+,(lost nun:x2)[dmg-,(theresa)SP+],(lost nun:x3)[(switch)dmg+,(QTE)dmg+,(theresa)[(switch)dmg+,(QTE)dmg+]]]",
+      "HOMU (T):[****,homu-homu,dmg+,(homu-homu:x2)[aoe],(homu-homu:x3)[heal,SP+]]",
+      "HOMU (M):[****,homu-homu,(homu-homu:x2)[aoe],(homu-homu:x3)[heal,SP+]]",
+      "HOMU (B):[****,homu-homu,move+,(homu-homu:x2)[aoe],(homu-homu:x3)[heal,SP+]]",
+      "Galileo (T):[****,stargazer,dmg+,(stargazer:x2)[(melee)crit],(stargazer:x3)[bleed-]]",
+      "Galileo (M):[****,stargazer,dmg+,(float)dmg+,(stargazer:x2)[(melee)crit],(stargazer:x3)[bleed-]]",
+      "Galileo (B):[****,stargazer,crit,(stargazer:x2)[(melee)crit],(stargazer:x3)[bleed-]]",
+      "Ryunosuke  Akutagawa (T):[****,writer,dmg+,(writer:x2)[shield,crit],(writer:x3)[(melee)dmg+]]",
+      "Ryunosuke  Akutagawa (M):[****,writer,crit,(writer:x2)[shield,crit],(writer:x3)[(melee)dmg+]]",
+      "Ryunosuke  Akutagawa (B):[****,writer,speed+,(writer:x2)[shield,crit],(writer:x3)[(melee)dmg+]]",
+      "Kiana Summer Surf (T):[****,summer surf,(range)dmg+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Theresa Summer Surf (M):[****,summer surf,(range)crit,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Himeko Summer Surf (B):[****,summer surf,dmg-,hp+,(summer surf:x2)[(range)[dmg+,aoe]],(summer surf:x3)[speed+]]",
+      "Roald Amundsen (T):[****,polar conquest,(charge)dmg+,(polar conquest:x2)[dmg-],(polar conquest:x3)[fire,ice,lightning]]",
+      "Roald Amundsen (M):[****,polar conquest,ice,ice-,(polar conquest:x2)[dmg-],(polar conquest:x3)[fire,ice,lightning]]",
+      "Roald Amundsen (B):[****,polar conquest,(freeze)heal,(slow)heal,(polar conquest:x2)[dmg-],(polar conquest:x3)[fire,ice,lightning]]",
+      "Tchaikovsky (T):[****,winter symphony,dmg-,paralyze,(winter symphony:x2)[dmg+],(winter symphony:x3)[bleed-,heal]]",
+      "Tchaikovsky (M):[****,winter symphony,bleed-,(winter symphony:x2)[dmg+],(winter symphony:x3)[bleed-,heal]]",
+      "Tchaikovsky (B):[****,winter symphony,heal,(winter symphony:x2)[dmg+],(winter symphony:x3)[bleed-,heal]]",
+      "Hannah (T):[***,teutonic order,(switch)dmg+,(QTE)dmg+,(teutonic order:x2)[(melee)dmg+,(kiana)hp+,(kallen)hp+],(teutonic order:x3)[speed+]]",
+      "Hannah (M):[***,teutonic order,(switch)dmg+,(QTE)dmg+,(teutonic order:x2)[(melee)dmg+,(kiana)hp+,(kallen)hp+],(teutonic order:x3)[speed+]]",
+      "Hannah (B):[***,teutonic order,(switch)dmg+,(QTE)dmg+,(teutonic order:x2)[(melee)dmg+,(kiana)hp+,(kallen)hp+],(teutonic order:x3)[speed+]]",
+      "Viola (T):[***,knight hospitaller,hp+,(knight hospitaller:x2)[dmg+],(knight hospitaller:x3)[move+]]",
+      "Viola (M):[***,knight hospitaller,hp+,(knight hospitaller:x2)[dmg+],(knight hospitaller:x3)[move+]]",
+      "Viola (B):[***,knight hospitaller,hp+,(knight hospitaller:x2)[dmg+],(knight hospitaller:x3)[move+]]",
+      "Victoria (T):[***,exiled knight,(melee)dmg+,(exiled knight:x2)[SP+,(himeko)hp+],(exiled knight:x3)[crit]]",
+      "Victoria (M):[***,exiled knight,(melee)dmg+,(exiled knight:x2)[SP+,(himeko)hp+],(exiled knight:x3)[crit]]",
+      "Victoria (B):[***,exiled knight,(melee)dmg+,(exiled knight:x2)[SP+,(himeko)hp+],(exiled knight:x3)[crit]]",
+      "Octavia (T):[***,schicksal order,(combo)dmg+,(schicksal order:x2)[critdmg+,(mei)hp+,(yae)hp+],(schicksal order:x3)[pickup+]]",
+      "Octavia (M):[***,schicksal order,(combo)dmg+,(schicksal order:x2)[critdmg+,(mei)hp+,(yae)hp+],(schicksal order:x3)[pickup+]]",
+      "Octavia (B):[***,schicksal order,(combo)dmg+,(schicksal order:x2)[critdmg+,(mei)hp+,(yae)hp+],(schicksal order:x3)[pickup+]]",
+      "Lucia (T):[***,knight templar,(charge)dmg+,(knight templar:x2)[(range)dmg+,(bronya)hp+],(knight templar:x3)[def+]]",
+      "Lucia (M):[***,knight templar,(charge)dmg+,(knight templar:x2)[(range)dmg+,(bronya)hp+],(knight templar:x3)[def+]]",
+      "Lucia (B):[***,knight templar,(charge)dmg+,(knight templar:x2)[(range)dmg+,(bronya)hp+],(knight templar:x3)[def+]]",
+      "Charlotte (T):[**,hooded archer,(hooded archer:x2)[dmg+],(hooded archer:x3)[def+]]",
+      "Charlotte (M):[**,hooded archer,(hooded archer:x2)[dmg+],(hooded archer:x3)[def+]]",
+      "Charlotte (B):[**,hooded archer,(hooded archer:x2)[dmg+],(hooded archer:x3)[def+]]",
+      "Selena (T):[**,swordsman,(swordsman:x2)[(melee)dmg+],(swordsman:x3)[hp+]]",
+      "Selena (M):[**,swordsman,(swordsman:x2)[(melee)dmg+],(swordsman:x3)[hp+]]",
+      "Selena (B):[**,swordsman,(swordsman:x2)[(melee)dmg+],(swordsman:x3)[hp+]]"
+    ];
+
+    var Valks = [];
+    var Weapons = [];
+    var Stigmata = [];
+
+    function obj(elem)
+    {
+      // walk up parents until we fuind an obj
+      let e = elem;
+      while (e)
+      {
+        if (e.obj) return e.obj;
+        e = e.parentElement;
+      }
+      return null;
+    }
+
+    class BaseUI
+    {
+      constructor(id)
+      {
+        this.id = id;
+
+        this.lastHilite = -1;
+        this.drawIndex = 0;
+        this.divMode = "" + id;
+        this.divSelect = "" + id;
+        this.elemSearch = "" + id;
+        this.elemResult = id + "";
+        this.elemProp = id + "";
+        this.searchFilter = null;
+        this.name = "";
+        this.root = null;
+        this.results = [];
+        this.resultCursor = 0;
+      }
+
+      reset()
+      {
+        document.getElementById(this.divMode).innerHTML = "Select " + this.name + ": <input onmouseover='this.focus()' onmouseout='this.blur()' type=\"text\" id=\"" + this.elemSearch + "\" onchange=\"obj(this).search();\" onkeypress=\"this.onchange();\" onpaste=\"this.onchange();\" oninput=\"this.onchange();\" /><div id=\"" + this.divSelect + "\"></div>";
+        this.lastHilite = -1;
+        this.root = null;
+        app.Set[this.id].Res.resolve(app.Set[this.id]);
+        this.resultCursor = 0;
+        this.results = [];
+        document.getElementById(this.elemResult + "query").innerText = "";
+
+        this.resetExtra();
+      }
+
+      resetExtra() { }
+
+      getData() { return null; }
+
+      search()
+      {
+        let onlyme = document.getElementById("myfilter").checked;
+        let query = document.getElementById(this.elemSearch).value.toLowerCase();
+
+        document.getElementById(this.elemResult + "query").innerText = "'" + query + "'";
+        let buf = "";
+        this.results = [];
+        this.resultCursor = 0;
+        if (query.length > 0)
+        {
+          let data = this.getData();
+          for (let i in data)
+          {
+            if (onlyme && app.Collection.has(data[i].name) == false) continue;
+
+            if (this.searchFilter && data[i].name.indexOf(this.searchFilter) == -1) continue;
+
+            if (data[i].name.toLowerCase().indexOf(query) != -1)
+            {
+              this.results.push(i);
+            }
+          }
+        }
+        this.sortResults();
+        this.drawResults();
+      }
+
+      sortResults()
+      {
+        let data = this.getData();
+        let revMap = {} // a reverse map of name:index
+        let names = [] // a list of the names so we can sort it
+        for (let i in this.results)
+        {
+          revMap[data[this.results[i]].name] = this.results[i];
+          names.push(data[this.results[i]].name);
+        }
+        names.sort();
+        this.results = [];
+        for (let i in names)
+        {
+          this.results.push(revMap[names[i]]);
+        }
+      }
+
+      drawResults()
+      {
+        let buf = "";
+        let data = this.getData();
+        for (let i in this.results)
+        {
+          buf += "<div id='" + this.elemResult + this.results[i] + "' onmouseover='obj(this).hilite(" + this.results[i] + ")' onclick='obj(this).pick(" + this.results[i] + ")'>" + data[this.results[i]].name + "</div>";
+        }
+
+        document.getElementById(this.divSelect).innerHTML = buf;
+      }
+
+      hilite(index)
+      {
+        if (this.lastHilite > -1)
+        {
+          let item = document.getElementById(this.elemResult + this.lastHilite);
+          if (item) item.style.border = "";//"2px solid rgba(0,0,0,0)";
+        }
+        this.lastHilite = index;
+        let item = document.getElementById(this.elemResult + index);
+        if (item) item.style.border = "2px solid green";
+      }
+
+      outline(index)
+      {
+        if (this.lastHilite > -1)
+        {
+          let item = document.getElementById(this.elemProp + this.lastHilite);
+          if (item) item.style.border = "";//"2px solid rgba(0,0,0,0)";
+        }
+        this.lastHilite = index;
+        let item = document.getElementById(this.elemProp + index);
+        if (item) item.style.border = "2px solid black";
+      }
+
+      isSatisfied(item, selfonly)
+      {
+        if (!this.root) return false;
+        if (!item.if) return true;
+        // special case - things that can come from other team mates
+        if (!selfonly)
+        {
+          if (globalTerms.includes(item.if))
+          {
+            if (app.Set[0].Res.has(item.if)) return true;
+            if (app.Set[1].Res.has(item.if)) return true;
+            if (app.Set[2].Res.has(item.if)) return true;
+            return false;
+          }
+        }
+        // check all the resolver to see if i am satisfied
+        let loc = item.if.indexOf(":x");
+        let num = 1;
+        let name = item.if;
+        if (loc != -1) { name = item.if.substr(0, loc); num = item.if.substr(loc + 2) | 0; }
+        return app.Set[this.id].Res.has(name) >= num;
+      }
+
+      next()
+      {
+        if (this.resultCursor < this.results.length - 1) this.pick(this.results[this.resultCursor + 1]);
+      }
+
+      prev()
+      {
+        if (this.resultCursor > 0) this.pick(this.results[this.resultCursor - 1]);
+      }
+
+      extraPick()
+      {
+
+      }
+
+      pick(index)
+      {
+        let data = this.getData();
+        this.root = data[index];
+        this.extraPick();
+        for (let i in this.results) { if (this.results[i] == index) this.resultCursor = i | 0; }
+
+        app.Set[this.id].Res.resolve(app.Set[this.id]);
+
+        let buf = "Name: " + this.root.name + this.extraControls();
+        buf += "<div id='" + this.divSelect + "Props'></div>";
+        buf += "<br><button id='" + this.elemResult + "reset' onclick='obj(this).reset()'>Reset</button>";
+        document.getElementById(this.divMode).innerHTML = buf;
+
+        this.draw();
+        this.resetExtra();
+
+        app.advanceFTUE("pick", this.root.name);
+      }
+
+      draw()
+      {
+        if (!this.root) return;
+        this.drawIndex = 0;
+        document.getElementById(this.divSelect + "Props").innerHTML = this.drawPropsTopLevel(this.root);
+      }
+
+      drawPropsDisabled(item)
+      {
+        let buf = "";
+        let props = item.props;
+        if (!Array.isArray(props)) props = [props];
+
+        for (let i in props)
+        {
+          buf += "<div class='off' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + (props[i].if ? props[i].if : props[i]) + "</div>";
+          this.drawIndex += 1;
+          if (props[i].if)
+            buf += this.drawPropsDisabled(props[i]);
+        }
+        return buf;
+      }
+
+      sortForRender(render, item)
+      {
+        render.sort(item);
+      }
+
+      drawPropsTopLevel(item)
+      {
+        let props = item.props;
+        if (!Array.isArray(props)) props = [props];
+
+        // sort props into code groups
+        let render = new GroupRender();
+        this.sortForRender(render, item);
+        return render.render();
+        /*
+        let buf = "";
+        for (let i in props)
+        {
+          if (props[i].if)
+          {
+            let satisfied = this.isSatisfied(props[i],false);
+            // if its a QTE one, we can not self-satisfy
+            if (props[i].props.includes("QTE"))
+            {
+              satisfied = false;
+              // check other valks
+              if (this.id != 0 && app.Set[0].Valk.isSatisfied(props[i], true)) satisfied = true;
+              if (this.id != 1 && app.Set[1].Valk.isSatisfied(props[i], true)) satisfied = true;
+              if (this.id != 2 && app.Set[2].Valk.isSatisfied(props[i], true)) satisfied = true;
+            }
+            // check if it is satisfied by our set of objects
+            if (satisfied)
+            {
+              // if so add its props
+              buf += "<div class='met' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
+              this.drawIndex += 1;
+              buf += this.drawProps(props[i]);
+            }
+            else
+            {
+              // if not its red
+              buf += "<div class='unmet' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
+              this.drawIndex += 1;
+              buf += this.drawPropsDisabled(props[i]);
+            }
+          }
+          else
+          {
+            buf += "<div id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i] + "</div>";
+            this.drawIndex += 1;
+          }
+        }
+        return buf;*/
+      }
+
+      hookup()
+      {
+        document.getElementById(this.divMode).obj = this;
+      }
+
+      extraControls()
+      {
+        return "";
+      }
+
+      query(index)
+      {
+        let word = document.getElementById(this.elemProp + index).innerText;
+        if (globalTerms.includes(word))
+        {
+          app.Set[0].query(word);
+          app.Set[1].query(word);
+          app.Set[2].query(word);
+        }
+        else
+          app.Set[this.id].query(word);
+      }
+
+      handleQuery(key)
+      {
+        let onlyme = document.getElementById("myfilter").checked;
+        document.getElementById(this.elemResult + "query").innerText = "'" + key + "'";
+
+        let buf = "";
+        this.results = [];
+        this.resultCursor = 0;
+        if (key.length > 0)
+        {
+          let data = this.getData();
+          for (let i in data)
+          {
+            if (app.filterByLocks(data[i]) == false) continue;
+            if (onlyme && app.Collection.has(data[i].name) == false) continue;
+            if (this.searchFilter && data[i].name.indexOf(this.searchFilter) == -1) continue;
+
+            if (this.hasProp(key, data[i]))
+            {
+              this.results.push(i);
+            }
+          }
+        }
+        this.sortResults();
+        this.drawResults();
+
+        app.advanceFTUE("handleQuery", key);
+      }
+
+      hasProp(key, item)
+      {
+        let yesifs = document.getElementById("triggers").checked;
+        let yesprops = document.getElementById("props").checked;
+        let props = item.props;
+        if (!Array.isArray(props)) props = [props];
+
+        for (let i in props)
+        {
+          if (props[i].if)
+          {
+            if (yesifs && this.compareKeys(props[i].if,key)) return true;
+            if (this.hasProp(key, props[i])) return true;
+          }
+          else if (yesprops && this.compareKeys(props[i],key)) return true;
+        }
+        return false;
+      }
+
+      compareKeys(key1, key2)
+      {
+        let exact = document.getElementById("exact").checked;
+        if (!exact)
+        {
+          if (key1 == "fracture" && key2 == "timeslow") return true;
+          if (key2 == "fracture" && key1 == "timeslow") return true;
+          if (key1 == "ignite" && key2 == "fire") return true;
+          if (key2 == "ignite" && key1 == "fire") return true;
+          if (key2 == "elem+" && key1 == "fire") return true;
+          if (key2 == "elem+" && key1 == "ice") return true;
+          if (key2 == "elem+" && key1 == "lightning") return true;
+          if (key1 == "elem+" && key2 == "fire") return true;
+          if (key1 == "elem+" && key2 == "ice") return true;
+          if (key1 == "elem+" && key2 == "lightning") return true;
+        }
+        return (key1 == key2);
+      }
+    };
+
+    var groupNames = { a: "Attack", p: "Passive", x: "Exit", v: "Evade", s: "Switch", c: "Combo", q: "QTE", u: "Ultimate", l: "Leader"};
+
+    class GroupRenderGroup
+    {
+      constructor(code)
+      {
+        this.name = groupNames[code];
+        this.code = code;
+        this.disabledProps = [];
+        this.props = [];
+      }
+
+      disable(prop, rank)
+      {
+        this.disabledProps.push({rank: rank, prop: prop});
+      }
+
+      enable(prop)
+      {
+        this.props.push(prop);
+      }
+    }
+
+    class GroupRender
+    {
+      constructor()
+      {
+        this.plain = new GroupRenderGroup(null);
+        this.groups = {};
+        let codes = "apxvscqul";
+        for (let i in codes) this.groups[codes[i]] = new GroupRenderGroup(codes[i]);
+      }
+
+      testRank(rank1, rank2)
+      {
+        if (rank1 == "SSS") return true;
+        if (rank1 == "SS" && rank2 == "SSS") return false;
+        if (rank1 == "S" && (rank2 == "SSS" || rank2 == "SS")) return false;
+        if (rank1 == "A" && (rank2 == "SSS" || rank2 == "SS" || rank2 == "S")) return false;
+        if (rank1 == "B" && rank2 != "B") return false;
+        return true;
+      }
+
+      sortWithRank(item, rank)
+      {
+        for (let i in item.props)
+        {
+          if (!this.testRank(rank, item.props[i].if))
+          {
+            for (let j in item.props[i].props)
+            {
+              if (item.props[i].props[j].code.length)
+                this.groups[item.props[i].props[j].code].disable(item.props[i].props[j], item.props[i].if);
+              else
+                this.plain.disable(item.props[i].props[j], item.props[i].if);
+            }
+          }
+          else
+          {
+            this.sort(item.props[i]);
+          }
+        }
+      }
+
+      sort(item)
+      {
+        for (let i in item.props)
+        {
+          if (item.props[i].code.length)
+            this.groups[item.props[i].code].enable(item.props[i]);
+          else
+            this.plain.enable(item.props[i]);
+        }
+      }
+
+      render()
+      {
+        let html = "";
+        // render plain group
+
+        // for all groups
+        for (let g in this.groups)
+        {
+          let group = this.groups[g];
+          html += this.drawGroup(group.name);
+          for (let p in group.props)
+            html += this.renderProp(group.props[p]);
+          for (let p in group.disabledProps)
+            html += this.renderDisabledProp(group.disabledProps[p]);
+          html += this.drawEndGroup();
+        }
+        return html;
+      }
+
+      renderDisabledProp(prop)
+      {
+        let html = "";
+        let rank = prop.rank;
+        prop = prop.prop;
+
+        if (prop.if)
+        {
+          html += this.drawDisabledIf(prop.if, rank);
+          for (let p in prop.props) html += this.renderUnavailProp(prop.props[p]);
+          html += this.drawEndIf();
+        }
+        else
+          html += this.drawDisabledItem(prop, rank);
+        return html;
+      }
+
+      renderUnavailProp(prop)
+      {
+        let html = "";
+
+        if (prop.if)
+        {
+          html += this.drawUnavailIf(prop.if);
+          for (let p in prop.props) html += this.renderUnavailProp(prop.props[p]);
+          html += this.drawEndIf();
+        }
+        else
+          html += this.drawUnavailItem(prop);
+        return html;
+      }
+
+      renderProp(prop)
+      {
+        let html = "";
+
+        if (prop.if)
+        {
+          html += this.drawIf(prop.if);
+          for (let p in prop.props) html += this.renderProp(prop.props[p]);
+          html += this.drawEndIf();
+        }
+        else
+          html += this.drawItem(prop);
+        return html;
+      }
+
+      drawDisabledIf(name, rank)
+      {
+        return "<div class=\"group\"><span class=\"groupname-no\"><span class=\"alignleft\">" + name + "</span><span class=\"alignright\">"+rank+" Rank</span><br style=\"clear: both\"></span>";
+      }
+
+      drawUnavailIf(name)
+      {
+        return "<div class=\"group\"><span class=\"groupname-no\"><span class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
+      }
+
+      drawIf(name)
+      {
+        return "<div class=\"group\"><span class=\"groupname\"><span class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
+      }
+
+      drawEndIf()
+      {
+        return "</div>";
+      }
+
+      drawDisabledItem(prop, rank)
+      {
+        if (prop.group) rank = "Whole Group - " + rank;
+        return "<span class=\"item-no\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">" + rank + " Rank</span><br style=\"clear: both\"></span>";
+      }
+
+      drawUnavailItem(prop)
+      {
+        if (prop.group)
+          return "<span class=\"item-un\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
+        else
+          return "<span class=\"item-un\">" + prop.name + "</span><br>";
+      }
+
+      drawItem(prop)
+      {
+        if (prop.group)
+          return "<span class=\"item\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
+        else
+          return "<span class=\"item\">" + prop.name + "</span><br>";
+      }
+
+      drawGroup(name)
+      {
+        return "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">" + name + "</span><span class=\"content\">";
+      }
+
+      drawEndGroup(name)
+      {
+        return "</span></div>";
+      }
+    }
+
+    class ValkUI extends BaseUI
+    {
+      constructor(id)
+      {
+        super(id);
+        this.divMode = "valkMode" + id;
+        this.divSelect = "valkSelect" + id;
+        this.elemSearch = "valkSearch" + id;
+        this.elemResult = id + "valk";
+        this.elemProp = id + "prop";
+        this.name = "Valkyrie";
+        this.rank = "A";
+        this.hookup();
+      }
+
+      resetExtra()
+      {
+        if (app.Set[this.id].Weap.root) { app.Set[this.id].Weap.draw(); }
+        if (app.Set[this.id].TStig.root) { app.Set[this.id].TStig.draw(); }
+        if (app.Set[this.id].MStig.root) { app.Set[this.id].MStig.draw(); }
+        if (app.Set[this.id].BStig.root) { app.Set[this.id].BStig.draw(); }
+
+        if (this.id != 0) app.Set[0].Valk.draw();
+        if (this.id != 1) app.Set[1].Valk.draw();
+        if (this.id != 2) app.Set[2].Valk.draw();
+      }
+
+      getData() { return Valks; }
+
+      sortForRender(render, item)
+      {
+        render.sortWithRank(item, this.rank);
+      }
+
+      setrank()
+      {
+        let elem = document.getElementById("valkRankSelect" + this.id);
+        if (elem)
+        {
+          switch (elem.value | 0)
+          {
+            case 1: this.rank = "B"; break;
+            case 2: this.rank = "A"; break;
+            case 3: {
+              this.rank = "S";
+              app.advanceFTUE("setrank", "");
+              break;
+            }
+            case 4: this.rank = "SS"; break;
+            case 5: this.rank = "SSS"; break;
+          }
+
+          app.Set[this.id].Res.resolve(app.Set[this.id]);
+
+          this.draw();
+          this.resetExtra();
+          document.getElementById("valkRank" + this.id).innerHTML = "<b>" + this.rank + "</b>";
+        }
+      }
+
+      extraPick()
+      {
+        this.rank = "A";
+        if (!this.hasProp("A", this.root)) { this.rank = "S"; }
+      }
+
+      extraControls()
+      {
+        let num = 2;
+        if (!this.rank == 'S') { num = 3; }
+        return "<br>Rank: <span id=\"valkRank" + this.id + "\"><b>" + this.rank + "</b></span> <input class='slider' oninput = 'obj(this).setrank()' type=\"range\" min=\"1\" max=\"5\" value=\"" + num + "\" id=\"valkRankSelect" + this.id + "\"><br><br>";
+      }
+    };
+
+    class WeapUI extends BaseUI
+    {
+      constructor(id)
+      {
+        super(id);
+        this.divMode = "weapMode" + id;
+        this.divSelect = "weapSelect" + id;
+        this.elemSearch = "weapSearch" + id;
+        this.elemResult = id + "weap";
+        this.elemProp = id + "wprop";
+        this.name = "Weapon";
+        this.hookup();
+      }
+
+      getData() { return Weapons; }
+
+      resetExtra()
+      {
+        if (app.Set[this.id].Valk.root) { app.Set[this.id].Valk.draw(); }
+        if (app.Set[this.id].TStig.root) { app.Set[this.id].TStig.draw(); }
+        if (app.Set[this.id].MStig.root) { app.Set[this.id].MStig.draw(); }
+        if (app.Set[this.id].BStig.root) { app.Set[this.id].BStig.draw(); }
+
+        if (this.id != 0) app.Set[0].Valk.draw();
+        if (this.id != 1) app.Set[1].Valk.draw();
+        if (this.id != 2) app.Set[2].Valk.draw();
+
+        app.advanceFTUE("resetExtra", "");
+      }
+    };
+
+    class StigUI extends BaseUI
+    {
+      constructor(id, type)
+      {
+        super(id);
+        this.divMode = type + "stigMode" + id;
+        this.divSelect = type + "stigSelect" + id;
+        this.elemSearch = type + "stigSearch" + id;
+        this.elemResult = id + type + "stig";
+        this.elemProp = id + type + "sprop";
+        this.name = type + " Stigmata";
+        this.searchFilter = "(" + type + ")";
+        this.type = type;
+        this.hookup();
+      }
+
+      getData() { return Stigmata; }
+
+      resetExtra()
+      {
+        if (app.Set[this.id].Valk.root) { app.Set[this.id].Valk.draw(); }
+        if (app.Set[this.id].Weap.root) { app.Set[this.id].Weap.draw(); }
+        if (this.type != "T" && app.Set[this.id].TStig.root) { app.Set[this.id].TStig.draw(); }
+        if (this.type != "M" && app.Set[this.id].MStig.root) { app.Set[this.id].MStig.draw(); }
+        if (this.type != "B" && app.Set[this.id].BStig.root) { app.Set[this.id].BStig.draw(); }
+
+        if (this.id != 0) app.Set[0].Valk.draw();
+        if (this.id != 1) app.Set[1].Valk.draw();
+        if (this.id != 2) app.Set[2].Valk.draw();
+      }
+    };
+
+    class Set
+    {
+      /*
+      Valk = null;
+      Weap = null;
+      TStig = null;
+      MStig = null;
+      BStig = null;
+      Res = null;
+*/
+      constructor(id)
+      {
+        this.Valk = new ValkUI(id);
+        this.Weap = new WeapUI(id);
+        this.TStig = new StigUI(id, "T");
+        this.MStig = new StigUI(id, "M");
+        this.BStig = new StigUI(id, "B");
+        this.Res = new Resolver();
+      }
+
+      reset()
+      {
+        this.Valk.reset();
+        this.Weap.reset();
+        this.TStig.reset();
+        this.MStig.reset();
+        this.BStig.reset();
+        app.advanceFTUE("reset");
+      }
+
+      query(key)
+      {
+        if (this.Valk.root == null) this.Valk.handleQuery(key);
+        if (this.Weap.root == null) this.Weap.handleQuery(key);
+        if (this.TStig.root == null) this.TStig.handleQuery(key);
+        if (this.MStig.root == null) this.MStig.handleQuery(key);
+        if (this.BStig.root == null) this.BStig.handleQuery(key);
+      }
+    };
+
+    ftuestep = 1;
+
+    class Collection
+    {
+//      items = { Valks: {}, Weapons: {}, Stigmata: {} };
+
+      constructor()
+      {
+        this.items = { Valks: {}, Weapons: {}, Stigmata: {} };
+      }
+
+      has(name)
+      {
+        let ret = this._has(name);
+        if (ret) return ret;
+
+        let exact = document.getElementById("exact").checked;
+        if (exact) return ret;
+
+        if (name == "fracture") { ret = this._has("timeslow"); if (ret) return ret; }
+        if (name == "timeslow") { ret = this._has("fracture"); if (ret) return ret; }
+        if (name == "ignite") { ret = this._has("fire"); if (ret) return ret; }
+        if (name == "fire") { ret = this._has("ignite"); if (ret) return ret; }
+        if (name == "elem+") { ret = this._has("fire"); if (ret) return ret; }
+        if (name == "elem+") { ret = this._has("ice"); if (ret) return ret; }
+        if (name == "elem+") { ret = this._has("lightning"); if (ret) return ret; }
+        if (name == "fire") { ret = this._has("elem"); if (ret) return ret; }
+        if (name == "ice") { ret = this._has("elem"); if (ret) return ret; }
+        if (name == "lightning") { ret = this._has("elem"); if (ret) return ret; }
+        return false;
+      }
+
+      _has(name)
+      {
+        if (this.items.Valks[name]) return true;
+        if (this.items.Weapons[name]) return true;
+        if (this.items.Stigmata[name]) return true;
+        return false;
+      }
+
+      load()
+      {
+        let data = localStorage.getItem("ValkTool");
+        if (data) this.items = JSON.parse(data);
+      }
+
+      save()
+      {
+        let data = JSON.stringify(this.items);
+        localStorage.setItem("ValkTool", data);
+      }
+
+      view()
+      {
+        let bufV = "";
+        let bufW = "";
+        let bufST = "";
+        let bufSM = "";
+        let bufSB = "";
+
+        for (let i in this.items.Valks) bufV += i + "<br>";
+        for (let i in this.items.Weapons) bufW += i + "<br>";
+        for (let i in this.items.Stigmata)
+        {
+          if (i.indexOf("(T)") >= 0) bufST += i + "<br>";
+          if (i.indexOf("(M)") >= 0) bufSM += i + "<br>";
+          if (i.indexOf("(B)") >= 0) bufSB += i + "<br>";
+        }
+        return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB } };
+      }
+
+      edit()
+      {
+        let bufV = "";
+        let bufW = "";
+        let bufST = "";
+        let bufSM = "";
+        let bufSB = "";
+
+        for (let i in Valks)
+          bufV += "<input type=checkbox id='valk" + i + "' value='true' " + (this.items.Valks[Valks[i].name] ? "checked" : "") + ">" + Valks[i].name + "<br>";
+        for (let i in Weapons)
+          bufW += "<input type=checkbox id='weap" + i + "' value='true' " + (this.items.Weapons[Weapons[i].name] ? "checked" : "") + ">" + Weapons[i].name + "<br>";
+        for (let i in Stigmata)
+        {
+          if (Stigmata[i].name.indexOf("(T)") >= 0) bufST += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+          if (Stigmata[i].name.indexOf("(M)") >= 0) bufSM += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+          if (Stigmata[i].name.indexOf("(B)") >= 0) bufSB += "<input type=checkbox id='stig" + i + "' value='true' " + (this.items.Stigmata[Stigmata[i].name] ? "checked" : "") + ">" + Stigmata[i].name + "<br>";
+        }
+        return { Valks: bufV, Weapons: bufW, Stigmata: { T: bufST, M: bufSM, B: bufSB } };
+      }
+
+      update()
+      {
+        this.items = { Valks: {}, Weapons: {}, Stigmata: {} };
+        for (let i in Valks)
+          if (document.getElementById("valk" + i).checked) this.items.Valks[Valks[i].name] = true;
+        for (let i in Weapons)
+          if (document.getElementById("weap" + i).checked) this.items.Weapons[Weapons[i].name] = true;
+        for (let i in Stigmata)
+          if (document.getElementById("stig" + i).checked) this.items.Stigmata[Stigmata[i].name] = true;
+        this.save();
+      }
+    };
+
+    class App
+    {
+//      Set = [];
+//      All = new Resolver();
+//      Collection = new Collection();
+//      Locks = [];
+
+      constructor()
+      {
+        this.Set = [];
+        this.All = new Resolver();
+        this.Collection = new Collection();
+        this.Locks = [];
+
+        this.Set[0] = new Set(0);
+        this.Set[1] = new Set(1);
+        this.Set[2] = new Set(2);
+
+        this.All.allowEverything();
+        for (let i in dataValks) { let o = parseObject(dataValks[i]); this.All.processItem(o); Valks.push(o); }
+        for (let i in dataWeapons) { let o = parseObject(dataWeapons[i]); this.All.processItem(o); Weapons.push(o); }
+        for (let i in dataStigmata) { let o = parseObject(dataStigmata[i]); this.All.processItem(o); Stigmata.push(o); }
+        this.All.resolveIf();
+        this.propSearch();
+        this.Collection.load();
+      }
+
+      toggle(obj)
+      {
+//        obj.classList.toggle("active");
+        var content = obj.nextElementSibling;
+        content.style.display = content.style.display == "none" ? "block" : "none";
+      }
+
+      saveMyCollection()
+      {
+        this.Collection.update();
+        this.Collection.save();
+        this.Set[0].reset();
+        this.Set[1].reset();
+        this.Set[2].reset();
+        this.advanceFTUE("save");
+      }
+
+      editMyCollection()
+      {
+        document.getElementById("valkMode0").innerHTML = "";
+        document.getElementById("weapMode0").innerHTML = "";
+        document.getElementById("TstigMode0").innerHTML = "";
+        document.getElementById("BstigMode0").innerHTML = "";
+        document.getElementById("MstigMode0").innerHTML = "";
+        document.getElementById("valkMode1").innerHTML = "";
+        document.getElementById("weapMode1").innerHTML = "";
+        document.getElementById("TstigMode1").innerHTML = "";
+        document.getElementById("BstigMode1").innerHTML = "";
+        document.getElementById("MstigMode1").innerHTML = "";
+        document.getElementById("valkMode2").innerHTML = "";
+        document.getElementById("weapMode2").innerHTML = "";
+        document.getElementById("TstigMode2").innerHTML = "";
+        document.getElementById("BstigMode2").innerHTML = "";
+        document.getElementById("MstigMode2").innerHTML = "";
+        let data = this.Collection.edit();
+        document.getElementById("valkMode0").innerHTML += "<button id='colreset' onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button>";
+        document.getElementById("valkMode0").innerHTML += "<button id='save' onclick='app.saveMyCollection()'>Save</button><br>";
+        document.getElementById("valkMode0").innerHTML += data.Valks;
+        document.getElementById("weapMode0").innerHTML = data.Weapons;
+        document.getElementById("TstigMode0").innerHTML = data.Stigmata.T;
+        document.getElementById("MstigMode0").innerHTML = data.Stigmata.M;
+        document.getElementById("BstigMode0").innerHTML = data.Stigmata.B;
+        this.advanceFTUE("edit");
+      }
+
+      viewMyCollection()
+      {
+        document.getElementById("valkMode0").innerHTML = "";
+        document.getElementById("weapMode0").innerHTML = "";
+        document.getElementById("TstigMode0").innerHTML = "";
+        document.getElementById("BstigMode0").innerHTML = "";
+        document.getElementById("MstigMode0").innerHTML = "";
+        document.getElementById("valkMode1").innerHTML = "";
+        document.getElementById("weapMode1").innerHTML = "";
+        document.getElementById("TstigMode1").innerHTML = "";
+        document.getElementById("BstigMode1").innerHTML = "";
+        document.getElementById("MstigMode1").innerHTML = "";
+        document.getElementById("valkMode2").innerHTML = "";
+        document.getElementById("weapMode2").innerHTML = "";
+        document.getElementById("TstigMode2").innerHTML = "";
+        document.getElementById("BstigMode2").innerHTML = "";
+        document.getElementById("MstigMode2").innerHTML = "";
+        let data = this.Collection.view();
+        document.getElementById("valkMode0").innerHTML += "<button id='colreset' onclick='app.Set[0].reset();app.Set[1].reset();app.Set[2].reset()'>Reset</button><br>";
+        document.getElementById("valkMode0").innerHTML += data.Valks;
+        document.getElementById("weapMode0").innerHTML = data.Weapons;
+        document.getElementById("TstigMode0").innerHTML = data.Stigmata.T;
+        document.getElementById("MstigMode0").innerHTML = data.Stigmata.M;
+        document.getElementById("BstigMode0").innerHTML = data.Stigmata.B;
+        this.advanceFTUE("view");
+      }
+
+      help()
+      {
+        document.getElementById("myModal").style.display = "block";
+      }
+
+      stopTutorial()
+      {
+        ftuestep = 9999;
+        document.getElementById("ftue").style.display = "none";
+        document.getElementById("ftue").classList.remove("my-tooltip2");
+        document.getElementById("ftue").classList.add("my-tooltip");
+      }
+
+      startTutorial()
+      {
+        this.reset();
+        let e = document.getElementById('tutorials');
+        let key = e.options[e.selectedIndex].value;
+        if (key == "1") // basic search
+        {
+          ftuestep = 1;
+          document.getElementById("ftue").style.display = "block";
+          this.pointAt(1, app.Set[0].Valk.elemSearch, "Try searching for 'Valkyrie Chariot'<br>Click her name when it appears.");
+        }
+        if (key == "2") // advanced search
+        {
+          ftuestep = 201;
+          document.getElementById("ftue").style.display = "block";
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
+          this.pointAt(201, "presult", "You can search for items that have a certain property<br>Click to open up this list");
+        }
+        if (key == "3") // advanced search
+        {
+          alert("Sorry, not ready yet.\nLearn about: locking, excluding triggers or props, why crit is special");
+        }
+        if (key == "4") // my collection
+        {
+          ftuestep = 401;
+          document.getElementById("ftue").style.display = "block";
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
+          this.pointAt(401, "view", "Let's view the valks and gear in your collection.<br>Click this button");
+        }
+      }
+
+      pointAt(step, name, text)
+      {
+        if (step != ftuestep) return;
+//        if (!document.getElementById(name)) return;
+        ftuestep += 1;
+        let elem = document.getElementById(name).getBoundingClientRect();
+        let ftue = document.getElementById("ftue");
+        ftue.style.position = "absolute";
+        ftue.style.left = elem.right + 'px';
+        ftue.style.top = elem.top + 'px';
+        ftue.innerHTML = text;
+      }
+
+      advanceFTUE(source, data)
+      {
+        if (source == "exact")
+        {
+          app.pointAt(211, "terms", "There are a few properties that act this way.<br>Learn more by clicking the green link.<br>The End!");
+          setTimeout(function ()
+          {
+            document.getElementById("ftue").style.display = "none";
+          }, 10000);
+        }
+        if (source == "searchprop")
+        {
+          document.getElementById("ftue").classList.remove("my-tooltip2");
+          document.getElementById("ftue").classList.add("my-tooltip");
+          app.pointAt(206, "0Tstig157", "These are all the things that involve 'fire' somehow.<br>Click on Caravaggio.");
+        }
+        if (source == "propsearch")
+        {
+          if (data == "fi")
+          {
+            app.pointAt(204, "presult", "Even before you are done, the list is already getting shorter. Check it out");
+          }
+          if (data == "fire")
+          {
+            app.pointAt(205, "psearchb", "Only 'fire' is left in the list. Click 'Search' now");
+          }
+        }
+        if (source == "presult")
+        {
+          app.pointAt(202, "presult", "There is a lot of properties in here. Close this when you are done looking at it.");
+          setTimeout(function () { app.pointAt(203, "psearch", "We can filter that list by typing in here.<br>Try searching for 'fire'") }, 5000);
+        }
+        if (source == "view")
+        {
+          document.getElementById("ftue").classList.remove("my-tooltip2");
+          document.getElementById("ftue").classList.add("my-tooltip");
+          app.pointAt(402, "colreset", "You probably don't have anything set yet. Click on reset");
+        }
+        if (source == "save")
+        {
+          document.getElementById("ftue").classList.remove("my-tooltip");
+          document.getElementById("ftue").classList.add("my-tooltip2");
+          app.pointAt(405, "myfilter", "Turn on this checkbox, and you will only see things you own in the search results<br>Try it out on your own!<br>The End!");
+          setTimeout(function ()
+          {
+            document.getElementById("ftue").style.display = "none";
+            document.getElementById("ftue").classList.remove("my-tooltip2");
+            document.getElementById("ftue").classList.add("my-tooltip");
+          }, 10000);
+        }
+        if (source == "edit")
+        {
+          document.getElementById("ftue").classList.remove("my-tooltip2");
+          document.getElementById("ftue").classList.add("my-tooltip");
+          app.pointAt(404, "save", "Here is a list of everything in the game.<br>Check off all the things that you currently own!<br>Ya it sucks, but thats how it is for now!<br>Click save when you are done.");
+        }
+        if (source == "reset")
+        {
+          if (403 == ftuestep)
+          {
+            document.getElementById("ftue").classList.remove("my-tooltip");
+            document.getElementById("ftue").classList.add("my-tooltip2");
+            app.pointAt(403, "edit", "Click here to add or remove things from your collection.");
+          }
+        }
+        if (source == "pick")
+        {
+          if (data == "Caravaggio (T)")
+          {
+            app.pointAt(207, "next", "This area shows what you searched for<br>Click prev and next to move through the result list. Try it!");
+            setTimeout(function () { app.pointAt(208, "0Mstig158", "Lets look at Caravaggio (M) when you are ready.") }, 5000);
+          }
+          if (data == "Caravaggio (M)")
+          {
+            app.pointAt(209, "0Msprop4", "We searched for 'fire' but this says 'elem+'<br>Since fire is a type of element, <br>we also get results for 'elem+'");
+            setTimeout(function ()
+            {
+              document.getElementById("ftue").classList.remove("my-tooltip");
+              document.getElementById("ftue").classList.add("my-tooltip2");
+              app.pointAt(210, "exact", "If you only want exactly 'fire' items, you can turn on Exact Match Only.<br>Click it")
+            }, 10000);
+          }
+          if (data == "Devourer")
+          {
+            app.pointAt(8, "0wprop0", "This is a Bronya weapon.<br>Devourer's properties appear here.");
+            setTimeout(function () { app.pointAt(9, "0weapreset", "Reset this again.") }, 5000);
+          }
+
+          if (data == "Galactic Nova")
+          {
+            app.pointAt(4, "0wprop0", "This is a Mei weapon, so its red.<br>It's properties are greyed out");
+            setTimeout(function () { app.pointAt(5, "0weapreset", "Click 'Reset' to clear this pane.") }, 5000);
+          }
+
+          if (data == "Lurker")
+          {
+            app.pointAt(12, "0prop20", "With 'stun' available, Chariot's extra damage becomes available.");
+            setTimeout(function ()
+            {
+              app.pointAt(13, "0prop27", "Let's return to this.<br>S rank is red because she is rank A.");
+              setTimeout(function () { app.pointAt(14, "valkRankSelect0", "Drag the Rank slider to make her Rank S.") }, 5000);
+            }, 5000);
+          }
+
+          if (data == "Valkyrie Chariot")
+          {
+            app.pointAt(2, "0prop27", "This is a list of her properties.<br>Note that some properties are not currently available.");
+            setTimeout(function () { app.pointAt(3, app.Set[0].Weap.elemSearch, "Now lets get a weapon. Search for 'Galactic Nova'!") }, 5000);
+          }
+
+          if (data == "Shadow Knight")
+          {
+            window.scrollTo(0, 0);
+            app.pointAt(18, "0prop8", "Since Shadow Knight can also stun, Chariot's QTE is now available!<br>The End!");
+            setTimeout(function () { document.getElementById("ftue").style.display = "none"; }, 10000);
+          }
+        }
+
+
+        if (source == "handleQuery")
+        {
+          if (data == "cannon")
+          {
+            app.pointAt(7, "0weap41", "Devourer showed up. Click it.");
+          }
+          if (data == "stun")
+          {
+            if (ftuestep == 17)
+            {
+              app.pointAt(17, "1valk35", "Pick a teammate! Click on Shadow Knight, who is able to trigger Chariot's QTE");
+              window.scrollTo(0, 600);
+            } else
+              app.pointAt(11, "0weap28", "Lurker showed up. This weapon causes a stun. Click it.");
+          }
+        }
+
+        if (source == "setrank")
+        {
+          app.pointAt(15, "0prop27", "Now she is S Rank! More properties light up.");
+          setTimeout(function ()
+          {
+            app.pointAt(16, "0prop7", "Her QTE is still not available because a teammate must trigger it.<br>Click 'stun' again and we will scroll down to Valkryie 2.");
+          }, 5000);
+        }
+
+        if (source == "resetExtra")
+        {
+          if (document.getElementById(app.Set[0].Valk.elemProp + "1"))
+            app.pointAt(6, app.Set[0].Valk.elemProp + "2", "Now click on 'cannon' to search for Bronya's weapons.");
+
+          app.pointAt(10, "0prop21", "Valkyrie Chariot can make use of the stun skill.<br>It is red because nothing is providing the stun skill.<br>Lets search for something. Click 'stun'");
+        }
+      }
+
+      prevValk(id) { this.Set[id].Valk.prev(); }
+      nextValk(id) { this.Set[id].Valk.next(); }
+      prevWeap(id) { this.Set[id].Weap.prev(); }
+      nextWeap(id) { this.Set[id].Weap.next(); }
+      prevStigT(id) { this.Set[id].TStig.prev(); }
+      nextStigT(id) { this.Set[id].TStig.next(); }
+      prevStigB(id) { this.Set[id].BStig.prev(); }
+      nextStigB(id) { this.Set[id].BStig.next(); }
+      prevStigM(id) { this.Set[id].MStig.prev(); }
+      nextStigM(id) { this.Set[id].MStig.next(); }
+
+      reset() { for (let i in this.Set) this.Set[i].reset(); }
+
+      propSearch()
+      {
+        let name = document.getElementById('psearch').value;
+        if (app) app.advanceFTUE("propsearch", name);
+        let list = this.All.getPropsMatching(name);
+        let select = document.getElementById('presult');
+        select.innerHTML = "";
+        for (let i in list)
+        {
+          var opt = document.createElement('option');
+          opt.value = list[i];
+          opt.innerHTML = list[i];
+          select.appendChild(opt);
+        }
+      }
+
+      searchProp()
+      {
+        let e = document.getElementById('presult');
+        let key = e.options[e.selectedIndex].value;
+        this.Set[0].query(key);
+        if (app) app.advanceFTUE("searchprop", key);
+        this.Set[1].query(key);
+        this.Set[2].query(key);
+      }
+
+      lockProp()
+      {
+        let e = document.getElementById('presult');
+        let key = e.options[e.selectedIndex].value;
+        this.Locks.push(key);
+        this.drawLocks();
+      }
+
+      deleteLastLock()
+      {
+        this.Locks.pop();
+        this.drawLocks();
+        this.searchProp();
+      }
+
+      deleteLocks()
+      {
+        this.Locks = [];
+        this.searchProp();
+        this.drawLocks();
+      }
+
+      filterByLocks(item)
+      {
+        if (this.Locks.length == 0) return true;
+        for (let i in this.Locks)
+        {
+          if (this.Set[0].Valk.hasProp(this.Locks[i], item)) return true;
+        }
+        return false;
+      }
+
+      drawLocks()
+      {
+        let buf = "";
+        for (let i in this.Locks) buf += this.Locks[i] + ", ";
+        buf = buf.substr(0, buf.length - 2);
+        document.getElementById("locks").innerText = buf;
+      }
+    };
+
+    class Resolver
+    {
+//      props = {};
+//      ifs = [];
+//      everything = false;
+
+      constructor()
+      {
+        this.props = {};
+        this.ifs = [];
+        this.everything = false;
+      }
+
+      allowEverything()
+      {
+        this.everything = true;
+      }
+
+      getPropsMatching(name)
+      {
+        let result = [];
+        for (let i in this.props)
+        {
+          if (i.toLowerCase().indexOf(name.toLowerCase()) != -1) result.push(i);
+        }
+        return result.sort();
+      }
+
+      has(key)
+      {
+        let ret = this.props[key];
+        if (ret) return ret;
+
+        let exact = document.getElementById("exact").checked;
+        if (exact) return ret;
+
+        if (key == "fracture")  { ret = this.props["timeslow"];  if (ret) return ret; }
+        if (key == "timeslow")  { ret = this.props["fracture"];  if (ret) return ret; }
+        if (key == "ignite")    { ret = this.props["fire"];      if (ret) return ret; }
+        if (key == "fire")      { ret = this.props["ignite"];    if (ret) return ret; }
+        if (key == "elem+")     { ret = this.props["fire"];      if (ret) return ret; }
+        if (key == "elem+")     { ret = this.props["ice"];       if (ret) return ret; }
+        if (key == "elem+")     { ret = this.props["lightning"]; if (ret) return ret; }
+        if (key == "fire")      { ret = this.props["elem"];      if (ret) return ret; }
+        if (key == "ice")       { ret = this.props["elem"];      if (ret) return ret; }
+        if (key == "lightning") { ret = this.props["elem"];      if (ret) return ret; }
+
+        return ret;
+      }
+
+      setProp(prop)
+      {
+        if (!this.props[prop]) this.props[prop] = 1;
+        else this.props[prop] = this.props[prop] + 1;
+      }
+
+      resolve(set)
+      {
+        this.props = {};
+        this.ifs = [];
+        if (set.Valk.root)
+        {
+          // special case - valk rank
+          if (set.Valk.id == 0) { this.setProp("leader"); }
+          if (set.Valk.rank == "B") { this.setProp("B"); }
+          if (set.Valk.rank == "A") { this.setProp("B"); this.setProp("A"); }
+          if (set.Valk.rank == "S") { this.setProp("B"); this.setProp("A"); this.setProp("S"); }
+          if (set.Valk.rank == "SS") { this.setProp("B"); this.setProp("A"); this.setProp("S"); this.setProp("SS"); }
+          if (set.Valk.rank == "SSS") { this.setProp("B"); this.setProp("A"); this.setProp("S"); this.setProp("SS"); this.setProp("SSS"); }
+          this.processItem(set.Valk.root);
+        }
+        if (set.Weap.root) this.processItem(set.Weap.root);
+        if (set.TStig.root) this.processItem(set.TStig.root);
+        if (set.BStig.root) this.processItem(set.BStig.root);
+        if (set.MStig.root) this.processItem(set.MStig.root);
+        this.resolveIf();
+      }
+
+      resolveIf()
+      {
+        while (this.processIf()) { }
+      }
+
+      processItem(obj)
+      {
+        for (let i in obj.props)
+        {
+          if (obj.props[i].if)
+          {
+            this.ifs.push(obj.props[i]);
+          }
+          else
+          {
+            this.processProp(obj.props[i]);
+          }
+        }
+      }
+
+      processProp(item)
+      {
+        let props = item.props;
+        if (!props) props = item;
+        if (!Array.isArray(props)) props = [props];
+
+        for (let i in props)
+        {
+          if (props[i].if)
+          {
+            this.ifs.push(props[i]);
+          }
+          else
+          {
+            this.setProp(props[i]);
+          }
+        }
+      }
+
+      processIf()
+      {
+        let ret = false;
+        let newifs = [];
+        for (let i in this.ifs)
+        {
+          if (!this.ifs[i]) continue;
+          if (this.everything || this.props[this.ifs[i].if])
+          {
+            this.processProp(this.ifs[i]);
+            ret = true;
+          }
+          else
+          {
+            newifs.push(this.ifs[i]);
+          }
+        }
+        this.ifs = newifs;
+        return ret;
+      }
+    };
+
+    var app = null;
+
+    function init()
+    {
+      app = new App();
+      app.stopTutorial();
+      app.reset();
+    }
+
+    function parseObject(data)
+    {
+      // data := key ":" props
+      // props := "[" item (code) ("," item (code)) "]"
+      // item := (if) props
+      // if := "(" key ")"
+      // code := "|" {gapevscqul}
+
+      // get the name
+      let loc = data.indexOf(':');
+      if (loc == -1) return null;
+      let name = data.substr(0, loc);
+      let props = data.substr(loc + 1);
+      // make item
+      let item = { name: name, props: parseProps(props) };
+      return item;
+    }
+
+    function parseProps(data)
+    {
+      let ret = [];
+      do
+      {
+        // start with [, end with ]
+        if (data[0] != '[') break;
+        if (data[data.length - 1] != ']') break;
+        // split into seperate terms
+        let inside = 0;
+        let start = 1;
+        let terms = [];
+        for (let x = start; x < data.length - 1; ++x)
+        {
+          switch (data[x])
+          {
+            case '[': inside++; break;
+            case ']': inside--; break;
+            case ',': if (!inside) { terms.push(data.substr(start, x - start)); start = x + 1; break; }
+          }
+        }
+        if (start < data.length - 1) terms.push(data.substr(start, data.length - start - 1));
+
+        for (var i in terms) ret.push(parseItem(terms[i]));
+      } while (false);
+      return ret;
+    }
+
+    function parseItem(data)
+    {
+      // check for and remove code
+      let codeloc = data.lastIndexOf('|');
+      let endloc = data.lastIndexOf(']');
+      let code = "";
+      let group = false;
+      if (codeloc > -1 && codeloc > endloc)
+      {
+        code = data.substr(codeloc + 1);
+        if (code[0] == "g")
+        {
+          group = true; code = code[1];
+          if (!code) code == "";
+        }
+        data = data.substr(0, codeloc);
+      }
+      // check for if
+      if (data[0] == '(')
+      {
+        let loc = data.indexOf(')');
+        let ifkey = data.substr(1, loc - 1);
+        if (data[loc + 1] == '[')
+          return { if: ifkey, code: code, group: group, props: parseProps(data.substr(loc + 1)) };
+        else
+          return { if: ifkey, code: code, group: group, props: parseItem(data.substr(loc + 1)) };
+      }
+      // its just a key
+      else
+      {
+        return { code: code, group: group, name: data };
+      }
+    }
+
+    animImage = new Image();
+    animImage.src = "frontpage/animatedlogo.gif";
+    staticImage = new Image();
+    staticImage.src = "frontpage/logo.jpg";
+  </script>
+</head>
+
+<body onload="init();">
+  <div class="header">
+    <a href='http://madox.ca' onmouseover="logo.src=animImage.src;" onmouseout="logo.src=staticImage.src;"><img name="logo" src="frontpage/logo.jpg" /></a>
+  </div>
+  <div class="menu">
+    HONKAI IMPACT TOOL<br /><br />
+    <button id="view" onclick="app.viewMyCollection();">View My Collection</button> <button id="edit" onclick="app.editMyCollection();">Update My Collection</button> Use Only My Collection: <input id="myfilter" type="checkbox" /><br />
+    Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select onmousedown="if (app) app.advanceFTUE('presult', '');" onclick="this.onmousedown();" id="presult"></select>
+    <button id="psearchb" onclick="app.searchProp();">Search</button><button id="plock" onclick="app.lockProp();">Lock</button> -
+    <a id="terms" href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
+    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact"  onmousedown="if (app) app.advanceFTUE('exact', '');" onclick="this.onmousedown();" type="checkbox" /><br />
+    Start a tutorial: <select id="tutorials">
+      <option value="1">Basic Searching</option>
+      <option value="2">Property Searching</option>
+      <option value="3">Advanced Searching</option>
+      <option value="4">My Collection</option>
+    </select>
+    <button onclick="app.startTutorial();" >Start Tutorial</button> <button onclick="app.stopTutorial();">Stop Tutorial</button><br />
+  </div>
+  <div style="position: absolute; top:130px;">
+    <table class="blueTable">
+      <thead><tr><td colspan="5">VALKYRIE 1</td></tr></thead>
+      <tbody>
+        <tr>
+          <td valign="top" width="300px">
+            <div><b>Valkyrie <span class="right"><span id="0valkquery"></span><a href="#" onclick="app.prevValk(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(0); return false;">Next&gt;</a></span></b></div>
+            <div id="valkMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Weapon <span class="right"><span id="0weapquery"></span><a href="#" onclick="app.prevWeap(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(0); return false;">Next&gt;</a></span></b></div>
+            <div id="weapMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a id="next" href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
+            <div id="TstigMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Middle Stigmata <span class="right"><span id="0Mstigquery"></span><a href="#" onclick="app.prevStigM(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(0); return false;">Next&gt;</a></span></b></div>
+            <div id="MstigMode0"></div>
+          </td>
+          <td valign="top">
+            <div><b>Bottom Stigmata <span class="right"><span id="0Bstigquery"></span><a href="#" onclick="app.prevStigB(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(0); return false;">Next&gt;</a></span></b></div>
+            <div id="BstigMode0"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <table class="blueTable">
+      <thead><tr><td colspan="5">VALKYRIE 2</td></tr></thead>
+      <tbody>
+        <tr>
+          <td valign="top" width="300px">
+            <div><b>Valkyrie <span class="right"><span id="1valkquery"></span><a href="#" onclick="app.prevValk(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(1); return false;">Next&gt;</a></span></b></div>
+            <div id="valkMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Weapon <span class="right"><span id="1weapquery"></span><a href="#" onclick="app.prevWeap(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(1); return false;">Next&gt;</a></span></b></div>
+            <div id="weapMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Top Stigmata <span class="right"><span id="1Tstigquery"></span><a href="#" onclick="app.prevStigT(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(1); return false;">Next&gt;</a></span></b></div>
+            <div id="TstigMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Middle Stigmata <span class="right"><span id="1Mstigquery"></span><a href="#" onclick="app.prevStigM(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(1); return false;">Next&gt;</a></span></b></div>
+            <div id="MstigMode1"></div>
+          </td>
+          <td valign="top">
+            <div><b>Bottom Stigmata <span class="right"><span id="1Bstigquery"></span><a href="#" onclick="app.prevStigB(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(1); return false;">Next&gt;</a></span></b></div>
+            <div id="BstigMode1"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <table class="blueTable">
+      <thead><tr><td colspan="5">VALKYRIE 3</td></tr></thead>
+      <tbody>
+        <tr>
+          <td valign="top" width="300px">
+            <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(2); return false;">Next&gt;</a></span></b></div>
+            <div id="valkMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Weapon <span class="right"><span id="2weapquery"></span><a href="#" onclick="app.prevWeap(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(2); return false;">Next&gt;</a></span></b></div>
+            <div id="weapMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Top Stigmata <span class="right"><span id="2Tstigquery"></span><a href="#" onclick="app.prevStigT(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(2); return false;">Next&gt;</a></span></b></div>
+            <div id="TstigMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Middle Stigmata <span class="right"><span id="2Mstigquery"></span><a href="#" onclick="app.prevStigM(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(2); return false;">Next&gt;</a></span></b></div>
+            <div id="MstigMode2"></div>
+          </td>
+          <td valign="top">
+            <div><b>Bottom Stigmata <span class="right"><span id="2Bstigquery"></span><a href="#" onclick="app.prevStigB(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(2); return false;">Next&gt;</a></span></b></div>
+            <div id="BstigMode2"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="my-tooltip left-top" id="ftue">This is some help text</div>
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="document.getElementById('myModal').style.display = 'none';">&times;</span>
+      Explaination of Terms<br />
+      <br />
+      Most properties should be self explainatory, but these might need some explaination.<br />
+      <br />
+      <table><tr><td>
+                   CD+ - cooldowns are somehow improved<br />
+                   SP+ - usage of SP is somehow improved<br />
+                   aoe - affects a large area<br />
+                   atk- - monster's attacks are reduced<br />
+                   bleed- - effects of bleeding on valks is reduced<br />
+                   blink - valkyrie will teleport around<br />
+                   crit - chance of crit is increased<br />
+                   debuff- - effects of debuff on valks is reduced<br />
+                   def+ - increased defense<br />
+                   def- - monster's defense reduced<br />
+                   dmg+ - increased damage<br />
+                   dmg- - monster's damage reduced<br />
+                   dot - damage over time, like bleed<br />
+                   elem+ - elemental damage is increased<br />
+                   fire- - reduced damage on valks from fire<br />
+                   float - toss enemies in the air<br />
+                   gather - attract enemies to a location<br />
+                   move+ - valk's movement speed increased<br />
+                   move- - monster's movement speed reduced<br />
+                   pierce - attack hits several enemies in a straight line<br />
+                   rescue - revive dead valks<br />
+                   speed+ - valk's attack speed increased<br />
+                   speed- - monster's attack speed reduced<br />
+     </td><td>
+       elem+ - will match with fire, ice, and lightning<br />
+       fire - will match with elem+, ignite<br />
+       ice - will match with elem+<br />
+       lightning - will match with elem+<br />
+       ignite - will match with fire<br />
+       fracture - will match with timeslow<br /> 
+      </td></tr></table>
+    </div>
+  </div>
+</body>
+</html>
