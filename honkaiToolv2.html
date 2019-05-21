@@ -6,6 +6,7 @@
   <title>Madox Labs - Honkai Impact Tool</title>
 
   <style>
+
     body {
       margin: 0px;
     }
@@ -234,6 +235,7 @@
       -moz-border-radius: 10px 10px 0px 0px;
       -webkit-border-radius: 10px 10px 0px 0px;
       border: 2px solid #0799FA;
+      margin-bottom: 4px;
     }
 
     div.group {
@@ -245,11 +247,17 @@
     }
 
     span.item {
-      margin: 4px;
+      margin-right: 4px;
+      margin-left: 4px;
+      margin-top: 0px;
+      margin-bottom: 0px;
     }
 
     span.item-no {
-      margin: 4px;
+      margin-right: 4px;
+      margin-left: 4px;
+      margin-top: 0px;
+      margin-bottom: 0px;
       background-color: #ffa8a8;
       display: block;
       box-sizing: border-box;
@@ -257,7 +265,10 @@
     }
 
     span.item-un {
-      margin: 4px;
+      margin-right: 4px;
+      margin-left: 4px;
+      margin-top: 0px;
+      margin-bottom: 0px;
       color: #999999;
     }
 
@@ -276,7 +287,7 @@
       box-sizing: border-box;
       width: auto;
       border-radius: 10px 10px 0px 0px;
-      background-color: #b4ebff;
+      background-color: #75fc7c;
     }
 
     span.groupname-no {
@@ -289,12 +300,18 @@
     }
 
     .alignleft {
-      margin: 4px;
+      margin-right: 4px;
+      margin-left: 4px;
+      margin-top: 0px;
+      margin-bottom: 0px;
       float: left;
     }
 
     .alignright {
-      margin: 4px;
+      margin-right: 4px;
+      margin-left: 4px;
+      margin-top: 0px;
+      margin-bottom: 0px;
       float: right;
     }
   </style>
@@ -1292,6 +1309,8 @@
       {
         let html = "";
         // render plain group
+        for (let p in this.plain.props)
+          html += this.renderProp(this.plain.props[p]);
 
         // for all groups
         for (let g in this.groups)
