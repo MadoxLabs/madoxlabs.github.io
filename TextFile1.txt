@@ -1,0 +1,256 @@
+NEW NOTES
+ shieldbreak can be 'boosted' by {antishield}
+ healthy can be boosted by hp+ or heal
+ crit is boosted by crit+
+
+ healthy matches hp+ heal
+ shield break matches any antishield
+ dot matches bleed
+
+ lightning+ depends on lightning, etc
+
+ {} - depends on environment
+ || - boostable
+
+Kight Moonbeam
+
+Kiana
+pistol
+BIO
+attack
+  phy dmg+
+  aoe
+  SP+
+switch
+  phy dmg+
+  aoe  
+  (float) dmg+
+combo
+  phy dmg+
+  aoe  
+qte
+  (float)
+    phy dmg+
+    dmg+
+ultimate
+  phy dmg+
+  fracture SS
+passive
+  (stun) phy dmg+, elem+
+  (paralyze)  phy dmg+, elem+
+  (combo) crit+   SS
+exit
+evade
+  fracture
+  move+
+  phy dmg+ SS
+  CD+  SSS
+leader
+  critdmg+ whole team SS
+  (bio) dmg+ SS
+
+
+Valkyrie Ranger
+
+Kiana
+pistol
+MECH
+attack
+  phy dmg+
+  speed+
+  |crit| bleed
+switch
+combo
+  pierce
+  phy dmg+
+  |crit| stun
+  ign inter, def+  SS
+qte
+  (freeze) 
+     phy dmg+
+     aoe
+     impair
+ultimate
+  phy dmg+
+  stun
+  fire   S
+  crit+  SSS
+passive
+  {antisheild} dmg+
+  (shieldbreak) stun, phy dmg+
+  critdmg+  SS
+  (freeze) critdmg+  SS
+exit
+evade
+  gather
+  move+
+  CD+
+leader
+  move+  whole team   S
+  (mech) attack+  whole team   S
+    
+
+HoV
+
+Kiana
+pistol
+BIO
+attack
+  phy dmg+
+  aoe
+  time prison
+  gather
+  (herrscher form)
+    dmg+
+    {antimech} dmg+
+    phy dmg+
+    gather
+  charge
+  (charge)
+    herrscher form
+    time prison
+    dmg+
+    aoe
+  {noshield} dmg+
+  speed+
+switch
+combo
+qte
+  (time slow) phy dmg+
+  |shieldbreak| phy dmg+
+ultimate
+  aoe
+  phy dmg+
+  time lock
+  crit+
+passive
+  crit+ SS
+  bleed-
+  dmg+
+exit
+evade
+  time slow
+  phy dmg+
+  time fracture SSS
+leader
+  crit+  SS
+  critdmg+ SS
+
+
+White Comet
+
+Kiana
+pistol
+MECH
+attack
+  phy dmg+
+  |shieldbreak| phy dmg+  A
+  stun  SSS
+switch
+  phy dmg+
+  stun
+  {elite antishield} fire  S
+combo
+  phy dmg+
+  float
+  aoe
+  {elite antishield} fire   S
+qte
+  (float) dmg+ phy dmg+ stun
+ultimate
+  burst
+  speed+
+  ignore inter
+  stun
+  phy dmg+
+  def+  whole team S
+  ignore inter  whole team S
+passive
+  {antishield} dmg+
+  |healthy| critdmg+   SS
+exit
+evade
+  fracture
+  CD+  A
+  SP+ whole team
+leader
+  hp+ whole team
+
+
+Divine Prayer
+
+[(B)[Kiana,pistol,PSY],(A)[phy dmg+|a,aoe|a,weaken|a,(crit)[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice dot|v,heal|gv,phy dmg+|s,(float)[stun]|s,charge|c,phy dmg+|c,knockback|c,(paralyze)[dmg+,phy dmg+,heal|g]|q,burst|u,heal dot|ug,elem dmg+|g,elem dmg-|g],(S)[(combo)[crit]|p,CD+|v,debuff-|s,def-|s],(SS)[heal|g,move+|g,speed+|g],(SSS)[rescue|x]]
+
+Kiana
+pistol
+PSY
+attack
+ phy dmg+
+ aoe
+ weaken A
+ |crit| heal group A
+passive
+ (combo) crit S
+exit
+ lightning A
+ impair A
+ def- A
+ rescue SSS
+evade
+ float
+ timelock
+ bleed A
+ ice dot A
+ heal group A
+ CD+ S
+switch A
+ phy dmg+
+ (float)stun
+ debuff- S
+ def+ S
+combo A
+ charge
+ phy dmg+
+ knockback
+qte A
+ (paralyze)
+  dmg+
+  phy dmg+
+  heal group
+ultimate
+ burst
+ heal dot group A
+ heal group SS
+ move+ group SS
+ speed+ group SS
+leader
+ elem dmg+ group A
+ elem dmg- group A
+
+
+
+ White Comet
+
+Kiana
+pistol
+MECH
+attack
+switch
+combo
+qte
+ultimate
+passive
+exit
+evade
+leader
+
+
+
+weaken and atk- are the same
+heal and hp+ can be the same
+
+crit - show a colour if its gear boosted
+shield break - show a  colour if its gear boosted by antishield
+
+vs shield / vs elite shield - antishield
+
