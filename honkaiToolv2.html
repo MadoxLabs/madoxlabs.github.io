@@ -228,7 +228,8 @@
       text-align: right;
       display: block;
     }
-
+  </style>
+  <style>
     /* BELOW HERE is the styles for the V2 UI */
     div.box {
       border-radius: 10px 10px 0px 0px;
@@ -315,8 +316,19 @@
       float: right;
     }
   </style>
-
   <style>
+    .resetbutton {
+      text-align: center;
+      float: right;
+      font-size: 13px;
+      background-color: #3498db;
+      color: #fff;
+      position: relative;
+      margin-right: 6px;
+      border-radius: 8px;
+      border-color: #3498db;
+    }
+
     .boxarrow {
       cursor: pointer;
       text-align: center;
@@ -327,49 +339,57 @@
       background-color: #3498db;
       color: #fff;
       position: relative;
-      border-radius: 4px;
       margin-right: 6px;
     }
 
-      .boxarrow:after {
-        content: "";
-        display: block;
-        border-width: 10px 10px 0;
-        border-style: solid;
-        border-color: #3498db transparent transparent;
-        margin-left: -10px;
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-      }
+    .boxarrow.leftarrow {
+       border-top-right-radius: 4px;
+       border-bottom-right-radius: 4px;
+    }
 
-      .boxarrow.leftarrow:after {
-        border-width: 10px;
-        border-left-color: transparent;
-        border-left-width: 0;
-        border-top-color: transparent;
-        border-right-color: #3498db;
-        margin: -10px 0 0;
-        left: -10px;
-        right: auto;
-        top: 50%;
-        bottom: auto;
-      }
+    .boxarrow.rightarrow {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
 
-      .boxarrow.rightarrow:after {
-        border-width: 10px;
-        border-right-width: 0;
-        border-top-color: transparent;
-        border-left-color: #3498db;
-        margin: -10px 0 0;
-        left: auto;
-        right: -10px;
-        top: 50%;
-        bottom: auto;
-      }
+    .boxarrow:after {
+      content: "";
+      display: block;
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: #3498db transparent transparent;
+      margin-left: -10px;
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+    }
+
+    .boxarrow.leftarrow:after {
+      border-width: 10px;
+      border-left-color: transparent;
+      border-left-width: 0;
+      border-top-color: transparent;
+      border-right-color: #3498db;
+      margin: -10px 0 0;
+      left: -10px;
+      right: auto;
+      top: 50%;
+      bottom: auto;
+    }
+
+    .boxarrow.rightarrow:after {
+      border-width: 10px;
+      border-right-width: 0;
+      border-top-color: transparent;
+      border-left-color: #3498db;
+      margin: -10px 0 0;
+      left: auto;
+      right: -10px;
+      top: 50%;
+      bottom: auto;
+    }
 
   </style>
-
   <style>
     .inputText {
       border-radius: 25px;
@@ -454,7 +474,7 @@
     var dataWeapons = [
       "Desert Eagle:[***,(pistol)[range,phy dmg+,pierce]]",
       "Artemis' Guardian:[****,(pistol)[range,aoe,float,timelock]]",
-      "Water Spirit Type 1:[****,(pistol)[range,(float)phy mg+]]",
+      "Water Spirit Type 1:[****,(pistol)[range,(float)phy dmg+]]",
       "Xuanyuan Pistols:[****,(pistol)[range,lightning,impair]]",
       "Dark Suns:[****,(pistol)[range,phy dmg+,move+]]",
       "Alloy Dominators:[****,(pistol)[range,aoe,phy dmg+,fire]]",
@@ -1140,8 +1160,8 @@
         app.Set[this.id].Res.resolve(app.Set[this.id]);
 
         let buf = "Name: " + this.root.name + this.extraControls();
+        buf += "<button class='resetbutton' id='" + this.elemResult + "reset' onclick='obj(this).reset()'>Reset</button>";
         buf += "<div id='" + this.divSelect + "Props'></div>";
-        buf += "<br><button id='" + this.elemResult + "reset' onclick='obj(this).reset()'>Reset</button>";
         document.getElementById(this.divMode).innerHTML = buf;
 
         this.draw();
@@ -1184,7 +1204,7 @@
         if (!Array.isArray(props)) props = [props];
 
         // sort props into code groups
-        let render = new GroupRender();
+        let render = new GroupRender(this.elemProp);
         this.sortForRender(render, item);
         return render.render();
         /*
@@ -1344,8 +1364,10 @@
 
     class GroupRender
     {
-      constructor()
+      constructor(type)
       {
+        this.elemProp = type;
+        this.drawIndex = 0;
         this.plain = new GroupRenderGroup(null);
         this.groups = {};
         let codes = "apxvscqul";
@@ -1397,6 +1419,8 @@
       render()
       {
         let html = "";
+        this.drawIndex = 0;
+
         // render plain group
         for (let p in this.plain.props)
           html += this.renderProp(this.plain.props[p]);
@@ -1405,6 +1429,7 @@
         for (let g in this.groups)
         {
           let group = this.groups[g];
+          if (group.props.length == 0 && group.disabledProps.length == 0) continue;
           html += this.drawGroup(group.name);
           for (let p in group.props)
             html += this.renderProp(group.props[p]);
@@ -1464,17 +1489,17 @@
 
       drawDisabledIf(name, rank)
       {
-        return "<div class=\"group\"><span class=\"groupname-no\"><span class=\"alignleft\">" + name + "</span><span class=\"alignright\">"+rank+" Rank</span><br style=\"clear: both\"></span>";
+        return "<div class=\"group\"><span class=\"groupname-no\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><span class=\"alignright\">"+rank+" Rank</span><br style=\"clear: both\"></span>";
       }
 
       drawUnavailIf(name)
       {
-        return "<div class=\"group\"><span class=\"groupname-no\"><span class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
+        return "<div class=\"group\"><span class=\"groupname-no\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
       }
 
       drawIf(name)
       {
-        return "<div class=\"group\"><span class=\"groupname\"><span class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
+        return "<div class=\"group\"><span class=\"groupname\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
       }
 
       drawEndIf()
@@ -1485,23 +1510,23 @@
       drawDisabledItem(prop, rank)
       {
         if (prop.group) rank = "Whole Group - " + rank;
-        return "<span class=\"item-no\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">" + rank + " Rank</span><br style=\"clear: both\"></span>";
+        return "<span class=\"item-no\"><span " + this.getAction() + " class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">" + rank + " Rank</span><br style=\"clear: both\"></span>";
       }
 
       drawUnavailItem(prop)
       {
         if (prop.group)
-          return "<span class=\"item-un\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
+          return "<span " + this.getAction() + " class=\"item-un\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
         else
-          return "<span class=\"item-un\">" + prop.name + "</span><br>";
+          return "<span " + this.getAction() + " class=\"item-un\">" + prop.name + "</span><br>";
       }
 
       drawItem(prop)
       {
         if (prop.group)
-          return "<span class=\"item\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
+          return "<span class=\"item\"><span " + this.getAction() + " class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
         else
-          return "<span class=\"item\">" + prop.name + "</span><br>";
+          return "<span " + this.getAction() + " class=\"item\">" + prop.name + "</span><br>";
       }
 
       drawGroup(name)
@@ -1512,6 +1537,19 @@
       drawEndGroup(name)
       {
         return "</span></div>";
+      }
+
+      getId()
+      {
+        let index = this.drawIndex;
+        this.drawIndex++;
+        return "id = '" + this.elemProp + index + "'";
+      }
+
+      getAction()
+      {
+        let action = "onclick='obj(this).query(" + this.drawIndex + ")' onmouseout = 'obj(this).outline(" + this.drawIndex + ")' onmouseover= 'obj(this).outline(" + this.drawIndex + ")'";
+        return this.getId() + action;
       }
     }
 
@@ -2449,24 +2487,58 @@
       <tbody>
         <tr>
           <td class="columnValk" valign="top">
-            <div class="columnValkCtrl"><b>Valkyrie<br /><span style="float:right" ><span style="float:left" id="0valkquery"></span><span class="boxarrow leftarrow" onclick="app.prevValk(0); return false;">Prev</span>&nbsp;<span class="boxarrow rightarrow" onclick="app.nextValk(0); return false;">Next</span></span></b></div>
-            <br />
+            <div class="columnValkCtrl">
+              <b>Valkyrie</b><br />
+              &nbsp;<span class="columnValkCtrl" id="0valkquery"></span>
+              <span class="columnValkCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevValk(0); return false;">Prev</span>
+                <span class="boxarrow rightarrow"onclick="app.nextValk(0); return false;">Next</span>
+              </span>
+            </div>
             <div id="valkMode0"></div>
           </td>
           <td class="columnWeap" valign="top">
-            <div class="columnWeapCtrl"><b>Weapon <span class="right"><span id="0weapquery"></span><a href="#" onclick="app.prevWeap(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(0); return false;">Next&gt;</a></span></b></div>
+            <div class="columnWeapCtrl">
+              <b>Weapon</b><br />
+              &nbsp;<span class="columnWeapCtrl" id="0weapquery"></span>
+              <span class="columnWeapCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevWeap(0); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextWeap(0); return false;">Next</span>
+              </span>
+            </div>
             <div id="weapMode0"></div>
           </td>
           <td class="columnStig" valign="top">
-            <div class="columnStigCtrl"><b>Top Stigmata <span class="right"><span id="0Tstigquery"></span><a href="#" onclick="app.prevStigT(0); return false;">&lt;Prev</a>&nbsp;<a id="next" href="#" onclick="app.nextStigT(0); return false;">Next&gt;</a></span></b></div>
+            <div class="columnStigCtrl">
+              <b>Top Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="0Tstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigT(0); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigT(0); return false;">Next</span>
+              </span>
+            </div>
             <div id="TstigMode0"></div>
           </td>
           <td class="columnStig" valign="top">
-            <div class="columnStigCtrl"><b>Middle Stigmata <span class="right"><span id="0Mstigquery"></span><a href="#" onclick="app.prevStigM(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(0); return false;">Next&gt;</a></span></b></div>
+            <div class="columnStigCtrl">
+              <b>Middle Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="0Mstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigM(0); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigM(0); return false;">Next</span>
+              </span>
+            </div>
             <div id="MstigMode0"></div>
           </td>
           <td valign="top" class="columnStig">
-            <div class="columnStigCtrl"><b>Bottom Stigmata <span class="right"><span id="0Bstigquery"></span><a href="#" onclick="app.prevStigB(0); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(0); return false;">Next&gt;</a></span></b></div>
+            <div class="columnStigCtrl">
+              <b>Bottom Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="0Bstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigB(0); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigB(0); return false;">Next</span>
+              </span>
+            </div>
             <div id="BstigMode0"></div>
           </td>
         </tr>
