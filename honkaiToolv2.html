@@ -291,6 +291,14 @@
       background-color: #75fc7c;
     }
 
+    span.groupname-boost {
+      display: block;
+      box-sizing: border-box;
+      width: auto;
+      border-radius: 10px 10px 0px 0px;
+      background-color: #f6952b;
+    }
+
     span.groupname-no {
       display: block;
       box-sizing: border-box;
@@ -551,7 +559,7 @@
     var globalTerms = ["BIO", "MECH", "PSY", "combo", "Mei", "Kiana", "Fu Hua", "Theresa", "Bronya", "Rita", "Himeko", "Yae", "Kallen", "timeslow", "timelock", "bleed", "freeze", "stun", "ignite", "weaken", "slow", "paralyze", "impair", "fracture"];
 
     var dataValks = [
-      "Divine Prayer v2:[(B)[Kiana,pistol,PSY],(A)[phy dmg+|a,aoe|a,weaken|a,(crit)[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice dot|v,heal|gv,phy dmg+|s,(float)[stun]|s,charge|c,phy dmg+|c,knockback|c,(paralyze)[dmg+,phy dmg+,heal|g]|q,burst|u,heal dot|gu,elem dmg+|gl,elem dmg-|gl],(S)[(combo)[crit]|p,CD+|v,debuff-|s,def-|s],(SS)[heal|gu,move+|gu,speed+|gu],(SSS)[rescue|x]]"
+      "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[physical|a,aoe|a,weaken|a,{crit}[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice|v,dot|v,heal|gv,physical|s,(float)[stun]|s,charge|c,physical|c,knockback|c,(paralyze)[dmg+,physical,heal|g]|q,burst|u,fracture|u,dmg+|u,heal dot|gu,elemental+|gl,elemental-|gl],(S)[(combo)[crit+]|p,CD+|v,debuff-|gs,def-|s],(SS)[heal|gu,move+|gu,speed+|gu],(SSS)[rescue|x]]"
       /*
       "Divine Prayer:[(B)[Kiana,pistol,PSY],(A)[switch,combo,charge,knockback,(paralyze)[QTE,heal],heal,fracture,weaken,float,timelock,timeslow,bleed,ice,lightning,impair],(S)[crit,def+,debuff,(leader)[elem+,dmg-]],(SS)[heal,speed+],(SSS)[heal,rescue]]",
       "White Comet:[(B)[Kiana,pistol,MECH],(A)[switch,combo,stun,(float)[QTE,stun],fracture,(leader)hp+],(S)[def+,fire],(SS)[crit],(SSS)[stun]]",
@@ -1331,7 +1339,7 @@
         // sort props into code groups
         let render = new GroupRender(this.elemProp);
         this.sortForRender(render, item);
-        return render.render();
+        return render.render(this);
         /*
         let buf = "";
         for (let i in props)
@@ -1495,7 +1503,7 @@
         this.drawIndex = 0;
         this.plain = new GroupRenderGroup(null);
         this.groups = {};
-        let codes = "apxvscqul";
+        let codes = "acuqsvpxl";
         for (let i in codes) this.groups[codes[i]] = new GroupRenderGroup(codes[i]);
       }
 
@@ -1541,7 +1549,7 @@
         }
       }
 
-      render()
+      render(obj)
       {
         let html = "";
         this.drawIndex = 0;
@@ -1557,7 +1565,26 @@
           if (group.props.length == 0 && group.disabledProps.length == 0) continue;
           html += this.drawGroup(group.name);
           for (let p in group.props)
-            html += this.renderProp(group.props[p]);
+          {
+            if (group.props[p].if)
+            {
+              let satisfied = obj.isSatisfied(group.props[p], false);
+              // if its a QTE one, we can not self-satisfy
+              if (group.name == "QTE")
+              {
+                satisfied = false;
+                // check other valks
+                if (obj.id != 0 && app.Set[0].Valk.isSatisfied(group.props[p], true)) satisfied = true;
+                if (obj.id != 1 && app.Set[1].Valk.isSatisfied(group.props[p], true)) satisfied = true;
+                if (obj.id != 2 && app.Set[2].Valk.isSatisfied(group.props[p], true)) satisfied = true;
+              }
+              if (group.props[p].boost) satisfied = true;
+              if (satisfied) html += this.renderProp(group.props[p]);
+              else html += this.renderUnavailProp(group.props[p]);
+            }
+            else
+              html += this.renderProp(group.props[p]);
+          }
           for (let p in group.disabledProps)
             html += this.renderDisabledProp(group.disabledProps[p]);
           html += this.drawEndGroup();
@@ -1603,7 +1630,8 @@
 
         if (prop.if)
         {
-          html += this.drawIf(prop.if);
+          if (prop.boost) html += this.drawBoost(prop.if);
+          else            html += this.drawIf(prop.if);
           for (let p in prop.props) html += this.renderProp(prop.props[p]);
           html += this.drawEndIf();
         }
@@ -1627,6 +1655,16 @@
         return "<div class=\"group\"><span class=\"groupname\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
       }
 
+      drawBoost(name)      
+      {
+        let isBoosted = false;
+        // TODO is boosted?
+        if (isBoosted)
+          return "<div class=\"group\"><span class=\"groupname-boost\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><span class=\"alignright\">Boosted</span><br style=\"clear: both\"></span>";
+        else
+          return "<div class=\"group\"><span class=\"groupname-boost\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
+      }
+
       drawEndIf()
       {
         return "</div>";
@@ -1634,14 +1672,14 @@
 
       drawDisabledItem(prop, rank)
       {
-        if (prop.group) rank = "Whole Group - " + rank;
+        if (prop.group) rank = "Group - " + rank;
         return "<span class=\"item-no\"><span " + this.getAction() + " class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">" + rank + " Rank</span><br style=\"clear: both\"></span>";
       }
 
       drawUnavailItem(prop)
       {
         if (prop.group)
-          return "<span " + this.getAction() + " class=\"item-un\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
+          return "<span " + this.getAction() + " class=\"item-un\"><span class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Group</span><br style=\"clear: both\"></span>";
         else
           return "<span " + this.getAction() + " class=\"item-un\">" + prop.name + "</span><br>";
       }
@@ -1649,14 +1687,14 @@
       drawItem(prop)
       {
         if (prop.group)
-          return "<span class=\"item\"><span " + this.getAction() + " class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Whole Group</span><br style=\"clear: both\"></span>";
+          return "<span class=\"item\"><span " + this.getAction() + " class=\"alignleft\">" + prop.name + "</span><span class=\"alignright\">Group</span><br style=\"clear: both\"></span>";
         else
           return "<span " + this.getAction() + " class=\"item\">" + prop.name + "</span><br>";
       }
 
       drawGroup(name)
       {
-        return "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\"><span class='arrow'>Fire</span>" + name + "</span><span class=\"content\">";
+        return "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">" + name + "</span><span class=\"content\">";
       }
 
       drawEndGroup(name)
@@ -2464,7 +2502,7 @@
           }
           else
           {
-            this.setProp(props[i]);
+            this.setProp(props[i].name);
           }
         }
       }
@@ -2572,6 +2610,16 @@
           return { if: ifkey, code: code, group: group, props: parseProps(data.substr(loc + 1)) };
         else
           return { if: ifkey, code: code, group: group, props: parseItem(data.substr(loc + 1)) };
+      }
+      // check for boostable
+      else if (data[0] == '{')
+      {
+        let loc = data.indexOf('}');
+        let ifkey = data.substr(1, loc - 1);
+        if (data[loc + 1] == '[')
+          return { if: ifkey, boost: true, code: code, group: group, props: parseProps(data.substr(loc + 1)) };
+        else
+          return { if: ifkey, boost: true, code: code, group: group, props: parseItem(data.substr(loc + 1)) };
       }
       // its just a key
       else

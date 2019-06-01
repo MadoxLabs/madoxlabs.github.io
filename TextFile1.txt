@@ -3,7 +3,7 @@ NEW NOTES
  healthy can be boosted by hp+ or heal
  crit is boosted by crit+
 
- healthy matches hp+ heal
+ healthy matches hp+ heal - health over 80% etc
  shield break matches any antishield
  dot matches bleed
 
@@ -179,18 +179,18 @@ leader
 
 Divine Prayer
 
-[(B)[Kiana,pistol,PSY],(A)[phy dmg+|a,aoe|a,weaken|a,(crit)[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice dot|v,heal|gv,phy dmg+|s,(float)[stun]|s,charge|c,phy dmg+|c,knockback|c,(paralyze)[dmg+,phy dmg+,heal|g]|q,burst|u,heal dot|ug,elem dmg+|g,elem dmg-|g],(S)[(combo)[crit]|p,CD+|v,debuff-|s,def-|s],(SS)[heal|g,move+|g,speed+|g],(SSS)[rescue|x]]
+[(B)[Kiana,pistol,PSY],(A)[physical|a,aoe|a,weaken|a,(crit)[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice|v,dot|v,heal|gv,physical|s,(float)[stun]|s,charge|c,physical|c,knockback|c,(paralyze)[dmg+,physical,heal|g]|q,burst|u,fracture|u,dmg+|u,heal dot|gu,elem dmg+|gl,elem dmg-|gl],(S)[(combo)[crit+]|p,CD+|v,debuff-|gs,def-|s],(SS)[heal|gu,move+|gu,speed+|gu],(SSS)[rescue|x]]
 
 Kiana
 pistol
 PSY
 attack
- phy dmg+
+ physical
  aoe
  weaken A
  |crit| heal group A
 passive
- (combo) crit S
+ (combo) crit+ S
 exit
  lightning A
  impair A
@@ -200,25 +200,27 @@ evade
  float
  timelock
  bleed A
- ice dot A
+ ice A
+ dot A
  heal group A
  CD+ S
 switch A
- phy dmg+
+ physical
  (float)stun
- debuff- S
+ debuff- group S
  def+ S
 combo A
  charge
- phy dmg+
+ physical
  knockback
 qte A
  (paralyze)
-  dmg+
-  phy dmg+
-  heal group
+ physical
+ heal group
 ultimate
  burst
+ dmg+
+ fracture
  heal dot group A
  heal group SS
  move+ group SS
