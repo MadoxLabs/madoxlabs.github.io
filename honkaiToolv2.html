@@ -1447,7 +1447,7 @@
             if (yesifs && this.compareKeys(props[i].if,key)) return true;
             if (this.hasProp(key, props[i])) return true;
           }
-          else if (yesprops && this.compareKeys(props[i],key)) return true;
+          else if (yesprops && this.compareKeys(props[i].name,key)) return true;
         }
         return false;
       }
