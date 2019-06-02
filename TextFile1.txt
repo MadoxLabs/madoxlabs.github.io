@@ -9,6 +9,8 @@ NEW NOTES
 
  lightning+ depends on lightning, etc
 
+ -team - check whole team for prop
+
  {} - depends on environment
  || - boostable
 
