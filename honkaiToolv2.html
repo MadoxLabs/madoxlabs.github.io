@@ -5,7 +5,6 @@
   <title>Madox Labs - Honkai Impact Tool</title>
 
   <style>
-    // oringial styles 
     body {
       margin: 0px;
       font-family: Verdana;
@@ -230,7 +229,6 @@
     }
   </style>
   <style>
-    /* BELOW HERE is the styles for the V2 UI */
     div.box {
       border-radius: 10px 10px 0px 0px;
       -moz-border-radius: 10px 10px 0px 0px;
@@ -325,7 +323,6 @@
     }
   </style>
   <style>
-    // styles for prev/next/reset
     .resetbutton {
       text-align: center;
       float: right;
@@ -399,8 +396,7 @@
     }
 
   </style>
-  <style>
-    // 
+  <style>    
     .inputText {
       border-radius: 25px;
       border: 2px solid #0799FA;
@@ -436,63 +432,36 @@
   <style>
     .arrow.blue {
       border: 5px solid blue;
+      background: blue;
     }
-
-      .arrow.blue:before {
-        background: blue;
-      }
-
-      .arrow.blue:after {
-        color: blue;
-      }
 
     .arrow.red {
       border: 5px solid red;
+      background: red;
     }
-
-      .arrow.red:before {
-        background: red;
-      }
-
-      .arrow.red:after {
-        color: red;
-      }
 
     .arrow.yellow {
       border: 5px solid yellow;
+      background: yellow;
     }
-
-      .arrow.yellow:before {
-        background: yellow;
-      }
-
-      .arrow.yellow:after {
-        color: yellow;
-      }
 
     .arrow.black {
       border: 5px solid black;
+      background: black;
     }
-
-      .arrow.black:before {
-        background: black;
-      }
-
-      .arrow.black:after {
-        color: black;
-      }
 
     .arrow.white {
       border: 5px solid rgba(0,0,0,0);
+      background: rgba(0,0,0,0);
     }
 
-      .arrow.white:before {
-        background: black;
-      }
+    .arrow.white:before {
+      background: black;
+    }
 
-      .arrow.white:after {
-        color: black;
-      }
+    .arrow.white:after {
+      color: black;
+    }
 
     .small {
       transform: scale(0.4,0.4);
@@ -510,52 +479,52 @@
       transition: width 0.5s ease-in-out, margin 0.5s ease-in-out, border-radius 0.25s ease-in-out, color 0.25s ease-in-out;
     }
 
-      .arrow.auto {
-        width: 30px;
-        margin-left: -10px;
-        border-radius: 40px;
-        color: rgba(179, 195, 58, 0);
-        transition: width 0.5s ease-in-out, margin 0.5s ease-in-out, border-radius 1s 0.25 ease-in-out, color 0.25s ease-in-out 0.25s;
-      }
+    .arrow.auto {
+      width: 30px;
+      margin-left: -10px;
+      border-radius: 40px;
+      color: rgba(179, 195, 58, 0);
+      transition: width 0.5s ease-in-out, margin 0.5s ease-in-out, border-radius 1s 0.25 ease-in-out, color 0.25s ease-in-out 0.25s;
+    }
 
-      .arrow.move:before {
-        animation: lineUp 1s cubic-bezier(0, 0.6, 1, 0.4) infinite 0.5s;
-      }
+    .arrow.move:before {
+      animation: lineUp 1s cubic-bezier(0, 0.6, 1, 0.4) infinite 0.5s;
+    }
 
-      .arrow.move:after {
-        animation: tipUp 1s cubic-bezier(0, 0.6, 1, 0.4) infinite 0.5s;
-      }
+    .arrow.move:after {
+      animation: tipUp 1s cubic-bezier(0, 0.6, 1, 0.4) infinite 0.5s;
+    }
 
-      .arrow:before {
-        position: absolute;
-        display: inline-block;
-        content: "";
-        background: #ff0000;
-        width: 5px;
-        height: 40px;
-        top: 50%;
-        left: 50%;
-        margin-top: -8px;
-        margin-left: -3px;
-        transform: translateY(50px);
-      }
+    .arrow:before {
+      position: absolute;
+      display: inline-block;
+      content: "";
+      background: #0799FA;
+      width: 5px;
+      height: 40px;
+      top: 50%;
+      left: 50%;
+      margin-top: -8px;
+      margin-left: -3px;
+      transform: translateY(50px);
+    }
 
-      .arrow:after {
-        position: absolute;
-        display: inline-block;
-        content: "";
-        width: 20px;
-        height: 20px;
-        color: #ff0000;
-        border-top: 5px solid;
-        border-left: 5px solid;
-        transform: rotateZ(45deg);
-        top: 50%;
-        left: 50%;
-        margin-top: -6px;
-        margin-left: -13px;
-        transform: translateY(50px) rotateZ(45deg);
-      }
+    .arrow:after {
+      position: absolute;
+      display: inline-block;
+      content: "";
+      width: 20px;
+      height: 20px;
+      color: #0799FA;
+      border-top: 5px solid;
+      border-left: 5px solid;
+      transform: rotateZ(45deg);
+      top: 50%;
+      left: 50%;
+      margin-top: -6px;
+      margin-left: -13px;
+      transform: translateY(50px) rotateZ(45deg);
+    }
 
     @keyframes tipUp {
       0% {
@@ -1363,45 +1332,6 @@
         let render = new GroupRender(this.elemProp);
         this.sortForRender(render, item);
         return render.render(this);
-        /*
-        let buf = "";
-        for (let i in props)
-        {
-          if (props[i].if)
-          {
-            let satisfied = this.isSatisfied(props[i],false);
-            // if its a QTE one, we can not self-satisfy
-            if (props[i].props.includes("QTE"))
-            {
-              satisfied = false;
-              // check other valks
-              if (this.id != 0 && app.Set[0].Valk.isSatisfied(props[i], true)) satisfied = true;
-              if (this.id != 1 && app.Set[1].Valk.isSatisfied(props[i], true)) satisfied = true;
-              if (this.id != 2 && app.Set[2].Valk.isSatisfied(props[i], true)) satisfied = true;
-            }
-            // check if it is satisfied by our set of objects
-            if (satisfied)
-            {
-              // if so add its props
-              buf += "<div class='met' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
-              this.drawIndex += 1;
-              buf += this.drawProps(props[i]);
-            }
-            else
-            {
-              // if not its red
-              buf += "<div class='unmet' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i].if + "</div>";
-              this.drawIndex += 1;
-              buf += this.drawPropsDisabled(props[i]);
-            }
-          }
-          else
-          {
-            buf += "<div id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + props[i] + "</div>";
-            this.drawIndex += 1;
-          }
-        }
-        return buf;*/
       }
 
       hookup()
@@ -1485,10 +1415,10 @@
         {
           if (props[i].if)
           {
-            if (yesifs && this.compareKeys(props[i].if,key)) return true;
+            if (yesifs && this.compareKeys(props[i].if, key)) return true;
             if (this.hasProp(key, props[i])) return true;
           }
-          else if (yesprops && this.compareKeys(props[i].name,key)) return true;
+          else if (yesprops && this.compareKeys(props[i].name, key)) return true;
         }
         return false;
       }
@@ -1533,7 +1463,7 @@
       }
     };
 
-    var groupNames = { a: "Attack", p: "Passive", x: "Exit", v: "Evade", s: "Switch", c: "Combo", q: "QTE", u: "Ultimate", l: "Leader"};
+    var groupNames = { a: "Attack", p: "Passive", x: "Exit", v: "Evade", s: "Switch", c: "Combo", q: "QTE", u: "Ultimate", l: "Leader" };
 
     class GroupRenderGroup
     {
@@ -1547,7 +1477,7 @@
 
       disable(prop, rank)
       {
-        this.disabledProps.push({rank: rank, prop: prop});
+        this.disabledProps.push({ rank: rank, prop: prop });
       }
 
       enable(prop)
@@ -1620,6 +1550,13 @@
         for (let p in this.plain.props)
           html += this.renderProp(this.plain.props[p]);
 
+        let elemUp = app.Set[obj.id].Res.has("elemental+") ? true : false;
+        let fireUp = app.Set[obj.id].Res.has("fire+") ? true : false;
+        let lightningUp = app.Set[obj.id].Res.has("lightning+") ? true : false;
+        let iceUp = app.Set[obj.id].Res.has("ice+") ? true : false;
+        let physUp = app.Set[obj.id].Res.has("physical+") ? true : false;
+        let allUp = app.Set[obj.id].Res.has("dmg+") ? true : false;
+
         // for all groups
         for (let g in this.groups)
         {
@@ -1627,20 +1564,21 @@
           if (group.props.length == 0 && group.disabledProps.length == 0) continue;
 
           let types = "";
-          let elemUp = (obj.hasSatisfiedProp("elemental+", obj.root) ? true : false);
+
           if (obj.hasSatisfiedProp("fire", group))
-            types += "red" + (obj.hasSatisfiedProp("fire+", obj.root) || elemUp ? " move" : "") + ",";
+            types += "red" + (fireUp || elemUp ? " move" : "") + ",";
           else if (obj.hasSatisfiedProp("ignite", group))
-            types += "red" + (obj.hasSatisfiedProp("fire+", obj.root) || elemUp ? " move" : "") + ",";
+            types += "red" + (fireUp || elemUp ? " move" : "") + ",";
           if (obj.hasSatisfiedProp("ice", group))
-            types += "blue" + (obj.hasSatisfiedProp("ice+", obj.root) || elemUp ? " move" : "") + ",";
-          if (obj.hasSatisfiedProp("lightning", group)) types += "yellow" + (obj.hasSatisfiedProp("lightning+", obj.root) || elemUp ? " move" : "") + ",";
+            types += "blue" + (iceUp || elemUp ? " move" : "") + ",";
+          if (obj.hasSatisfiedProp("lightning", group))
+            types += "yellow" + (lightningUp || elemUp ? " move" : "") + ",";
           if (obj.hasSatisfiedProp("physical", group))
-            types += "black" + (obj.hasSatisfiedProp("physical+", obj.root) ? " move" : "") + ",";
-//          if (obj.hasSatisfiedProp("dmg+", obj)) types += "white move,";
+            types += "black" + (physUp ? " move" : "") + ",";
+          if (allUp) types += "white move,";
 
           if (types.length)
-            html += this.drawGroupWithType(group.name,types);
+            html += this.drawGroupWithType(group.name, types);
           else
             html += this.drawGroup(group.name);
           for (let p in group.props)
@@ -1710,7 +1648,7 @@
         if (prop.if)
         {
           if (prop.boost) html += this.drawBoost(prop.if);
-          else            html += this.drawIf(prop.if);
+          else html += this.drawIf(prop.if);
           for (let p in prop.props) html += this.renderProp(prop.props[p]);
           html += this.drawEndIf();
         }
@@ -1730,20 +1668,20 @@
 
       drawDisabledIf(name, rank)
       {
-        return "<div class=\"group\"><span class=\"groupname-no\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><span class=\"alignright\">"+rank+" Rank</span><br style=\"clear: both\"></span>";
+        return "<div class=\"group\"><span class=\"groupname-no\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><span class=\"alignright\">" + rank + " Rank</span><br style=\"clear: both\"></span>";
       }
 
       drawUnavailIf(name)
       {
         return "<div class=\"group\"><span class=\"groupname-no\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
-      }     
+      }
 
-      drawIf(name)      
+      drawIf(name)
       {
         return "<div class=\"group\"><span class=\"groupname\"><span " + this.getAction() + " class=\"alignleft\">" + name + "</span><br style=\"clear: both\"></span>";
       }
 
-      drawBoost(name)      
+      drawBoost(name)
       {
         let isBoosted = false;
         // TODO is boosted?
@@ -1794,12 +1732,12 @@
           return "<span " + this.getAction() + " class=\"item\">" + prop.name + "</span><br>";
       }
 
-      drawGroupWithType(name,type)
+      drawGroupWithType(name, type)
       {
         let types = type.trim().split(",");
         let ret = "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">"; name + "</span><span class=\"content\">";
         for (let i in types)
-          if (types[i].length) ret += "<span onclick='obj(this).queryType(\"" + types[i]+"\")' class='small arrow auto " + types[i] + "'></span>";
+          if (types[i].length) ret += "<span onclick='obj(this).queryType(\"" + types[i] + "\")' class='small arrow auto " + types[i] + "'></span>";
         ret += name + "</span><span class=\"content\">";
         return ret;
       }
@@ -1810,7 +1748,7 @@
       }
 
       drawEndGroup(name)
-      {  
+      {
         return "</span></div>";
       }
 
@@ -2009,7 +1947,7 @@
 
     class Collection
     {
-//      items = { Valks: {}, Weapons: {}, Stigmata: {} };
+      //      items = { Valks: {}, Weapons: {}, Stigmata: {} };
 
       constructor()
       {
@@ -2112,10 +2050,10 @@
 
     class App
     {
-//      Set = [];
-//      All = new Resolver();
-//      Collection = new Collection();
-//      Locks = [];
+      //      Set = [];
+      //      All = new Resolver();
+      //      Collection = new Collection();
+      //      Locks = [];
 
       constructor()
       {
@@ -2139,7 +2077,7 @@
 
       toggle(obj)
       {
-//        obj.classList.toggle("active");
+        //        obj.classList.toggle("active");
         var content = obj.nextElementSibling;
         content.style.display = content.style.display == "none" ? "block" : "none";
       }
@@ -2258,7 +2196,7 @@
       pointAt(step, name, text)
       {
         if (step != ftuestep) return;
-//        if (!document.getElementById(name)) return;
+        //        if (!document.getElementById(name)) return;
         ftuestep += 1;
         let elem = document.getElementById(name).getBoundingClientRect();
         let ftue = document.getElementById("ftue");
@@ -2504,9 +2442,9 @@
 
     class Resolver
     {
-//      props = {};
-//      ifs = [];
-//      everything = false;
+      //      props = {};
+      //      ifs = [];
+      //      everything = false;
 
       constructor()
       {
@@ -2538,16 +2476,16 @@
         let exact = document.getElementById("exact").checked;
         if (exact) return ret;
 
-        if (key == "fracture")  { ret = this.props["timeslow"];  if (ret) return ret; }
-        if (key == "timeslow")  { ret = this.props["fracture"];  if (ret) return ret; }
-        if (key == "ignite")    { ret = this.props["fire"];      if (ret) return ret; }
-        if (key == "fire")      { ret = this.props["ignite"];    if (ret) return ret; }
-        if (key == "elem+")     { ret = this.props["fire"];      if (ret) return ret; }
-        if (key == "elem+")     { ret = this.props["ice"];       if (ret) return ret; }
-        if (key == "elem+")     { ret = this.props["lightning"]; if (ret) return ret; }
-        if (key == "fire")      { ret = this.props["elem"];      if (ret) return ret; }
-        if (key == "ice")       { ret = this.props["elem"];      if (ret) return ret; }
-        if (key == "lightning") { ret = this.props["elem"];      if (ret) return ret; }
+        if (key == "fracture") { ret = this.props["timeslow"]; if (ret) return ret; }
+        if (key == "timeslow") { ret = this.props["fracture"]; if (ret) return ret; }
+        if (key == "ignite") { ret = this.props["fire"]; if (ret) return ret; }
+        if (key == "fire") { ret = this.props["ignite"]; if (ret) return ret; }
+        if (key == "elem+") { ret = this.props["fire"]; if (ret) return ret; }
+        if (key == "elem+") { ret = this.props["ice"]; if (ret) return ret; }
+        if (key == "elem+") { ret = this.props["lightning"]; if (ret) return ret; }
+        if (key == "fire") { ret = this.props["elem"]; if (ret) return ret; }
+        if (key == "ice") { ret = this.props["elem"]; if (ret) return ret; }
+        if (key == "lightning") { ret = this.props["elem"]; if (ret) return ret; }
 
         return ret;
       }
@@ -2757,14 +2695,14 @@
     Search for a property: <input id="psearch" onmouseover='this.focus()' onmouseout='this.blur()' type="text" onchange="app.propSearch();" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();" /><select onmousedown="if (app) app.advanceFTUE('presult', '');" onclick="this.onmousedown();" id="presult"></select>
     <button id="psearchb" onclick="app.searchProp();">Search</button><button id="plock" onclick="app.lockProp();">Lock</button> -
     <a id="terms" href="#" style="color: rgb(0,255,0); text-decoration: underline" onclick="app.help(); return false;">What do these terms mean?</a><br />
-    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact"  onmousedown="if (app) app.advanceFTUE('exact', '');" onclick="this.onmousedown();" type="checkbox" /><br />
+    Locked properties: <span id="locks"></span><button onclick="app.deleteLastLock();">Remove Last</button><button onclick="app.deleteLocks();">Remove All</button> Include triggers: <input id="triggers" checked type="checkbox" />Include props: <input id="props" checked type="checkbox" /> Exact match only: <input id="exact" onmousedown="if (app) app.advanceFTUE('exact', '');" onclick="this.onmousedown();" type="checkbox" /><br />
     Start a tutorial: <select id="tutorials">
       <option value="1">Basic Searching</option>
       <option value="2">Property Searching</option>
       <option value="3">Advanced Searching</option>
       <option value="4">My Collection</option>
     </select>
-    <button onclick="app.startTutorial();" >Start Tutorial</button> <button onclick="app.stopTutorial();">Stop Tutorial</button><br />
+    <button onclick="app.startTutorial();">Start Tutorial</button> <button onclick="app.stopTutorial();">Stop Tutorial</button><br />
   </div>
   <div style="position: absolute; top:130px;">
     <table class="blueTable">
@@ -2777,7 +2715,7 @@
               &nbsp;<span class="columnValkCtrl" id="0valkquery"></span>
               <span class="columnValkCtrl" style="float:right">
                 <span class="boxarrow leftarrow" onclick="app.prevValk(0); return false;">Prev</span>
-                <span class="boxarrow rightarrow"onclick="app.nextValk(0); return false;">Next</span>
+                <span class="boxarrow rightarrow" onclick="app.nextValk(0); return false;">Next</span>
               </span>
             </div>
             <div id="valkMode0"></div>
@@ -2894,38 +2832,43 @@
       <br />
       Most properties should be self explainatory, but these might need some explaination.<br />
       <br />
-      <table><tr><td>
-                   CD+ - cooldowns are somehow improved<br />
-                   SP+ - usage of SP is somehow improved<br />
-                   aoe - affects a large area<br />
-                   atk- - monster's attacks are reduced<br />
-                   bleed- - effects of bleeding on valks is reduced<br />
-                   blink - valkyrie will teleport around<br />
-                   crit - chance of crit is increased<br />
-                   debuff- - effects of debuff on valks is reduced<br />
-                   def+ - increased defense<br />
-                   def- - monster's defense reduced<br />
-                   dmg+ - increased damage<br />
-                   dmg- - monster's damage reduced<br />
-                   dot - damage over time, like bleed<br />
-                   elem+ - elemental damage is increased<br />
-                   fire- - reduced damage on valks from fire<br />
-                   float - toss enemies in the air<br />
-                   gather - attract enemies to a location<br />
-                   move+ - valk's movement speed increased<br />
-                   move- - monster's movement speed reduced<br />
-                   pierce - attack hits several enemies in a straight line<br />
-                   rescue - revive dead valks<br />
-                   speed+ - valk's attack speed increased<br />
-                   speed- - monster's attack speed reduced<br />
-     </td><td>
-       elem+ - will match with fire, ice, and lightning<br />
-       fire - will match with elem+, ignite<br />
-       ice - will match with elem+<br />
-       lightning - will match with elem+<br />
-       ignite - will match with fire<br />
-       fracture - will match with timeslow<br /> 
-      </td></tr></table>
+      <table>
+        <tr>
+          <td>
+            CD+ - cooldowns are somehow improved<br />
+            SP+ - usage of SP is somehow improved<br />
+            aoe - affects a large area<br />
+            atk- - monster's attacks are reduced<br />
+            bleed- - effects of bleeding on valks is reduced<br />
+            blink - valkyrie will teleport around<br />
+            crit - chance of crit is increased<br />
+            debuff- - effects of debuff on valks is reduced<br />
+            def+ - increased defense<br />
+            def- - monster's defense reduced<br />
+            dmg+ - increased damage<br />
+            dmg- - monster's damage reduced<br />
+            dot - damage over time, like bleed<br />
+            elem+ - elemental damage is increased<br />
+            fire- - reduced damage on valks from fire<br />
+            float - toss enemies in the air<br />
+            gather - attract enemies to a location<br />
+            move+ - valk's movement speed increased<br />
+            move- - monster's movement speed reduced<br />
+            pierce - attack hits several enemies in a straight line<br />
+            rescue - revive dead valks<br />
+            speed+ - valk's attack speed increased<br />
+            speed- - monster's attack speed reduced<br />
+          </td>
+          <td>
+            elem+ - will match with fire, ice, and lightning<br />
+            fire - will match with elem+, ignite<br />
+            ice - will match with elem+<br />
+            lightning - will match with elem+<br />
+            ignite - will match with fire<br />
+            fracture - will match with timeslow<br />
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </body>
