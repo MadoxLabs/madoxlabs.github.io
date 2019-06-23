@@ -1136,6 +1136,8 @@
         this.root = null;
         this.results = [];
         this.resultCursor = 0;
+
+        this.collapsed = {};
       }
 
       reset()
@@ -1300,6 +1302,7 @@
         if (!this.root) return;
         this.drawIndex = 0;
         document.getElementById(this.divSelect + "Props").innerHTML = this.drawPropsTopLevel(this.root);
+        app.retoggle();
       }
 
       drawPropsDisabled(item)
@@ -1446,18 +1449,18 @@
       compareKeys(key1, key2)
       {
         let exact = document.getElementById("exact").checked;
-        if (!exact)
+        if (!exact && !app.exactOverride)
         {
           if (key1 == "fracture" && key2 == "timeslow") return true;
           if (key2 == "fracture" && key1 == "timeslow") return true;
           if (key1 == "ignite" && key2 == "fire") return true;
           if (key2 == "ignite" && key1 == "fire") return true;
-          if (key2 == "elem+" && key1 == "fire") return true;
-          if (key2 == "elem+" && key1 == "ice") return true;
-          if (key2 == "elem+" && key1 == "lightning") return true;
-          if (key1 == "elem+" && key2 == "fire") return true;
-          if (key1 == "elem+" && key2 == "ice") return true;
-          if (key1 == "elem+" && key2 == "lightning") return true;
+          if (key2 == "elemental+" && key1 == "fire") return true;
+          if (key2 == "elemental+" && key1 == "ice") return true;
+          if (key2 == "elemental+" && key1 == "lightning") return true;
+          if (key1 == "elemental+" && key2 == "fire") return true;
+          if (key1 == "elemental+" && key2 == "ice") return true;
+          if (key1 == "elemental+" && key2 == "lightning") return true;
         }
         return (key1 == key2);
       }
@@ -1565,6 +1568,7 @@
 
           let types = "";
 
+          app.exactOverride = true;
           if (obj.hasSatisfiedProp("fire", group))
             types += "red" + (fireUp || elemUp ? " move" : "") + ",";
           else if (obj.hasSatisfiedProp("ignite", group))
@@ -1575,7 +1579,8 @@
             types += "yellow" + (lightningUp || elemUp ? " move" : "") + ",";
           if (obj.hasSatisfiedProp("physical", group))
             types += "black" + (physUp ? " move" : "") + ",";
-          if (allUp) types += "white move,";
+          if (allUp && types.length) types += "white move,";
+          app.exactOverride = false;
 
           if (types.length)
             html += this.drawGroupWithType(group.name, types);
@@ -1734,17 +1739,22 @@
 
       drawGroupWithType(name, type)
       {
+        let display = "block";
+        if (this.obj.collapsed[name]) display = "none";
+
         let types = type.trim().split(",");
-        let ret = "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">"; name + "</span><span class=\"content\">";
+        let ret = "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">";
         for (let i in types)
-          if (types[i].length) ret += "<span onclick='obj(this).queryType(\"" + types[i] + "\")' class='small arrow auto " + types[i] + "'></span>";
-        ret += name + "</span><span class=\"content\">";
+          if (types[i].length) ret += "<span onclick='obj(this).queryType(\"" + types[i] + "\"); event.stopPropagation()' class='small arrow auto " + types[i] + "'></span>";
+        ret += name + "</span><span style='display:" + display + "' class=\"content\">";
         return ret;
       }
 
       drawGroup(name)
       {
-        return "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">" + name + "</span><span class=\"content\">";
+        let display = "block";
+        if (this.obj.collapsed[name]) display = "none";
+        return "<div class=\"box\"><span onclick=\"app.toggle(this);\" class=\"header\">" + name + "</span><span style='display:" + display + "' class=\"content\">";
       }
 
       drawEndGroup(name)
@@ -1966,12 +1976,12 @@
         if (name == "timeslow") { ret = this._has("fracture"); if (ret) return ret; }
         if (name == "ignite") { ret = this._has("fire"); if (ret) return ret; }
         if (name == "fire") { ret = this._has("ignite"); if (ret) return ret; }
-        if (name == "elem+") { ret = this._has("fire"); if (ret) return ret; }
-        if (name == "elem+") { ret = this._has("ice"); if (ret) return ret; }
-        if (name == "elem+") { ret = this._has("lightning"); if (ret) return ret; }
-        if (name == "fire") { ret = this._has("elem"); if (ret) return ret; }
-        if (name == "ice") { ret = this._has("elem"); if (ret) return ret; }
-        if (name == "lightning") { ret = this._has("elem"); if (ret) return ret; }
+        if (name == "elemental+") { ret = this._has("fire"); if (ret) return ret; }
+        if (name == "elemental+") { ret = this._has("ice"); if (ret) return ret; }
+        if (name == "elemental+") { ret = this._has("lightning"); if (ret) return ret; }
+        if (name == "fire") { ret = this._has("elemental+"); if (ret) return ret; }
+        if (name == "ice") { ret = this._has("elemental+"); if (ret) return ret; }
+        if (name == "lightning") { ret = this._has("elemental+"); if (ret) return ret; }
         return false;
       }
 
@@ -2073,13 +2083,29 @@
         this.All.resolveIf();
         this.propSearch();
         this.Collection.load();
+
+        this.exactOverride = false;
+
+        this.groupState = {};
       }
 
       toggle(obj)
       {
         //        obj.classList.toggle("active");
-        var content = obj.nextElementSibling;
-        content.style.display = content.style.display == "none" ? "block" : "none";
+        let content = obj.nextElementSibling;
+        let state = content.style.display == "none" ? "block" : "none";
+        this.groupState[getXPathForElement(obj)] = state;
+        content.style.display = state;
+      }
+
+      retoggle()
+      {
+        for (let e in this.groupState)
+        {
+          let obj = getElementByXPath(e);
+          let content = obj.nextElementSibling;
+          content.style.display = this.groupState[e];
+        }
       }
 
       saveMyCollection()
@@ -2280,7 +2306,7 @@
           }
           if (data == "Caravaggio (M)")
           {
-            app.pointAt(209, "0Msprop4", "We searched for 'fire' but this says 'elem+'<br>Since fire is a type of element, <br>we also get results for 'elem+'");
+            app.pointAt(209, "0Msprop4", "We searched for 'fire' but this says 'elemental+'<br>Since fire is a type of element, <br>we also get results for 'elemental+'");
             setTimeout(function ()
             {
               document.getElementById("ftue").classList.remove("my-tooltip");
@@ -2480,12 +2506,12 @@
         if (key == "timeslow") { ret = this.props["fracture"]; if (ret) return ret; }
         if (key == "ignite") { ret = this.props["fire"]; if (ret) return ret; }
         if (key == "fire") { ret = this.props["ignite"]; if (ret) return ret; }
-        if (key == "elem+") { ret = this.props["fire"]; if (ret) return ret; }
-        if (key == "elem+") { ret = this.props["ice"]; if (ret) return ret; }
-        if (key == "elem+") { ret = this.props["lightning"]; if (ret) return ret; }
-        if (key == "fire") { ret = this.props["elem"]; if (ret) return ret; }
-        if (key == "ice") { ret = this.props["elem"]; if (ret) return ret; }
-        if (key == "lightning") { ret = this.props["elem"]; if (ret) return ret; }
+        if (key == "elemental+") { ret = this.props["fire"]; if (ret) return ret; }
+        if (key == "elemental+") { ret = this.props["ice"]; if (ret) return ret; }
+        if (key == "elemental+") { ret = this.props["lightning"]; if (ret) return ret; }
+        if (key == "fire") { ret = this.props["elemental+"]; if (ret) return ret; }
+        if (key == "ice") { ret = this.props["elemental+"]; if (ret) return ret; }
+        if (key == "lightning") { ret = this.props["elemental+"]; if (ret) return ret; }
 
         return ret;
       }
@@ -2678,6 +2704,27 @@
       }
     }
 
+    function getXPathForElement(element)
+    {
+      const idx = (sib, name) => sib
+        ? idx(sib.previousElementSibling, name || sib.localName) + (sib.localName == name)
+        : 1;
+      const segs = elm => !elm || elm.nodeType !== 1
+        ? ['']
+        : elm.id && document.querySelector(`#${elm.id}`) === elm
+          ? [`id("${elm.id}")`]
+          : [...segs(elm.parentNode), `${elm.localName.toLowerCase()}[${idx(elm)}]`];
+      return segs(element).join('/');
+    }
+
+    function getElementByXPath(path)
+    {
+      return (new XPathEvaluator())
+        .evaluate(path, document.documentElement, null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+        .singleNodeValue;
+    } 
+
     animImage = new Image();
     animImage.src = "frontpage/animatedlogo.gif";
     staticImage = new Image();
@@ -2772,24 +2819,59 @@
       <thead><tr><td colspan="5">VALKYRIE 2</td></tr></thead>
       <tbody>
         <tr>
-          <td valign="top" width="300px">
-            <div><b>Valkyrie <span class="right"><span id="1valkquery"></span><a href="#" onclick="app.prevValk(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(1); return false;">Next&gt;</a></span></b></div>
+          <td class="columnValk" valign="top">
+            <div class="columnValkCtrl">
+              <b>Valkyrie</b><br />
+              &nbsp;<span class="columnValkCtrl" id="1valkquery"></span>
+              <span class="columnValkCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevValk(1); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextValk(1); return false;">Next</span>
+              </span>
+            </div>
             <div id="valkMode1"></div>
           </td>
-          <td valign="top">
-            <div><b>Weapon <span class="right"><span id="1weapquery"></span><a href="#" onclick="app.prevWeap(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(1); return false;">Next&gt;</a></span></b></div>
+          <td class="columnWeap" valign="top">
+            <div class="columnWeapCtrl">
+              <b>Weapon</b><br />
+              &nbsp;<span class="columnWeapCtrl" id="1weapquery"></span>
+              <span class="columnWeapCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevWeap(1); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextWeap(1); return false;">Next</span>
+              </span>
+            </div>
             <div id="weapMode1"></div>
           </td>
-          <td valign="top">
-            <div><b>Top Stigmata <span class="right"><span id="1Tstigquery"></span><a href="#" onclick="app.prevStigT(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(1); return false;">Next&gt;</a></span></b></div>
+          <td class="columnStig" valign="top">
+            <div class="columnStigCtrl">
+              <b>Top Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="1Tstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigT(1); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigT(1); return false;">Next</span>
+              </span>
+            </div>
             <div id="TstigMode1"></div>
           </td>
-          <td valign="top">
-            <div><b>Middle Stigmata <span class="right"><span id="1Mstigquery"></span><a href="#" onclick="app.prevStigM(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(1); return false;">Next&gt;</a></span></b></div>
+          <td class="columnStig" valign="top">
+            <div class="columnStigCtrl">
+              <b>Middle Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="1Mstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigM(1); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigM(1); return false;">Next</span>
+              </span>
+            </div>
             <div id="MstigMode1"></div>
           </td>
-          <td valign="top">
-            <div><b>Bottom Stigmata <span class="right"><span id="1Bstigquery"></span><a href="#" onclick="app.prevStigB(1); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(1); return false;">Next&gt;</a></span></b></div>
+          <td valign="top" class="columnStig">
+            <div class="columnStigCtrl">
+              <b>Bottom Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="1Bstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigB(1); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigB(1); return false;">Next</span>
+              </span>
+            </div>
             <div id="BstigMode1"></div>
           </td>
         </tr>
@@ -2800,24 +2882,59 @@
       <thead><tr><td colspan="5">VALKYRIE 3</td></tr></thead>
       <tbody>
         <tr>
-          <td valign="top" width="300px">
-            <div><b>Valkyrie <span class="right"><span id="2valkquery"></span><a href="#" onclick="app.prevValk(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextValk(2); return false;">Next&gt;</a></span></b></div>
+          <td class="columnValk" valign="top">
+            <div class="columnValkCtrl">
+              <b>Valkyrie</b><br />
+              &nbsp;<span class="columnValkCtrl" id="2valkquery"></span>
+              <span class="columnValkCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevValk(2); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextValk(2); return false;">Next</span>
+              </span>
+            </div>
             <div id="valkMode2"></div>
           </td>
-          <td valign="top">
-            <div><b>Weapon <span class="right"><span id="2weapquery"></span><a href="#" onclick="app.prevWeap(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextWeap(2); return false;">Next&gt;</a></span></b></div>
+          <td class="columnWeap" valign="top">
+            <div class="columnWeapCtrl">
+              <b>Weapon</b><br />
+              &nbsp;<span class="columnWeapCtrl" id="2weapquery"></span>
+              <span class="columnWeapCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevWeap(2); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextWeap(2); return false;">Next</span>
+              </span>
+            </div>
             <div id="weapMode2"></div>
           </td>
-          <td valign="top">
-            <div><b>Top Stigmata <span class="right"><span id="2Tstigquery"></span><a href="#" onclick="app.prevStigT(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigT(2); return false;">Next&gt;</a></span></b></div>
+          <td class="columnStig" valign="top">
+            <div class="columnStigCtrl">
+              <b>Top Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="2Tstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigT(2); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigT(2); return false;">Next</span>
+              </span>
+            </div>
             <div id="TstigMode2"></div>
           </td>
-          <td valign="top">
-            <div><b>Middle Stigmata <span class="right"><span id="2Mstigquery"></span><a href="#" onclick="app.prevStigM(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigM(2); return false;">Next&gt;</a></span></b></div>
+          <td class="columnStig" valign="top">
+            <div class="columnStigCtrl">
+              <b>Middle Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="2Mstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigM(2); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigM(2); return false;">Next</span>
+              </span>
+            </div>
             <div id="MstigMode2"></div>
           </td>
-          <td valign="top">
-            <div><b>Bottom Stigmata <span class="right"><span id="2Bstigquery"></span><a href="#" onclick="app.prevStigB(2); return false;">&lt;Prev</a>&nbsp;<a href="#" onclick="app.nextStigB(2); return false;">Next&gt;</a></span></b></div>
+          <td valign="top" class="columnStig">
+            <div class="columnStigCtrl">
+              <b>Bottom Stigmata</b><br />
+              &nbsp;<span class="columnStigCtrl" id="2Bstigquery"></span>
+              <span class="columnStigCtrl" style="float:right">
+                <span class="boxarrow leftarrow" onclick="app.prevStigB(2); return false;">Prev</span>
+                <span class="boxarrow rightarrow" onclick="app.nextStigB(2); return false;">Next</span>
+              </span>
+            </div>
             <div id="BstigMode2"></div>
           </td>
         </tr>
