@@ -1305,22 +1305,6 @@
         app.retoggle();
       }
 
-      drawPropsDisabled(item)
-      {
-        let buf = "";
-        let props = item.props;
-        if (!Array.isArray(props)) props = [props];
-
-        for (let i in props)
-        {
-          buf += "<div class='off' id='" + this.elemProp + this.drawIndex + "' onclick='obj(this).query(" + this.drawIndex + ")' onmouseout='obj(this).outline(" + this.drawIndex + ")' onmouseover='obj(this).outline(" + this.drawIndex + ")'>" + (props[i].if ? props[i].if : props[i]) + "</div>";
-          this.drawIndex += 1;
-          if (props[i].if)
-            buf += this.drawPropsDisabled(props[i]);
-        }
-        return buf;
-      }
-
       sortForRender(render)
       {
         render.sort(this.root);
@@ -1927,14 +1911,6 @@
 
     class Set
     {
-      /*
-      Valk = null;
-      Weap = null;
-      TStig = null;
-      MStig = null;
-      BStig = null;
-      Res = null;
-*/
       constructor(id)
       {
         this.Valk = new ValkUI(id);
@@ -1963,15 +1939,22 @@
         if (this.MStig.root == null) this.MStig.handleQuery(key);
         if (this.BStig.root == null) this.BStig.handleQuery(key);
       }
+
+      checkForGroupProp(name)
+      {
+        if (this.Valk.Res.hasGroup(name)) return true;
+        if (this.Weap.Res.hasGroup(name)) return true;
+        if (this.TStig.Res.hasGroup(name)) return true;
+        if (this.MStig.Res.hasGroup(name)) return true;
+        if (this.BStig.Res.hasGroup(name)) return true;
+      }
     };
 
     ftuestep = 1;
 
     class Collection
     {
-      //      items = { Valks: {}, Weapons: {}, Stigmata: {} };
-
-      constructor()
+       constructor()
       {
         this.items = { Valks: {}, Weapons: {}, Stigmata: {} };
       }
@@ -2074,11 +2057,6 @@
 
     class App
     {
-      //      Set = [];
-      //      All = new Resolver();
-      //      Collection = new Collection();
-      //      Locks = [];
-
       constructor()
       {
         this.Set = [];
@@ -2101,6 +2079,13 @@
         this.exactOverride = false;
 
         this.groupState = {};
+      }
+
+      checkForGroupProp(name)
+      {
+        if (this.Set[0].checkForGroupProp(name)) return true;
+        if (this.Set[1].checkForGroupProp(name)) return true;
+        if (this.Set[2].checkForGroupProp(name)) return true;
       }
 
       toggle(obj)
@@ -2482,10 +2467,6 @@
 
     class Resolver
     {
-      //      props = {};
-      //      ifs = [];
-      //      everything = false;
-
       constructor()
       {
         this.props = {};
@@ -2509,6 +2490,30 @@
         return result.sort();
       }
 
+      hasGroup(key)
+      {
+        let ret = this.group[key];
+        if (ret) return ret;
+
+        let exact = document.getElementById("exact").checked;
+        if (exact) return ret;
+
+        if (key == "fracture") { ret = this.group["timeslow"]; if (ret) return ret; }
+        if (key == "timeslow") { ret = this.group["fracture"]; if (ret) return ret; }
+        if (key == "ignite") { ret = this.group["fire"]; if (ret) return ret; }
+        if (key == "fire") { ret = this.group["ignite"]; if (ret) return ret; }
+        if (key == "elemental+") { ret = this.group["fire"]; if (ret) return ret; }
+        if (key == "elemental+") { ret = this.group["ice"]; if (ret) return ret; }
+        if (key == "elemental+") { ret = this.group["lightning"]; if (ret) return ret; }
+        if (key == "fire") { ret = this.group["elemental+"]; if (ret) return ret; }
+        if (key == "ice") { ret = this.group["elemental+"]; if (ret) return ret; }
+        if (key == "lightning") { ret = this.group["elemental+"]; if (ret) return ret; }
+        if (key == "crit") { ret = this.group["crit+"]; if (ret) return ret; }
+        if (key == "crit+") { ret = this.group["crit"]; if (ret) return ret; }
+
+        return ret;
+      }
+
       has(key)
       {
         let ret = this.props[key];
@@ -2527,8 +2532,8 @@
         if (key == "fire") { ret = this.props["elemental+"]; if (ret) return ret; }
         if (key == "ice") { ret = this.props["elemental+"]; if (ret) return ret; }
         if (key == "lightning") { ret = this.props["elemental+"]; if (ret) return ret; }
-        if (name == "crit") { ret = this._has("crit+"); if (ret) return ret; }
-        if (name == "crit+") { ret = this._has("crit"); if (ret) return ret; }
+        if (key == "crit") { ret = this.props["crit+"]; if (ret) return ret; }
+        if (key == "crit+") { ret = this.props["crit"]; if (ret) return ret; }
 
         return ret;
       }
