@@ -183,10 +183,12 @@ Divine Prayer
 
 [(B)[Kiana,pistol,PSY],(A)[physical|a,aoe|a,weaken|a,(crit)[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice|v,dot|v,heal|gv,physical|s,(float)[stun]|s,charge|c,physical|c,knockback|c,(paralyze)[dmg+,physical,heal|g]|q,burst|u,fracture|u,dmg+|u,heal dot|gu,elem dmg+|gl,elem dmg-|gl],(S)[(combo)[crit+]|p,CD+|v,debuff-|gs,def-|s],(SS)[heal|gu,move+|gu,speed+|gu],(SSS)[rescue|x]]
 
+[(B)[Kiana,pistol,PSY],(A)[physical|a,aoe|a,weaken|a,{crit}[heal|g]|a,lightning|x,impair|x,def-|x,float|v,timelock|v,bleed|v,ice|v,dot|v,heal|gv,physical|s,(float)[stun]|s,switch|s,combo|c,charge|c,physical|c,knockback|c,(paralyze)[QTE,dmg+,physical,heal|g]|q,burst|u,fracture|u,heal dot|gu,(leader)[elemental+|g,elemental-|g]|l],(S)[(combo)[crit+]|p,CD+|v,debuff-|gs,def-|s],(SS)[heal|gu,move+|gu,speed+|gu],(SSS)[rescue|x]]"
+
 Kiana
 pistol
 PSY
-attack
+attack 
  physical
  aoe
  weaken A

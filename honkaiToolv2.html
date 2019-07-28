@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+ <!DOCTYPE HTML>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
@@ -2632,6 +2632,33 @@
         return ret;
       }
     };
+
+    class Searcher
+    {
+      constructor()
+      {
+        this._collection = false;
+        this._locks = [];
+        this._props = true;
+        this._triggers = true;
+        this._exact = false;
+      }
+
+      collection(b) { this._collection = b; return this; }
+      locks(b) { this._locks = b; return this; }
+      props(b) { this._props = b; return this; }
+      triggers(b) { this._triggers = b; return this; }
+      exact(b) { this._exact = b; return this; }
+      source(s) { return this; }
+      searchByName(term)
+      {
+
+      }
+      searchByProp(term)
+      {
+
+      }
+    }
 
     var app = null;
 
