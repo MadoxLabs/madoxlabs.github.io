@@ -33,27 +33,35 @@
     <div id='header'><a href='#1' onmouseover="logo.src=animImage.src;" onmouseout="logo.src=staticImage.src;"><img name="logo" src="frontpage/logo.jpg" /></a></div>
 
     <div class="slide" ><div class="scrollWindow">
-      <a href='#2'><h2>Noise Tool</h2></a><p>GUI for manipulating Perlin Noise</p><br />
-      <a href='#3'><h2>Escape Game</h2></a><p>A WebGL point and click escape room game.</p><br />
-      <a href='#4'><h2>CodeImage</h2></a><p>A way to encode javascript in images</p><br />
-      <a href='#5'><h2>WebGL Projects</h2></a><p>I have many WebGL projects on the go</p><br />
-      <a href='#6'><h2>Escape Room Tycoon</h2></a><p>A new game demo I'm working on</p><br />
-      <a href='#7'><h2>Misc</h2></a><p>Misc javascript things I have made</p><br />
+      <a href='#3'><h2>Rendering Engines</h2></a><p>My first passion is making my own rendering engines.</p><br />
+      <a href='#2'><h2>Games</h2></a><p>Some games that I have made or am working on</p><br />
+      <a href='#4'><h2>Apps</h2></a><p>A few cool apps I made</p><br />
+      <a href='#11'><h2>Misc</h2></a><p>Misc javascript things I have made</p><br />
     </div></div>
 
-    <div class="slide"><div class="scrollWindow">
-      <img src="frontpage/noisetitle.jpg" /><br />
-      <p>NoiseTool is a front end for the LibNoise library that lets you manipulate noise modules and view their output in realtime, by connecting outputs to sources. It can apply colour gradients to the data to create bitmap image representations, much like the original noise library utils can do.</p>
-      <br />
-      <p>I use this noise library a lot to create heightmaps, voxel maps and procedural textures, and I got tired of playing with numbers in code and not really getting to see what it is that the numbers are doing without rendering the whole scene in game. I created this tool to help me see exactly what types of images I will get, if certain noise modules are connected a certain way.</p>
-      <br />
-      <a href="https://madoxlabs.github.io/NoiseTool/">Launch NoiseTool</a><br /><br />
-      <a href="https://github.com/MadoxLabs/NoiseTool/">NoiseTool repository</a><br />
-      <a href="https://github.com/MadoxLabs/NoiseTool/wiki">NoiseTool documentation</a><br />
-      <br />
-      <a href="frontpage/noiseimage1.jpg" rel="lightbox" title="NoiseTool Example"><img width=200 src='frontpage/noiseimage1.jpg' class=scale></a>
-      <a href="frontpage/noiseimage2.jpg" rel="lightbox" title="NoiseTool Terrain"><img width=200 src='frontpage/noiseimage2.jpg' class=scale></a>
-    </div><h1><a href='#1'>Home</a></h1></div>
+    <div class="slide">
+      <div class="scrollWindow">
+        <h2>Games</h2><br />
+        <a href='#5'><h2>Escape Game</h2></a><p>A WebGL point and click 3D escape room game, using my own engine.</p><br />
+        <a href='#6'><h2>Escape Room Tycoon</h2></a><p>A new game demo I'm working on where you design and manage escape rooms.</p><br />
+        </div><h1><a href='#1'>Home</a></h1>
+    </div>
+
+    <div class="slide">
+      <div class="scrollWindow">
+        <h2>Rendering Engines</h2><br />
+        <a href='#7'><h2>MX Framework</h2></a><p>My own WebGL engine, in development</p><br />
+        <a href='#8'><h2>Real Time Ray Tracing</h2></a><p>A ray tracer I wrote in a single GLSL shader.</p><br />
+        </div><h1><a href='#1'>Home</a></h1>
+    </div>
+
+    <div class="slide">
+      <div class="scrollWindow">
+        <h2>Apps</h2><br />
+        <a href='#9'><h2>Noise Tool</h2></a><p>GUI for manipulating Perlin Noise</p><br />
+        <a href='#10'><h2>CodeImage</h2></a><p>A way to encode javascript in images</p><br />
+        </div><h1><a href='#1'>Home</a></h1>
+    </div>
 
     <div class="slide">
       <div class="scrollWindow">
@@ -61,16 +69,17 @@
         <p>Escape is my first WebGL escape room simulation. It's based on the old one room adventure games that we used to play back in the flash days. Originally made for the Oculus Devkit 1, it no longer works in VR but its still fun! Can you use the clues and figure out how to open the door?</p>
         <br />
         <a href="http://madox.ca/WebGL/Escape/">Launch Escape Game</a><br />
-      </div><h1><a href='#1'>Home</a></h1>
+      </div><h1><a href='#2'>Back</a></h1>
     </div>
 
-    <div class="slide"><div class="scrollWindow">
-      <h2>CodeImage</h2><br />
-      <p>CodeImage lets you encode javascript into an image. Webpages can load and run code directly from the image.</p>
-      <p>CodeImage is currently used by my webgl engine as a way to load model assets. All the model data is converted to JSON and encoded as a jpg. The JSON gets read from the image at run time and is ready to use immediately with no processing or parsing.</p>
-      <br />
-      <a href="http://madoxlabs.github.io/CodeImage">More information here</a><br />
-    </div><h1><a href='#1'>Home</a></h1></div>
+    <div class="slide">
+      <div class="scrollWindow">
+        <h2>Escape Room Tycoon</h2><br />
+        <br />
+        <p>This is a demo of an idea I had for a tycoon type game where you are in charge of designing and running escape rooms. AI customers will come and play your rooms. Can you keep the business afloat?</p>
+        <a href="http://madox.ca/EscapeGameTycoon/">Launch Game Demo</a><br />
+      </div><h1><a href='#2'>Back</a></h1>
+    </div>
 
     <div class="slide"><div class="scrollWindow">
       <h2>WebGL</h2>
@@ -87,17 +96,40 @@
       <h2>mxFrame</h2>
       <p>MXFrame is the third generation of my graphics engine for WebGL, based on earlier DirectX versions.</p>
       <a href="https://github.com/MadoxLabs/WebGL/tree/gh-pages/mxFrame">MXFrame repository</a><br />
-    </div><h1><a href='#1'>Home</a></h1></div>
-
+    </div><h1><a href='#3'>Back</a></h1></div>
+    
     <div class="slide">
       <div class="scrollWindow">
-        <h2>Escape Room Tycoon</h2><br />
+        <h2>Ray Tracing</h2><br />
         <br />
-        <p>This is a demo of an idea I had for a tycoon type game where you are in charge of designing and running escape rooms. AI customers will come and play your rooms. Can you keep the business afloat?</p>
-        <a href="http://madox.ca/EscapeGameTycoon/">Launch Game Demo</a><br />
-      </div><h1><a href='#1'>Home</a></h1>
+        <p></p>
+        <a href="http://madox.ca/WebGL/RayGL/">Launch Real Time Ray Tracer</a><br />
+        <a href="http://madox.ca/WebGL/Ray/">Ray Tracing testbed</a><br />
+      </div><h1><a href='#3'>Back</a></h1>
     </div>
-    
+
+    <div class="slide"><div class="scrollWindow">
+      <img src="frontpage/noisetitle.jpg" /><br />
+      <p>NoiseTool is a front end for the LibNoise library that lets you manipulate noise modules and view their output in realtime, by connecting outputs to sources. It can apply colour gradients to the data to create bitmap image representations, much like the original noise library utils can do.</p>
+      <br />
+      <p>I use this noise library a lot to create heightmaps, voxel maps and procedural textures, and I got tired of playing with numbers in code and not really getting to see what it is that the numbers are doing without rendering the whole scene in game. I created this tool to help me see exactly what types of images I will get, if certain noise modules are connected a certain way.</p>
+      <br />
+      <a href="https://madoxlabs.github.io/NoiseTool/">Launch NoiseTool</a><br /><br />
+      <a href="https://github.com/MadoxLabs/NoiseTool/">NoiseTool repository</a><br />
+      <a href="https://github.com/MadoxLabs/NoiseTool/wiki">NoiseTool documentation</a><br />
+      <br />
+      <a href="frontpage/noiseimage1.jpg" rel="lightbox" title="NoiseTool Example"><img width=200 src='frontpage/noiseimage1.jpg' class=scale></a>
+      <a href="frontpage/noiseimage2.jpg" rel="lightbox" title="NoiseTool Terrain"><img width=200 src='frontpage/noiseimage2.jpg' class=scale></a>
+    </div><h1><a href='#4'>Back</a></h1></div>
+
+    <div class="slide"><div class="scrollWindow">
+      <h2>CodeImage</h2><br />
+      <p>CodeImage lets you encode javascript into an image. Webpages can load and run code directly from the image.</p>
+      <p>CodeImage is currently used by my webgl engine as a way to load model assets. All the model data is converted to JSON and encoded as a jpg. The JSON gets read from the image at run time and is ready to use immediately with no processing or parsing.</p>
+      <br />
+      <a href="http://madoxlabs.github.io/CodeImage">More information here</a><br />
+    </div><h1><a href='#4'>Back</a></h1></div>
+
     <div class="slide"><div class="scrollWindow">
       <h2>Misc Javascript projects</h2><br />
       <br />
@@ -129,8 +161,8 @@
     </div><h1><a href='#1'>Home</a></h1></div>
 
     <div id='footer'>
-      <a href='#8'>Contact</a> | 
-      <a href='#9'>About</a>
+      <a href='#12'>Contact</a> | 
+      <a href='#13'>About</a>
     </div>
 
     <div id="followButtons">
