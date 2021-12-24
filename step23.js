@@ -55,8 +55,19 @@ class board
     copy()
     {
         let ret = new board();
-        ret.hall = JSON.parse(JSON.stringify(this.hall));
-        ret.rooms = JSON.parse(JSON.stringify(this.rooms));
+        for (let h=0; h <= 10; ++h) 
+        {
+            ret.hall[h] = this.hall[h];
+        }
+
+        for (let r=1; r <= 4; ++r) 
+        {
+            ret.rooms[r][0] = this.rooms[r][0];
+            ret.rooms[r][1] = this.rooms[r][1];
+            ret.rooms[r][2] = this.rooms[r][2];
+            ret.rooms[r][3] = this.rooms[r][3];
+        }        
+
         ret.cost = this.cost;
         return ret;        
     }
@@ -214,10 +225,17 @@ class board
 
     checkWin()
     {
-        for (let i in this.hall)
-        {
-            if (this.hall[i] != 0) return false;
-        }
+        if (this.hall[0] != 0) return false;
+        if (this.hall[1] != 0) return false;
+        if (this.hall[2] != 0) return false;
+        if (this.hall[3] != 0) return false;
+        if (this.hall[4] != 0) return false;
+        if (this.hall[5] != 0) return false;
+        if (this.hall[6] != 0) return false;
+        if (this.hall[7] != 0) return false;
+        if (this.hall[8] != 0) return false;
+        if (this.hall[9] != 0) return false;
+        if (this.hall[10] != 0) return false;
         if (this.rooms[1][0] != 1) return false;
         if (this.rooms[1][1] != 1) return false;
         if (this.rooms[1][2] != 1) return false;
@@ -240,7 +258,7 @@ class board
             low = this.cost;
             console.log();
             console.log(this.step);
-            console.log();
+            console.log("cost: "+low);
             save();
         }
         return true;
@@ -249,6 +267,7 @@ class board
 
 function save()
 {
+    return;
             // save state
             let data = {};
             data.stack = stack;
@@ -300,7 +319,7 @@ let winner = null;
 
 while (stack.length)
 {
-    process.stdout.write("boards: "+stack.length+"    deadends: "+deadend+" win cost: "+low+" avoided loops: "+bad+"           \r");
+//    process.stdout.write("boards: "+stack.length+"    deadends: "+deadend+" win cost: "+low+" avoided loops: "+bad+"           \r");
     let n = 0;
     let board = stack[n];
 
@@ -319,4 +338,4 @@ while (stack.length)
         break;
     }
 }
-process.stdout.write("boards: "+stack.length+"    deadends: "+deadend+" win cost: "+low+" avoided loops: "+bad+"           \r");
+//process.stdout.write("boards: "+stack.length+"    deadends: "+deadend+" win cost: "+low+" avoided loops: "+bad+"           \r");
