@@ -16,6 +16,7 @@ class Button
         this.pressed = false;
         this.visible = true;
 
+        this.count = 0;
         Game.buttons.push(this);
     }
 
@@ -49,6 +50,19 @@ class Button
         Game.context.font = '10pt sans-serif';
         Game.context.fillText(this.text, this.x+20, this.y+20);
 
+        if (this.isSkill)
+        {
+            Game.context.beginPath();
+            Game.context.strokeStyle = "#000000";
+            Game.context.fillStyle = "#ffff00"
+            Game.context.arc(this.x+this.w-12, this.y+15, 14, 0, 2 * Math.PI);
+            Game.context.fill();
+            Game.context.stroke();
+            Game.context.fillStyle = "#000000"
+            Game.context.font = '14pt sans-serif';
+            Game.context.fillText(""+this.count, this.x+this.w-16, this.y+22);
+        }
+
         let y = this.y+20;
         for (let d in this.desc)
         {
@@ -59,8 +73,6 @@ class Button
 
     update()
     {
-        if (!this.visible) return;
-
         this.hover = false;
         this.pressed = false;
         if (this.x < Game.mouse.X && Game.mouse.X < (this.x + this.w))
@@ -68,7 +80,7 @@ class Button
             if (this.y < (Game.mouse.Y-40) && (Game.mouse.Y-40) < (this.y + this.h))
             {
                 this.hover = true;
-                if (Game.mouse.down)
+                if (this.visible && Game.mouse.down)
                 {
                     this.pressed = true;
                 }
@@ -252,6 +264,7 @@ Game.postInit = function ()
         y += button.h + 10;
     }
 
+    Game.countSkills();
 }
 
 Game.msg = function(txt)
@@ -341,6 +354,7 @@ Game.fireMouseEvent = function (type, mouse)
                     if (Game.slots[Game.essences[s].slot].essence) Game.essences[s].button.visible = false;
                 }
                 Game.placeEssences();
+                Game.countSkills();
             }
         }        
     }
@@ -358,8 +372,68 @@ Game.fireMouseEvent = function (type, mouse)
         {
             // click drag
         }
+
+        Game.handleHover();
     }
 };
+
+Game.handleHover = function()
+{
+    Game.msg("Ready. Hover over buttons for help.");
+    for (let b in Game.buttons)
+    {
+        let button = Game.buttons[b];
+        if (button.hover == false) continue;
+
+        if (button.isSlot)
+        {
+            if (button.visible)
+            {
+                if (button.toggle)
+                    Game.msg( button.text + " slot is empty. Click an essence to fill it. Click to view all essences" );
+                else
+                    Game.msg( button.text + " slot is empty. Click an essence to fill it. Click to view only "+button.text+" essences." );
+            }
+            else
+            {
+                if (button.toggle)
+                    Game.msg( button.text + " slot is filled. Click the locked essence to empty it. Click to view all essences" );
+                else
+                    Game.msg( button.text + " slot is filled. Click the locked essence to empty it. Click to view only "+button.text+" essences." );
+            }
+        }
+
+        if (button.isSkill)
+        {
+            if (button.toggle)
+            {
+                if (button.count == 1)
+                    Game.msg( "There is "+button.count+" "+ button.text+" essence available. Click to view all essences.");
+                else if (button.count == 0)
+                    Game.msg( "There are no "+ button.text+" essences available. Click to view all essences.");
+                else                  
+                    Game.msg( "There are "+button.count+" "+ button.text+" essences available. Click to view all essences.");
+            }
+            else
+            {
+                if (button.count == 1)
+                    Game.msg( "There is "+button.count+" "+ button.text+" essence available. Click to only see them");
+                else if (button.count == 0)
+                    Game.msg( "There are no "+ button.text+" essences available.");
+                else
+                    Game.msg( "There are "+button.count+" "+ button.text+" essences available. Click to only see them");
+            }
+        }
+
+        if (button.isEssence)
+        {
+            if (button.locked)
+                Game.msg("This essence is assigned to a slot. Click to unassign it.");
+            else if (button.visible)
+                Game.msg("Click to assign this essence to a slot.");
+        }
+    }
+}
 
 // main update function
 Game.update = function (dt)
@@ -386,6 +460,25 @@ Game.placeEssences = function()
         {
             button.y = y;
             y += button.h + 10;
+        }
+    }
+}
+
+Game.countSkills = function()
+{
+    for (let s in Game.skills)
+    {
+        Game.skills[s].count = 0;
+    }
+    for (let e in Game.essences)
+    {
+        let button = Game.essences[e].button;
+        let slot = button.text.split("-")[1].trim();
+        let skill = button.text.split("-")[2].trim();
+
+        if (Game.slots[slot].button.visible)
+        {
+            Game.skills[skill].count += 1;
         }
     }
 }
