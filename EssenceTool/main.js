@@ -230,6 +230,13 @@ Game.postInit = function ()
     Game.essences["Starcaller's Breeches"] = { desc: ["Meteor now continually damages enemies an area, but no longer Stuns."], skill: "Meteor", slot: "Pants" };
     Game.essences["Time warped Cloth"] = { desc: ["Teleport can now be recast, transporting you back to your original location."], skill: "Teleport", slot: "Pants" };
 
+    Game.essences["Charged Stigma"] = { desc: ["Electrocute also increases your Primary Attack Speed by 6% for two seconds,","stacking up to a maximum of five times."], skill: "Electrocute", slot: "Offhand" };
+    Game.essences["Crushing Weight"] = { desc: ["Teleport also increases your damage by 10% for three seconds."], skill: "Teleport", slot: "Head" };
+    Game.essences["Galebrinde "] = { desc: ["Ice Armor also causes your Primary Attacks to decrease enemy Movement Speed by 40% for three seconds."], skill: "Ice Armor", slot: "Shoulder" };
+    Game.essences["Novel Castigation"] = { desc: ["Arcane Torrent also fires tracking missiles that seek out enemies, dealing damage."], skill: "Arcane Torrent", slot: "Pants" };
+    Game.essences["Ol' Rustic"] = { desc: ["Lightning Nova also increases your Primary Attack Speed by 30% for three seconds."], skill: "Lightning Nova", slot: "Weapon" };
+    Game.essences["Rampant and Inscrutable"] = { desc: ["Lightning Nova now conjures a lightning orb that orbits you, firing chain lightning at your target","when you use your Primary Attack."], skill: "Lightning Nova", slot: "Chest" };
+
     Game.buttons = [];
     let y = 5;
     for ( let s in Game.slots)
@@ -470,11 +477,20 @@ Game.countSkills = function()
     {
         Game.skills[s].count = 0;
     }
+
+    let toggleExists = false;
+    for (let e in Game.slots)
+    {
+        if (Game.slots[e].button.toggle) toggleExists = true;
+    }
+
     for (let e in Game.essences)
     {
         let button = Game.essences[e].button;
         let slot = button.text.split("-")[1].trim();
         let skill = button.text.split("-")[2].trim();
+
+        if (toggleExists && !Game.slots[slot].button.toggle) continue;
 
         if (Game.slots[slot].button.visible)
         {
