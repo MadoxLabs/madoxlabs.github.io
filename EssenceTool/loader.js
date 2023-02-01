@@ -3,11 +3,18 @@
 // For now, the loader only makes a load function available to boot up the game.
 
 var Game = {};
+Game.classes = {};
 
 (function () {
     // These are the source files that need including
     var gameSrc = [
         "mouse.js",
+        "wiz.js",
+        "barb.js",
+        "necro.js",
+        "crus.js",
+        "dh.js",
+        "monk.js",
         "main.js"];
     var loadState = 0; // how many files are left to include, so we know when we're done
 

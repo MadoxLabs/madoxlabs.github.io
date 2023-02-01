@@ -9,7 +9,25 @@
 <body onload="Game.loadApp();">
     <div id="loading"><p style="font-size:30px; font-family:Impact; color:red">LOADING...</p></div>
     <div id="game" style="display:none">
-        <div id="msg"></div>
+        <table>
+            <tr>
+                <td>
+                    <div id="classpicker">
+                        Class: <select name="classname" id="classname" onchange="Game.onClassChange()">
+                            <option value="barb">Barbarian</option>
+                            <option value="crus">Crusader</option>
+                            <option value="dh">Demon Hunter</option>
+                            <option value="monk">Monk</option>
+                            <option value="necro">Necromancer</option>
+                            <option value="wiz" selected>Wizard</option>
+                          </select> | 
+                    </div>
+                </td>
+                <td>
+                    <div id="msg"></div>
+                </td>
+            </tr>
+        </table>
         <canvas id="surface"></canvas>
     </div>
 </body>
