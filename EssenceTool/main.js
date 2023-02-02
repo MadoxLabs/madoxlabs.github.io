@@ -153,7 +153,7 @@ Game.dataSetup = function()
     Game.lastSkillPressed = null;
     Game.lastSlotPressed= null;
     Game.lastTermPressed = null;
-    
+
     Game.slots = {}; // name : { button, essence }
     Game.slots["Head"] = null;
     Game.slots["Shoulder"] = null;
@@ -459,6 +459,9 @@ Game.countSkills = function()
 
         if (Game.lastTermPressed && (!Game.essences[e].terms.includes( Game.lastTermPressed.text))) continue;
 
+        if (!Game.slots[slot]) alert(slot +" missing")
+        if (!Game.skills[skill]) alert(skill +" missing")
+;    
         if (Game.slots[slot].button.visible)
         {
             Game.skills[skill].count += 1;
