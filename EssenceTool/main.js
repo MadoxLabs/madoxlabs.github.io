@@ -323,6 +323,12 @@ Game.fireMouseEvent = function (type, mouse)
                     let termButton = Game.terms[s];
                     let term = termButton.text;
                     termButton.visible = ( allterms.includes(" "+term+" ") );
+                    if (termButton.visible == false && termButton.toggle) 
+                    {
+//                        termButton.toggle = false;
+//                        Game.lastTermPressed = null;
+                        termButton.visible = true;
+                    }
                 }
 
                 Game.placeEssences();
