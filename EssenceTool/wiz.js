@@ -122,10 +122,10 @@ Wiz = {};
      Wiz.essences["Galebrinde "] = { terms: " primary debuff ", desc: ["Ice Armor also causes your Primary Attacks to decrease enemy Movement Speed by 40% for","three seconds."], skill: "Ice Armor", slot: "Shoulder" };
      Wiz.essences["Novel Castigation"] = { terms: " autoaim ", desc: ["Arcane Torrent also fires tracking missiles that seek out enemies, dealing damage."], skill: "Arcane Torrent", slot: "Pants" };
      Wiz.essences["Ol' Rustic"] = { terms: " primary atk speed ", desc: ["Lightning Nova also increases your Primary Attack Speed by 30% for three seconds."], skill: "Lightning Nova", slot: "Weapon" };
-     Wiz.essences["Rampant and Inscrutable"] = { terms: " summon primary ", desc: ["Lightning Nova now conjures a lightning orb that orbits you, firing chain","lightning at your target","when you use your Primary Attack."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Rampant and Inscrutable"] = { terms: " summon primary ", desc: ["Lightning Nova now conjures a lightning orb that orbits you, firing chain","lightning at your target when you use your Primary Attack."], skill: "Lightning Nova", slot: "Chest" };
 
      Wiz.essences["Sticle Burr"] = { terms: " aoe ", desc: ["When Magic Missile deals a critical hit, it explodes and deals additional damage to all nearby enemies."], skill: "Magic Missile", slot: "Offhand" };
-     Wiz.essences["Silver LIning"] = { terms: " selfbuff ", desc: ["Black Hole now devours the power of enemies caught within it, increasing the damage you deal for 2 seconds"], skill: "Black Hole", slot: "Head" };
+     Wiz.essences["Silver LIning"] = { terms: " selfbuff ", desc: ["Black Hole now devours the power of enemies caught within it, increasing the damage you deal","for 2 seconds"], skill: "Black Hole", slot: "Head" };
      Wiz.essences["Spars of Energy "] = { terms: " effectiveness up ", desc: ["Generate a charge of Teleport when you defeat an enemy."], skill: "Teleport", slot: "Shoulder" };
      Wiz.essences["Greaves of the Firmament"] = { terms: " effectiveness up ", desc: ["Disintegrate deals additional damage every 3 hits"], skill: "Disintegrate", slot: "Pants" };
      Wiz.essences["Thistle Bloom"] = { terms: " aoe gather ", desc: ["Arcane Wind now conjures a storm that grows over time, pulling in and damaging nearby enemies."], skill: "Arcane Wind", slot: "Weapon" };
