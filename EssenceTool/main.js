@@ -158,9 +158,11 @@ Game.dataSetup = function()
     Game.slots["Head"] = null;
     Game.slots["Shoulder"] = null;
     Game.slots["Chest"] = null;
-    Game.slots["Weapon"] = null;
-    Game.slots["Offhand"] = null;
     Game.slots["Pants"] = null;
+    Game.slots["Weapon 1"] = null;
+    Game.slots["Offhand 1"] = null;
+    Game.slots["Weapon 2"] = null;
+    Game.slots["Offhand 2"] = null;
     
     Game.buttons = [];
     let y = 5;
@@ -278,24 +280,61 @@ Game.fireMouseEvent = function (type, mouse)
                     // lock the essence
                     // turn off that skill
                     let slot = button.text.split("-")[1].trim();
-                    if (button.locked)
+                    if (slot == "Weapon" || slot == "Offhand")
                     {
-                        if (Game.slots[slot].essence)
+                        let slot1 = slot + " 1";
+                        let slot2 = slot + " 2";
+                        if (button.locked)
                         {
-                            Game.slots[slot].button.visible = true;
-                            Game.slots[slot].essence = null;
-                        }                            
-                        button.locked = false;
+                            if (Game.slots[slot1].essence == button.essence)
+                            {
+                                Game.slots[slot1].button.visible = true;
+                                Game.slots[slot1].essence = null;
+                            }                            
+                            if (Game.slots[slot2].essence == button.essence)
+                            {
+                                Game.slots[slot2].button.visible = true;
+                                Game.slots[slot2].essence = null;
+                            }                            
+                            button.locked = false;
+                        }
+                        else
+                        {
+                            if (!Game.slots[slot1].essence)
+                            {
+                                Game.slots[slot1].button.visible = false;
+                                Game.slots[slot1].essence = button.essence;    
+                            }
+                            else if (!Game.slots[slot2].essence)
+                            {
+                                Game.slots[slot2].button.visible = false;
+                                Game.slots[slot2].essence = button.essence;    
+                            }
+                            button.locked = true;
+                        }    
+
                     }
                     else
                     {
-                        if (Game.slots[slot].essence)
+                        if (button.locked)
                         {
-                            Game.slots[slot].essence.button.locked = false;
+                            if (Game.slots[slot].essence)
+                            {
+                                Game.slots[slot].button.visible = true;
+                                Game.slots[slot].essence = null;
+                            }                            
+                            button.locked = false;
                         }
-                        Game.slots[slot].button.visible = false;
-                        Game.slots[slot].essence = button.essence;
-                        button.locked = true;
+                        else
+                        {
+                            if (Game.slots[slot].essence)
+                            {
+                                Game.slots[slot].essence.button.locked = false;
+                            }
+                            Game.slots[slot].button.visible = false;
+                            Game.slots[slot].essence = button.essence;
+                            button.locked = true;
+                        }    
                     }
                 }
 
@@ -309,9 +348,20 @@ Game.fireMouseEvent = function (type, mouse)
                     Game.essences[s].button.visible = true;
                     if (Game.essences[s].button.locked) continue;
                     if (Game.lastSkillPressed && (ess.skill != Game.lastSkillPressed.text)) Game.essences[s].button.visible = false;
-                    if (Game.lastSlotPressed && (ess.slot != Game.lastSlotPressed.text)) Game.essences[s].button.visible = false;
+                    if (Game.lastSlotPressed && (Game.lastSlotPressed.text.includes(ess.slot) == false)) Game.essences[s].button.visible = false;
                     if (Game.lastTermPressed && (!ess.terms.includes( " "+Game.lastTermPressed.text + " "))) Game.essences[s].button.visible = false;
-                    if (Game.slots[Game.essences[s].slot].essence) Game.essences[s].button.visible = false;
+
+                    let slot = Game.essences[s].slot;
+                    if (slot == "Weapon" || slot == "Offhand")
+                    {
+                        let slot1 = slot +  " 1";
+                        let slot2 = slot +  " 2";
+                        if (Game.slots[slot1].essence && Game.slots[slot2].essence) Game.essences[s].button.visible = false;
+                    }
+                    else
+                    {
+                        if (Game.slots[Game.essences[s].slot].essence) Game.essences[s].button.visible = false;
+                    }
 
                     if (Game.essences[s].button.visible) allterms +=  ess.terms;
                 }
@@ -461,16 +511,37 @@ Game.countSkills = function()
         let slot = button.text.split("-")[1].trim();
         let skill = button.text.split("-")[2].trim();
 
-        if (toggleExists && !Game.slots[slot].button.toggle) continue;
+        let slot1 = null;
+        let slot2 = null;
+        if (slot == "Weapon" || slot == "Offhand")
+        {
+            slot1 = slot + " 1";
+            slot2 = slot + " 2";
+        }
+
+        if (slot1 && slot2)
+        {
+            if (toggleExists && !Game.slots[slot1].button.toggle && !Game.slots[slot2].button.toggle) continue;
+        }
+        else
+        {
+            if (toggleExists && !Game.slots[slot].button.toggle) continue;
+        }
 
         if (Game.lastTermPressed && (!Game.essences[e].terms.includes( Game.lastTermPressed.text))) continue;
 
-        if (!Game.slots[slot]) alert(slot +" missing")
         if (!Game.skills[skill]) alert(skill +" missing")
-;    
-        if (Game.slots[slot].button.visible)
+
+        if (slot1 && slot2)
         {
-            Game.skills[skill].count += 1;
+            if (!Game.slots[slot1]) alert(slot +" missing");
+            if (!Game.slots[slot2]) alert(slot +" missing");
+            if (Game.slots[slot1].button.visible || Game.slots[slot2].button.visible) Game.skills[skill].count += 1;
+        }
+        else
+        {
+            if (!Game.slots[slot]) alert(slot +" missing");
+            if (Game.slots[slot].button.visible) Game.skills[skill].count += 1;
         }
     }
 }

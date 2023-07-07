@@ -14,6 +14,7 @@ Game.classes = {};
         "necro.js",
         "crus.js",
         "dh.js",
+        "blood.js",
         "monk.js",
         "main.js"];
     var loadState = 0; // how many files are left to include, so we know when we're done
