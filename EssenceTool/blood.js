@@ -96,15 +96,15 @@ Blood.essences["Oversight"]             = { terms: " heal ", desc: ["Swarm of Ba
 Blood.essences["Relent Not"]            = { terms: " movement control ", desc: ["Spear Flurry now causes you to run forward, damaging and knocking back all enemies in your ","path."], skill: "Spear Flurry", slot: "Pants" };
 Blood.essences["Reliable Peril"]        = { terms: " aoe dot ", desc: ["Abomination also conjures an unholy aura around you for the duration of your transformation, ","dealing damage every second to nearby enemies."], skill: "Abomination", slot: "Pants" };
 
-Blood.essences["Bats and Men Both"]    = { terms: "  ", desc: ["Swarm of Bats now unleashes a barrage of bats, damaging enemies in their path."], skill: "Swarm of Bats", slot: "Shoulder" };
-Blood.essences["Bright Arrival"]       = { terms: "  ", desc: ["While Abomination is active, defeating an enemy increases the remaining duration of Abomination ","by .4 seconds, up to a maximum increase of 4.8 seconds."], skill: "Abomination", slot: "Shoulder" };
-Blood.essences["Consent to Ecstasy"]   = { terms: "  ", desc: ["While Abomination is active, defeating an enemy grants you Abomination's Might increasing your ","damage done by 3%, up to a maximum of 15% during your transformation."], skill: "Abomination", slot: "Shoulder" };
-Blood.essences["Dismal Figure"]        = { terms: "  ", desc: ["Mephitic Cloud also causes harmful effects to last 30% longer."], skill: "Mephetic Cloud", slot: "Shoulder" };
-Blood.essences["Empress Pariah"]       = { terms: "  ", desc: ["Siphon Blood also converts 6% of the damage done into an absorb shield."], skill: "Siphon Blood", slot: "Shoulder" };
-Blood.essences["Evil Thoughts"]        = { terms: "  ", desc: ["Umbral Lance maximum charges increased by 1."], skill: "Umbral Lance", slot: "Shoulder" };
-Blood.essences["Fernam's Birthmantle"] = { terms: "  ", desc: ["Spear Flurry also causes enemies to Bleed for 3 seconds, dealing additional damage."], skill: "Spear Flurry", slot: "Shoulder" };
-Blood.essences["The Numbing Edge"]     = { terms: "  ", desc: ["Siphon Blood now also deals 20% increased damage to enemies suffering from continual damage ","effects."], skill: "Siphon Blood", slot: "Shoulder" };
-Blood.essences["Solemn Snare"]         = { terms: "  ", desc: ["Swarm of Bats now shrouds you in a fog of blood mist, increasing your Movement Speed and ","making you untargetable while also dealing damage to nearby enemies."], skill: "Swarm of Bats", slot: "Shoulder" };
-Blood.essences["Swarmspeaker"]         = { terms: "  ", desc: ["Swarm of Bats now engulfs you in a cloud of bats, continually damaging to nearby enemies."], skill: "Swarm of Bats", slot: "Shoulder" };
+Blood.essences["Bats and Men Both"]    = { terms: " aoe ", desc: ["Swarm of Bats now unleashes a barrage of bats, damaging enemies in their path."], skill: "Swarm of Bats", slot: "Shoulder" };
+Blood.essences["Bright Arrival"]       = { terms: " effectiveness up ", desc: ["While Abomination is active, defeating an enemy increases the remaining duration of Abomination ","by .4 seconds, up to a maximum increase of 4.8 seconds."], skill: "Abomination", slot: "Shoulder" };
+Blood.essences["Consent to Ecstasy"]   = { terms: " selfbuff ", desc: ["While Abomination is active, defeating an enemy grants you Abomination's Might increasing your ","damage done by 3%, up to a maximum of 15% during your transformation."], skill: "Abomination", slot: "Shoulder" };
+Blood.essences["Dismal Figure"]        = { terms: " debuff ", desc: ["Mephitic Cloud also causes harmful effects to last 30% longer."], skill: "Mephetic Cloud", slot: "Shoulder" };
+Blood.essences["Empress Pariah"]       = { terms: " shield ", desc: ["Siphon Blood also converts 6% of the damage done into an absorb shield."], skill: "Siphon Blood", slot: "Shoulder" };
+Blood.essences["Evil Thoughts"]        = { terms: " effectiveness up ", desc: ["Umbral Lance maximum charges increased by 1."], skill: "Umbral Lance", slot: "Shoulder" };
+Blood.essences["Fernam's Birthmantle"] = { terms: " dot ", desc: ["Spear Flurry also causes enemies to Bleed for 3 seconds, dealing additional damage."], skill: "Spear Flurry", slot: "Shoulder" };
+Blood.essences["The Numbing Edge"]     = { terms: " dot effectiveness up ", desc: ["Siphon Blood now also deals 20% increased damage to enemies suffering from continual damage ","effects."], skill: "Siphon Blood", slot: "Shoulder" };
+Blood.essences["Solemn Snare"]         = { terms: " aoe movement speed ", desc: ["Swarm of Bats now shrouds you in a fog of blood mist, increasing your Movement Speed and ","making you untargetable while also dealing damage to nearby enemies."], skill: "Swarm of Bats", slot: "Shoulder" };
+Blood.essences["Swarmspeaker"]         = { terms: " aoe ", desc: ["Swarm of Bats now engulfs you in a cloud of bats, continually damaging to nearby enemies."], skill: "Swarm of Bats", slot: "Shoulder" };
 
 Game.classes["blood"] = Blood;
