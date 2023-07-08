@@ -98,6 +98,23 @@ Game.init = function ()
     Game.canvas.height = 800;
     Game.context = Game.canvas.getContext("2d");
     Game.mouse = new Mouse(Game.canvas);
+
+
+    let dmga = 0;
+    let dmgb = 0;
+    let dmgc = 0;
+    let dmg = 21583;
+    let chance = 0.1;
+    let crit = 0.26;
+    for (let i = 0; i < 1000; ++i)
+    {
+        dmga += dmg + ( (Math.random() < chance) ? dmg*crit : 0);
+        dmgb += dmg + ( (Math.random() < chance + 0.03) ? dmg*crit : 0);
+        dmgc += dmg + dmg*0.03 + ( (Math.random() > chance) ? dmg*crit : 0);
+    }
+    console.log("A normal : "+dmga);
+    console.log("B crit up: "+dmgb);
+    console.log("C prim up: "+dmgc);
 };
 
 Game.run = function ()
