@@ -11,7 +11,7 @@ body {
 #surface {
     position: absolute;
     display: none;
-    top: 60px;
+    top: 80px;
     width: 1200px;
     height: 800px;
 }
