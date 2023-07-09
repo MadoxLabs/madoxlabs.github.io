@@ -77,7 +77,7 @@ class Button
         this.pressed = false;
         if (this.x < Game.mouse.X && Game.mouse.X < (this.x + this.w))
         {
-            if (this.y < (Game.mouse.Y-40) && (Game.mouse.Y-40) < (this.y + this.h))
+            if (this.y < (Game.mouse.Y-60) && (Game.mouse.Y-60) < (this.y + this.h))
             {
                 this.hover = true;
                 if (this.visible && Game.mouse.down)
@@ -99,22 +99,48 @@ Game.init = function ()
     Game.context = Game.canvas.getContext("2d");
     Game.mouse = new Mouse(Game.canvas);
 
+    Game.builds = {};
+}
 
-    let dmga = 0;
-    let dmgb = 0;
-    let dmgc = 0;
-    let dmg = 21583;
-    let chance = 0.1;
-    let crit = 0.26;
-    for (let i = 0; i < 1000; ++i)
+Game.currentClass = function()
+{
+    let e = document.getElementById("classname");
+    let classname = e.options[e.selectedIndex].text;        
+    return classname;
+}
+
+Game.saveData = function()
+{
+    let saveData = {};
+    if (localStorage.getItem("EssenceTool") !== null)
     {
-        dmga += dmg + ( (Math.random() < chance) ? dmg*crit : 0);
-        dmgb += dmg + ( (Math.random() < chance + 0.03) ? dmg*crit : 0);
-        dmgc += dmg + dmg*0.03 + ( (Math.random() > chance) ? dmg*crit : 0);
+        saveData = JSON.parse(localStorage["EssenceTool"]);
     }
-    console.log("A normal : "+dmga);
-    console.log("B crit up: "+dmgb);
-    console.log("C prim up: "+dmgc);
+    if (!saveData) saveData = {};
+    if (!saveData["builds"]) saveData["builds"] = {};
+    if (!saveData["builds"].classes) saveData["builds"].classes = {};
+    saveData["builds"].classes[Game.currentClass()] = Game.builds;
+
+    localStorage["EssenceTool"] = JSON.stringify(saveData);
+}
+
+Game.loadBuildsForClass = function()
+{
+    // load all the save games
+    if (localStorage.getItem("EssenceTool") !== null)
+    {
+        var saveData = JSON.parse(localStorage["EssenceTool"]);
+        if (saveData && saveData["builds"] && saveData["builds"].classes)
+        {
+            let builds = saveData["builds"].classes[Game.currentClass()];
+            Game.builds = {};
+            if (builds)
+            {
+                for (var s in builds) Game.builds[s] = builds[s];
+            }
+        }
+        Game.updateSaves();
+    }
 };
 
 Game.run = function ()
@@ -135,6 +161,117 @@ Game.run = function ()
     window.requestAnimationFrame(Game.run);
 };
 
+Game.onDelete = function()
+{
+    var e = document.getElementById("builds");
+    var name = e.options[e.selectedIndex].text;
+
+    if (!name || !name.length) return;   
+
+    delete Game.builds[name];
+    Game.updateSaves();
+    Game.saveData();
+}
+
+Game.onClear = function()
+{
+    for (let s in Game.slots)
+    {
+        if (!Game.slots[s].essence) continue;
+
+        Game.slots[s].button.visible = true;
+        Game.slots[s].essence.button.locked = false;
+        Game.slots[s].essence = null;
+    }
+    document.getElementById("name").value = "";
+
+    if (Game.lastSlotPressed)
+    {
+        Game.lastSlotPressed.toggle = false;
+        Game.lastSlotPressed = null;
+    }
+    if (Game.lastSkillPressed)
+    {
+        Game.lastSkillPressed.toggle = false;
+        Game.lastSkillPressed = null;
+    }
+    if (Game.lastTermPressed)
+    {
+        Game.lastTermPressed.toggle = false;
+        Game.lastTermPressed = null;
+    }
+
+    Game.updateButtons();
+}
+
+Game.onLoad = function()
+{
+    var e = document.getElementById("builds");
+    var name = e.options[e.selectedIndex].text;
+
+    let data = Game.builds[name];
+    if (!data) return;
+
+    Game.onClear();
+    document.getElementById("name").value = name;
+    for (let s in data.slots)
+    {        
+        // find the button
+        let button = null;
+        for (let e in Game.essences)
+        {
+            let ess = Game.essences[e];
+            if (Game.essences[e].button.text == data.slots[s]) 
+            {
+                button = Game.essences[e].button;
+            }
+        }
+        if (!button) continue;
+        // click it
+        Game.slots[s].button.visible = false;
+        Game.slots[s].essence = button.essence;
+        button.locked = true;
+    }
+    Game.updateButtons();
+}
+
+Game.onSave = function()
+{
+    let name = document.getElementById("name").value;
+    if (!name || !name.length) 
+    {
+        Game.msg("Set a name before saving.");
+        return;   
+    }
+
+    let data = {};
+    data.name = name;
+    data.slots = {};
+
+    for (let s in Game.slots)
+    {
+        if (!Game.slots[s].essence) continue;
+        data.slots[s] = Game.slots[s].essence.button.text;
+    }
+
+    Game.builds[name] = data;
+
+    Game.updateSaves();
+    Game.saveData();
+}
+
+Game.updateSaves = function()
+{
+    let select = document.getElementById('builds');
+    while (select.options.length > 0) select.remove(0);
+    for (let n in Game.builds)
+    {
+        var option = document.createElement("option");
+        option.text = n;
+        select.add(option);
+    }
+}
+
 Game.onClassChange = function()
 {
     var e = document.getElementById("classname");
@@ -146,6 +283,7 @@ Game.onClassChange = function()
     Game.terms = data.terms;
     Game.essences = data.essences;
 
+    document.getElementById("name").value = "";
     Game.dataSetup();
 }
 
@@ -167,6 +305,8 @@ Game.postInit = function ()
 
 Game.dataSetup = function()
 {
+    Game.loadBuildsForClass();
+
     Game.lastSkillPressed = null;
     Game.lastSlotPressed= null;
     Game.lastTermPressed = null;
@@ -355,6 +495,31 @@ Game.fireMouseEvent = function (type, mouse)
                     }
                 }
 
+                Game.updateButtons();
+            }
+        }        
+    }
+    else if (type == MouseEvent.Down && mouse.button == 2)
+    {
+        // r click
+    }
+    else if (type == MouseEvent.Up && mouse.button == 0)
+    {
+        // release
+    }
+    else if (type == MouseEvent.Move)
+    {
+        if (mouse.down && mouse.button == 0)
+        {
+            // click drag
+        }
+
+        Game.handleHover();
+    }
+};
+
+Game.updateButtons = function()
+{
                 // update essences
                 let allterms = " ";
 
@@ -400,27 +565,7 @@ Game.fireMouseEvent = function (type, mouse)
 
                 Game.placeEssences();
                 Game.countSkills();
-            }
-        }        
-    }
-    else if (type == MouseEvent.Down && mouse.button == 2)
-    {
-        // r click
-    }
-    else if (type == MouseEvent.Up && mouse.button == 0)
-    {
-        // release
-    }
-    else if (type == MouseEvent.Move)
-    {
-        if (mouse.down && mouse.button == 0)
-        {
-            // click drag
-        }
-
-        Game.handleHover();
-    }
-};
+}
 
 Game.handleHover = function()
 {
@@ -429,6 +574,17 @@ Game.handleHover = function()
     {
         let button = Game.buttons[b];
         if (button.hover == false) continue;
+
+        if (button.isTerm)
+        {
+            if (button.visible)
+            {
+                if (button.toggle)
+                    Game.msg( "Click to view all skills again." );
+                else
+                    Game.msg( "Click to view only skills with the "+button.text+" property." );
+            }
+        }
 
         if (button.isSlot)
         {

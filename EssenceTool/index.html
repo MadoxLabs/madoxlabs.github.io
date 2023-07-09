@@ -28,6 +28,16 @@
                     <div id="msg"></div>
                 </td>
             </tr>
+            <tr>
+                <td colspan="2">
+                    <button id="save" onclick="Game.onSave()">Save</button>
+                    <input type="text" id="name" width="30">
+                    <button id="delete" onclick="Game.onDelete()">Delete</button>
+                    <button id="load" onclick="Game.onLoad()">Load</button>
+                    <select name="builds" id="builds"></select> | 
+                    <button id="clear" onclick="Game.onClear()">Clear</button>
+                </td>
+            </tr>
         </table>
         <canvas id="surface"></canvas>
     </div>
