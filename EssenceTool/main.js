@@ -77,7 +77,7 @@ class Button
         this.pressed = false;
         if (this.x < Game.mouse.X && Game.mouse.X < (this.x + this.w))
         {
-            if (this.y < (Game.mouse.Y-80) && (Game.mouse.Y-80) < (this.y + this.h))
+            if (this.y < (Game.mouse.Y-60) && (Game.mouse.Y-60) < (this.y + this.h))
             {
                 this.hover = true;
                 if (this.visible && Game.mouse.down)
