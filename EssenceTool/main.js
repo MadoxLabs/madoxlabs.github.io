@@ -37,7 +37,7 @@ class Button
             Game.context.strokeRect( this.x, this.y, this.w, this.h);
         if (this.hover && !this.toggle)
         {
-            Game.context.strokeStyle = "#F8DB4B";
+            Game.context.strokeStyle = "#FF00FF";
             Game.context.strokeRect( this.x+5, this.y+3, this.w-10, this.h-6);
         }
         if (this.locked)
@@ -565,6 +565,33 @@ Game.updateButtons = function()
 
                 Game.placeEssences();
                 Game.countSkills();
+
+                Game.writeDeets();
+}
+
+Game.writeDeets = function()
+{
+    let deets = "";
+    let eup = false;
+
+    for (let e in Game.slots)
+    {        
+        if (Game.slots[e] && Game.slots[e].essence)
+        {
+            let terms =  Game.slots[e].essence.terms.split(" ");
+            for (let t in terms)
+            {
+                let term = terms[t];
+                if (term == "up") continue;
+                if (term == "effectiveness") { eup = true; continue; }
+                if (deets.includes(term) == false) deets += " " + term;
+            }
+        }
+    }
+    if (eup) deets += " effectiveness up";
+    let obj = document.getElementById("deets");
+    obj.innerText = deets;
+
 }
 
 Game.handleHover = function()

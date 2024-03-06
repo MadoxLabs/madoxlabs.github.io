@@ -146,4 +146,8 @@ Wiz = {};
      Wiz.essences["Riftcarver"] =           { terms: " summon aoe ",                   desc: ["Arcane Torrent now creates a chaotic orb that moves with you and fires arcane missiles","at random nearby enemies"], skill: "Arcane Torrent", slot: "Weapon" };
      Wiz.essences["The Medley"] =           { terms: " effectiveness up ",             desc: ["Whenever Arcane Torrent hits and enemy 4 times, they will take additional damage"], skill: "Arcane Torrent", slot: "Pants" };
 
+     Wiz.essences["Manipulators Mask"] =     { terms: " stun aoe ",                     desc: ["Slow Time now releases a temporal ring that expands out from your location, Incapacitating enemies struck by the ring until they take damage."], skill: "Slow Time", slot: "Head" };
+     Wiz.essences["Hoarfront Spaulders"] =   { terms: " freeze ",                     desc: ["Ray of Frosts critical hit chance increased against frozen enemies"], skill: "Ray of Frost", slot: "Shoulder" };
+     Wiz.essences["Fanciful Finesse"] =         { terms: " movement aura ",                desc: ["Lightning Nova now transfigures you into a ball of pure lightning, allowing you to move","at high speed and continually deal damage to any nearby enemies."], skill: "Lightning Nova", slot: "Chest" };
+
      Game.classes["wiz"] = Wiz;

@@ -9,7 +9,7 @@
 <body onload="Game.loadApp();">
     <div id="loading"><p style="font-size:30px; font-family:Impact; color:red">LOADING...</p></div>
     <div id="game" style="display:none">
-        <table>
+        <table border="1">
             <tr>
                 <td>
                     <div id="classpicker">
@@ -30,12 +30,21 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <button id="save" onclick="Game.onSave()">Save</button>
-                    <input type="text" id="name" width="30">
-                    <button id="delete" onclick="Game.onDelete()">Delete</button>
-                    <button id="load" onclick="Game.onLoad()">Load</button>
-                    <select name="builds" id="builds"></select> | 
-                    <button id="clear" onclick="Game.onClear()">Clear</button>
+                    <table border="1">
+                        <tr>
+                            <td>
+                                <button id="save" onclick="Game.onSave()">Save</button>
+                                <input type="text" id="name" width="30"> |                                
+                                <button id="delete" onclick="Game.onDelete()">Delete</button>
+                                <button id="load" onclick="Game.onLoad()">Load</button>
+                                <select name="builds" id="builds"></select> | 
+                                <button id="clear" onclick="Game.onClear()">Clear</button>            
+                            </td>
+                            <td>
+                                <span id="deets">Deets</span>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
