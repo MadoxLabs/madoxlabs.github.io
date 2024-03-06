@@ -48,7 +48,7 @@ class Button
 
         Game.context.fillStyle = this.toggle ? "#000000" : "#ffffff";
         Game.context.font = '10pt sans-serif';
-        Game.context.fillText(this.text, this.x+20, this.y+20);
+        Game.context.fillText(this.text, this.x+20, this.y+ (this.h == 30?20:15));
 
         if (this.isSkill)
         {
@@ -63,7 +63,7 @@ class Button
             Game.context.fillText(""+this.count, this.x+this.w-16, this.y+22);
         }
 
-        let y = this.y+20;
+        let y = this.y + 20;
         for (let d in this.desc)
         {
             y += 14;
@@ -347,9 +347,10 @@ Game.dataSetup = function()
     {
         let button = new Button(1000, y, s);
         button.w = 150;
+        button.h = 20;
         button.isTerm = true;
         Game.terms[s] = button;
-        y += 40;
+        y += 25;
     }
 
     y = 5;
