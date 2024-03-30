@@ -38,6 +38,8 @@ Wiz = {};
      Wiz.terms["effectiveness up"] = null;
      Wiz.terms["primary"] = null;
      Wiz.terms["summon"] = null;
+     Wiz.terms["curse"] = null;
+     Wiz.terms["immobilize"] = null;
 
      Wiz.essences = {};
      Wiz.essences["Cowl of the Abyss"] = { terms: " effectiveness up ", desc: ["Black Hole radius increased by 20%"], skill: "Black Hole", slot: "Head" };
@@ -79,6 +81,19 @@ Wiz = {};
      Wiz.essences["Waking Invocation"] = { terms: " summon ", desc: ["Ray of Frost now creates an illusion that channels a beam of frost in the targeted direction."], skill: "Ray of Frost", slot: "Chest" };
      Wiz.essences["Zann Esu Elemental Weave"] = { terms: " chill ", desc: ["Lightning Nova now hurls balls of Chilling ice."], skill: "Lightning Nova", slot: "Chest" };
 
+     Wiz.essences["Chaos Nexus"] = { terms: " effectiveness up ", desc: ["Disintegrate channels up to 3 additional beams at nearby enemies, each continually dealing","damage."], skill: "Disintegrate", slot: "Pants" };
+     Wiz.essences["Crystal Guards"] = { terms: " effectiveness up ", desc: ["Ice Crystal cooldown decreased by 15%."], skill: "Ice Crystal", slot: "Pants" };
+     Wiz.essences["Fragments Upon Fragments"] = { terms: " knockback stun ", desc: ["Meteor now drops several meteorites in a direction, knocking enemies away and Stunning them."], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Frostwalkers"] = { terms: " aoe chill ", desc: ["Meteor now summons an icy meteor, dealing damage and covering the area with ice that deals","additional damage and Chills enemies."], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Frozen Wellspring"] = { terms: " aoe chill ", desc: ["Meteor now calls down a snowstorm that continually damages and Chills enemies in the area."], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Galebringer's Leggings"] = { terms: " effectiveness up ", desc: ["Arcane Wind damage increased by 10%."], skill: "Arcane Wind", slot: "Pants" };
+     Wiz.essences["Impact Event"] = { terms: " aoe ", desc: ["Meteor now continuously calls down smaller meteors that damage enemies in the area."], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Kavil's Grand Revelation"] = { terms: " aoe ", desc: ["Enemies killed by Disintegrate will explode, dealing damage to all nearby enemies."], skill: "Disintegrate", slot: "Pants" };
+     Wiz.essences["Ninety Nine Wild Arcana"] = { terms: " effectiveness up ", desc: ["Arcane Torrent damage increased by 10%."], skill: "Arcane Torrent", slot: "Pants" };
+     Wiz.essences["Riftdancer's Stride"] = { terms: " aoe dash ", desc: ["Teleport now targets a location where it also damages all nearby enemies."], skill: "Teleport", slot: "Pants" };
+     Wiz.essences["Starcaller's Breeches"] = { terms: " aoe ", desc: ["Meteor now continually damages enemies an area, but no longer Stuns."], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Time warped Cloth"] = { terms: " dash movement ", desc: ["Teleport can now be recast, transporting you back to your original location."], skill: "Teleport", slot: "Pants" };
+
      Wiz.essences["Devastation"] = { terms: " effectiveness up ", desc: ["Arcane Wind now summons a tornado that damages enemies in a line, and no longer charges up.","Increases Arcane Wind's maximum charges to 2."], skill: "Arcane Wind", slot: "Weapon" };
      Wiz.essences["Electrospike"] = { terms: " effectiveness up ", desc: ["Electrocute leaps to 3 additional enemies."], skill: "Electrocute", slot: "Weapon" };
      Wiz.essences["Entropic Edge"] = { terms: " effectiveness up ", desc: ["Disintegrate damage increased by 10%."], skill: "Disintegrate", slot: "Weapon" };
@@ -105,49 +120,60 @@ Wiz = {};
      Wiz.essences["Weathering Eye"] = { terms: " debuff ", desc: ["Arcane Wind now also applies a 30% reduction to Movement Speed for 4 seconds."], skill: "Arcane Wind", slot: "Offhand" };
      Wiz.essences["Winter's Eye"] = { terms: " aoe chill ", desc: ["Ice Armor no longer absorbs damage, instead conjuring an ice storm around you that continually","damages and Chills nearby enemies."], skill: "Ice Armor", slot: "Offhand" };
 
-     Wiz.essences["Chaos Nexus"] = { terms: " effectiveness up ", desc: ["Disintegrate channels up to 3 additional beams at nearby enemies, each continually dealing","damage."], skill: "Disintegrate", slot: "Pants" };
-     Wiz.essences["Crystal Guards"] = { terms: " effectiveness up ", desc: ["Ice Crystal cooldown decreased by 15%."], skill: "Ice Crystal", slot: "Pants" };
-     Wiz.essences["Fragments Upon Fragments"] = { terms: " knockback stun ", desc: ["Meteor now drops several meteorites in a direction, knocking enemies away and Stunning them."], skill: "Meteor", slot: "Pants" };
-     Wiz.essences["Frostwalkers"] = { terms: " aoe chill ", desc: ["Meteor now summons an icy meteor, dealing damage and covering the area with ice that deals","additional damage and Chills enemies."], skill: "Meteor", slot: "Pants" };
-     Wiz.essences["Frozen Wellspring"] = { terms: " aoe chill ", desc: ["Meteor now calls down a snowstorm that continually damages and Chills enemies in the area."], skill: "Meteor", slot: "Pants" };
-     Wiz.essences["Galebringer's Leggings"] = { terms: " effectiveness up ", desc: ["Arcane Wind damage increased by 10%."], skill: "Arcane Wind", slot: "Pants" };
-     Wiz.essences["Impact Event"] = { terms: " aoe ", desc: ["Meteor now continuously calls down smaller meteors that damage enemies in the area."], skill: "Meteor", slot: "Pants" };
-     Wiz.essences["Kavil's Grand Revelation"] = { terms: " aoe ", desc: ["Enemies killed by Disintegrate will explode, dealing damage to all nearby enemies."], skill: "Disintegrate", slot: "Pants" };
-     Wiz.essences["Ninety Nine Wild Arcana"] = { terms: " effectiveness up ", desc: ["Arcane Torrent damage increased by 10%."], skill: "Arcane Torrent", slot: "Pants" };
-     Wiz.essences["Riftdancer's Stride"] = { terms: " aoe dash ", desc: ["Teleport now targets a location where it also damages all nearby enemies."], skill: "Teleport", slot: "Pants" };
-     Wiz.essences["Starcaller's Breeches"] = { terms: " aoe ", desc: ["Meteor now continually damages enemies an area, but no longer Stuns."], skill: "Meteor", slot: "Pants" };
-     Wiz.essences["Time warped Cloth"] = { terms: " dash movement ", desc: ["Teleport can now be recast, transporting you back to your original location."], skill: "Teleport", slot: "Pants" };
-
-     Wiz.essences["Charged Stigma"] = { terms: " atk speed primary ", desc: ["Electrocute also increases your Primary Attack Speed by 6% for two seconds,","stacking up to a maximum of five times."], skill: "Electrocute", slot: "Offhand" };
      Wiz.essences["Crushing Weight"] = { terms: " dash selfbuff ", desc: ["Teleport also increases your damage by 10% for three seconds."], skill: "Teleport", slot: "Head" };
      Wiz.essences["Galebrinde "] = { terms: " primary debuff ", desc: ["Ice Armor also causes your Primary Attacks to decrease enemy Movement Speed by 40% for","three seconds."], skill: "Ice Armor", slot: "Shoulder" };
+     Wiz.essences["Rampant and Inscrutable"] = { terms: " summon primary ", desc: ["Lightning Nova now conjures a lightning orb that orbits you, firing chain","lightning at your target when you use your Primary Attack."], skill: "Lightning Nova", slot: "Chest" };
      Wiz.essences["Novel Castigation"] = { terms: " autoaim ", desc: ["Arcane Torrent also fires tracking missiles that seek out enemies, dealing damage."], skill: "Arcane Torrent", slot: "Pants" };
      Wiz.essences["Ol' Rustic"] = { terms: " primary atk speed ", desc: ["Lightning Nova also increases your Primary Attack Speed by 30% for three seconds."], skill: "Lightning Nova", slot: "Weapon" };
-     Wiz.essences["Rampant and Inscrutable"] = { terms: " summon primary ", desc: ["Lightning Nova now conjures a lightning orb that orbits you, firing chain","lightning at your target when you use your Primary Attack."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Charged Stigma"] = { terms: " atk speed primary ", desc: ["Electrocute also increases your Primary Attack Speed by 6% for two seconds,","stacking up to a maximum of five times."], skill: "Electrocute", slot: "Offhand" };
 
-     Wiz.essences["Sticle Burr"] = { terms: " aoe ", desc: ["When Magic Missile deals a critical hit, it explodes and deals additional damage to all nearby enemies."], skill: "Magic Missile", slot: "Offhand" };
-     Wiz.essences["Silver Lining"] = { terms: " selfbuff ", desc: ["Black Hole now devours the power of enemies caught within it, increasing the damage you deal","for 2 seconds"], skill: "Black Hole", slot: "Head" };
-     Wiz.essences["Spars of Energy "] = { terms: " effectiveness up ", desc: ["Generate a charge of Teleport when you defeat an enemy."], skill: "Teleport", slot: "Shoulder" };
-     Wiz.essences["Greaves of the Firmament"] = { terms: " effectiveness up ", desc: ["Disintegrate deals additional damage every 3 hits"], skill: "Disintegrate", slot: "Pants" };
-     Wiz.essences["Thistle Bloom"] = { terms: " aoe gather ", desc: ["Arcane Wind now conjures a storm that grows over time, pulling in and damaging nearby enemies."], skill: "Arcane Wind", slot: "Weapon" };
-     Wiz.essences["Coat of the Astrum"] = { terms: " autoaim effectiveness up ", desc: ["Lightning Nova now unleashes a single, uncontrollable arc that jumps chaotically between enemies."], skill: "Lightning Nova", slot: "Chest" };
-
-     Wiz.essences["Bluster Bauble"] =       { terms: " aura ",              desc: ["Ice Armor now conjures a violent storm around you dealing damage to enemies but no longer","absorbs damage."], skill: "Ice Armor", slot: "Offhand" };
-     Wiz.essences["Veil of Dross"] =        { terms: " effectiveness up ",  desc: ["Ice Crystal duration increased"], skill: "Ice Crystal", slot: "Head" };
-     Wiz.essences["Pernicious Assistant"] = { terms: " summon ",            desc: ["Disintegrate now creates an illusion that channels a beam of pure energy."], skill: "Disintegrate", slot: "Shoulder" };
-     Wiz.essences["Thunderous Applause"] =  { terms: " aoe burn aura ",     desc: ["Meteor now calls down a meteor shower that follows you, damaging and burning enemies"], skill: "Meteor", slot: "Pants" };
-     Wiz.essences["Nick of Time"] =         { terms: " effectiveness up ",  desc: ["Slow Time radius increased."], skill: "Slow Time", slot: "Weapon" };
-     Wiz.essences["Cold Calculus"] =        { terms: " shield chill aura ", desc: ["Ice Crystal now protects you inside a block of ice, making you invulnerable. While active the","ice block also chills and damages enemies."], skill: "Ice Crystal", slot: "Chest" };
-
-     Wiz.essences["Soaring Scree"] =        { terms: " selfbuff buff speed movement ", desc: ["Allies struck by Lightning Nova gain increased movement speed"], skill: "Lightning Nova", slot: "Offhand" };
      Wiz.essences["Tomorrows Silhouette"] = { terms: " aura ",                         desc: ["Slow Time now follows you"], skill: "Slow Time", slot: "Head" };
      Wiz.essences["Crustclaw"] =            { terms: " shield ",                       desc: ["Ice Armor now also reduces the amount of continual damage you take"], skill: "Ice Armor", slot: "Shoulder" };
      Wiz.essences["Sprightspark"] =         { terms: " movement aura ",                desc: ["Lightning Nova now transfigures you into a ball of pure lightning, allowing you to move","at high speed and continually deal damage to any nearby enemies."], skill: "Lightning Nova", slot: "Chest" };
-     Wiz.essences["Riftcarver"] =           { terms: " summon aoe ",                   desc: ["Arcane Torrent now creates a chaotic orb that moves with you and fires arcane missiles","at random nearby enemies"], skill: "Arcane Torrent", slot: "Weapon" };
      Wiz.essences["The Medley"] =           { terms: " effectiveness up ",             desc: ["Whenever Arcane Torrent hits and enemy 4 times, they will take additional damage"], skill: "Arcane Torrent", slot: "Pants" };
+     Wiz.essences["Riftcarver"] =           { terms: " summon aoe ",                   desc: ["Arcane Torrent now creates a chaotic orb that moves with you and fires arcane missiles","at random nearby enemies"], skill: "Arcane Torrent", slot: "Weapon" };
+     Wiz.essences["Soaring Scree"] =        { terms: " selfbuff buff speed movement ", desc: ["Allies struck by Lightning Nova gain increased movement speed"], skill: "Lightning Nova", slot: "Offhand" };
 
-     Wiz.essences["Manipulators Mask"] =     { terms: " stun aoe ",                     desc: ["Slow Time now releases a temporal ring that expands out from your location, Incapacitating enemies struck by the ring until they take damage."], skill: "Slow Time", slot: "Head" };
-     Wiz.essences["Hoarfront Spaulders"] =   { terms: " freeze ",                     desc: ["Ray of Frosts critical hit chance increased against frozen enemies"], skill: "Ray of Frost", slot: "Shoulder" };
-     Wiz.essences["Fanciful Finesse"] =         { terms: " movement aura ",                desc: ["Lightning Nova now transfigures you into a ball of pure lightning, allowing you to move","at high speed and continually deal damage to any nearby enemies."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Silver Lining"] = { terms: " selfbuff ", desc: ["Black Hole now devours the power of enemies caught within it, increasing the damage you deal","for 2 seconds"], skill: "Black Hole", slot: "Head" };
+     Wiz.essences["Spars of Energy "] = { terms: " effectiveness up ", desc: ["Generate a charge of Teleport when you defeat an enemy."], skill: "Teleport", slot: "Shoulder" };
+     Wiz.essences["Coat of the Astrum"] = { terms: " autoaim effectiveness up ", desc: ["Lightning Nova now unleashes a single, uncontrollable arc that jumps chaotically between enemies."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Greaves of the Firmament"] = { terms: " effectiveness up ", desc: ["Disintegrate deals additional damage every 3 hits"], skill: "Disintegrate", slot: "Pants" };
+     Wiz.essences["Thistle Bloom"] = { terms: " aoe gather ", desc: ["Arcane Wind now conjures a storm that grows over time, pulling in and damaging nearby enemies."], skill: "Arcane Wind", slot: "Weapon" };
+     Wiz.essences["Sticle Burr"] = { terms: " aoe ", desc: ["When Magic Missile deals a critical hit, it explodes and deals additional damage to all nearby enemies."], skill: "Magic Missile", slot: "Offhand" };
+
+     Wiz.essences["Veil of Dross"] =        { terms: " effectiveness up ",  desc: ["Ice Crystal duration increased"], skill: "Ice Crystal", slot: "Head" };
+     Wiz.essences["Pernicious Assistant"] = { terms: " summon ",            desc: ["Disintegrate now creates an illusion that channels a beam of pure energy."], skill: "Disintegrate", slot: "Shoulder" };
+     Wiz.essences["Cold Calculus"] =        { terms: " shield chill aura ", desc: ["Ice Crystal now protects you inside a block of ice, making you invulnerable. While active the","ice block also chills and damages enemies."], skill: "Ice Crystal", slot: "Chest" };
+     Wiz.essences["Thunderous Applause"] =  { terms: " aoe burn aura ",     desc: ["Meteor now calls down a meteor shower that follows you, damaging and burning enemies"], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Nick of Time"] =         { terms: " effectiveness up ",  desc: ["Slow Time radius increased."], skill: "Slow Time", slot: "Weapon" };
+     Wiz.essences["Bluster Bauble"] =       { terms: " aura ",              desc: ["Ice Armor now conjures a violent storm around you dealing damage to enemies but no longer","absorbs damage."], skill: "Ice Armor", slot: "Offhand" };
+
+     Wiz.essences["Manipulators Mask"] =     { terms: " stun aoe ",               desc: ["Slow Time now releases a temporal ring that expands out from your location, Incapacitating enemies struck by the ring until they take damage."], skill: "Slow Time", slot: "Head" };
+     Wiz.essences["Hoarfront Spaulders"] =   { terms: " freeze ",                 desc: ["Ray of Frosts critical hit chance increased against frozen enemies"], skill: "Ray of Frost", slot: "Shoulder" };
+     Wiz.essences["Fanciful Finesse"] =      { terms: " movement aura ",          desc: ["Lightning Nova now transfigures you into a ball of pure lightning, allowing you to move","at high speed and continually deal damage to any nearby enemies."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Frontbond"] =      { terms: " debuff ",          desc: ["Frostfield now also shatters enemy armor, increasing the damage they take."], skill: "Frostfield", slot: "Pants" };
+     Wiz.essences["Lost Seconds"] =      { terms: " effectiveness up ",          desc: ["Slow Time cooldown decreased"], skill: "Slow Time", slot: "Weapon" };
+     Wiz.essences["Ebarins Visage"] =      { terms: " immobilize  ",          desc: ["Electrocutes critical hits immobilize. Cannot occur on the same target more often than once every 3 seconds"], skill: "Electrocute", slot: "Offhand" };
+
+     Wiz.essences["Ephemeral Visage"] =     { terms: " movement speed aoe ",               desc: ["Slow Time now increases your Attack and Movement Speed while also causing continual damage and persistant ground damage to deal damage faster."], skill: "Slow Time", slot: "Head" };
+     Wiz.essences["Barbs of Annihilation"] =   { terms: " summon debuff ",                 desc: ["Disintegrate conjures a sphere of energy that attacks nearby enemies increasing the damage they take."], skill: "Disintegrate", slot: "Shoulder" };
+     Wiz.essences["AFtershock"] =      { terms: " curse stun ",          desc: ["Lightning Nova now releases overpressure bolts that attach to enemies, dealing continual damage and causing brief Stuns with each tick of damage."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Hastened Oblivion"] =      { terms: " effectiveness up ",          desc: ["Disintegrate's cooldown is reduced when damaging enemies."], skill: "Disintegrate", slot: "Pants" };
+     Wiz.essences["Blustercrux"] =      { terms: " gather ",          desc: ["Arcane Wind now conjures a wind core at a target location that continually damages and pulls nearby enemies to its center."], skill: "Arcane Wind", slot: "Weapon" };
+     Wiz.essences["Frenetic Spark"] =      { terms: " effectiveness up ",          desc: ["Lightning Nova cooldown reduced."], skill: "Lightning Nova", slot: "Offhand" };
+
+     Wiz.essences["Wildermask"] =     { terms: " effectiveness up ",               desc: ["Black holes cooldown is reduced."], skill: "Black Hole", slot: "Head" };
+     Wiz.essences["Stag of Ill Omen"] =   { terms: " buff ",                 desc: ["After casting meteor, your damage is increased"], skill: "Meteor", slot: "Shoulder" };
+     Wiz.essences["Coat of Vexation"] =      { terms: " curse aoe ",          desc: ["Lightning Nova now targets an enemy with a lightning mark, causing them to repeatedly emit Lightning Novas centered on them."], skill: "Lightning Nova", slot: "Chest" };
+     Wiz.essences["Dead Star Striders"] =      { terms: " curse aoe ",          desc: ["Meteor now targets an enemy with a star mark, causing meteorites to crash down on thei location."], skill: "Meteor", slot: "Pants" };
+     Wiz.essences["Volatile Arbitor"] =      { terms: " effectiveness up ",          desc: ["Magic Missile explodes every 3 hits, dealing damage to surrounding enemies."], skill: "Magic Missile", slot: "Weapon" };
+     Wiz.essences["Iceblood Reliquary"] =      { terms: " curse aoe chill ",          desc: ["Ice Armor now targets an enemy with a frost mark that damages the target and nearby enemies causing a chill effect."], skill: "Ice Armor", slot: "Offhand" };
+
+     Wiz.essences["Sunfire Crown"] =     { terms: " summon burn ",               desc: ["Scorch now summons two Scorching Serpents that follow you and charge at random enemies causing them to Burn"], skill: "Scorch", slot: "Head" };
+     Wiz.essences["Crystalline Shadow"] =   { terms: " summon ",                 desc: ["Disintegrate now summons an Arcane Deputy that follows you and channels a Disintegrate beam at enemies"], skill: "Disintegrate", slot: "Shoulder" };
+     Wiz.essences["Halted Breath"] =      { terms: " effectiveness up ",          desc: ["Ice Armor's duration is increased"], skill: "Ice Armor", slot: "Chest" };
+     Wiz.essences["Fortified Entropy"] =      { terms: " buff ",          desc: ["Damage you take is reduced while Disintegrate is active."], skill: "Disintegrate", slot: "Pants" };
+     Wiz.essences["Astral Feather"] =      { terms: " summon ",          desc: ["Arcane Wind now summons a Stormbird that follows you and charges at random enemies"], skill: "Arcane Wind", slot: "Weapon" };
+     Wiz.essences["Dancing Lightning"] =      { terms: " buff autoaim ",          desc: ["Ice Armor now bestows the Grace of Thunder on you and your nearby summons, which will periodically strike random enemies with lightning."], skill: "Ice Armor", slot: "Offhand" };
 
      Game.classes["wiz"] = Wiz;
