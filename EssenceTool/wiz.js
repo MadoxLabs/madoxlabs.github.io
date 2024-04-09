@@ -156,7 +156,7 @@ Wiz = {};
      Wiz.essences["Ebarins Visage"] =      { terms: " immobilize  ",          desc: ["Electrocutes critical hits immobilize. Cannot occur on the same target more often than once every 3 seconds"], skill: "Electrocute", slot: "Offhand" };
 
      Wiz.essences["Ephemeral Visage"] =     { terms: " movement speed aoe ",               desc: ["Slow Time now increases your Attack and Movement Speed while also causing continual damage and persistant ground damage to deal damage faster."], skill: "Slow Time", slot: "Head" };
-     Wiz.essences["Barbs of Annihilation"] =   { terms: " summon debuff ",                 desc: ["Disintegrate conjures a sphere of energy that attacks nearby enemies increasing the damage they take."], skill: "Disintegrate", slot: "Shoulder" };
+     Wiz.essences["Barbs of Annihilation"] =   { terms: " summon debuff ",                 desc: ["Disintegrate conjures a sphere of energy that attacks nearby enemies increasing the damage they","take."], skill: "Disintegrate", slot: "Shoulder" };
      Wiz.essences["AFtershock"] =      { terms: " curse stun ",          desc: ["Lightning Nova now releases overpressure bolts that attach to enemies, dealing continual damage and causing brief Stuns with each tick of damage."], skill: "Lightning Nova", slot: "Chest" };
      Wiz.essences["Hastened Oblivion"] =      { terms: " effectiveness up ",          desc: ["Disintegrate's cooldown is reduced when damaging enemies."], skill: "Disintegrate", slot: "Pants" };
      Wiz.essences["Blustercrux"] =      { terms: " gather ",          desc: ["Arcane Wind now conjures a wind core at a target location that continually damages and pulls nearby enemies to its center."], skill: "Arcane Wind", slot: "Weapon" };
@@ -169,8 +169,8 @@ Wiz = {};
      Wiz.essences["Volatile Arbitor"] =      { terms: " effectiveness up ",          desc: ["Magic Missile explodes every 3 hits, dealing damage to surrounding enemies."], skill: "Magic Missile", slot: "Weapon" };
      Wiz.essences["Iceblood Reliquary"] =      { terms: " curse aoe chill ",          desc: ["Ice Armor now targets an enemy with a frost mark that damages the target and nearby enemies causing a chill effect."], skill: "Ice Armor", slot: "Offhand" };
 
-     Wiz.essences["Sunfire Crown"] =     { terms: " summon burn ",               desc: ["Scorch now summons two Scorching Serpents that follow you and charge at random enemies causing them to Burn"], skill: "Scorch", slot: "Head" };
-     Wiz.essences["Crystalline Shadow"] =   { terms: " summon ",                 desc: ["Disintegrate now summons an Arcane Deputy that follows you and channels a Disintegrate beam at enemies"], skill: "Disintegrate", slot: "Shoulder" };
+     Wiz.essences["Sunfire Crown"] =     { terms: " summon burn ",               desc: ["Scorch now summons two Scorching Serpents that follow you and charge at random enemies","causing them to Burn"], skill: "Scorch", slot: "Head" };
+     Wiz.essences["Crystalline Shadow"] =   { terms: " summon ",                 desc: ["Disintegrate now summons an Arcane Deputy that follows you and channels a Disintegrate beam","at enemies"], skill: "Disintegrate", slot: "Shoulder" };
      Wiz.essences["Halted Breath"] =      { terms: " effectiveness up ",          desc: ["Ice Armor's duration is increased"], skill: "Ice Armor", slot: "Chest" };
      Wiz.essences["Fortified Entropy"] =      { terms: " buff ",          desc: ["Damage you take is reduced while Disintegrate is active."], skill: "Disintegrate", slot: "Pants" };
      Wiz.essences["Astral Feather"] =      { terms: " summon ",          desc: ["Arcane Wind now summons a Stormbird that follows you and charges at random enemies"], skill: "Arcane Wind", slot: "Weapon" };
