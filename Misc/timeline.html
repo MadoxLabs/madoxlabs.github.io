@@ -1,62 +1,874 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Timeline Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #1a1c25;
+    --bg-tertiary: #242731;
+    --bg-elevated: #2d303b;
+    --border: #3a3d4a;
+    --border-subtle: #2a2d3a;
+    --text-primary: #e8e9ed;
+    --text-secondary: #9da1b0;
+    --text-muted: #6b7084;
+    --accent: #5b9cf5;
+    --accent-hover: #7bb3ff;
+    --chapter-color: #3ecf8e;
+    --chapter-push: #f59e5b;
+    --scene-color: #7b8ef5;
+    --scene-push: #f5d05b;
+    --danger: #e55b5b;
+    --canvas-bg: #14161e;
+    --header-bg: #1e2028;
+    --line-header-bg: #1e2028;
+    --input-bg: #1a1c25;
+    --input-border: #3a3d4a;
+    --input-focus: #5b9cf5;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+    --radius: 8px;
+    --radius-sm: 5px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary); color: var(--text-primary);
+    height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px; background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; height: 48px;
+  }
+  .topbar-title {
+    font-size: 15px; font-weight: 600; color: var(--text-primary);
+    letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px;
+  }
+  .topbar-title svg { opacity: 0.6; }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+  .main-layout { display: flex; flex: 1; overflow: hidden; }
+  .canvas-area {
+    flex: 1; display: flex; align-items: stretch; justify-content: stretch;
+    padding: 0; background: var(--canvas-bg); position: relative;
+  }
+  #surface { display: block; width: 100%; height: 100%; cursor: crosshair; }
+  #stdout {
+    position: absolute; bottom: 10px; left: 20px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text-muted); pointer-events: none; opacity: 0.7;
+  }
+  .sidebar {
+    width: 320px; flex-shrink: 0; background: var(--bg-secondary);
+    border-left: 1px solid var(--border-subtle); display: flex;
+    flex-direction: column; overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .panel { padding: 16px; border-bottom: 1px solid var(--border-subtle); }
+  .panel-header {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-header .badge {
+    background: var(--bg-tertiary); color: var(--text-secondary);
+    padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 500;
+  }
+  input[type="text"], textarea, select {
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    background: var(--input-bg); color: var(--text-primary);
+    border: 1px solid var(--input-border); border-radius: var(--radius-sm);
+    padding: 8px 10px; width: 100%; outline: none; transition: border-color 0.15s ease;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: var(--input-focus); box-shadow: 0 0 0 2px rgba(91,156,245,0.15);
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select {
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239da1b0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px;
+  }
+  .input-group { margin-bottom: 10px; }
+  .input-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+  .btn {
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 7px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer;
+    transition: all 0.15s ease; white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg-elevated); border-color: var(--text-muted); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-danger { color: var(--danger); border-color: rgba(229,91,91,0.3); }
+  .btn-danger:hover { background: rgba(229,91,91,0.12); border-color: var(--danger); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+  .save-row { display: flex; gap: 6px; align-items: stretch; }
+  .save-row input { flex: 1; }
+  .load-row { display: flex; gap: 6px; align-items: stretch; margin-top: 8px; }
+  .load-row select { flex: 1; }
+  .editor-color-bar { height: 4px; border-radius: 2px; margin-bottom: 12px; background: var(--border); transition: background 0.2s ease; }
+  .help-toggle {
+    display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
+    padding: 12px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .help-toggle:hover { color: var(--text-secondary); }
+  .help-toggle svg { transition: transform 0.2s ease; }
+  .help-toggle.open svg { transform: rotate(90deg); }
+  .help-content {
+    display: none; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+    font-size: 12px; line-height: 1.7; color: var(--text-secondary);
+  }
+  .help-content.open { display: block; }
+  .help-content h4 {
+    font-size: 11px; font-weight: 600; color: var(--text-primary);
+    margin: 10px 0 4px 0; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .help-content h4:first-child { margin-top: 0; }
+  .help-content .kbd {
+    display: inline; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    background: var(--bg-tertiary); border: 1px solid var(--border);
+    border-radius: 3px; padding: 1px 5px; color: var(--text-primary);
+  }
+  .raw-section { margin-top: 8px; }
+  .raw-section textarea { font-family: 'JetBrains Mono', monospace; font-size: 11px; min-height: 50px; margin-bottom: 6px; }
+</style>
+</head>
+<body onload="main();">
+  <div class="topbar">
+    <div class="topbar-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="7" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="11" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
+      Timeline Tool
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" onclick="toggleDebug();" title="Toggle performance stats">Stats</button>
+    </div>
+  </div>
+  <div class="main-layout">
+    <div class="canvas-area">
+      <canvas id="surface"></canvas>
+      <div id="stdout"></div>
+    </div>
+    <div class="sidebar">
+      <div class="panel">
+        <div class="panel-header">Editor <span class="badge" id="editBadge">&mdash;</span></div>
+        <div class="editor-color-bar" id="editorColorBar"></div>
+        <div class="input-group"><label class="input-label">Title</label><input type="text" id="title" placeholder="Select an element..." /></div>
+        <div class="input-group"><label class="input-label">Notes</label><textarea id="text" placeholder="Add notes here..."></textarea></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">Project Files</div>
+        <div class="save-row"><input type="text" id="filename" placeholder="Filename..." /><button class="btn btn-primary btn-sm" onclick="save();">Save</button></div>
+        <div class="load-row"><select id="loadname"></select><button class="btn btn-sm" onclick="load();">Load</button><button class="btn btn-sm btn-danger" onclick="deleteSave();">Delete</button></div>
+        <div class="raw-section"><details><summary style="cursor:pointer;font-size:11px;color:var(--text-muted);margin:8px 0 6px 0;user-select:none;">Import / Export Raw Data</summary><textarea id="rawdata" placeholder="Paste JSON data here..."></textarea><button class="btn btn-sm" onclick="loadraw();" style="margin-top:4px;">Load Raw Data</button></details></div>
+      </div>
+      <div class="help-toggle" onclick="toggleHelp(this);"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M3 0l7 5-7 5z"/></svg>Keyboard &amp; Mouse Reference</div>
+      <div class="help-content" id="helpContent">
+        <h4>Lines (Character Tracks)</h4>Click left edge to create<br>Click thumb to change color<br>Click circle to edit name
+        <h4>Chapters</h4>Click top header to create<br>Drag left/right to move<br>Drag down to delete<br>Click thumb to toggle push mode<br>Click circle to edit text<br>Click <span class="kbd" style="background:#3ecf8e;color:#000;border:none;">&#9632;</span> top-left for chapter reorder
+        <h4>Scenes</h4>Click second header row to create<br>Drag left/right to move<br>Drag down to delete<br>Click thumb to toggle push mode<br>Click circle to edit text<br>Click <span class="kbd" style="background:#7b8ef5;color:#fff;border:none;">&#9632;</span> for scene reorder
+        <h4>Events</h4>Click on a line to create<br>Drag left/right to move<br>Drag right edge to resize<br>Drag up/down off line to delete<br>Click event body to change color<br>Click event text to edit
+        <h4>Navigation</h4>Drag canvas left/right to scroll<br>Drag canvas up/down to zoom
+      </div>
+    </div>
+  </div>
+<script>
+///////////////
+// Config
+///////////////
+var showDebug = false;
 
-<html><head>
-    <style type="text/css">
-      #surface { border: solid black 1px; }
-      #data { 
-        position:absolute;
-        top:0;
-        left:820;
+var chapterHeaderHeight = 18;
+var chapterHeaderColor = "#1e2028";
+var chapterColor = "#3ecf8e";
+var chapterPushColor = "#f59e5b";
+
+var sceneHeaderHeight = 16;
+var sceneHeaderColor = "#191b22";
+var sceneColor = "#7b8ef5";
+var scenePushColor = "#f5d05b";
+
+var totalHeaderHeight = chapterHeaderHeight + sceneHeaderHeight;
+
+var lineHeaderHeight = 18;
+var lineHeaderColor = "#1e2028";
+var lineSeparation = 50;
+
+var lineColors = [
+  {r:91,g:156,b:245},{r:62,g:207,b:142},{r:245,g:158,b:91},{r:229,g:91,b:176},
+  {r:168,g:130,b:255},{r:91,g:215,b:235},{r:245,g:220,b:91},{r:255,g:120,b:120}
+];
+
+///////////////
+// Game object
+///////////////
+var Game = {};
+
+Game.init = function() {
+  this.clear();
+  this.surface = document.getElementById('surface');
+  this.resizeCanvas();
+  window.addEventListener('resize', function() { Game.resizeCanvas(); });
+  this.surface.addEventListener("click", onClick, false);
+  this.surface.addEventListener("mousedown", onMouseDown, false);
+  this.surface.addEventListener("mouseup", onMouseUp, false);
+  this.surface.addEventListener("mouseout", onMouseOut, false);
+  this.surface.addEventListener("mousemove", onMouseMove, false);
+  this.context = this.surface.getContext('2d');
+  this.context.font = "12px 'DM Sans', sans-serif";
+  this.lastTime = 0; this.time = 0; this.updateTime = 0;
+  this.inputTitle = document.getElementById("title");
+  this.inputBody = document.getElementById("text");
+  initList();
+  newLine();
+}
+
+Game.resizeCanvas = function() {
+  var area = this.surface.parentElement;
+  this.surface.width = area.clientWidth;
+  this.surface.height = area.clientHeight;
+  this.canvasW = this.surface.width;
+  this.canvasH = this.surface.height;
+}
+
+Game.clear = function() {
+  this.maxResize = 0; this.minPush = null;
+  this.move = false;
+  this.moveChapter = false; this.moveChapterId = 0;
+  this.moveScene = false; this.moveSceneId = 0;
+  this.moveObject = false; this.sizeObject = false; this.moveObjectId = 0;
+  this.noClick = false; this.picker = false; this.pickerCanvas = null;
+  this.editObject = null;
+  this.chapterMode = false; this.sceneMode = false;
+  this.offset = 0; this.zoom = 1;
+  this.lines = []; this.objects = []; this.chapters = []; this.scenes = [];
+  this.fontsize = 12; this.canvasW = 800; this.canvasH = 600;
+}
+
+Game.stdout = function(text) {
+  document.getElementById('stdout').innerHTML = text;
+  console.log(text);
+}
+
+Game.run = function() {
+  var d = new Date();
+  Game.lastTime = Game.time; Game.time = d.getTime();
+  Game.update();
+  d = new Date(); var updateTime = d.getTime() - Game.time;
+  Game.draw();
+  d = new Date(); var drawTime = d.getTime() - Game.time;
+  var idleTime = 17 - updateTime - drawTime;
+  if (showDebug) {
+    Game.context.font = "10px 'JetBrains Mono', monospace";
+    Game.context.fillStyle = "#6b7084";
+    if (idleTime < 0) { idleTime = 0; Game.context.fillStyle = "#e55b5b"; }
+    var perFrame = idleTime + drawTime + updateTime;
+    Game.context.fillText("FPS: " + ((1000/perFrame)|0) + "  Frame: " + perFrame + "ms", lineHeaderHeight+4, Game.canvasH-12);
+  }
+}
+
+Game.update = function() {
+  Game.updateTime += (Game.time - Game.lastTime);
+  if (Game.updateTime > 500 && Game.editObject != null) {
+    Game.updateTime = 0; onTitleChange(); onBodyChange();
+  }
+}
+
+Game.draw = function() {
+  var W = Game.canvasW, H = Game.canvasH, ctx = Game.context;
+  ctx.font = Game.fontsize + "px 'DM Sans', sans-serif";
+  ctx.fillStyle = "#14161e"; ctx.fillRect(0,0,W,H); ctx.lineWidth = 1;
+
+  // Chapter header
+  ctx.fillStyle = chapterHeaderColor; ctx.fillRect(0,0,W,chapterHeaderHeight);
+  ctx.fillStyle = "#2a2d3a"; ctx.fillRect(0,chapterHeaderHeight-1,W,1);
+
+  // Scene header
+  ctx.fillStyle = sceneHeaderColor; ctx.fillRect(0,chapterHeaderHeight,W,sceneHeaderHeight);
+  ctx.fillStyle = "#25272f"; ctx.fillRect(0,totalHeaderHeight-1,W,1);
+
+  // Ghost helpers
+  var noMove = !Game.moveChapter && !Game.moveScene && !Game.moveObject && !Game.move && !Game.chapterMode && !Game.sceneMode;
+  if (noMove) {
+    // Ghost chapter
+    if (Game.mouseY < chapterHeaderHeight && Game.mouseX > lineHeaderHeight && !hitChapter(Game.mouseX) && !hitObjectCol(Game.mouseX)) {
+      ctx.fillStyle = "rgba(62,207,142,0.4)";
+      ctx.fillRect(Game.mouseX/Game.zoom-2,4,4,chapterHeaderHeight-4);
+      ctx.fillRect(Game.mouseX/Game.zoom,chapterHeaderHeight,1,H);
+    }
+    // Ghost scene
+    if (Game.mouseY >= chapterHeaderHeight && Game.mouseY < totalHeaderHeight && Game.mouseX > lineHeaderHeight && !hitScene(Game.mouseX) && !hitChapter(Game.mouseX,false)) {
+      ctx.fillStyle = "rgba(123,142,245,0.4)";
+      ctx.fillRect(Game.mouseX/Game.zoom-2,chapterHeaderHeight+2,4,sceneHeaderHeight-4);
+      ctx.fillRect(Game.mouseX/Game.zoom,totalHeaderHeight,1,H);
+    }
+    // Ghost event
+    if (Game.mouseY >= totalHeaderHeight && !hitObject(Game.mouseX,Game.mouseY,false) && !hitChapterRange(Game.mouseX,30) && !hitSceneRange(Game.mouseX,30)) {
+      var gy=0, gi=0;
+      for (; gi<Game.lines.length; ++gi) { if (Math.abs(Game.mouseY-(lineSeparation*(gi+1)))<20) { gy=lineSeparation*(gi+1); break; } }
+      if (gy>0) {
+        ctx.fillStyle = "rgba("+Game.lines[gi].r+","+Game.lines[gi].g+","+Game.lines[gi].b+",0.3)";
+        roundRect(ctx,Game.mouseX/Game.zoom,(gy-10)/Game.zoom,30/Game.zoom,20/Game.zoom,10/Game.zoom,true,false);
       }
-      #save { 
-        position:absolute;
-        top:300;
-        left:820;
+    }
+  }
+
+  // Lines
+  for (var i=0; i<Game.lines.length; ++i) {
+    var loc = lineSeparation*(i+1);
+    ctx.fillStyle = "rgba("+Game.lines[i].r+","+Game.lines[i].g+","+Game.lines[i].b+",0.25)";
+    ctx.fillRect(lineHeaderHeight,loc/Game.zoom,W,1);
+  }
+
+  // Objects
+  for (var i in Game.objects) {
+    var o = Game.objects[i]; if (o.delete) continue;
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    roundRect(ctx,(Game.offset+o.loc)/Game.zoom+1,((o.line*lineSeparation)-10)/Game.zoom+2,o.width/Game.zoom,20/Game.zoom,10/Game.zoom,true,false);
+    ctx.fillStyle = "rgba("+o.r+","+o.g+","+o.b+",0.85)";
+    roundRect(ctx,(Game.offset+o.loc)/Game.zoom,((o.line*lineSeparation)-10)/Game.zoom,o.width/Game.zoom,20/Game.zoom,10/Game.zoom,true,false);
+    ctx.fillStyle = getContrastColor(o.r,o.g,o.b);
+    ctx.fillText(fitString(o.text,o.width-25),(Game.offset+o.loc+20)/Game.zoom,(o.line*lineSeparation+Game.fontsize/2)/Game.zoom);
+  }
+
+  // Line header
+  ctx.fillStyle = lineHeaderColor; ctx.fillRect(0,totalHeaderHeight,lineHeaderHeight,H);
+  ctx.fillStyle = "#2a2d3a"; ctx.fillRect(lineHeaderHeight-1,totalHeaderHeight,1,H);
+
+  // Line thumbs
+  for (var i=0; i<Game.lines.length; ++i) {
+    var loc = lineSeparation*(i+1);
+    ctx.fillStyle = Game.lines[i].color;
+    roundRect(ctx,4,loc/Game.zoom-3,10,6,2,true,false);
+    ctx.beginPath(); ctx.arc(9,loc/Game.zoom-10,4,0,Math.PI*2,true); ctx.closePath(); ctx.fill();
+  }
+
+  // Scene guides (dashed)
+  for (var i in Game.scenes) {
+    var s = Game.scenes[i]; if (s.delete) continue;
+    ctx.fillStyle = s.pushmode ? "rgba(245,208,91,0.12)" : "rgba(123,142,245,0.10)";
+    var sx = (Game.offset+s.loc)/Game.zoom;
+    for (var dy=totalHeaderHeight; dy<H; dy+=6) ctx.fillRect(sx,dy,1,3);
+  }
+
+  // Chapter guides (solid)
+  for (var i in Game.chapters) {
+    var m = Game.chapters[i]; if (m.delete) continue;
+    ctx.fillStyle = m.pushmode ? "rgba(245,158,91,0.2)" : "rgba(62,207,142,0.15)";
+    ctx.fillRect((Game.offset+m.loc)/Game.zoom,chapterHeaderHeight,1,H);
+  }
+
+  // Scene pips
+  for (var i in Game.scenes) {
+    var s = Game.scenes[i]; if (s.delete) continue;
+    var sc = s.pushmode ? scenePushColor : sceneColor;
+    ctx.fillStyle = sc;
+    roundRect(ctx,(Game.offset+s.loc)/Game.zoom-2,chapterHeaderHeight+2,4,sceneHeaderHeight-4,1,true,false);
+    ctx.beginPath(); ctx.arc((Game.offset+s.loc)/Game.zoom+10,chapterHeaderHeight+sceneHeaderHeight/2,3,0,Math.PI*2,true); ctx.closePath(); ctx.fill();
+  }
+
+  // Chapter pips
+  for (var i in Game.chapters) {
+    var m = Game.chapters[i]; if (m.delete) continue;
+    var mc = m.pushmode ? chapterPushColor : chapterColor;
+    ctx.fillStyle = mc;
+    roundRect(ctx,(Game.offset+m.loc)/Game.zoom-2,3,4,chapterHeaderHeight-3,1,true,false);
+    ctx.beginPath(); ctx.arc((Game.offset+m.loc)/Game.zoom+10,10,4,0,Math.PI*2,true); ctx.closePath(); ctx.fill();
+  }
+
+  // Color picker
+  if (Game.picker) { drawColorPicker(); }
+  else {
+    // Tooltip
+    if (!Game.moveChapter && !Game.moveScene && !Game.moveObject && !Game.move) {
+      var tip = null;
+      if (hitObject(Game.mouseX,Game.mouseY)) tip = Game.objects[Game.moveObjectId];
+      else if (hitChapter(Game.mouseX) && Game.mouseY < chapterHeaderHeight) tip = Game.chapters[Game.moveChapterId];
+      else if (hitScene(Game.mouseX) && Game.mouseY >= chapterHeaderHeight && Game.mouseY < totalHeaderHeight) tip = Game.scenes[Game.moveSceneId];
+      else if (Game.mouseX < lineHeaderHeight && Game.mouseY >= totalHeaderHeight && (Game.mouseY%lineSeparation)>5 && ((Game.mouseY/lineSeparation)|0)<Game.lines.length) tip = Game.lines[(Game.mouseY/lineSeparation)|0];
+      if (tip !== null) {
+        ctx.font = "12px 'DM Sans', sans-serif";
+        var tw = ctx.measureText(tip.text).width;
+        ctx.fillStyle = "rgba(36,39,49,0.95)";
+        roundRect(ctx,Game.mouseX/Game.zoom+2,Game.mouseY/Game.zoom-2,tw+16,26,5,true,false);
+        ctx.strokeStyle = "rgba(58,61,74,0.8)"; ctx.lineWidth = 1;
+        roundRect(ctx,Game.mouseX/Game.zoom+2,Game.mouseY/Game.zoom-2,tw+16,26,5,false,true);
+        ctx.fillStyle = "#e8e9ed";
+        ctx.fillText(tip.text,Game.mouseX/Game.zoom+10,Game.mouseY/Game.zoom+13);
       }
-    </style>
-    <script src="timeline.js"></script>
-  </head>
-  <body onload="main();">
-    <div id="stdout"></div>
-    <div><canvas id='surface' width="800" height="600"></div>
-    <div id="data">
-    <input id="title" size="50"/><br />
-    <textarea id="text" rows="10" cols="40"></textarea><br />
-    </div>
-    <div id="save">
-    Filename: <input id="filename" /> <button onclick="save();">Save</button><br />
-    <select id="loadname"></select><button onclick="load();">Load</button><button onclick="deleteSave();">Delete</button><br />
-    <textarea id="rawdata"></textarea><button onclick="loadraw();">Load Raw Data</button><br />
-    </div>
-    <b>Timeline Tool</b><br>
-    Create new line : click left edge<br>
-    Change line default color : click the line thumb to change, click on a new color<br />
-    Change the line default text : click on the line's circle to use editor<br />
-    <br>
-    Create new chapter mark : click top edge<br>
-    Move chapter mark : drag chapter marker left/right<br>
-    Delete chapter mark : drag chapter marker down<br>
-    Change marker to push mode : click marker thumb<br />
-    Change the marker default text : click on the marker's circle to use editor<br />
-    Reorder chapters : Click the top left green square for chapter mode, drag chapters left/right<br />
-    <br>
-    Create new event : click on a line<br>
-    Move event : drag event left/right<br>
-    Resize event : drag right edge of event left/right<br>
-    Move event to new line : drag event up/down to other line<br>
-    Delete event : drag event up/down off of line<br>
-    Change event color : click the event to change, click on a new color<br />
-    Change the event text : click on the event's text to use editor<br />
-    <br>
-    Scroll view : drag the black area left/right<br>
-    Zoom View : drag the black area up/down<br />
-    <br>
-    Save your work : enter a filename and click save<br />
-    Load previous work : select a saved filename and click load<br />
-    Delete previous work : select a saved filename and click Delete<br />
-    Save your work to external source : after saving, copy the save data from the Raw Data textarea<br />
-    Load work from external source : paste data into Raw Data textarea and click Load Raw Data<br />
-    Start a new peice of work : reload page<br />
-    <br />
-  </body>
+    }
+  }
+
+  // Mode buttons
+  ctx.fillStyle = !Game.chapterMode ? chapterColor : "#e55b5b";
+  roundRect(ctx,1,1,lineHeaderHeight-2,chapterHeaderHeight-2,3,true,false);
+  ctx.fillStyle = !Game.sceneMode ? sceneColor : "#e55b5b";
+  roundRect(ctx,1,chapterHeaderHeight+1,lineHeaderHeight-2,sceneHeaderHeight-2,3,true,false);
+
+  // Chapter mode overlay
+  if (Game.chapterMode) drawModeOverlay(Game.chapters,Game.moveChapter,Game.moveChapterId,chapterHeaderHeight,"rgba(91,156,245,0.15)","rgba(91,156,245,0.6)","rgba(229,91,91,0.3)","rgba(229,91,91,0.7)");
+  // Scene mode overlay
+  if (Game.sceneMode) drawModeOverlay(Game.scenes,Game.moveScene,Game.moveSceneId,totalHeaderHeight,"rgba(123,142,245,0.12)","rgba(123,142,245,0.5)","rgba(229,91,91,0.25)","rgba(229,91,91,0.6)");
+}
+
+function drawModeOverlay(items,isMoving,moveId,topY,bgColor,labelColor,moveBgColor,moveLabelColor) {
+  var ctx=Game.context, H=Game.canvasH;
+  for (var i in items) {
+    var m = items[i]; if (m.delete) continue;
+    var w = 99999999999;
+    for (var j in items) { var mj=items[j]; if (mj.delete) continue; if (mj.loc-m.loc<w && mj.loc>m.loc) w=mj.loc-m.loc; }
+    if (w==99999999999) {
+      w=0;
+      for (var j in Game.objects) { var oj=Game.objects[j]; if (oj.delete) continue; if (oj.loc>=m.loc && oj.loc+oj.width-m.loc>w) w=oj.loc+oj.width-m.loc; }
+      for (var j in Game.scenes) { var sj=Game.scenes[j]; if (sj.delete) continue; if (sj.loc>=m.loc && sj.loc-m.loc+50>w) w=sj.loc-m.loc+50; }
+    }
+    if (w==0) w=100;
+    ctx.fillStyle = (isMoving && moveId==i) ? moveBgColor : bgColor;
+    ctx.fillRect((Game.offset+m.loc)/Game.zoom+4,topY+4,w/Game.zoom-4,H-8-topY);
+    ctx.fillStyle = (isMoving && moveId==i) ? moveLabelColor : labelColor;
+    drawRotateText((Game.offset+m.loc)/Game.zoom+12,topY+20,m.text,(w-15)/Game.zoom);
+  }
+}
+
+function drawColorPicker() {
+  var ctx=Game.context, cx=Game.canvasW/2, cy=Game.canvasH/2, pw=220, ph=180;
+  ctx.fillStyle="rgba(0,0,0,0.5)"; ctx.fillRect(0,0,Game.canvasW,Game.canvasH);
+  ctx.fillStyle="#242731"; roundRect(ctx,cx-pw/2-8,cy-ph/2-8,pw+16,ph+32,10,true,false);
+  ctx.strokeStyle="#3a3d4a"; roundRect(ctx,cx-pw/2-8,cy-ph/2-8,pw+16,ph+32,10,false,true);
+  ctx.font="11px 'DM Sans', sans-serif"; ctx.fillStyle="#6b7084"; ctx.fillText("Pick a color",cx-pw/2,cy-ph/2-14);
+  if (!Game.pickerCanvas) {
+    Game.pickerCanvas=document.createElement('canvas'); Game.pickerCanvas.width=pw; Game.pickerCanvas.height=ph;
+    var pctx=Game.pickerCanvas.getContext('2d');
+    for (var x=0;x<pw;x++) { var hue=(x/pw)*360; for (var y=0;y<ph;y++) { pctx.fillStyle="hsl("+hue+",100%,"+((y/ph)*100)+"%)"; pctx.fillRect(x,y,1,1); } }
+    for (var x=0;x<pw;x++) { var g=(x/pw)*255; pctx.fillStyle="rgb("+g+","+g+","+g+")"; pctx.fillRect(x,ph-12,1,12); }
+  }
+  ctx.drawImage(Game.pickerCanvas,cx-pw/2,cy-ph/2,pw,ph);
+  Game.pickerBounds={x:cx-pw/2,y:cy-ph/2,w:pw,h:ph};
+}
+
+function drawRotateText(x,y,text,w) {
+  Game.context.save();
+  Game.context.font="12px 'DM Sans', sans-serif";
+  if (w!=null && Game.context.measureText(text).width>w) { Game.context.translate(x,y); Game.context.rotate(Math.PI/2); Game.context.translate(-x,-y); }
+  Game.context.fillText(text,x,y);
+  Game.context.restore();
+}
+
+///////////////
+// Hit Testers
+///////////////
+function hitChapter(x,set,self) {
+  if (typeof set==='undefined') set=true; x=x-Game.offset;
+  for (var i in Game.chapters) { if (self!==undefined&&i==self) continue; if (Game.chapters[i].delete) continue;
+    if (Math.abs(Game.chapters[i].loc+8-x)<=10) { if (set) Game.moveChapterId=i; return true; } } return false;
+}
+function hitChapterText(x,set,self) {
+  if (typeof set==='undefined') set=true; x=x-Game.offset;
+  for (var i in Game.chapters) { if (self!==undefined&&i==self) continue; if (Game.chapters[i].delete) continue;
+    if (Math.abs(Game.chapters[i].loc+12-x)<=4) { if (set) Game.moveChapterId=i; return true; } } return false;
+}
+function hitChapterRange(x,w) {
+  x=x-Game.offset;
+  for (var i in Game.chapters) { if (Game.chapters[i].delete) continue; var loc=Game.chapters[i].loc; if (loc>x&&loc<x+w) return true; } return false;
+}
+function hitScene(x,set,self) {
+  if (typeof set==='undefined') set=true; x=x-Game.offset;
+  for (var i in Game.scenes) { if (self!==undefined&&i==self) continue; if (Game.scenes[i].delete) continue;
+    if (Math.abs(Game.scenes[i].loc+8-x)<=10) { if (set) Game.moveSceneId=i; return true; } } return false;
+}
+function hitSceneText(x,set,self) {
+  if (typeof set==='undefined') set=true; x=x-Game.offset;
+  for (var i in Game.scenes) { if (self!==undefined&&i==self) continue; if (Game.scenes[i].delete) continue;
+    if (Math.abs(Game.scenes[i].loc+12-x)<=4) { if (set) Game.moveSceneId=i; return true; } } return false;
+}
+function hitSceneRange(x,w) {
+  x=x-Game.offset;
+  for (var i in Game.scenes) { if (Game.scenes[i].delete) continue; var loc=Game.scenes[i].loc; if (loc>x&&loc<x+w) return true; } return false;
+}
+function hitObject(x,y,set,self) {
+  if (typeof set==='undefined') set=true; x=x-Game.offset;
+  for (var i in Game.objects) { if (self!==undefined&&i==self) continue; if (Game.objects[i].delete) continue;
+    var o=Game.objects[i]; if ((x<o.loc+o.width)&&(x>o.loc)&&(Math.abs(o.line*lineSeparation-y)<10)) { if (set) Game.moveObjectId=i; return true; } } return false;
+}
+function hitObjectRange(x,y,w,self) {
+  x=x-Game.offset;
+  for (var i in Game.objects) { if (self!==undefined&&i==self) continue; if (Game.objects[i].delete) continue;
+    var o=Game.objects[i]; if (Math.abs(o.line*lineSeparation-y)>=10) continue; if (o.loc<x&&o.loc+o.width<x) continue; if (o.loc>(x+w)&&(o.loc+o.width)>(x+w)) continue; return true; } return false;
+}
+function hitObjectCol(x,self) {
+  x=x-Game.offset;
+  for (var i in Game.objects) { if (self!==undefined&&i==self) continue; if (Game.objects[i].delete) continue;
+    var o=Game.objects[i]; if (x<(o.loc+o.width)&&(x>o.loc)) return true; } return false;
+}
+function hitObjectText(x,idx) {
+  x=x-Game.offset; if (Game.objects[idx].delete) return false;
+  var o=Game.objects[idx]; return (x>(o.loc+20)&&x<(o.loc+o.width-5));
+}
+
+///////////////
+// Chapter reorder
+///////////////
+function findRightChapterWidth(id) {
+  var m=Game.chapters[id], data={id:null,loc:9999999999};
+  for (var i in Game.chapters) if (!Game.chapters[i].delete&&Game.chapters[i].loc>m.loc&&Game.chapters[i].loc<data.loc) { data.id=i; data.loc=Game.chapters[i].loc; }
+  if (data.id===null) return {width:0};
+  var nid=data.id, nm=Game.chapters[nid]; var nextLoc=9999999999;
+  for (var i in Game.chapters) if (!Game.chapters[i].delete&&Game.chapters[i].loc>nm.loc&&Game.chapters[i].loc<nextLoc) nextLoc=Game.chapters[i].loc;
+  if (nextLoc===9999999999) {
+    var w=0;
+    for (var i in Game.objects) { var o=Game.objects[i]; if (!o.delete&&o.loc>=nm.loc&&o.loc+o.width-nm.loc>w) w=o.loc+o.width-nm.loc; }
+    for (var i in Game.scenes) { var s=Game.scenes[i]; if (!s.delete&&s.loc>=nm.loc&&s.loc-nm.loc+50>w) w=s.loc-nm.loc+50; }
+    if (w==0) w=100;
+    return {id:nid,width:w};
+  }
+  return {id:nid,width:Math.abs(nm.loc-nextLoc)};
+}
+function findLeftChapterWidth(id) {
+  var m=Game.chapters[id], data={id:null,loc:0};
+  for (var i in Game.chapters) if (!Game.chapters[i].delete&&Game.chapters[i].loc<m.loc&&Game.chapters[i].loc>data.loc) { data.id=i; data.loc=Game.chapters[i].loc; }
+  if (data.id===null) return {width:0};
+  return {id:data.id,width:Math.abs(m.loc-data.loc)};
+}
+function swapChapters(fromId,toId,toWidth) {
+  if (toWidth==0) { var tw=9999999999, m=Game.chapters[toId]; for (var i in Game.chapters) if (!Game.chapters[i].delete&&Game.chapters[i].loc>m.loc&&Game.chapters[i].loc<tw) tw=Game.chapters[i].loc;
+    if (tw==9999999999) { tw=m.loc; for (var i in Game.objects) { var o=Game.objects[i]; if (!o.delete&&o.loc>=m.loc&&o.loc+o.width>tw) tw=o.loc+o.width; } for (var i in Game.scenes) { var s=Game.scenes[i]; if (!s.delete&&s.loc>=m.loc&&s.loc+50>tw) tw=s.loc+50; } if (tw==m.loc) tw=m.loc+100; }
+    toWidth=tw-m.loc; }
+  var addO={},subO={},addS={},subS={};
+  var addV=toWidth, subV=Game.chapters[toId].loc-Game.chapters[fromId].loc;
+  for (var i in Game.objects) { var o=Game.objects[i]; if (o.delete) continue; if (o.loc>Game.chapters[fromId].loc&&o.loc<Game.chapters[toId].loc) addO[i]=1; else if (o.loc>Game.chapters[toId].loc&&o.loc<Game.chapters[toId].loc+toWidth) subO[i]=1; }
+  for (var i in Game.scenes) { var s=Game.scenes[i]; if (s.delete) continue; if (s.loc>Game.chapters[fromId].loc&&s.loc<Game.chapters[toId].loc) addS[i]=1; else if (s.loc>Game.chapters[toId].loc&&s.loc<Game.chapters[toId].loc+toWidth) subS[i]=1; }
+  for (var i in addO) Game.objects[i].loc+=addV; for (var i in addS) Game.scenes[i].loc+=addV; Game.chapters[fromId].loc+=addV;
+  for (var i in subO) Game.objects[i].loc-=subV; for (var i in subS) Game.scenes[i].loc-=subV; Game.chapters[toId].loc-=subV;
+}
+
+///////////////
+// Scene reorder
+///////////////
+function findRightSceneWidth(id) {
+  var s=Game.scenes[id], data={id:null,loc:9999999999};
+  for (var i in Game.scenes) if (!Game.scenes[i].delete&&Game.scenes[i].loc>s.loc&&Game.scenes[i].loc<data.loc) { data.id=i; data.loc=Game.scenes[i].loc; }
+  if (data.id===null) return {width:0};
+  var nid=data.id, ns=Game.scenes[nid]; var nextLoc=9999999999;
+  for (var i in Game.scenes) if (!Game.scenes[i].delete&&Game.scenes[i].loc>ns.loc&&Game.scenes[i].loc<nextLoc) nextLoc=Game.scenes[i].loc;
+  if (nextLoc===9999999999) {
+    var w=0;
+    for (var i in Game.objects) { var o=Game.objects[i]; if (!o.delete&&o.loc>=ns.loc&&o.loc+o.width-ns.loc>w) w=o.loc+o.width-ns.loc; }
+    if (w==0) w=100;
+    return {id:nid,width:w};
+  }
+  return {id:nid,width:Math.abs(ns.loc-nextLoc)};
+}
+function findLeftSceneWidth(id) {
+  var s=Game.scenes[id], data={id:null,loc:0};
+  for (var i in Game.scenes) if (!Game.scenes[i].delete&&Game.scenes[i].loc<s.loc&&Game.scenes[i].loc>data.loc) { data.id=i; data.loc=Game.scenes[i].loc; }
+  if (data.id===null) return {width:0};
+  return {id:data.id,width:Math.abs(s.loc-data.loc)};
+}
+function swapScenes(fromId,toId,toWidth) {
+  if (toWidth==0) { var tw=9999999999, s=Game.scenes[toId]; for (var i in Game.scenes) if (!Game.scenes[i].delete&&Game.scenes[i].loc>s.loc&&Game.scenes[i].loc<tw) tw=Game.scenes[i].loc;
+    if (tw==9999999999) { tw=s.loc; for (var i in Game.objects) { var o=Game.objects[i]; if (!o.delete&&o.loc>=s.loc&&o.loc+o.width>tw) tw=o.loc+o.width; } if (tw==s.loc) tw=s.loc+100; }
+    toWidth=tw-s.loc; }
+  var addO={},subO={};
+  var addV=toWidth, subV=Game.scenes[toId].loc-Game.scenes[fromId].loc;
+  for (var i in Game.objects) { var o=Game.objects[i]; if (o.delete) continue; if (o.loc>Game.scenes[fromId].loc&&o.loc<Game.scenes[toId].loc) addO[i]=1; else if (o.loc>Game.scenes[toId].loc&&o.loc<Game.scenes[toId].loc+toWidth) subO[i]=1; }
+  for (var i in addO) Game.objects[i].loc+=addV; Game.scenes[fromId].loc+=addV;
+  for (var i in subO) Game.objects[i].loc-=subV; Game.scenes[toId].loc-=subV;
+}
+
+var clickDeadZone = 4;
+function checkNoClick() { if (Math.abs(Game.mouseX-Game.downX)>clickDeadZone||Math.abs(Game.mouseY-Game.downY)>clickDeadZone) Game.noClick=true; }
+
+///////////////
+// Event Handlers
+///////////////
+function onClick(ev) {
+  var rect = Game.surface.getBoundingClientRect();
+  if (Game.picker>0) {
+    var imgd=Game.context.getImageData(ev.clientX-rect.left,ev.clientY-rect.top,1,1), d=imgd.data;
+    var hex="#"+RGBtoHex(d[0],d[1],d[2]);
+    if (Game.picker==1) { Game.objects[Game.pickObject].r=d[0]; Game.objects[Game.pickObject].g=d[1]; Game.objects[Game.pickObject].b=d[2]; Game.objects[Game.pickObject].color=hex; }
+    else if (Game.picker==2) { Game.lines[Game.pickObject].r=d[0]; Game.lines[Game.pickObject].g=d[1]; Game.lines[Game.pickObject].b=d[2]; Game.lines[Game.pickObject].color=hex; }
+    if (Game.pickObject==Game.editObject) updateEditorColor(hex);
+    Game.picker=0; return;
+  }
+  if (Game.noClick) { Game.noClick=false; return; }
+  var x=(ev.clientX-rect.left)*Game.zoom, y=(ev.clientY-rect.top)*Game.zoom;
+
+  // Chapter mode button
+  if (x/Game.zoom<lineHeaderHeight && y/Game.zoom<chapterHeaderHeight) { Game.chapterMode=!Game.chapterMode; if (Game.chapterMode) Game.sceneMode=false; return; }
+  // Scene mode button
+  if (x/Game.zoom<lineHeaderHeight && y/Game.zoom>=chapterHeaderHeight && y/Game.zoom<totalHeaderHeight) { Game.sceneMode=!Game.sceneMode; if (Game.sceneMode) Game.chapterMode=false; return; }
+  if (Game.chapterMode||Game.sceneMode) return;
+
+  var line=0;
+  for (var i=0;i<Game.lines.length;++i) if (Math.abs(Game.mouseY-(lineSeparation*(i+1)))<20) { line=i+1; break; }
+
+  // Chapter header
+  if (y<chapterHeaderHeight) {
+    if (hitChapter(x,false)) {
+      if (!hitChapterText(x,false)) Game.chapters[Game.moveChapterId].pushmode=!Game.chapters[Game.moveChapterId].pushmode;
+      else { Game.editType=2; Game.editObject=Game.moveChapterId; Game.inputTitle.value=Game.chapters[Game.moveChapterId].text; Game.inputBody.value=Game.chapters[Game.moveChapterId].body; updateEditorBadge("Chapter"); updateEditorColor(chapterColor); }
+    } else if (!hitObjectCol(x)) { Game.chapters.push({loc:x-Game.offset,delete:false,pushmode:false,text:"Chapter",body:""}); }
+    return;
+  }
+
+  // Scene header
+  if (y/Game.zoom>=chapterHeaderHeight && y/Game.zoom<totalHeaderHeight) {
+    if (hitScene(x,false)) {
+      if (!hitSceneText(x,false)) Game.scenes[Game.moveSceneId].pushmode=!Game.scenes[Game.moveSceneId].pushmode;
+      else { Game.editType=4; Game.editObject=Game.moveSceneId; Game.inputTitle.value=Game.scenes[Game.moveSceneId].text; Game.inputBody.value=Game.scenes[Game.moveSceneId].body; updateEditorBadge("Scene"); updateEditorColor(sceneColor); }
+    } else if (!hitObjectCol(x)&&!hitChapter(x,false)) { Game.scenes.push({loc:x-Game.offset,delete:false,pushmode:false,text:"Scene",body:""}); }
+    return;
+  }
+
+  // Object click
+  if (hitObject(x,y,true)) {
+    if (hitObjectText(x,Game.moveObjectId)) { Game.editObject=Game.moveObjectId; Game.editType=1; Game.inputTitle.value=Game.objects[Game.editObject].text; Game.inputBody.value=Game.objects[Game.editObject].body; updateEditorBadge("Event"); updateEditorColor(Game.objects[Game.editObject].color); }
+    else { Game.pickObject=Game.moveObjectId; Game.picker=1; }
+    return;
+  }
+
+  // Line header
+  if (x/Game.zoom<lineHeaderHeight) {
+    var cl=(Game.mouseY/lineSeparation)|0, pos=Game.mouseY%lineSeparation;
+    if (cl>=1&&pos<=3) --cl;
+    if (cl<Game.lines.length) {
+      if (pos>=38&&pos<=45) { Game.editType=3; Game.editObject=cl; Game.inputTitle.value=Game.lines[cl].text; Game.inputBody.value=Game.lines[cl].body; updateEditorBadge("Line"); updateEditorColor(Game.lines[cl].color); }
+      else if (pos>45||pos<=3) { Game.pickObject=cl; Game.picker=2; }
+    } else newLine();
+    return;
+  }
+
+  // Create event
+  if (line>0 && !hitChapterRange(x,30) && !hitSceneRange(x,30)) {
+    var hex=Game.lines[line-1].color;
+    Game.objects.push({line:line,loc:x-Game.offset,width:40,r:Game.lines[line-1].r,g:Game.lines[line-1].g,b:Game.lines[line-1].b,color:hex,body:"",text:Game.lines[line-1].text+" event"});
+  }
+}
+
+function onMouseDown(ev) {
+  var rect=Game.surface.getBoundingClientRect();
+  Game.moveX=(ev.clientX-rect.left)*Game.zoom; Game.moveY=(ev.clientY-rect.top)*Game.zoom;
+  Game.downX=Game.moveX; Game.downY=Game.moveY;
+
+  if (Game.chapterMode) { var d={id:null,loc:0}; for (var i in Game.chapters) if (!Game.chapters[i].delete&&Game.chapters[i].loc<(Game.moveX-Game.offset)&&Game.chapters[i].loc>d.loc) { d.id=i; d.loc=Game.chapters[i].loc; } if (d.id!==null) { Game.moveChapter=true; Game.moveChapterId=d.id; } return; }
+  if (Game.sceneMode) { var d={id:null,loc:0}; for (var i in Game.scenes) if (!Game.scenes[i].delete&&Game.scenes[i].loc<(Game.moveX-Game.offset)&&Game.scenes[i].loc>d.loc) { d.id=i; d.loc=Game.scenes[i].loc; } if (d.id!==null) { Game.moveScene=true; Game.moveSceneId=d.id; } return; }
+
+  if (Game.moveY<chapterHeaderHeight && hitChapter(Game.moveX,true)) { Game.moveChapter=true; Game.minPush=null; return; }
+  if (Game.moveY/Game.zoom>=chapterHeaderHeight && Game.moveY/Game.zoom<totalHeaderHeight && hitScene(Game.moveX,true)) { Game.moveScene=true; Game.minPush=null; return; }
+  if (hitObject(Game.moveX,Game.moveY,true)) { Game.moveObject=true; Game.moveOffset=Game.objects[Game.moveObjectId].loc-Game.moveX+Game.offset; if (Game.moveOffset+Game.objects[Game.moveObjectId].width<5) Game.sizeObject=true; Game.maxResize=0; return; }
+  Game.move=true; Game.startZoom=Game.zoom; Game.startOffset=Game.offset;
+}
+
+function onMouseUp(ev) {
+  if (Game.zoom!=Game.startZoom) Game.noClick=true;
+  Game.moveChapter=false; Game.moveScene=false; Game.moveObject=false; Game.sizeObject=false; Game.move=false; Game.maxResize=0;
+}
+
+function onMouseOut(ev) {
+  Game.moveChapter=false; Game.moveScene=false; Game.moveObject=false; Game.sizeObject=false; Game.move=false; Game.maxResize=0;
+}
+
+function onMouseMove(ev) {
+  var rect=Game.surface.getBoundingClientRect();
+  Game.mouseX=(ev.clientX-rect.left)*Game.zoom; Game.mouseY=(ev.clientY-rect.top)*Game.zoom;
+
+  // Chapter reorder
+  if (Game.chapterMode&&Game.moveChapter) {
+    var left=(Game.moveX>Game.mouseX), w=left?findLeftChapterWidth(Game.moveChapterId):findRightChapterWidth(Game.moveChapterId);
+    if (w.width==0) return;
+    if (Math.abs(Game.moveX-Game.mouseX)>=w.width) { if (left) swapChapters(w.id,Game.moveChapterId,0); else swapChapters(Game.moveChapterId,w.id,w.width); Game.moveX=Game.mouseX; Game.moveY=Game.mouseY; }
+    return;
+  }
+  // Scene reorder
+  if (Game.sceneMode&&Game.moveScene) {
+    var left=(Game.moveX>Game.mouseX), w=left?findLeftSceneWidth(Game.moveSceneId):findRightSceneWidth(Game.moveSceneId);
+    if (w.width==0) return;
+    if (Math.abs(Game.moveX-Game.mouseX)>=w.width) { if (left) swapScenes(w.id,Game.moveSceneId,0); else swapScenes(Game.moveSceneId,w.id,w.width); Game.moveX=Game.mouseX; Game.moveY=Game.mouseY; }
+    return;
+  }
+
+  // Chapter drag
+  if (Game.moveChapter) {
+    checkNoClick();
+    if (hitChapter(Game.mouseX,false,Game.moveChapterId)||hitObjectCol(Game.mouseX)) { if (Game.chapters[Game.moveChapterId].pushmode&&Game.minPush==null) Game.minPush=Game.mouseX; }
+    else {
+      if (Game.chapters[Game.moveChapterId].pushmode&&Game.minPush!=null&&Game.mouseX<=Game.minPush) return;
+      var pos=Game.chapters[Game.moveChapterId].loc, diff=(Game.mouseX-Game.offset)-pos;
+      Game.chapters[Game.moveChapterId].loc=Game.mouseX-Game.offset;
+      if (Game.chapters[Game.moveChapterId].pushmode) {
+        for (var i in Game.chapters) if (i!=Game.moveChapterId&&Game.chapters[i].loc>pos) Game.chapters[i].loc+=diff;
+        for (var i in Game.scenes) if (Game.scenes[i].loc>pos) Game.scenes[i].loc+=diff;
+        for (var i in Game.objects) if (Game.objects[i].loc>pos) Game.objects[i].loc+=diff;
+      }
+    }
+    Game.chapters[Game.moveChapterId].delete=(Game.mouseY>chapterHeaderHeight+10); return;
+  }
+
+  // Scene drag
+  if (Game.moveScene) {
+    checkNoClick();
+    if (hitScene(Game.mouseX,false,Game.moveSceneId)||hitChapter(Game.mouseX,false)||hitObjectCol(Game.mouseX)) { if (Game.scenes[Game.moveSceneId].pushmode&&Game.minPush==null) Game.minPush=Game.mouseX; }
+    else {
+      if (Game.scenes[Game.moveSceneId].pushmode&&Game.minPush!=null&&Game.mouseX<=Game.minPush) return;
+      var pos=Game.scenes[Game.moveSceneId].loc, diff=(Game.mouseX-Game.offset)-pos;
+      Game.scenes[Game.moveSceneId].loc=Game.mouseX-Game.offset;
+      if (Game.scenes[Game.moveSceneId].pushmode) {
+        for (var i in Game.scenes) if (i!=Game.moveSceneId&&Game.scenes[i].loc>pos) Game.scenes[i].loc+=diff;
+        for (var i in Game.objects) if (Game.objects[i].loc>pos) Game.objects[i].loc+=diff;
+      }
+    }
+    Game.scenes[Game.moveSceneId].delete=(Game.mouseY>totalHeaderHeight+10); return;
+  }
+
+  // Object drag
+  if (Game.moveObject) {
+    checkNoClick();
+    if (Game.sizeObject) {
+      var pos=Game.objects[Game.moveObjectId].loc+Game.objects[Game.moveObjectId].width+(Game.mouseX-Game.moveX)+Game.offset;
+      if (Game.maxResize&&pos>=Game.maxResize) return;
+      if (!hitChapter(pos,false)&&!hitScene(pos,false)&&!hitObject(pos,Game.objects[Game.moveObjectId].line*lineSeparation,false,Game.moveObjectId)) {
+        Game.objects[Game.moveObjectId].width+=Game.mouseX-Game.moveX;
+        if (Game.objects[Game.moveObjectId].width<20) Game.objects[Game.moveObjectId].width=20; else Game.moveX=Game.mouseX;
+      } else Game.maxResize=pos;
+    } else {
+      var o=Game.objects[Game.moveObjectId];
+      if (!hitChapterRange(Game.mouseX+Game.moveOffset,o.width)&&!hitSceneRange(Game.mouseX+Game.moveOffset,o.width)&&!hitObjectRange(Game.mouseX+Game.moveOffset,o.line*lineSeparation,o.width,Game.moveObjectId))
+        Game.objects[Game.moveObjectId].loc=Game.mouseX+Game.moveOffset-Game.offset;
+      var nl=0; for (var i=0;i<Game.lines.length;++i) if (Math.abs(Game.mouseY-(lineSeparation*(i+1)))<20) { nl=i+1; break; }
+      Game.objects[Game.moveObjectId].delete=(nl==0);
+      if (nl>0&&!hitObjectRange(o.loc,nl*lineSeparation,o.width,Game.moveObjectId)) Game.objects[Game.moveObjectId].line=nl;
+    }
+    return;
+  }
+
+  // Scroll/zoom
+  if (Game.move) {
+    checkNoClick();
+    Game.offset+=Game.mouseX-Game.moveX;
+    Game.moveX=Game.mouseX;
+    Game.zoom=Game.startZoom+((Game.mouseY-Game.moveY)/Game.zoom)/200;
+    if (Game.zoom<1) Game.zoom=1;
+    Game.fontsize=(12/Game.zoom)|0;
+  }
+}
+
+function onTitleChange() {
+  if (Game.editObject!=null) {
+    if (Game.editType==1) Game.objects[Game.editObject].text=Game.inputTitle.value;
+    else if (Game.editType==2) Game.chapters[Game.editObject].text=Game.inputTitle.value;
+    else if (Game.editType==3) Game.lines[Game.editObject].text=Game.inputTitle.value;
+    else if (Game.editType==4) Game.scenes[Game.editObject].text=Game.inputTitle.value;
+  }
+}
+function onBodyChange() {
+  if (Game.editObject!=null) {
+    if (Game.editType==1) Game.objects[Game.editObject].body=Game.inputBody.value;
+    else if (Game.editType==2) Game.chapters[Game.editObject].body=Game.inputBody.value;
+    else if (Game.editType==3) Game.lines[Game.editObject].body=Game.inputBody.value;
+    else if (Game.editType==4) Game.scenes[Game.editObject].body=Game.inputBody.value;
+  }
+}
+
+///////////////
+// UI helpers
+///////////////
+function updateEditorBadge(t) { document.getElementById('editBadge').textContent=t||'\u2014'; }
+function updateEditorColor(c) { document.getElementById('editorColorBar').style.background=c||'var(--border)'; }
+function toggleHelp(el) { el.classList.toggle('open'); document.getElementById('helpContent').classList.toggle('open'); }
+function toggleDebug() { showDebug=!showDebug; }
+
+///////////////
+// Save / Load
+///////////////
+function save() {
+  var file=document.getElementById("filename").value;
+  if (file.length==0) { Game.stdout("Enter a filename to save"); return; }
+  var data={chapters:Game.chapters,scenes:Game.scenes,objects:Game.objects,lines:Game.lines};
+  localStorage[file]=JSON.stringify(data);
+  document.getElementById("rawdata").value=JSON.stringify(data);
+  var sel=document.getElementById("loadname"), add=true;
+  for (var i=0;i<sel.length;i++) if (sel.options[i].text==file) add=false;
+  if (add) sel.options[sel.options.length]=new Option(file,file);
+  var list=localStorage['filelist']; if (list===undefined) list={}; else list=JSON.parse(list);
+  list[file]=file; localStorage['filelist']=JSON.stringify(list);
+  Game.stdout("Saved: "+file);
+}
+function load() {
+  var sel=document.getElementById("loadname"); if (sel.options.length==0) return;
+  var fn=sel.options[sel.selectedIndex].text;
+  var data=JSON.parse(localStorage[fn]);
+  document.getElementById("rawdata").value=JSON.stringify(data);
+  document.getElementById("filename").value=fn;
+  Game.clear();
+  Game.chapters=data.chapters||data.markers||[];
+  Game.scenes=data.scenes||[];
+  Game.objects=data.objects; Game.lines=data.lines;
+  Game.stdout("Loaded: "+fn);
+}
+function loadraw() {
+  var data=JSON.parse(document.getElementById("rawdata").value);
+  Game.clear();
+  Game.chapters=data.chapters||data.markers||[];
+  Game.scenes=data.scenes||[];
+  Game.objects=data.objects; Game.lines=data.lines;
+  Game.stdout("Loaded from raw data");
+}
+function deleteSave() {
+  var sel=document.getElementById("loadname"); if (sel.options.length==0) return;
+  var fn=sel.options[sel.selectedIndex].text;
+  localStorage.removeItem(fn);
+  var list=localStorage['filelist']; if (list===undefined) list={}; else list=JSON.parse(list);
+  delete list[fn]; localStorage['filelist']=JSON.stringify(list);
+  sel.options.length=0; for (var i in list) sel.options[sel.options.length]=new Option(list[i],list[i]);
+  Game.stdout("Deleted: "+fn);
+}
+function initList() {
+  var sel=document.getElementById("loadname");
+  var list=localStorage['filelist']; if (list===undefined) list={}; else list=JSON.parse(list);
+  for (var i in list) sel.options[sel.options.length]=new Option(list[i],list[i]);
+}
+
+///////////////
+// HELPERS
+///////////////
+function roundRect(ctx,x,y,w,h,r,fill,stroke) {
+  if (typeof stroke=="undefined") stroke=true; if (typeof r==="undefined") r=5;
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  if (stroke) ctx.stroke(); if (fill) ctx.fill();
+}
+function newLine() {
+  var ci=Game.lines.length%lineColors.length, c=lineColors[ci], hex="#"+RGBtoHex(c.r,c.g,c.b);
+  Game.lines.push({r:c.r,g:c.g,b:c.b,color:hex,text:"Line "+(Game.lines.length+1),body:""});
+}
+function RGBtoHex(R,G,B) { return toHex(R)+toHex(G)+toHex(B); }
+function getContrastColor(r,g,b) {
+  var l=(0.2126*(r/255)+0.7152*(g/255)+0.0722*(b/255));
+  var br=Math.round((Math.max(l,0)+0.05)/(Math.min(l,0)+0.05)*10)/10;
+  var wr=Math.round((Math.max(l,1)+0.05)/(Math.min(l,1)+0.05)*10)/10;
+  return br>wr?"#000000":"#ffffff";
+}
+function fitString(text,width) {
+  if (Game.context.measureText(text).width<=width) return text;
+  for (var i=0;i<=text.length;++i) if (Game.context.measureText(text.substring(0,i)).width>width) return text.substring(0,i-1);
+  return "";
+}
+function toHex(N) {
+  if (N==null) return "00"; N=parseInt(N); if (N==0||isNaN(N)) return "00";
+  N=Math.max(0,N); N=Math.min(N,255); N=Math.round(N);
+  return "0123456789ABCDEF".charAt((N-N%16)/16)+"0123456789ABCDEF".charAt(N%16);
+}
+
+function main() { Game.init(); window.setInterval(Game.run,17); }
+</script>
+</body>
 </html>
-
