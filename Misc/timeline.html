@@ -293,17 +293,56 @@ Game.draw = function() {
   ctx.fillStyle = sceneHeaderColor; ctx.fillRect(0,chapterHeaderHeight,W,sceneHeaderHeight);
   ctx.fillStyle = "#25272f"; ctx.fillRect(0,totalHeaderHeight-1,W,1);
 
+  // Chapter bars
+  var cids=[];for(var i in Game.chapters)if(!Game.chapters[i].delete)cids.push(i);
+  cids.sort(function(a,b){return Game.chapters[a].loc-Game.chapters[b].loc;});
+  ctx.font="11px 'DM Sans', sans-serif";
+  for(var ci=0;ci<cids.length;ci++){
+    var m=Game.chapters[cids[ci]],mc=m.pushmode?chapterPushColor:chapterColor;
+    var px=(Game.offset+m.loc)/Game.zoom;
+    var x1=ci===0?lineHeaderHeight:Math.max(lineHeaderHeight,px);
+    var x2;
+    if(ci<cids.length-1){x2=(Game.offset+Game.chapters[cids[ci+1]].loc)/Game.zoom;}
+    else{var cw=0;for(var j in Game.objects){var oj=Game.objects[j];if(!oj.delete&&oj.loc>=m.loc&&oj.loc+oj.width-m.loc>cw)cw=oj.loc+oj.width-m.loc;}for(var j in Game.scenes){var sj=Game.scenes[j];if(!sj.delete&&sj.loc>=m.loc&&sj.loc-m.loc+50>cw)cw=sj.loc-m.loc+50;}x2=(Game.offset+m.loc+(cw>0?cw:100))/Game.zoom;}
+    x2=Math.min(x2,W);if(x2<=x1)continue;
+    ctx.fillStyle=m.pushmode?'rgba(245,158,91,0.18)':'rgba(62,207,142,0.13)';
+    ctx.fillRect(x1,0,x2-x1,chapterHeaderHeight-1);
+    if(ci>0&&px>lineHeaderHeight&&px<W){ctx.fillStyle=mc;ctx.fillRect(px-1,0,2,chapterHeaderHeight-1);}
+    var lx=Math.max(x1+4,px+18);
+    if(lx<x2-4){ctx.fillStyle=mc;ctx.fillText(fitString(m.text,x2-lx-4),lx,chapterHeaderHeight-5);}
+  }
+
+  // Scene bars
+  var sids=[];for(var i in Game.scenes)if(!Game.scenes[i].delete)sids.push(i);
+  sids.sort(function(a,b){return Game.scenes[a].loc-Game.scenes[b].loc;});
+  ctx.font="10px 'DM Sans', sans-serif";
+  for(var si=0;si<sids.length;si++){
+    var s=Game.scenes[sids[si]],sc=s.pushmode?scenePushColor:sceneColor;
+    var spx=(Game.offset+s.loc)/Game.zoom;
+    var sx1=si===0?lineHeaderHeight:Math.max(lineHeaderHeight,spx);
+    var sx2;
+    if(si<sids.length-1){sx2=(Game.offset+Game.scenes[sids[si+1]].loc)/Game.zoom;}
+    else{var sw=0;for(var j in Game.objects){var oj=Game.objects[j];if(!oj.delete&&oj.loc>=s.loc&&oj.loc+oj.width-s.loc>sw)sw=oj.loc+oj.width-s.loc;}sx2=(Game.offset+s.loc+(sw>0?sw:100))/Game.zoom;}
+    sx2=Math.min(sx2,W);if(sx2<=sx1)continue;
+    ctx.fillStyle=s.pushmode?'rgba(245,208,91,0.18)':'rgba(123,142,245,0.13)';
+    ctx.fillRect(sx1,chapterHeaderHeight,sx2-sx1,sceneHeaderHeight-1);
+    if(si>0&&spx>lineHeaderHeight&&spx<W){ctx.fillStyle=sc;ctx.fillRect(spx-1,chapterHeaderHeight,2,sceneHeaderHeight-1);}
+    var slx=Math.max(sx1+4,spx+14);
+    if(slx<sx2-4){ctx.fillStyle=sc;ctx.fillText(fitString(s.text,sx2-slx-4),slx,chapterHeaderHeight+sceneHeaderHeight-4);}
+  }
+  ctx.font=Game.fontsize+"px 'DM Sans', sans-serif";
+
   // Ghost helpers
   var noMove = !Game.moveChapter && !Game.moveScene && !Game.moveObject && !Game.move && !Game.chapterMode && !Game.sceneMode;
   if (noMove) {
     // Ghost chapter
-    if (Game.mouseY < chapterHeaderHeight && Game.mouseX > lineHeaderHeight && !hitChapter(Game.mouseX) && !hitObjectCol(Game.mouseX)) {
+    if (Game.mouseY < chapterHeaderHeight && Game.mouseX > lineHeaderHeight && !hitChapter(Game.mouseX) && !hitChapterBody(Game.mouseX,false) && !hitObjectCol(Game.mouseX)) {
       ctx.fillStyle = "rgba(62,207,142,0.4)";
       ctx.fillRect(Game.mouseX/Game.zoom-2,4,4,chapterHeaderHeight-4);
       ctx.fillRect(Game.mouseX/Game.zoom,chapterHeaderHeight,1,H);
     }
     // Ghost scene
-    if (Game.mouseY >= chapterHeaderHeight && Game.mouseY < totalHeaderHeight && Game.mouseX > lineHeaderHeight && !hitScene(Game.mouseX) && !hitChapter(Game.mouseX,false)) {
+    if (Game.mouseY >= chapterHeaderHeight && Game.mouseY < totalHeaderHeight && Game.mouseX > lineHeaderHeight && !hitScene(Game.mouseX) && !hitSceneBody(Game.mouseX,false) && !hitChapter(Game.mouseX,false)) {
       ctx.fillStyle = "rgba(123,142,245,0.4)";
       ctx.fillRect(Game.mouseX/Game.zoom-2,chapterHeaderHeight+2,4,sceneHeaderHeight-4);
       ctx.fillRect(Game.mouseX/Game.zoom,totalHeaderHeight,1,H);
@@ -506,6 +545,28 @@ function hitObjectCol(x,self) {
   for (var i in Game.objects) { if (self!==undefined&&i==self) continue; if (Game.objects[i].delete) continue;
     var o=Game.objects[i]; if (x<(o.loc+o.width)&&(x>o.loc)) return true; } return false;
 }
+function hitChapterBody(x, set) {
+  if (typeof set==='undefined') set=true;
+  var worldX=x-Game.offset, bestId=null, bestLoc=-9999999999;
+  for(var i in Game.chapters){if(Game.chapters[i].delete)continue;if(Game.chapters[i].loc<=worldX&&Game.chapters[i].loc>bestLoc){bestLoc=Game.chapters[i].loc;bestId=i;}}
+  if(bestId===null)return false;
+  var m=Game.chapters[bestId], nextLoc=9999999999;
+  for(var i in Game.chapters)if(!Game.chapters[i].delete&&Game.chapters[i].loc>m.loc&&Game.chapters[i].loc<nextLoc)nextLoc=Game.chapters[i].loc;
+  if(nextLoc===9999999999){var w=0;for(var i in Game.objects){var o=Game.objects[i];if(!o.delete&&o.loc>=m.loc&&o.loc+o.width-m.loc>w)w=o.loc+o.width-m.loc;}for(var i in Game.scenes){var s=Game.scenes[i];if(!s.delete&&s.loc>=m.loc&&s.loc-m.loc+50>w)w=s.loc-m.loc+50;}nextLoc=m.loc+(w>0?w:100);}
+  if(worldX>=nextLoc)return false;
+  if(set)Game.moveChapterId=bestId; return true;
+}
+function hitSceneBody(x, set) {
+  if (typeof set==='undefined') set=true;
+  var worldX=x-Game.offset, bestId=null, bestLoc=-9999999999;
+  for(var i in Game.scenes){if(Game.scenes[i].delete)continue;if(Game.scenes[i].loc<=worldX&&Game.scenes[i].loc>bestLoc){bestLoc=Game.scenes[i].loc;bestId=i;}}
+  if(bestId===null)return false;
+  var s=Game.scenes[bestId], nextLoc=9999999999;
+  for(var i in Game.scenes)if(!Game.scenes[i].delete&&Game.scenes[i].loc>s.loc&&Game.scenes[i].loc<nextLoc)nextLoc=Game.scenes[i].loc;
+  if(nextLoc===9999999999){var w=0;for(var i in Game.objects){var o=Game.objects[i];if(!o.delete&&o.loc>=s.loc&&o.loc+o.width-s.loc>w)w=o.loc+o.width-s.loc;}nextLoc=s.loc+(w>0?w:100);}
+  if(worldX>=nextLoc)return false;
+  if(set)Game.moveSceneId=bestId; return true;
+}
 function hitObjectText(x,idx) {
   x=x-Game.offset; if (Game.objects[idx].delete) return false;
   var o=Game.objects[idx]; return (x>(o.loc+20)&&x<(o.loc+o.width-5));
@@ -612,8 +673,9 @@ function onClick(ev) {
   // Chapter header
   if (y<chapterHeaderHeight) {
     if (hitChapter(x,false)) {
-      if (!hitChapterText(x,false)) Game.chapters[Game.moveChapterId].pushmode=!Game.chapters[Game.moveChapterId].pushmode;
-      else { Game.editType=2; Game.editObject=Game.moveChapterId; Game.inputTitle.value=Game.chapters[Game.moveChapterId].text; Game.inputBody.value=Game.chapters[Game.moveChapterId].body; updateEditorBadge("Chapter"); updateEditorColor(chapterColor); }
+      Game.chapters[Game.moveChapterId].pushmode=!Game.chapters[Game.moveChapterId].pushmode;
+    } else if (hitChapterBody(x,true)) {
+      Game.editType=2; Game.editObject=Game.moveChapterId; Game.inputTitle.value=Game.chapters[Game.moveChapterId].text; Game.inputBody.value=Game.chapters[Game.moveChapterId].body; updateEditorBadge("Chapter"); updateEditorColor(chapterColor);
     } else if (!hitObjectCol(x)) { Game.chapters.push({loc:x-Game.offset,delete:false,pushmode:false,text:"Chapter",body:""}); }
     return;
   }
@@ -621,8 +683,9 @@ function onClick(ev) {
   // Scene header
   if (y/Game.zoom>=chapterHeaderHeight && y/Game.zoom<totalHeaderHeight) {
     if (hitScene(x,false)) {
-      if (!hitSceneText(x,false)) Game.scenes[Game.moveSceneId].pushmode=!Game.scenes[Game.moveSceneId].pushmode;
-      else { Game.editType=4; Game.editObject=Game.moveSceneId; Game.inputTitle.value=Game.scenes[Game.moveSceneId].text; Game.inputBody.value=Game.scenes[Game.moveSceneId].body; updateEditorBadge("Scene"); updateEditorColor(sceneColor); }
+      Game.scenes[Game.moveSceneId].pushmode=!Game.scenes[Game.moveSceneId].pushmode;
+    } else if (hitSceneBody(x,true)) {
+      Game.editType=4; Game.editObject=Game.moveSceneId; Game.inputTitle.value=Game.scenes[Game.moveSceneId].text; Game.inputBody.value=Game.scenes[Game.moveSceneId].body; updateEditorBadge("Scene"); updateEditorColor(sceneColor);
     } else if (!hitObjectCol(x)&&!hitChapter(x,false)) { Game.scenes.push({loc:x-Game.offset,delete:false,pushmode:false,text:"Scene",body:""}); }
     return;
   }
