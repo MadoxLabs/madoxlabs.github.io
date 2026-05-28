@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+  <meta name="theme-color" content="#0a0014" />
+  <title>Neon Drift: Outrun Protocol</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Game stage -->
+  <div id="stage">
+    <canvas id="game"></canvas>
+    <canvas id="overlay"></canvas>
+
+    <!-- Heads-up display -->
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <div class="bars">
+          <div class="bar"><label>HULL</label><div class="track"><div class="fill hp" id="bar-hp"></div></div></div>
+          <div class="bar"><label>SHLD</label><div class="track"><div class="fill sh" id="bar-sh"></div></div></div>
+          <div class="bar"><label>NRGY</label><div class="track"><div class="fill en" id="bar-en"></div></div></div>
+        </div>
+        <div class="readouts">
+          <div class="readout"><span>SCORE</span><b id="r-score">0</b></div>
+          <div class="readout"><span>DIST</span><b id="r-dist">0 m</b></div>
+          <div class="readout"><span>COMBO</span><b id="r-combo">x1</b></div>
+          <div class="readout"><span>FPS</span><b id="r-fps">--</b></div>
+        </div>
+      </div>
+      <div class="hud-bottom">
+        <div id="weapon-list" class="weapons"></div>
+        <div id="minimap-wrap"><canvas id="minimap" width="140" height="120"></canvas></div>
+      </div>
+      <div id="achievement" class="achievement hidden"></div>
+      <div id="boss-warning" class="boss-warning hidden">
+        <span>!! WARNING !!</span><br /><small>HOSTILE SIGNATURE DETECTED</small>
+      </div>
+    </div>
+
+    <!-- Main menu -->
+    <div id="menu" class="screen">
+      <div class="title">
+        <h1 data-text="NEON DRIFT">NEON DRIFT</h1>
+        <h2>OUTRUN PROTOCOL</h2>
+      </div>
+      <div class="buttons">
+        <button class="btn primary" data-act="start">START RUN</button>
+        <button class="btn" data-act="controls">CONTROLS</button>
+        <button class="btn" data-act="settings">SETTINGS</button>
+        <button class="btn" data-act="fullscreen">FULLSCREEN</button>
+      </div>
+      <div class="hi">HIGH SCORE: <b id="hi-score">0</b></div>
+      <div class="footer">v1.0 // Neon Drift Protocol</div>
+    </div>
+
+    <!-- Controls screen -->
+    <div id="controls" class="screen hidden">
+      <h2>CONTROLS</h2>
+      <div class="controls-grid">
+        <div><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd><span>Move</span></div>
+        <div><kbd>Space</kbd><span>Fire</span></div>
+        <div><kbd>Shift</kbd><span>Boost</span></div>
+        <div><kbd>Q</kbd><span>EMP / Special</span></div>
+        <div><kbd>E</kbd><span>Slow-Mo (when unlocked)</span></div>
+        <div><kbd>P</kbd> / <kbd>Esc</kbd><span>Pause</span></div>
+        <div><kbd>M</kbd><span>Mute</span></div>
+        <div><kbd>F</kbd><span>FPS counter</span></div>
+        <div class="touch">Touch: drag to move, tap right side to fire, two-finger to boost.</div>
+      </div>
+      <button class="btn" data-act="back">BACK</button>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings" class="screen hidden">
+      <h2>SETTINGS</h2>
+      <div class="settings-grid">
+        <label>Master Volume <input type="range" id="vol-master" min="0" max="1" step="0.01" value="0.7" /></label>
+        <label>Music Volume  <input type="range" id="vol-music"  min="0" max="1" step="0.01" value="0.5" /></label>
+        <label>SFX Volume    <input type="range" id="vol-sfx"    min="0" max="1" step="0.01" value="0.8" /></label>
+        <label><input type="checkbox" id="opt-mute" /> Mute</label>
+        <label><input type="checkbox" id="opt-shake" checked /> Screen Shake</label>
+        <label><input type="checkbox" id="opt-scan" checked /> Scanlines</label>
+      </div>
+      <button class="btn" data-act="back">BACK</button>
+    </div>
+
+    <!-- Pause menu -->
+    <div id="pause" class="screen hidden">
+      <h2>PAUSED</h2>
+      <div class="buttons">
+        <button class="btn primary" data-act="resume">RESUME</button>
+        <button class="btn" data-act="settings">SETTINGS</button>
+        <button class="btn" data-act="quit">END RUN</button>
+      </div>
+    </div>
+
+    <!-- Game over -->
+    <div id="gameover" class="screen hidden">
+      <h2>SIGNAL LOST</h2>
+      <div class="stats">
+        <div>SCORE <b id="go-score">0</b></div>
+        <div>DISTANCE <b id="go-dist">0 m</b></div>
+        <div>HIGH SCORE <b id="go-hi">0</b></div>
+        <div id="go-new" class="hidden">NEW RECORD</div>
+      </div>
+      <div class="buttons">
+        <button class="btn primary" data-act="restart">RESTART</button>
+        <button class="btn" data-act="quit">MAIN MENU</button>
+      </div>
+    </div>
+
+    <!-- Upgrade overlay -->
+    <div id="upgrade" class="screen hidden">
+      <h2>UPGRADE PROTOCOL</h2>
+      <p class="sub">SELECT ONE</p>
+      <div class="cards" id="upgrade-cards"></div>
+    </div>
+
+    <!-- Touch controls -->
+    <div id="touch" class="touch-ui hidden">
+      <div class="tstick" id="tstick"><div class="tknob" id="tknob"></div></div>
+      <button class="tbtn" id="tfire">FIRE</button>
+      <button class="tbtn small" id="tboost">BOOST</button>
+    </div>
+
+    <!-- Mute/pause quick buttons -->
+    <div class="quick-buttons">
+      <button class="qbtn" id="qb-pause" title="Pause">II</button>
+      <button class="qbtn" id="qb-mute" title="Mute">♪</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
